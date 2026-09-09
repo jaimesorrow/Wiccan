@@ -15,6 +15,9 @@ captures/
 .firebase/
 functions/node_modules/
 functions/lib/
+functions/.env
+*.tsbuildinfo
+npm-debug.log*
 
 # Java / Kotlin
 *.class
@@ -23,3 +26,13 @@ replay_pid*
 
 # Logs
 *.log
+
+# Android artifacts
+*.apk
+*.aab
+
+# Firebase
+app/google-services.json
+
+# macOS
+.DS_Store

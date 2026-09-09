@@ -1,21 +1,32 @@
 {
-  "name": "functions",
+  "name": "nyxwell-functions",
+  "version": "1.0.0",
   "private": true,
+  "description": "Nyxwell Cloud Functions: server-side daily content selection.",
+  "main": "lib/index.js",
   "engines": {
     "node": "20"
   },
-  "main": "lib/index.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "test": "tsx --test \"src/**/*.test.ts\""
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "test": "jest",
+    "lint": "eslint src --ext .ts",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "deploy": "npm run build && firebase deploy --only functions"
   },
   "dependencies": {
-    "firebase-admin": "^13.0.0",
+    "firebase-admin": "^12.7.0",
     "firebase-functions": "^6.1.0"
   },
   "devDependencies": {
-    "@types/node": "^24.3.0",
-    "tsx": "^4.19.2",
-    "typescript": "^5.8.3"
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.17.9",
+    "@typescript-eslint/eslint-plugin": "^8.18.1",
+    "@typescript-eslint/parser": "^8.18.1",
+    "eslint": "^8.57.1",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.2"
   }
 }
