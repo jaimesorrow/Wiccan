@@ -9,6 +9,7 @@ import com.nyxwell.app.data.remote.ContentFunctionsDataSource
 import com.nyxwell.app.domain.model.Content
 import com.nyxwell.app.domain.repository.ContentRepository
 import java.time.LocalDate
+import java.time.ZoneOffset
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -20,8 +21,8 @@ class ContentRepositoryImpl @Inject constructor(
 
     override suspend fun refreshTodayContent(userId: String): AppResult<Content> {
         return try {
-            val content = functionsDataSource.getTodayContent(userId).toContent()
-            dao.replace(content.toCachedEntity(deliveredDate = LocalDate.now().toString()))
+            val content = functionsDataSource.getTodayContent().toContent()
+            dao.replace(content.toCachedEntity(deliveredDate = LocalDate.now(ZoneOffset.UTC).toString()))
             AppResult.Success(content)
         } catch (t: Throwable) {
             AppResult.Error(t)

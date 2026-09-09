@@ -2,6 +2,7 @@ package com.nyxwell.app.data.local
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
@@ -21,6 +22,7 @@ interface CachedDailyContentDao {
     suspend fun clear()
 
     /** Replaces the single cached row atomically. */
+    @Transaction
     suspend fun replace(entity: CachedDailyContentEntity) {
         clear()
         upsert(entity)

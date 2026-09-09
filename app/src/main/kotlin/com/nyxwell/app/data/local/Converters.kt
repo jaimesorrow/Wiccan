@@ -13,6 +13,6 @@ class Converters {
 
     private companion object {
         // Unit separator control char (); won't appear in authored tag/material text.
-        const val LIST_SEPARATOR = ""
+        const val LIST_SEPARATOR = "\u001F"
     }
 }

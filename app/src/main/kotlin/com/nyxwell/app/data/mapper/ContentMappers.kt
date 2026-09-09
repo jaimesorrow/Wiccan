@@ -10,8 +10,8 @@ import com.nyxwell.app.domain.model.ContentType
 @Suppress("UNCHECKED_CAST")
 fun Map<String, Any?>.toContent(): Content = Content(
     id = this["id"] as? String ?: error("Missing 'id' in content payload"),
-    type = ContentType.valueOf((this["type"] as String).uppercase()),
-    tier = ContentTier.valueOf((this["tier"] as String).uppercase()),
+    type = ContentType.valueOf((this["type"] as? String ?: error("Missing 'type' in content payload")).uppercase()),
+    tier = ContentTier.valueOf((this["tier"] as? String ?: error("Missing 'tier' in content payload")).uppercase()),
     tradition = (this["tradition"] as? String).orEmpty(),
     title = (this["title"] as? String).orEmpty(),
     intro = (this["intro"] as? String).orEmpty(),

@@ -45,7 +45,7 @@ class ContentRepositoryImplTest {
 
     @Test
     fun `refreshTodayContent maps payload, caches it, and returns success`() = runTest {
-        coEvery { functionsDataSource.getTodayContent(userId) } returns payload
+        coEvery { functionsDataSource.getTodayContent() } returns payload
 
         val result = repository.refreshTodayContent(userId)
 
@@ -66,7 +66,7 @@ class ContentRepositoryImplTest {
     @Test
     fun `refreshTodayContent surfaces failures without touching the cache`() = runTest {
         val failure = IllegalStateException("Cloud Function unavailable")
-        coEvery { functionsDataSource.getTodayContent(userId) } throws failure
+        coEvery { functionsDataSource.getTodayContent() } throws failure
 
         val result = repository.refreshTodayContent(userId)
 
