@@ -1,1 +1,1 @@
-# Add project specific ProGuard rules here.
+# Intentionally empty for foundation setup.
