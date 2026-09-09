@@ -1,0 +1,19 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Daily selection must run server-side (Cloud Function) so users can't
+    // reset or game their delivery history. Clients get read-only access
+    // to published content and to their own history rows; all writes go
+    // through the Admin SDK inside getTodayContent.
+    match /content/{contentId} {
+      allow read: if resource.data.status == 'published';
+      allow write: if false;
+    }
+
+    match /userContentHistory/{historyId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+  }
+}
