@@ -2,6 +2,7 @@ import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
+import { auth as authV1 } from "firebase-functions/v1";
 import * as logger from "firebase-functions/logger";
 import { selectTodayContent } from "./getTodayContent";
 import { FirestoreContentRepository } from "./firestoreContentRepository";
@@ -20,6 +21,8 @@ import { FirestoreNotificationUserRepository } from "./firestoreNotificationUser
 import { FirebaseFcmSender } from "./firebaseFcmSender";
 import { sendDailyNotifications } from "./sendDailyNotifications";
 import { getMessaging } from "firebase-admin/messaging";
+import { FirestoreUserProfileRepository } from "./firestoreUserProfileRepository";
+import { createUserProfileOnSignUp } from "./createUserProfile";
 
 initializeApp();
 
@@ -209,4 +212,15 @@ export const sendDailyNotificationsJob = onSchedule("every day 09:00", async () 
   const fcm = new FirebaseFcmSender(getMessaging());
   const summary = await sendDailyNotifications(todayIsoDate(), users, repo, fcm);
   logger.info("sendDailyNotifications complete", summary);
+});
+
+/**
+ * 1st-gen Auth trigger: creates users/{uid} the moment a new Firebase Auth
+ * account exists, so the client never creates its own profile document.
+ * 1st-gen triggers coexist fine with the 2nd-gen callables/scheduled
+ * functions used everywhere else in this codebase.
+ */
+export const onUserCreated = authV1.user().onCreate(async (user) => {
+  const repo = new FirestoreUserProfileRepository(getFirestore());
+  await createUserProfileOnSignUp(user.uid, repo);
 });

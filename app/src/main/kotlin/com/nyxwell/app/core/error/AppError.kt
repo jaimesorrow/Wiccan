@@ -11,4 +11,7 @@ sealed class AppError {
 
     /** Any refresh failure surfaced from the repository. */
     data class Refresh(val cause: Throwable) : AppError()
+
+    /** Any sign-in, account-creation, or password-reset failure. */
+    data class Auth(val cause: Throwable) : AppError()
 }
