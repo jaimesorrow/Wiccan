@@ -5,7 +5,9 @@ import android.util.Log
 import com.android.billingclient.api.Purchase
 import com.nyxwell.app.billing.NyxwellBillingClient
 import com.nyxwell.app.billing.PREMIUM_MONTHLY_PRODUCT_ID
+import com.nyxwell.app.billing.formattedPrice
 import com.nyxwell.app.core.auth.CurrentUserProvider
+import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.data.remote.SubscriptionFunctionsDataSource
 import com.nyxwell.app.data.remote.UserTierDataSource
 import com.nyxwell.app.domain.model.ContentTier
@@ -56,6 +58,21 @@ class SubscriptionRepositoryImpl @Inject constructor(
     override fun observeTier(): Flow<ContentTier> {
         val userId = currentUserProvider.currentUserId ?: return flowOf(ContentTier.FREE)
         return userTierDataSource.observeTier(userId)
+    }
+
+    override suspend fun getFormattedPrice(): AppResult<String> = try {
+        val price = billingClient.queryProductDetails(PREMIUM_MONTHLY_PRODUCT_ID).formattedPrice()
+            ?: error("No price available for '$PREMIUM_MONTHLY_PRODUCT_ID'.")
+        AppResult.Success(price)
+    } catch (t: Throwable) {
+        AppResult.Error(t)
+    }
+
+    override suspend fun restorePurchases(): AppResult<Unit> = try {
+        billingClient.queryOwnedSubscriptions().forEach { purchase -> handlePurchase(purchase) }
+        AppResult.Success(Unit)
+    } catch (t: Throwable) {
+        AppResult.Error(t)
     }
 
     private suspend fun handlePurchase(purchase: Purchase) {

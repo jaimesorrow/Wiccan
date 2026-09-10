@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.domain.repository.AuthRepository
+import com.nyxwell.app.domain.repository.SubscriptionRepository
 import com.nyxwell.app.domain.usecase.DeleteAccountUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 class SettingsViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val deleteAccountUseCase: DeleteAccountUseCase,
+    private val subscriptionRepository: SubscriptionRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsUiState())
@@ -28,6 +30,14 @@ class SettingsViewModel @Inject constructor(
 
     private val effectChannel = Channel<SettingsUiEffect>(Channel.BUFFERED)
     val effects: Flow<SettingsUiEffect> = effectChannel.receiveAsFlow()
+
+    init {
+        viewModelScope.launch {
+            subscriptionRepository.observeTier().collect { tier ->
+                _state.update { it.copy(tier = tier) }
+            }
+        }
+    }
 
     fun onEvent(event: SettingsUiEvent) {
         when (event) {

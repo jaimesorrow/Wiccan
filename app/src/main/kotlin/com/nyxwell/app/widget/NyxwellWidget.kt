@@ -1,6 +1,7 @@
 package com.nyxwell.app.widget
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -8,6 +9,7 @@ import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.action.actionStartActivity as actionStartActivityIntent
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -43,19 +45,27 @@ class NyxwellWidget : GlanceAppWidget() {
         val content = entryPoint.contentRepository().observeTodayContent().first()
 
         provideContent {
-            WidgetContent(tier = tier, content = content)
+            WidgetContent(context = context, tier = tier, content = content)
         }
     }
 }
 
 @Composable
-private fun WidgetContent(tier: ContentTier, content: Content?) {
+private fun WidgetContent(context: Context, tier: ContentTier, content: Content?) {
+    val clickAction = if (tier != ContentTier.PREMIUM) {
+        val intent = Intent(context, MainActivity::class.java)
+            .putExtra(MainActivity.EXTRA_OPEN_PAYWALL, true)
+        actionStartActivityIntent(intent)
+    } else {
+        actionStartActivity<MainActivity>()
+    }
+
     Column(
         modifier = GlanceModifier
             .fillMaxSize()
             .background(ColorProvider(NyxwellColors.Background))
             .padding(16.dp)
-            .clickable(actionStartActivity<MainActivity>()),
+            .clickable(clickAction),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         when {
