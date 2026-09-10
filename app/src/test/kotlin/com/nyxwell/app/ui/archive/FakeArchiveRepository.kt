@@ -1,5 +1,6 @@
 package com.nyxwell.app.ui.archive
 
+import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.domain.model.Content
 import com.nyxwell.app.domain.model.HistoryEntry
@@ -18,7 +19,7 @@ class FakeArchiveRepository : ArchiveRepository {
     override fun observeHistory(): Flow<List<HistoryEntry>> = historyFlow
 
     override suspend fun getContentById(contentId: String): AppResult<Content> =
-        contentResults[contentId] ?: AppResult.Error(IllegalStateException("No fake result for '$contentId'"))
+        contentResults[contentId] ?: AppResult.Failure(AppError.Unknown("No fake result for '$contentId'"))
 
     fun emitHistory(entries: List<HistoryEntry>) {
         historyFlow.tryEmit(entries)

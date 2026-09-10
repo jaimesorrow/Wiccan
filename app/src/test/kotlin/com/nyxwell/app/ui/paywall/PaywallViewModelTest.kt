@@ -47,16 +47,14 @@ class PaywallViewModelTest {
     }
 
     @Test
-    fun `a failed price load emits a snackbar and leaves price unset`() = runTest(dispatcher) {
-        val cause = IllegalStateException("no network")
-        repository.priceResult = AppResult.Error(cause)
+    fun `a failed price load forwards the repository's error and leaves price unset`() = runTest(dispatcher) {
+        repository.priceResult = AppResult.Failure(AppError.Network)
 
         val viewModel = PaywallViewModel(repository)
         viewModel.effects.test {
             val effect = awaitItem()
             assertTrue(effect is PaywallUiEffect.ShowSnackbar)
-            val error = (effect as PaywallUiEffect.ShowSnackbar).error
-            assertTrue(error is AppError.LoadFailed)
+            assertEquals(AppError.Network, (effect as PaywallUiEffect.ShowSnackbar).error)
             cancelAndConsumeRemainingEvents()
         }
         assertEquals(null, viewModel.state.value.price)
@@ -88,9 +86,8 @@ class PaywallViewModelTest {
     }
 
     @Test
-    fun `a failed restore emits a snackbar`() = runTest(dispatcher) {
-        val cause = IllegalStateException("play unavailable")
-        repository.restoreResult = AppResult.Error(cause)
+    fun `a failed restore forwards the repository's error`() = runTest(dispatcher) {
+        repository.restoreResult = AppResult.Failure(AppError.PurchaseVerificationFailed("play unavailable"))
         val viewModel = PaywallViewModel(repository)
         dispatcher.scheduler.advanceUntilIdle()
 
@@ -98,9 +95,10 @@ class PaywallViewModelTest {
             viewModel.onEvent(PaywallUiEvent.RestorePurchasesClicked)
             val effect = awaitItem()
             assertTrue(effect is PaywallUiEffect.ShowSnackbar)
-            val error = (effect as PaywallUiEffect.ShowSnackbar).error
-            assertTrue(error is AppError.LoadFailed)
-            assertEquals(cause, (error as AppError.LoadFailed).cause)
+            assertEquals(
+                AppError.PurchaseVerificationFailed("play unavailable"),
+                (effect as PaywallUiEffect.ShowSnackbar).error,
+            )
             cancelAndConsumeRemainingEvents()
         }
         assertFalse(viewModel.state.value.isRestoring)

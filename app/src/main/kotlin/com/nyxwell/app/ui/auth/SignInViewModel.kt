@@ -3,7 +3,6 @@ package com.nyxwell.app.ui.auth
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -65,15 +64,15 @@ class SignInViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = authRepository.sendPasswordReset(email)) {
                 is AppResult.Success -> effectChannel.send(SignInUiEffect.PasswordResetEmailSent)
-                is AppResult.Error -> effectChannel.send(SignInUiEffect.ShowSnackbar(AppError.Auth(result.throwable)))
+                is AppResult.Failure -> effectChannel.send(SignInUiEffect.ShowSnackbar(result.error))
             }
         }
     }
 
     private suspend fun handleAuthResult(result: AppResult<Unit>) {
         _state.update { it.copy(isLoading = false) }
-        if (result is AppResult.Error) {
-            effectChannel.send(SignInUiEffect.ShowSnackbar(AppError.Auth(result.throwable)))
+        if (result is AppResult.Failure) {
+            effectChannel.send(SignInUiEffect.ShowSnackbar(result.error))
         }
         // On success, observeAuthState() (collected at the app root) transitions
         // the UI away from this screen — no local state change needed here.

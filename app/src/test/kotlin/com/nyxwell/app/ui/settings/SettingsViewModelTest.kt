@@ -79,18 +79,15 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun `a failed deletion emits a DeleteAccountFailed snackbar and does not sign out`() = runTest(dispatcher) {
-        val cause = IllegalStateException("network error")
-        repository.deleteAccountResult = AppResult.Error(cause)
+    fun `a failed deletion forwards the repository's error and does not sign out`() = runTest(dispatcher) {
+        repository.deleteAccountResult = AppResult.Failure(AppError.Network)
 
         viewModel.onEvent(SettingsUiEvent.DeleteAccountClicked)
         viewModel.effects.test {
             viewModel.onEvent(SettingsUiEvent.ConfirmDeleteAccount)
             val effect = awaitItem()
             assertTrue(effect is SettingsUiEffect.ShowSnackbar)
-            val error = (effect as SettingsUiEffect.ShowSnackbar).error
-            assertTrue(error is AppError.DeleteAccountFailed)
-            assertEquals(cause, (error as AppError.DeleteAccountFailed).cause)
+            assertEquals(AppError.Network, (effect as SettingsUiEffect.ShowSnackbar).error)
             cancelAndConsumeRemainingEvents()
         }
 

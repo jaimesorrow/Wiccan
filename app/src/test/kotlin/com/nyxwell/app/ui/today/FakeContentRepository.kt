@@ -1,5 +1,6 @@
 package com.nyxwell.app.ui.today
 
+import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.domain.model.Content
 import com.nyxwell.app.domain.repository.ContentRepository
@@ -15,7 +16,7 @@ class FakeContentRepository : ContentRepository {
 
     private val cache = MutableStateFlow<Content?>(null)
 
-    var nextResult: AppResult<Content> = AppResult.Error(IllegalStateException("Not configured"))
+    var nextResult: AppResult<Content> = AppResult.Failure(AppError.Unknown("Not configured"))
     var refreshCalls: MutableList<String> = mutableListOf()
 
     override suspend fun refreshTodayContent(userId: String): AppResult<Content> {

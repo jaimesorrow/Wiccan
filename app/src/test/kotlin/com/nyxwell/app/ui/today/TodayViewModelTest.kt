@@ -77,17 +77,14 @@ class TodayViewModelTest {
     }
 
     @Test
-    fun `refresh failure emits a Refresh snackbar without touching content state`() = runTest(dispatcher) {
-        val cause = IllegalStateException("boom")
-        repository.nextResult = AppResult.Error(cause)
+    fun `refresh failure forwards the repository's error without touching content state`() = runTest(dispatcher) {
+        repository.nextResult = AppResult.Failure(AppError.Network)
         val viewModel = TodayViewModel(repository, currentUser("user-1"))
 
         viewModel.effects.test {
             val effect = awaitItem()
             assertTrue(effect is TodayUiEffect.ShowSnackbar)
-            val error = (effect as TodayUiEffect.ShowSnackbar).error
-            assertTrue(error is AppError.Refresh)
-            assertEquals(cause, (error as AppError.Refresh).cause)
+            assertEquals(AppError.Network, (effect as TodayUiEffect.ShowSnackbar).error)
             cancelAndConsumeRemainingEvents()
         }
 
@@ -98,7 +95,7 @@ class TodayViewModelTest {
 
     @Test
     fun `Retry event triggers another refresh`() = runTest(dispatcher) {
-        repository.nextResult = AppResult.Error(IllegalStateException("first"))
+        repository.nextResult = AppResult.Failure(AppError.Unknown("first"))
         val viewModel = TodayViewModel(repository, currentUser("user-1"))
         dispatcher.scheduler.advanceUntilIdle()
         assertEquals(1, repository.refreshCalls.size)
@@ -113,12 +110,12 @@ class TodayViewModelTest {
     }
 
     @Test
-    fun `missing uid emits NoUser snackbar and never touches the repository`() = runTest(dispatcher) {
+    fun `missing uid emits an Unauthorized snackbar and never touches the repository`() = runTest(dispatcher) {
         val viewModel = TodayViewModel(repository, currentUser(null))
 
         viewModel.effects.test {
             val effect = awaitItem()
-            assertEquals(TodayUiEffect.ShowSnackbar(AppError.NoUser), effect)
+            assertEquals(TodayUiEffect.ShowSnackbar(AppError.Unauthorized), effect)
             cancelAndConsumeRemainingEvents()
         }
 

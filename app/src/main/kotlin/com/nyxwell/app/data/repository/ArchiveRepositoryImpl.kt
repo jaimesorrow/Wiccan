@@ -1,9 +1,12 @@
 package com.nyxwell.app.data.repository
 
+import com.nyxwell.app.core.error.AppError
+import com.nyxwell.app.core.error.toAppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.data.mapper.toContent
 import com.nyxwell.app.data.mapper.toHistoryEntry
 import com.nyxwell.app.data.remote.ArchiveFirestoreDataSource
+import com.nyxwell.app.data.remote.ContentNotFoundException
 import com.nyxwell.app.domain.model.Content
 import com.nyxwell.app.domain.model.HistoryEntry
 import com.nyxwell.app.domain.repository.ArchiveRepository
@@ -20,7 +23,9 @@ class ArchiveRepositoryImpl @Inject constructor(
 
     override suspend fun getContentById(contentId: String): AppResult<Content> = try {
         AppResult.Success(dataSource.getContentById(contentId).toContent())
+    } catch (t: ContentNotFoundException) {
+        AppResult.Failure(AppError.NotFound)
     } catch (t: Throwable) {
-        AppResult.Error(t)
+        AppResult.Failure(t.toAppError())
     }
 }

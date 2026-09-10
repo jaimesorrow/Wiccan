@@ -1,5 +1,6 @@
 package com.nyxwell.app.data.repository
 
+import com.nyxwell.app.core.error.toAppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.data.remote.FcmTokenProvider
 import com.nyxwell.app.data.remote.NotificationFunctionsDataSource
@@ -15,7 +16,7 @@ class NotificationRepositoryImpl @Inject constructor(
         functionsDataSource.registerToken(token)
         AppResult.Success(Unit)
     } catch (t: Throwable) {
-        AppResult.Error(t)
+        AppResult.Failure(t.toAppError())
     }
 
     override suspend fun refreshAndRegisterToken(): AppResult<Unit> = try {
@@ -23,6 +24,6 @@ class NotificationRepositoryImpl @Inject constructor(
         functionsDataSource.registerToken(token)
         AppResult.Success(Unit)
     } catch (t: Throwable) {
-        AppResult.Error(t)
+        AppResult.Failure(t.toAppError())
     }
 }

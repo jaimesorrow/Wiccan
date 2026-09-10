@@ -105,17 +105,14 @@ class ArchiveViewModelTest {
     }
 
     @Test
-    fun `a failed detail fetch emits a LoadFailed snackbar and leaves content unset`() = runTest(dispatcher) {
-        val cause = IllegalStateException("not found")
-        repository.contentResults["missing"] = AppResult.Error(cause)
+    fun `a failed detail fetch forwards the repository's error and leaves content unset`() = runTest(dispatcher) {
+        repository.contentResults["missing"] = AppResult.Failure(AppError.NotFound)
 
         viewModel.effects.test {
             viewModel.onEvent(ArchiveUiEvent.EntryClicked("missing"))
             val effect = awaitItem()
             assertTrue(effect is ArchiveUiEffect.ShowSnackbar)
-            val error = (effect as ArchiveUiEffect.ShowSnackbar).error
-            assertTrue(error is AppError.LoadFailed)
-            assertEquals(cause, (error as AppError.LoadFailed).cause)
+            assertEquals(AppError.NotFound, (effect as ArchiveUiEffect.ShowSnackbar).error)
             cancelAndConsumeRemainingEvents()
         }
         assertNull(viewModel.state.value.selectedContent)

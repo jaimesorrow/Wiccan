@@ -3,7 +3,6 @@ package com.nyxwell.app.ui.paywall
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.domain.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,9 +47,9 @@ class PaywallViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = subscriptionRepository.getFormattedPrice()) {
                 is AppResult.Success -> _state.update { it.copy(isLoadingPrice = false, price = result.data) }
-                is AppResult.Error -> {
+                is AppResult.Failure -> {
                     _state.update { it.copy(isLoadingPrice = false) }
-                    effectChannel.send(PaywallUiEffect.ShowSnackbar(AppError.LoadFailed(result.throwable)))
+                    effectChannel.send(PaywallUiEffect.ShowSnackbar(result.error))
                 }
             }
         }
@@ -64,9 +63,9 @@ class PaywallViewModel @Inject constructor(
                     _state.update { it.copy(isRestoring = false) }
                     effectChannel.send(PaywallUiEffect.PurchasesRestored)
                 }
-                is AppResult.Error -> {
+                is AppResult.Failure -> {
                     _state.update { it.copy(isRestoring = false) }
-                    effectChannel.send(PaywallUiEffect.ShowSnackbar(AppError.LoadFailed(result.throwable)))
+                    effectChannel.send(PaywallUiEffect.ShowSnackbar(result.error))
                 }
             }
         }
