@@ -5,10 +5,9 @@ import androidx.work.Configuration
 import javax.inject.Inject
 
 /**
- * Lets WorkManager create [DailyContentSyncWorker] with its Hilt-injected
- * dependencies. Exposed via [workManagerConfiguration] and wired by
- * [com.nyxwell.app.NyxwellApplication], which implements
- * [androidx.work.Configuration.Provider].
+ * Lets WorkManager create [DailyContentWorker] with its Hilt-injected
+ * dependencies. Wired into [androidx.work.Configuration.Provider] on
+ * [com.nyxwell.app.NyxwellApplication] via [workManagerConfiguration].
  */
 class NyxwellWorkerFactory @Inject constructor(
     private val hiltWorkerFactory: HiltWorkerFactory,

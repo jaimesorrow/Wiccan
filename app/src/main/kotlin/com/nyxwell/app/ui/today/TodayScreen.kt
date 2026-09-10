@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nyxwell.app.core.error.AppError
+import com.nyxwell.app.core.error.toUserMessage
 import com.nyxwell.app.domain.model.Content
 import com.nyxwell.app.ui.today.components.ContentTypePill
 import com.nyxwell.app.ui.today.components.CrescentGlyph
@@ -166,9 +167,4 @@ private fun LoadedContent(content: Content) {
 
         Spacer(modifier = Modifier.height(16.dp))
     }
-}
-
-private fun AppError.toUserMessage(): String = when (this) {
-    AppError.NoUser -> "Sign in to see today's content."
-    is AppError.Refresh -> "Couldn't fetch today's content. Please try again."
 }

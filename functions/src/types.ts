@@ -15,6 +15,8 @@ export interface Content {
   safetyNote?: string | null;
   tags: string[];
   status: ContentStatus;
+  /** Provenance: the sources.json entry this piece was generated from. Only set on generated drafts. */
+  sourceId?: string;
 }
 
 /** Mirrors the Firestore `userContentHistory` collection. */

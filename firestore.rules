@@ -15,5 +15,13 @@ service cloud.firestore {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow write: if false;
     }
+
+    // tier is set only by the verifyPurchase and daily lapse-recheck Cloud
+    // Functions (Admin SDK) — the client's own billing state is never
+    // trusted, so it only ever reads its own doc to sync the UI.
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
   }
 }
