@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -40,6 +41,12 @@ android {
 
     buildFeatures {
         compose = true
+    }
+
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+        }
     }
 
     sourceSets["main"].kotlin.srcDirs("src/main/kotlin")
@@ -89,6 +96,8 @@ dependencies {
     implementation(libs.firebase.functions.ktx)
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.messaging.ktx)
+    implementation(libs.firebase.crashlytics.ktx)
+    implementation(libs.firebase.analytics.ktx)
 
     implementation(libs.androidx.work.runtime.ktx)
     coreLibraryDesugaring(libs.desugar.jdk.libs)

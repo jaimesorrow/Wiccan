@@ -1,5 +1,6 @@
 package com.nyxwell.app.data.remote
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.functions.FirebaseFunctions
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -12,16 +13,22 @@ import javax.inject.Inject
  */
 class ContentFunctionsDataSource @Inject constructor(
     private val functions: FirebaseFunctions,
+    private val crashlytics: FirebaseCrashlytics,
 ) {
     suspend fun getTodayContent(): Map<String, Any?> {
-        val result = functions
-            .getHttpsCallable(FUNCTION_NAME)
-            .call()
-            .await()
+        try {
+            val result = functions
+                .getHttpsCallable(FUNCTION_NAME)
+                .call()
+                .await()
 
-        @Suppress("UNCHECKED_CAST")
-        return result.getData() as? Map<String, Any?>
-            ?: error("Unexpected response shape from Cloud Function '$FUNCTION_NAME'")
+            @Suppress("UNCHECKED_CAST")
+            return result.getData() as? Map<String, Any?>
+                ?: error("Unexpected response shape from Cloud Function '$FUNCTION_NAME'")
+        } catch (t: Throwable) {
+            crashlytics.recordException(t)
+            throw t
+        }
     }
 
     private companion object {

@@ -1,5 +1,6 @@
 package com.nyxwell.app.data.remote
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.functions.FirebaseFunctions
 import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
@@ -11,11 +12,17 @@ import kotlinx.coroutines.tasks.await
  */
 class SubscriptionFunctionsDataSource @Inject constructor(
     private val functions: FirebaseFunctions,
+    private val crashlytics: FirebaseCrashlytics,
 ) {
     suspend fun verifyPurchase(purchaseToken: String, productId: String) {
-        functions.getHttpsCallable(FUNCTION_NAME)
-            .call(mapOf("purchaseToken" to purchaseToken, "productId" to productId))
-            .await()
+        try {
+            functions.getHttpsCallable(FUNCTION_NAME)
+                .call(mapOf("purchaseToken" to purchaseToken, "productId" to productId))
+                .await()
+        } catch (t: Throwable) {
+            crashlytics.recordException(t)
+            throw t
+        }
     }
 
     private companion object {

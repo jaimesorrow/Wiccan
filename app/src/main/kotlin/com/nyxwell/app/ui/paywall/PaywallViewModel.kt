@@ -3,6 +3,7 @@ package com.nyxwell.app.ui.paywall
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nyxwell.app.analytics.AnalyticsLogger
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.domain.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class PaywallViewModel @Inject constructor(
     private val subscriptionRepository: SubscriptionRepository,
+    private val analyticsLogger: AnalyticsLogger,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(PaywallUiState())
@@ -28,6 +30,7 @@ class PaywallViewModel @Inject constructor(
     val effects: Flow<PaywallUiEffect> = effectChannel.receiveAsFlow()
 
     init {
+        analyticsLogger.logPaywallViewed()
         loadPrice()
     }
 

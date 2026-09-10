@@ -1,12 +1,14 @@
 package com.nyxwell.app.ui.settings
 
 import app.cash.turbine.test
+import com.nyxwell.app.analytics.AnalyticsLogger
 import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.domain.model.ContentTier
 import com.nyxwell.app.domain.usecase.DeleteAccountUseCase
 import com.nyxwell.app.ui.auth.FakeAuthRepository
 import com.nyxwell.app.ui.paywall.FakeSubscriptionRepository
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -33,7 +35,8 @@ class SettingsViewModelTest {
         Dispatchers.setMain(dispatcher)
         repository = FakeAuthRepository()
         subscriptionRepository = FakeSubscriptionRepository()
-        viewModel = SettingsViewModel(repository, DeleteAccountUseCase(repository), subscriptionRepository)
+        val analyticsLogger: AnalyticsLogger = mockk(relaxed = true)
+        viewModel = SettingsViewModel(repository, DeleteAccountUseCase(repository, analyticsLogger), subscriptionRepository)
     }
 
     @After
