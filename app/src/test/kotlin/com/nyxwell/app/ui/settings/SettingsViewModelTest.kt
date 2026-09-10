@@ -3,8 +3,10 @@ package com.nyxwell.app.ui.settings
 import app.cash.turbine.test
 import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
+import com.nyxwell.app.domain.model.ContentTier
 import com.nyxwell.app.domain.usecase.DeleteAccountUseCase
 import com.nyxwell.app.ui.auth.FakeAuthRepository
+import com.nyxwell.app.ui.paywall.FakeSubscriptionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -23,13 +25,15 @@ class SettingsViewModelTest {
 
     private val dispatcher = StandardTestDispatcher()
     private lateinit var repository: FakeAuthRepository
+    private lateinit var subscriptionRepository: FakeSubscriptionRepository
     private lateinit var viewModel: SettingsViewModel
 
     @Before
     fun setUp() {
         Dispatchers.setMain(dispatcher)
         repository = FakeAuthRepository()
-        viewModel = SettingsViewModel(repository, DeleteAccountUseCase(repository))
+        subscriptionRepository = FakeSubscriptionRepository()
+        viewModel = SettingsViewModel(repository, DeleteAccountUseCase(repository), subscriptionRepository)
     }
 
     @After
@@ -92,5 +96,15 @@ class SettingsViewModelTest {
 
         assertEquals(0, repository.signOutCallCount)
         assertFalse(viewModel.state.value.isDeleting)
+    }
+
+    @Test
+    fun `tier reflects the subscription repository's observeTier stream`() = runTest(dispatcher) {
+        assertEquals(ContentTier.FREE, viewModel.state.value.tier)
+
+        subscriptionRepository.emitTier(ContentTier.PREMIUM)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(ContentTier.PREMIUM, viewModel.state.value.tier)
     }
 }

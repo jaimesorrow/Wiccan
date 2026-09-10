@@ -1,6 +1,7 @@
 package com.nyxwell.app.domain.repository
 
 import android.app.Activity
+import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.domain.model.ContentTier
 import kotlinx.coroutines.flow.Flow
 
@@ -20,4 +21,14 @@ interface SubscriptionRepository {
      * state is never trusted as the source of truth.
      */
     fun observeTier(): Flow<ContentTier>
+
+    /** The subscription's current localized recurring price, for paywall display. */
+    suspend fun getFormattedPrice(): AppResult<String>
+
+    /**
+     * Re-queries Play for subscriptions the signed-in Google account already
+     * owns and re-verifies each through the server, for a user who
+     * reinstalled or switched devices without a fresh purchase event.
+     */
+    suspend fun restorePurchases(): AppResult<Unit>
 }

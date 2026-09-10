@@ -7,6 +7,7 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.PurchasesUpdatedListener
@@ -70,8 +71,8 @@ class NyxwellBillingClient @Inject constructor(
         }
     }
 
-    /** Queries product details and launches the Play purchase UI for [productId]. */
-    suspend fun launchPurchaseFlow(activity: Activity, productId: String = PREMIUM_MONTHLY_PRODUCT_ID) {
+    /** Queries Play for the current, localized [ProductDetails] for [productId]. */
+    suspend fun queryProductDetails(productId: String = PREMIUM_MONTHLY_PRODUCT_ID): ProductDetails {
         ensureConnected()
 
         val queryParams = QueryProductDetailsParams.newBuilder()
@@ -85,9 +86,13 @@ class NyxwellBillingClient @Inject constructor(
             )
             .build()
 
-        val result = client.queryProductDetails(queryParams)
-        val productDetails = result.productDetailsList?.firstOrNull()
+        return client.queryProductDetails(queryParams).productDetailsList?.firstOrNull()
             ?: error("Product '$productId' is not available from Play.")
+    }
+
+    /** Queries product details and launches the Play purchase UI for [productId]. */
+    suspend fun launchPurchaseFlow(activity: Activity, productId: String = PREMIUM_MONTHLY_PRODUCT_ID) {
+        val productDetails = queryProductDetails(productId)
         val offerToken = productDetails.subscriptionOfferDetails?.firstOrNull()?.offerToken
             ?: error("No subscription offer available for '$productId'.")
 
@@ -127,3 +132,7 @@ class NyxwellBillingClient @Inject constructor(
         client.acknowledgePurchase(params)
     }
 }
+
+/** The subscription's localized recurring price, e.g. "$4.99/mo". */
+fun ProductDetails.formattedPrice(): String? =
+    subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice

@@ -30,16 +30,22 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nyxwell.app.billing.PREMIUM_MONTHLY_PRODUCT_ID
 import com.nyxwell.app.core.error.toUserMessage
+import com.nyxwell.app.domain.model.ContentTier
 
 private const val ANDROID_PACKAGE_NAME = "com.nyxwell.app"
 
 /**
- * Account settings: sign out, manage the subscription (deep link to Play),
- * and delete the account. No notification-time preferences or other
- * settings live here — those belong to later sessions.
+ * Account settings: sign out, manage the subscription (deep link to Play
+ * for premium, or an entry to the Paywall for free), and delete the
+ * account. No notification-time preferences or other settings live here —
+ * those belong to later sessions.
  */
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier, viewModel: SettingsViewModel = hiltViewModel()) {
+fun SettingsScreen(
+    modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel = hiltViewModel(),
+    onGoPremiumClick: () -> Unit = {},
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -95,10 +101,16 @@ fun SettingsScreen(modifier: Modifier = Modifier, viewModel: SettingsViewModel =
 
             Spacer(modifier = Modifier.height(12.dp))
             OutlinedButton(
-                onClick = { context.startActivity(manageSubscriptionIntent()) },
+                onClick = {
+                    if (state.tier == ContentTier.PREMIUM) {
+                        context.startActivity(manageSubscriptionIntent())
+                    } else {
+                        onGoPremiumClick()
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Manage Subscription")
+                Text(if (state.tier == ContentTier.PREMIUM) "Manage Subscription" else "Go Premium")
             }
 
             Spacer(modifier = Modifier.height(12.dp))
