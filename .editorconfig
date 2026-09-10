@@ -1,0 +1,20 @@
+root = true
+
+[*.{kt,kts}]
+indent_size = 4
+indent_style = space
+max_line_length = 140
+ktlint_code_style = android_studio
+# Trailing commas are used inconsistently but harmlessly throughout the
+# existing codebase (data class constructors mostly have them, Compose
+# modifier chains mostly don't) - enforcing either direction would force a
+# large, purely cosmetic reformat, so leave the choice to the author.
+ktlint_standard_trailing-comma-on-call-site = disabled
+ktlint_standard_trailing-comma-on-declaration-site = disabled
+# Composable functions are conventionally PascalCase, matching their use as
+# call-site "widgets" rather than functions.
+ktlint_function_naming_ignore_when_annotated_with = Composable
+# The codebase consistently puts a single-expression function's body on its
+# own line when the right-hand side is a chained/qualified call, even where
+# it would technically fit on one line - a readability choice, not a bug.
+ktlint_standard_function-signature = disabled

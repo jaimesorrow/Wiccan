@@ -15,6 +15,7 @@ coroutines = "1.9.0"
 firebaseBom = "33.7.0"
 googleServices = "4.4.2"
 firebaseCrashlyticsPlugin = "3.0.2"
+ktlint = "12.1.1"
 workManager = "2.10.0"
 desugarJdkLibs = "2.1.4"
 billing = "7.1.1"
@@ -86,3 +87,4 @@ kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }

@@ -2,8 +2,8 @@ package com.nyxwell.app.data.remote
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.functions.FirebaseFunctions
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import kotlinx.coroutines.tasks.await
 
 /**
  * Thin wrapper around the `getTodayContent` Cloud Function. The daily

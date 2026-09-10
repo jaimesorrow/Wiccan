@@ -42,7 +42,7 @@ class TodayViewModelTest {
         materials = listOf("white candle", "matches"),
         safetyNote = null,
         tags = listOf("focus"),
-        status = ContentStatus.PUBLISHED,
+        status = ContentStatus.PUBLISHED
     )
 
     @Before
