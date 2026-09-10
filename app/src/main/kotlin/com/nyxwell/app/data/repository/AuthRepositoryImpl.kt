@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.nyxwell.app.R
 import com.nyxwell.app.core.result.AppResult
+import com.nyxwell.app.data.remote.AccountFunctionsDataSource
 import com.nyxwell.app.data.remote.GoogleCredentialDataSource
 import com.nyxwell.app.domain.model.AuthState
 import com.nyxwell.app.domain.repository.AuthRepository
@@ -17,6 +18,7 @@ import kotlinx.coroutines.tasks.await
 class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val googleCredentialDataSource: GoogleCredentialDataSource,
+    private val accountFunctionsDataSource: AccountFunctionsDataSource,
 ) : AuthRepository {
 
     override fun observeAuthState(): Flow<AuthState> = callbackFlow {
@@ -61,6 +63,13 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun signOut(): AppResult<Unit> = try {
         firebaseAuth.signOut()
+        AppResult.Success(Unit)
+    } catch (t: Throwable) {
+        AppResult.Error(t)
+    }
+
+    override suspend fun deleteAccount(): AppResult<Unit> = try {
+        accountFunctionsDataSource.deleteUserData()
         AppResult.Success(Unit)
     } catch (t: Throwable) {
         AppResult.Error(t)

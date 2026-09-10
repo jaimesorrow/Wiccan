@@ -27,4 +27,12 @@ interface AuthRepository {
     suspend fun sendPasswordReset(email: String): AppResult<Unit>
 
     suspend fun signOut(): AppResult<Unit>
+
+    /**
+     * Deletes the signed-in user's server-side data (profile, delivery
+     * history) and their Firebase Auth account. Does not sign out locally —
+     * callers that need the root observer to route back to sign-in should
+     * follow a successful delete with [signOut].
+     */
+    suspend fun deleteAccount(): AppResult<Unit>
 }

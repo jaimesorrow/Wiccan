@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
+import { getAuth } from "firebase-admin/auth";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { auth as authV1 } from "firebase-functions/v1";
@@ -23,6 +24,8 @@ import { sendDailyNotifications } from "./sendDailyNotifications";
 import { getMessaging } from "firebase-admin/messaging";
 import { FirestoreUserProfileRepository } from "./firestoreUserProfileRepository";
 import { createUserProfileOnSignUp } from "./createUserProfile";
+import { FirestoreAccountDeletionRepository } from "./firestoreAccountDeletionRepository";
+import { deleteAccount } from "./deleteAccount";
 
 initializeApp();
 
@@ -223,4 +226,25 @@ export const sendDailyNotificationsJob = onSchedule("every day 09:00", async () 
 export const onUserCreated = authV1.user().onCreate(async (user) => {
   const repo = new FirestoreUserProfileRepository(getFirestore());
   await createUserProfileOnSignUp(user.uid, repo);
+});
+
+/**
+ * Callable: permanently deletes the caller's profile, delivery history, and
+ * Firebase Auth account. Self-delete only — like every other callable here,
+ * uid comes exclusively from the verified auth context, so a client can
+ * never delete another user's account.
+ */
+export const deleteUserData = onCall(async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Sign-in is required to delete your account.");
+  }
+
+  try {
+    const repo = new FirestoreAccountDeletionRepository(getFirestore(), getAuth());
+    await deleteAccount(uid, repo);
+  } catch (err) {
+    logger.error("deleteUserData failed", { uid, error: (err as Error).message });
+    throw new HttpsError("internal", "Could not delete account data.");
+  }
 });

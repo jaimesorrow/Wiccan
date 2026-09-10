@@ -15,11 +15,14 @@ class FakeAuthRepository : AuthRepository {
     var emailSignInResult: AppResult<Unit> = AppResult.Success(Unit)
     var createAccountResult: AppResult<Unit> = AppResult.Success(Unit)
     var passwordResetResult: AppResult<Unit> = AppResult.Success(Unit)
+    var deleteAccountResult: AppResult<Unit> = AppResult.Success(Unit)
 
     var lastSignInEmail: String? = null
     var lastSignInPassword: String? = null
     var lastCreateAccountEmail: String? = null
     var lastPasswordResetEmail: String? = null
+    var signOutCallCount: Int = 0
+    var deleteAccountCallCount: Int = 0
 
     override fun observeAuthState(): Flow<AuthState> = authStateFlow
 
@@ -42,7 +45,13 @@ class FakeAuthRepository : AuthRepository {
     }
 
     override suspend fun signOut(): AppResult<Unit> {
+        signOutCallCount++
         authStateFlow.value = AuthState.SignedOut
         return AppResult.Success(Unit)
+    }
+
+    override suspend fun deleteAccount(): AppResult<Unit> {
+        deleteAccountCallCount++
+        return deleteAccountResult
     }
 }

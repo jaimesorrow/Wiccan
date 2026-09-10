@@ -17,4 +17,7 @@ sealed class AppError {
 
     /** A generic fetch failure (e.g. loading one archived item's detail). */
     data class LoadFailed(val cause: Throwable) : AppError()
+
+    /** Account deletion failed server-side; the session is left intact. */
+    data class DeleteAccountFailed(val cause: Throwable) : AppError()
 }
