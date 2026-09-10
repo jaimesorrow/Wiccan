@@ -1,5 +1,6 @@
 package com.nyxwell.app.domain.usecase
 
+import com.nyxwell.app.analytics.AnalyticsLogger
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.domain.repository.AuthRepository
 import javax.inject.Inject
@@ -12,10 +13,12 @@ import javax.inject.Inject
  */
 class DeleteAccountUseCase @Inject constructor(
     private val authRepository: AuthRepository,
+    private val analyticsLogger: AnalyticsLogger,
 ) {
     suspend operator fun invoke(): AppResult<Unit> {
         val result = authRepository.deleteAccount()
         if (result is AppResult.Success) {
+            analyticsLogger.logAccountDeleted()
             authRepository.signOut()
         }
         return result

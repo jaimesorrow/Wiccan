@@ -1,6 +1,7 @@
 package com.nyxwell.app.ui.today
 
 import app.cash.turbine.test
+import com.nyxwell.app.analytics.AnalyticsLogger
 import com.nyxwell.app.core.auth.CurrentUserProvider
 import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
@@ -8,6 +9,7 @@ import com.nyxwell.app.domain.model.Content
 import com.nyxwell.app.domain.model.ContentStatus
 import com.nyxwell.app.domain.model.ContentTier
 import com.nyxwell.app.domain.model.ContentType
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -27,6 +29,7 @@ class TodayViewModelTest {
 
     private val dispatcher = StandardTestDispatcher()
     private lateinit var repository: FakeContentRepository
+    private val analyticsLogger: AnalyticsLogger = mockk(relaxed = true)
 
     private val sampleContent = Content(
         id = "content-1",
@@ -56,7 +59,7 @@ class TodayViewModelTest {
     @Test
     fun `successful init refresh flips isLoading false and surfaces content`() = runTest(dispatcher) {
         repository.nextResult = AppResult.Success(sampleContent)
-        val viewModel = TodayViewModel(repository, currentUser("user-1"))
+        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger)
 
         viewModel.state.test {
             val initial = awaitItem()
@@ -79,7 +82,7 @@ class TodayViewModelTest {
     @Test
     fun `refresh failure forwards the repository's error without touching content state`() = runTest(dispatcher) {
         repository.nextResult = AppResult.Failure(AppError.Network)
-        val viewModel = TodayViewModel(repository, currentUser("user-1"))
+        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger)
 
         viewModel.effects.test {
             val effect = awaitItem()
@@ -96,7 +99,7 @@ class TodayViewModelTest {
     @Test
     fun `Retry event triggers another refresh`() = runTest(dispatcher) {
         repository.nextResult = AppResult.Failure(AppError.Unknown("first"))
-        val viewModel = TodayViewModel(repository, currentUser("user-1"))
+        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger)
         dispatcher.scheduler.advanceUntilIdle()
         assertEquals(1, repository.refreshCalls.size)
 
@@ -111,7 +114,7 @@ class TodayViewModelTest {
 
     @Test
     fun `missing uid emits an Unauthorized snackbar and never touches the repository`() = runTest(dispatcher) {
-        val viewModel = TodayViewModel(repository, currentUser(null))
+        val viewModel = TodayViewModel(repository, currentUser(null), analyticsLogger)
 
         viewModel.effects.test {
             val effect = awaitItem()

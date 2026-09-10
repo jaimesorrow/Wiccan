@@ -3,6 +3,7 @@ package com.nyxwell.app.data.repository
 import android.app.Activity
 import android.util.Log
 import com.android.billingclient.api.Purchase
+import com.nyxwell.app.analytics.AnalyticsLogger
 import com.nyxwell.app.billing.NyxwellBillingClient
 import com.nyxwell.app.billing.PREMIUM_MONTHLY_PRODUCT_ID
 import com.nyxwell.app.billing.formattedPrice
@@ -20,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @Singleton
@@ -28,7 +30,13 @@ class SubscriptionRepositoryImpl @Inject constructor(
     private val functionsDataSource: SubscriptionFunctionsDataSource,
     private val userTierDataSource: UserTierDataSource,
     private val currentUserProvider: CurrentUserProvider,
+    private val analyticsLogger: AnalyticsLogger,
 ) : SubscriptionRepository {
+
+    // Tracks the last-observed tier per user so a PREMIUM -> FREE transition
+    // can be attributed to the scheduled lapsed-subscription re-check — the
+    // only code path that ever downgrades an existing premium user's tier.
+    private var lastObservedTier: ContentTier? = null
 
     // Owned for the process lifetime: the Play purchase result can arrive
     // from the billing UI after the screen that launched it (and its
@@ -58,7 +66,12 @@ class SubscriptionRepositoryImpl @Inject constructor(
 
     override fun observeTier(): Flow<ContentTier> {
         val userId = currentUserProvider.currentUserId ?: return flowOf(ContentTier.FREE)
-        return userTierDataSource.observeTier(userId)
+        return userTierDataSource.observeTier(userId).onEach { tier ->
+            if (lastObservedTier == ContentTier.PREMIUM && tier == ContentTier.FREE) {
+                analyticsLogger.logSubscriptionLapsed()
+            }
+            lastObservedTier = tier
+        }
     }
 
     override suspend fun getFormattedPrice(): AppResult<String> = try {
@@ -85,6 +98,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
                 purchaseToken = purchase.purchaseToken,
                 productId = PREMIUM_MONTHLY_PRODUCT_ID,
             )
+            analyticsLogger.logSubscriptionStarted()
             billingClient.acknowledgePurchase(purchase)
         } catch (t: Throwable) {
             // No UI is wired to surface this yet (out of scope for this pass);

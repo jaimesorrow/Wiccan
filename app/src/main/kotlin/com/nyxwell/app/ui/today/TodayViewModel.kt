@@ -2,6 +2,7 @@ package com.nyxwell.app.ui.today
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nyxwell.app.analytics.AnalyticsLogger
 import com.nyxwell.app.core.auth.CurrentUserProvider
 import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 class TodayViewModel @Inject constructor(
     private val contentRepository: ContentRepository,
     private val currentUserProvider: CurrentUserProvider,
+    private val analyticsLogger: AnalyticsLogger,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TodayUiState())
@@ -45,6 +47,9 @@ class TodayViewModel @Inject constructor(
         viewModelScope.launch {
             contentRepository.observeTodayContent().collect { cached ->
                 _state.update { it.copy(content = cached) }
+                if (cached != null) {
+                    analyticsLogger.logDailyContentViewed(cached.type, cached.tier)
+                }
             }
         }
     }

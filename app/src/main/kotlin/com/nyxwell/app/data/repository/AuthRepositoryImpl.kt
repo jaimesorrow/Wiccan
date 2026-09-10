@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.nyxwell.app.R
+import com.nyxwell.app.analytics.AnalyticsLogger
 import com.nyxwell.app.core.error.toAppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.data.remote.AccountFunctionsDataSource
@@ -20,6 +21,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val googleCredentialDataSource: GoogleCredentialDataSource,
     private val accountFunctionsDataSource: AccountFunctionsDataSource,
+    private val analyticsLogger: AnalyticsLogger,
 ) : AuthRepository {
 
     override fun observeAuthState(): Flow<AuthState> = callbackFlow {
@@ -35,7 +37,10 @@ class AuthRepositoryImpl @Inject constructor(
         val webClientId = context.getString(R.string.default_web_client_id)
         val idToken = googleCredentialDataSource.requestGoogleIdToken(context, webClientId)
         val credential = GoogleAuthProvider.getCredential(idToken, null)
-        firebaseAuth.signInWithCredential(credential).await()
+        val result = firebaseAuth.signInWithCredential(credential).await()
+        if (result.additionalUserInfo?.isNewUser == true) {
+            analyticsLogger.logSignUpCompleted()
+        }
         AppResult.Success(Unit)
     } catch (t: Throwable) {
         AppResult.Failure(t.toAppError())
@@ -50,6 +55,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun createAccountWithEmail(email: String, password: String): AppResult<Unit> = try {
         firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+        analyticsLogger.logSignUpCompleted()
         AppResult.Success(Unit)
     } catch (t: Throwable) {
         AppResult.Failure(t.toAppError())

@@ -2,6 +2,7 @@ package com.nyxwell.app.ui.paywall
 
 import android.app.Activity
 import app.cash.turbine.test
+import com.nyxwell.app.analytics.AnalyticsLogger
 import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
 import io.mockk.mockk
@@ -23,6 +24,7 @@ class PaywallViewModelTest {
 
     private val dispatcher = StandardTestDispatcher()
     private lateinit var repository: FakeSubscriptionRepository
+    private val analyticsLogger: AnalyticsLogger = mockk(relaxed = true)
 
     @Before
     fun setUp() {
@@ -39,7 +41,7 @@ class PaywallViewModelTest {
     fun `loads the runtime price on init`() = runTest(dispatcher) {
         repository.priceResult = AppResult.Success("$4.99/mo")
 
-        val viewModel = PaywallViewModel(repository)
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
         dispatcher.scheduler.advanceUntilIdle()
 
         assertEquals("$4.99/mo", viewModel.state.value.price)
@@ -50,7 +52,7 @@ class PaywallViewModelTest {
     fun `a failed price load forwards the repository's error and leaves price unset`() = runTest(dispatcher) {
         repository.priceResult = AppResult.Failure(AppError.Network)
 
-        val viewModel = PaywallViewModel(repository)
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
         viewModel.effects.test {
             val effect = awaitItem()
             assertTrue(effect is PaywallUiEffect.ShowSnackbar)
@@ -62,7 +64,7 @@ class PaywallViewModelTest {
 
     @Test
     fun `subscribe delegates to the repository's launchPurchaseFlow`() = runTest(dispatcher) {
-        val viewModel = PaywallViewModel(repository)
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
         val activity = mockk<Activity>()
 
         viewModel.subscribe(activity)
@@ -73,7 +75,7 @@ class PaywallViewModelTest {
 
     @Test
     fun `RestorePurchasesClicked restores and emits a confirmation effect`() = runTest(dispatcher) {
-        val viewModel = PaywallViewModel(repository)
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
         dispatcher.scheduler.advanceUntilIdle()
 
         viewModel.effects.test {
@@ -88,7 +90,7 @@ class PaywallViewModelTest {
     @Test
     fun `a failed restore forwards the repository's error`() = runTest(dispatcher) {
         repository.restoreResult = AppResult.Failure(AppError.PurchaseVerificationFailed("play unavailable"))
-        val viewModel = PaywallViewModel(repository)
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
         dispatcher.scheduler.advanceUntilIdle()
 
         viewModel.effects.test {
