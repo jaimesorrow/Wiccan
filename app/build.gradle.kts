@@ -94,6 +94,8 @@ dependencies {
 
     implementation(libs.billing.ktx)
 
+    implementation(libs.glance.appwidget)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
