@@ -33,7 +33,7 @@ class ArchiveViewModelTest {
         title = "Candle of Clear Intent",
         type = ContentType.SPELL,
         tradition = "European folk magic",
-        deliveredDate = "2026-09-10",
+        deliveredDate = "2026-09-10"
     )
 
     private val content = Content(
@@ -47,7 +47,7 @@ class ArchiveViewModelTest {
         materials = null,
         safetyNote = null,
         tags = emptyList(),
-        status = ContentStatus.PUBLISHED,
+        status = ContentStatus.PUBLISHED
     )
 
     @Before

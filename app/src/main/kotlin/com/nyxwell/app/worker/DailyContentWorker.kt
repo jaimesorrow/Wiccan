@@ -1,11 +1,11 @@
 package com.nyxwell.app.worker
 
 import android.content.Context
+import androidx.glance.appwidget.updateAll
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.nyxwell.app.core.auth.CurrentUserProvider
-import androidx.glance.appwidget.updateAll
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.domain.repository.ContentRepository
 import com.nyxwell.app.widget.NyxwellWidget

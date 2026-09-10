@@ -1,0 +1,20 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      # app/google-services.json is gitignored (holds real Firebase project
+      # credentials) so it never exists on a fresh checkout - without it the
+      # Google Services and Crashlytics Gradle plugins fail before any of
+      # the steps below run. This CI-only placeholder has no real
+      # credentials and is never used outside this workflow.
+      - run: cp app/google-services.ci.json app/google-services.json
+      - run: ./gradlew ktlintCheck
+      - run: ./gradlew test
+      - run: ./gradlew assembleDebug

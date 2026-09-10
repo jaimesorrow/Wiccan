@@ -35,7 +35,7 @@ class ContentRepositoryImplTest {
         "materials" to listOf("white candle", "matches"),
         "safetyNote" to null,
         "tags" to listOf("focus", "beginner"),
-        "status" to "published",
+        "status" to "published"
     )
 
     @Before

@@ -99,7 +99,7 @@ class PaywallViewModelTest {
             assertTrue(effect is PaywallUiEffect.ShowSnackbar)
             assertEquals(
                 AppError.PurchaseVerificationFailed("play unavailable"),
-                (effect as PaywallUiEffect.ShowSnackbar).error,
+                (effect as PaywallUiEffect.ShowSnackbar).error
             )
             cancelAndConsumeRemainingEvents()
         }
