@@ -67,11 +67,14 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
     return snap.docs.map((doc) => toContent(doc.id, doc.data()));
   }
 
-  async recordDelivery(uid: string, contentId: string, today: string): Promise<void> {
+  async recordDelivery(uid: string, content: Content, today: string): Promise<void> {
     await this.db.collection(HISTORY_COLLECTION).add({
       userId: uid,
-      contentId,
+      contentId: content.id,
       deliveredDate: today,
+      title: content.title,
+      type: content.type,
+      tradition: content.tradition,
     });
   }
 

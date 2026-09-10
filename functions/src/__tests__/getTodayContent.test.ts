@@ -17,7 +17,16 @@ describe("selectTodayContent", () => {
     const result = await selectTodayContent(UID, TODAY, repo);
 
     expect(["c1", "c2"]).toContain(result.id);
-    expect(repo.history).toEqual([{ userId: UID, contentId: result.id, deliveredDate: TODAY }]);
+    expect(repo.history).toEqual([
+      {
+        userId: UID,
+        contentId: result.id,
+        deliveredDate: TODAY,
+        title: result.title,
+        type: result.type,
+        tradition: result.tradition,
+      },
+    ]);
     expect(repo.poolExhaustionEvents).toHaveLength(0);
   });
 
@@ -37,8 +46,8 @@ describe("selectTodayContent", () => {
     repo.content = [makeContent({ id: "c1" }), makeContent({ id: "c2" })];
     // Simulate the user having already seen every published item on prior days.
     repo.history = [
-      { userId: UID, contentId: "c1", deliveredDate: "2026-09-07" },
-      { userId: UID, contentId: "c2", deliveredDate: "2026-09-08" },
+      { userId: UID, contentId: "c1", deliveredDate: "2026-09-07", title: "Title c1", type: "spell", tradition: "European folk magic" },
+      { userId: UID, contentId: "c2", deliveredDate: "2026-09-08", title: "Title c2", type: "spell", tradition: "European folk magic" },
     ];
 
     const result = await selectTodayContent(UID, TODAY, repo);
@@ -46,7 +55,14 @@ describe("selectTodayContent", () => {
     expect(["c1", "c2"]).toContain(result.id);
     expect(repo.poolExhaustionEvents).toEqual([{ userId: UID, tier: "free", today: TODAY }]);
     expect(repo.history).toHaveLength(3);
-    expect(repo.history[2]).toEqual({ userId: UID, contentId: result.id, deliveredDate: TODAY });
+    expect(repo.history[2]).toEqual({
+      userId: UID,
+      contentId: result.id,
+      deliveredDate: TODAY,
+      title: result.title,
+      type: result.type,
+      tradition: result.tradition,
+    });
   });
 
   it("only offers a free user free-tier published content", async () => {
