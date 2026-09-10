@@ -14,4 +14,7 @@ sealed class AppError {
 
     /** Any sign-in, account-creation, or password-reset failure. */
     data class Auth(val cause: Throwable) : AppError()
+
+    /** A generic fetch failure (e.g. loading one archived item's detail). */
+    data class LoadFailed(val cause: Throwable) : AppError()
 }

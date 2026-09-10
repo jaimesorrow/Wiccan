@@ -58,6 +58,6 @@ export async function selectTodayContent(
   }
 
   const selected = pickRandom(candidates);
-  await repo.recordDelivery(uid, selected.id, today);
+  await repo.recordDelivery(uid, selected, today);
   return selected;
 }

@@ -20,7 +20,8 @@ export interface ContentRepositoryPort {
   /** Published content whose tier is within what `tier` is entitled to. */
   getPublishedContentForTier(tier: ContentTier): Promise<Content[]>;
 
-  recordDelivery(uid: string, contentId: string, today: string): Promise<void>;
+  /** Denormalizes title/type/tradition onto the history row for Archive display. */
+  recordDelivery(uid: string, content: Content, today: string): Promise<void>;
 
   /** Fired when a user has exhausted the published pool and repeats begin. */
   logPoolExhaustion(uid: string, tier: ContentTier, today: string): Promise<void>;

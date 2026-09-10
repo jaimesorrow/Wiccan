@@ -1,9 +1,11 @@
 package com.nyxwell.app.di
 
+import com.nyxwell.app.data.repository.ArchiveRepositoryImpl
 import com.nyxwell.app.data.repository.AuthRepositoryImpl
 import com.nyxwell.app.data.repository.ContentRepositoryImpl
 import com.nyxwell.app.data.repository.NotificationRepositoryImpl
 import com.nyxwell.app.data.repository.SubscriptionRepositoryImpl
+import com.nyxwell.app.domain.repository.ArchiveRepository
 import com.nyxwell.app.domain.repository.AuthRepository
 import com.nyxwell.app.domain.repository.ContentRepository
 import com.nyxwell.app.domain.repository.NotificationRepository
@@ -33,4 +35,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindArchiveRepository(impl: ArchiveRepositoryImpl): ArchiveRepository
 }

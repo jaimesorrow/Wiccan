@@ -25,4 +25,8 @@ export interface UserContentHistory {
   contentId: string;
   /** ISO date string (yyyy-MM-dd), server-set. */
   deliveredDate: string;
+  /** Denormalized from the delivered Content so Archive can list without extra reads. */
+  title: string;
+  type: ContentType;
+  tradition: string;
 }

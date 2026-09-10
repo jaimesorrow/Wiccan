@@ -5,7 +5,14 @@ import { ContentRepositoryPort } from "../contentRepositoryPort";
 export class FakeContentRepository implements ContentRepositoryPort {
   tier: ContentTier = "free";
   content: Content[] = [];
-  history: { userId: string; contentId: string; deliveredDate: string }[] = [];
+  history: {
+    userId: string;
+    contentId: string;
+    deliveredDate: string;
+    title: string;
+    type: string;
+    tradition: string;
+  }[] = [];
   poolExhaustionEvents: { userId: string; tier: ContentTier; today: string }[] = [];
 
   async getUserTier(): Promise<ContentTier> {
@@ -30,8 +37,15 @@ export class FakeContentRepository implements ContentRepositoryPort {
     return this.content.filter((c) => c.status === "published" && eligible.includes(c.tier));
   }
 
-  async recordDelivery(userId: string, contentId: string, deliveredDate: string): Promise<void> {
-    this.history.push({ userId, contentId, deliveredDate });
+  async recordDelivery(userId: string, content: Content, deliveredDate: string): Promise<void> {
+    this.history.push({
+      userId,
+      contentId: content.id,
+      deliveredDate,
+      title: content.title,
+      type: content.type,
+      tradition: content.tradition,
+    });
   }
 
   async logPoolExhaustion(userId: string, tier: ContentTier, today: string): Promise<void> {
