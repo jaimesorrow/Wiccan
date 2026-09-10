@@ -2,7 +2,6 @@ package com.nyxwell.app.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.domain.repository.AuthRepository
 import com.nyxwell.app.domain.repository.SubscriptionRepository
@@ -57,9 +56,9 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = deleteAccountUseCase()) {
                 is AppResult.Success -> _state.update { it.copy(isDeleting = false) }
-                is AppResult.Error -> {
+                is AppResult.Failure -> {
                     _state.update { it.copy(isDeleting = false) }
-                    effectChannel.send(SettingsUiEffect.ShowSnackbar(AppError.DeleteAccountFailed(result.throwable)))
+                    effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
                 }
             }
         }

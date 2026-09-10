@@ -37,7 +37,7 @@ class DailyContentWorker @AssistedInject constructor(
                 NyxwellWidget().updateAll(applicationContext)
                 Result.success()
             }
-            is AppResult.Error -> Result.retry()
+            is AppResult.Failure -> Result.retry()
         }
     }
 

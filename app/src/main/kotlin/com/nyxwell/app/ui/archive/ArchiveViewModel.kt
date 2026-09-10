@@ -2,7 +2,6 @@ package com.nyxwell.app.ui.archive
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.domain.repository.ArchiveRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -49,9 +48,9 @@ class ArchiveViewModel @Inject constructor(
                 is AppResult.Success -> _state.update {
                     it.copy(isDetailLoading = false, selectedContent = result.data)
                 }
-                is AppResult.Error -> {
+                is AppResult.Failure -> {
                     _state.update { it.copy(isDetailLoading = false) }
-                    effectChannel.send(ArchiveUiEffect.ShowSnackbar(AppError.LoadFailed(result.throwable)))
+                    effectChannel.send(ArchiveUiEffect.ShowSnackbar(result.error))
                 }
             }
         }

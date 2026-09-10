@@ -53,16 +53,16 @@ class TodayViewModel @Inject constructor(
         val uid = currentUserProvider.currentUserId
         if (uid == null) {
             _state.update { it.copy(isLoading = false) }
-            emit(TodayUiEffect.ShowSnackbar(AppError.NoUser))
+            emit(TodayUiEffect.ShowSnackbar(AppError.Unauthorized))
             return
         }
         _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             when (val result = contentRepository.refreshTodayContent(uid)) {
                 is AppResult.Success -> _state.update { it.copy(isLoading = false) }
-                is AppResult.Error -> {
+                is AppResult.Failure -> {
                     _state.update { it.copy(isLoading = false) }
-                    effectChannel.send(TodayUiEffect.ShowSnackbar(AppError.Refresh(result.throwable)))
+                    effectChannel.send(TodayUiEffect.ShowSnackbar(result.error))
                 }
             }
         }

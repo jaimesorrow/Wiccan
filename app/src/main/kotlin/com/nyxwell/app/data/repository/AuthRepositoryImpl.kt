@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.nyxwell.app.R
+import com.nyxwell.app.core.error.toAppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.data.remote.AccountFunctionsDataSource
 import com.nyxwell.app.data.remote.GoogleCredentialDataSource
@@ -37,41 +38,41 @@ class AuthRepositoryImpl @Inject constructor(
         firebaseAuth.signInWithCredential(credential).await()
         AppResult.Success(Unit)
     } catch (t: Throwable) {
-        AppResult.Error(t)
+        AppResult.Failure(t.toAppError())
     }
 
     override suspend fun signInWithEmail(email: String, password: String): AppResult<Unit> = try {
         firebaseAuth.signInWithEmailAndPassword(email, password).await()
         AppResult.Success(Unit)
     } catch (t: Throwable) {
-        AppResult.Error(t)
+        AppResult.Failure(t.toAppError())
     }
 
     override suspend fun createAccountWithEmail(email: String, password: String): AppResult<Unit> = try {
         firebaseAuth.createUserWithEmailAndPassword(email, password).await()
         AppResult.Success(Unit)
     } catch (t: Throwable) {
-        AppResult.Error(t)
+        AppResult.Failure(t.toAppError())
     }
 
     override suspend fun sendPasswordReset(email: String): AppResult<Unit> = try {
         firebaseAuth.sendPasswordResetEmail(email).await()
         AppResult.Success(Unit)
     } catch (t: Throwable) {
-        AppResult.Error(t)
+        AppResult.Failure(t.toAppError())
     }
 
     override suspend fun signOut(): AppResult<Unit> = try {
         firebaseAuth.signOut()
         AppResult.Success(Unit)
     } catch (t: Throwable) {
-        AppResult.Error(t)
+        AppResult.Failure(t.toAppError())
     }
 
     override suspend fun deleteAccount(): AppResult<Unit> = try {
         accountFunctionsDataSource.deleteUserData()
         AppResult.Success(Unit)
     } catch (t: Throwable) {
-        AppResult.Error(t)
+        AppResult.Failure(t.toAppError())
     }
 }

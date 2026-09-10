@@ -7,6 +7,7 @@ import com.nyxwell.app.billing.NyxwellBillingClient
 import com.nyxwell.app.billing.PREMIUM_MONTHLY_PRODUCT_ID
 import com.nyxwell.app.billing.formattedPrice
 import com.nyxwell.app.core.auth.CurrentUserProvider
+import com.nyxwell.app.core.error.toAppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.data.remote.SubscriptionFunctionsDataSource
 import com.nyxwell.app.data.remote.UserTierDataSource
@@ -65,14 +66,14 @@ class SubscriptionRepositoryImpl @Inject constructor(
             ?: error("No price available for '$PREMIUM_MONTHLY_PRODUCT_ID'.")
         AppResult.Success(price)
     } catch (t: Throwable) {
-        AppResult.Error(t)
+        AppResult.Failure(t.toAppError())
     }
 
     override suspend fun restorePurchases(): AppResult<Unit> = try {
         billingClient.queryOwnedSubscriptions().forEach { purchase -> handlePurchase(purchase) }
         AppResult.Success(Unit)
     } catch (t: Throwable) {
-        AppResult.Error(t)
+        AppResult.Failure(t.toAppError())
     }
 
     private suspend fun handlePurchase(purchase: Purchase) {

@@ -1,5 +1,6 @@
 package com.nyxwell.app.data.repository
 
+import com.nyxwell.app.core.error.toAppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.data.local.CachedDailyContentDao
 import com.nyxwell.app.data.mapper.toCachedEntity
@@ -25,7 +26,7 @@ class ContentRepositoryImpl @Inject constructor(
             dao.replace(content.toCachedEntity(deliveredDate = LocalDate.now(ZoneOffset.UTC).toString()))
             AppResult.Success(content)
         } catch (t: Throwable) {
-            AppResult.Error(t)
+            AppResult.Failure(t.toAppError())
         }
     }
 

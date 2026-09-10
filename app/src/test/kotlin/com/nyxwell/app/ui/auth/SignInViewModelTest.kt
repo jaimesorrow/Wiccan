@@ -72,17 +72,14 @@ class SignInViewModelTest {
     }
 
     @Test
-    fun `a failed sign-in emits an Auth snackbar effect`() = runTest(dispatcher) {
-        val cause = IllegalStateException("bad credentials")
-        repository.emailSignInResult = AppResult.Error(cause)
+    fun `a failed sign-in forwards the repository's error`() = runTest(dispatcher) {
+        repository.emailSignInResult = AppResult.Failure(AppError.Unknown("bad credentials"))
 
         viewModel.effects.test {
             viewModel.onEvent(SignInUiEvent.SubmitEmailAuth)
             val effect = awaitItem()
             assertTrue(effect is SignInUiEffect.ShowSnackbar)
-            val error = (effect as SignInUiEffect.ShowSnackbar).error
-            assertTrue(error is AppError.Auth)
-            assertEquals(cause, (error as AppError.Auth).cause)
+            assertEquals(AppError.Unknown("bad credentials"), (effect as SignInUiEffect.ShowSnackbar).error)
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -100,9 +97,8 @@ class SignInViewModelTest {
     }
 
     @Test
-    fun `Google sign-in failure emits an Auth snackbar effect`() = runTest(dispatcher) {
-        val cause = IllegalStateException("cancelled")
-        repository.googleResult = AppResult.Error(cause)
+    fun `Google sign-in failure emits a snackbar effect`() = runTest(dispatcher) {
+        repository.googleResult = AppResult.Failure(AppError.Unknown("cancelled"))
         val context = mockk<Context>()
 
         viewModel.effects.test {

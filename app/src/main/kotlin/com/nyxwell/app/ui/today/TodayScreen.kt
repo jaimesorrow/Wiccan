@@ -54,7 +54,7 @@ internal fun TodayScreenContent(
         effects.collect { effect ->
             when (effect) {
                 is TodayUiEffect.ShowSnackbar -> {
-                    val canRetry = effect.error !is AppError.NoUser
+                    val canRetry = effect.error !is AppError.Unauthorized
                     val result = snackbarHostState.showSnackbar(
                         message = effect.error.toUserMessage(),
                         actionLabel = if (canRetry) "Retry" else null,

@@ -36,7 +36,7 @@ class ArchiveFirestoreDataSource @Inject constructor(
 
     suspend fun getContentById(contentId: String): Map<String, Any?> {
         val doc = firestore.collection(CONTENT_COLLECTION).document(contentId).get().await()
-        if (!doc.exists()) error("Content '$contentId' not found")
+        if (!doc.exists()) throw ContentNotFoundException(contentId)
         return (doc.data ?: emptyMap()) + ("id" to doc.id)
     }
 
@@ -45,3 +45,5 @@ class ArchiveFirestoreDataSource @Inject constructor(
         const val CONTENT_COLLECTION = "content"
     }
 }
+
+class ContentNotFoundException(contentId: String) : Exception("Content '$contentId' not found")

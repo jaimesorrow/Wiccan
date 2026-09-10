@@ -6,9 +6,9 @@ package com.nyxwell.app.core.error
  * duplicate mappers.
  */
 fun AppError.toUserMessage(): String = when (this) {
-    AppError.NoUser -> "Sign in to see today's content."
-    is AppError.Refresh -> "Couldn't fetch today's content. Please try again."
-    is AppError.Auth -> "That didn't work — check your details and try again."
-    is AppError.LoadFailed -> "Couldn't load that. Please try again."
-    is AppError.DeleteAccountFailed -> "Couldn't delete your account. Please try again."
+    is AppError.Network -> "Couldn't connect. Check your connection and try again."
+    is AppError.Unauthorized -> "Please sign in again."
+    is AppError.NotFound -> "That couldn't be found."
+    is AppError.PurchaseVerificationFailed -> "We couldn't verify that purchase. Try again or contact support."
+    is AppError.Unknown -> "Something went wrong."
 }

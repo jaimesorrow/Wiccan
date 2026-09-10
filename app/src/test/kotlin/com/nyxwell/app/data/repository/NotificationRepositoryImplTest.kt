@@ -1,5 +1,6 @@
 package com.nyxwell.app.data.repository
 
+import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.data.remote.FcmTokenProvider
 import com.nyxwell.app.data.remote.NotificationFunctionsDataSource
@@ -7,6 +8,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -33,14 +35,14 @@ class NotificationRepositoryImplTest {
     }
 
     @Test
-    fun `registerToken surfaces failures`() = runTest {
+    fun `registerToken classifies a generic failure as Unknown`() = runTest {
         val failure = IllegalStateException("network error")
         coEvery { functionsDataSource.registerToken(any()) } throws failure
 
         val result = repository.registerToken("token-123")
 
-        assertTrue(result is AppResult.Error)
-        assertTrue((result as AppResult.Error).throwable === failure)
+        assertTrue(result is AppResult.Failure)
+        assertEquals(AppError.Unknown("network error"), (result as AppResult.Failure).error)
     }
 
     @Test

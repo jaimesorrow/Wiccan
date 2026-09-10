@@ -1,6 +1,7 @@
 package com.nyxwell.app.data.repository
 
 import app.cash.turbine.test
+import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.result.AppResult
 import com.nyxwell.app.data.remote.ContentFunctionsDataSource
 import com.nyxwell.app.domain.model.ContentStatus
@@ -64,14 +65,14 @@ class ContentRepositoryImplTest {
     }
 
     @Test
-    fun `refreshTodayContent surfaces failures without touching the cache`() = runTest {
+    fun `refreshTodayContent classifies a generic failure as Unknown, without touching the cache`() = runTest {
         val failure = IllegalStateException("Cloud Function unavailable")
         coEvery { functionsDataSource.getTodayContent() } throws failure
 
         val result = repository.refreshTodayContent(userId)
 
-        assertTrue(result is AppResult.Error)
-        assertEquals(failure, (result as AppResult.Error).throwable)
+        assertTrue(result is AppResult.Failure)
+        assertEquals(AppError.Unknown("Cloud Function unavailable"), (result as AppResult.Failure).error)
 
         repository.observeTodayContent().test {
             assertNull(awaitItem())
