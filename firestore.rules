@@ -5,9 +5,11 @@ service cloud.firestore {
     // Daily selection must run server-side (Cloud Function) so users can't
     // reset or game their delivery history. Clients get read-only access
     // to published content and to their own history rows; all writes go
-    // through the Admin SDK inside getTodayContent.
+    // through the Admin SDK inside getTodayContent. Rules do not tier-gate
+    // published content reads — that's enforced by the getTodayContent
+    // selection itself, a known limitation of this pass.
     match /content/{contentId} {
-      allow read: if resource.data.status == 'published';
+      allow read: if request.auth != null && resource.data.status == 'published';
       allow write: if false;
     }
 
