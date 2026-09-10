@@ -16,6 +16,7 @@
     "deploy": "npm run build && firebase deploy --only functions"
   },
   "dependencies": {
+    "@googleapis/androidpublisher": "^38.0.0",
     "firebase-admin": "^12.7.0",
     "firebase-functions": "^6.1.0"
   },

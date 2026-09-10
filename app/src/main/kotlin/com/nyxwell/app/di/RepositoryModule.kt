@@ -1,7 +1,9 @@
 package com.nyxwell.app.di
 
 import com.nyxwell.app.data.repository.ContentRepositoryImpl
+import com.nyxwell.app.data.repository.SubscriptionRepositoryImpl
 import com.nyxwell.app.domain.repository.ContentRepository
+import com.nyxwell.app.domain.repository.SubscriptionRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -15,4 +17,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindContentRepository(impl: ContentRepositoryImpl): ContentRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSubscriptionRepository(impl: SubscriptionRepositoryImpl): SubscriptionRepository
 }

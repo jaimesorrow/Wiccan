@@ -15,6 +15,7 @@ firebaseBom = "33.7.0"
 googleServices = "4.4.2"
 workManager = "2.10.0"
 desugarJdkLibs = "2.1.4"
+billing = "7.1.1"
 junit = "4.13.2"
 mockk = "1.13.13"
 coroutinesTest = "1.9.0"
@@ -56,6 +57,7 @@ firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" 
 
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibs" }
+billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "billing" }
 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
