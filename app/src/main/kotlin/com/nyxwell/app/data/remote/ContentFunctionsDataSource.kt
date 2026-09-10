@@ -13,10 +13,10 @@ import javax.inject.Inject
 class ContentFunctionsDataSource @Inject constructor(
     private val functions: FirebaseFunctions,
 ) {
-    suspend fun getTodayContent(userId: String): Map<String, Any?> {
+    suspend fun getTodayContent(): Map<String, Any?> {
         val result = functions
             .getHttpsCallable(FUNCTION_NAME)
-            .call(mapOf("uid" to userId))
+            .call()
             .await()
 
         @Suppress("UNCHECKED_CAST")

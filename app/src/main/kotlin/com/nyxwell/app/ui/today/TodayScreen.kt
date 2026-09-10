@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nyxwell.app.core.error.AppError
 import com.nyxwell.app.core.error.toUserMessage
 import com.nyxwell.app.domain.model.Content
 import com.nyxwell.app.ui.today.components.ContentTypePill
@@ -71,13 +72,14 @@ internal fun TodayScreenContent(
         effects.collect { effect ->
             when (effect) {
                 is TodayUiEffect.ShowSnackbar -> {
+                    val canRetry = effect.error !is AppError.NoUser
                     val result = snackbarHostState.showSnackbar(
                         message = effect.error.toUserMessage(),
-                        actionLabel = "Retry",
+                        actionLabel = if (canRetry) "Retry" else null,
                         withDismissAction = true,
                         duration = SnackbarDuration.Long,
                     )
-                    if (result == SnackbarResult.ActionPerformed) {
+                    if (canRetry && result == SnackbarResult.ActionPerformed) {
                         onEvent(TodayUiEvent.Retry)
                     }
                 }

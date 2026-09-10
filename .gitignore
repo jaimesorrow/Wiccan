@@ -1,22 +1,38 @@
-*.iml
+# Gradle
 .gradle/
-.idea/
-.kotlin/
-local.properties
-.DS_Store
 build/
-captures/
-.externalNativeBuild/
+**/build/
+local.properties
 .cxx/
+.kotlin/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+captures/
+
+# Node / Firebase Functions
+.firebase/
+functions/node_modules/
+functions/lib/
+functions/.env
+*.tsbuildinfo
+npm-debug.log*
+
+# Java / Kotlin
+*.class
+hs_err_pid*
+replay_pid*
+
+# Logs
+*.log
+
+# Android artifacts
 *.apk
 *.aab
 
 # Firebase
 app/google-services.json
 
-# Cloud Functions (Node)
-functions/node_modules/
-functions/lib/
-functions/.env
-*.tsbuildinfo
-npm-debug.log*
+# macOS
+.DS_Store

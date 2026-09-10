@@ -68,7 +68,7 @@ fun SignInScreen(modifier: Modifier = Modifier, viewModel: SignInViewModel = hil
             CrescentGlyph()
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "NYXWELL",
+                text = "WICCAN",
                 style = MaterialTheme.typography.displayLarge,
                 color = MaterialTheme.colorScheme.onBackground,
             )

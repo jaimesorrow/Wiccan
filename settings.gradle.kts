@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Nyxwell"
+rootProject.name = "Wiccan"
 include(":app")
