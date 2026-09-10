@@ -16,6 +16,10 @@ import { ClaudeDraftGenerator } from "./claudeDraftGenerator";
 import { FirestoreContentAdminRepository } from "./firestoreContentAdminRepository";
 import { generateDrafts, InvalidGenerationRequestError } from "./generateDraft";
 import { approveDraft as approveDraftAndSync, DraftNotFoundError } from "./approveDraft";
+import { FirestoreNotificationUserRepository } from "./firestoreNotificationUserRepository";
+import { FirebaseFcmSender } from "./firebaseFcmSender";
+import { sendDailyNotifications } from "./sendDailyNotifications";
+import { getMessaging } from "firebase-admin/messaging";
 
 initializeApp();
 
@@ -165,4 +169,44 @@ export const approveDraft = onCall(async (request) => {
     logger.error("approveDraft failed", { contentId, error: (err as Error).message });
     throw new HttpsError("internal", "Could not approve draft.");
   }
+});
+
+/**
+ * Callable: stores the caller's current FCM token on their own user doc.
+ * `users/{uid}` has no client write access in Firestore rules, so this is
+ * the only way the token gets there — uid comes from the verified auth
+ * context, same as every other callable here.
+ */
+export const registerFcmToken = onCall(async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Sign-in is required to register a device token.");
+  }
+
+  const token = request.data?.token;
+  if (typeof token !== "string" || token.length === 0) {
+    throw new HttpsError("invalid-argument", "token is required.");
+  }
+
+  try {
+    const users = new FirestoreNotificationUserRepository(getFirestore());
+    await users.setToken(uid, token);
+  } catch (err) {
+    logger.error("registerFcmToken failed", { uid, error: (err as Error).message });
+    throw new HttpsError("internal", "Could not register device token.");
+  }
+});
+
+/**
+ * Daily job: sends every user with a registered FCM token a "your content
+ * is ready" push for today's selection. A single fixed UTC time for now —
+ * per-user timezone-aware scheduling is a later pass once the user
+ * profile actually stores a timezone.
+ */
+export const sendDailyNotificationsJob = onSchedule("every day 09:00", async () => {
+  const repo = new FirestoreContentRepository(getFirestore());
+  const users = new FirestoreNotificationUserRepository(getFirestore());
+  const fcm = new FirebaseFcmSender(getMessaging());
+  const summary = await sendDailyNotifications(todayIsoDate(), users, repo, fcm);
+  logger.info("sendDailyNotifications complete", summary);
 });

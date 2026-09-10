@@ -87,6 +87,7 @@ dependencies {
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.functions.ktx)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.messaging.ktx)
 
     implementation(libs.androidx.work.runtime.ktx)
     coreLibraryDesugaring(libs.desugar.jdk.libs)

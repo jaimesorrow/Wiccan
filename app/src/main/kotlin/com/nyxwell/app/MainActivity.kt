@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.nyxwell.app.ui.notification.NotificationSetupEffect
 import com.nyxwell.app.ui.theme.NyxwellTheme
 import com.nyxwell.app.ui.today.TodayScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,6 +20,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NyxwellTheme {
+                NotificationSetupEffect()
                 TodayScreen()
             }
         }
