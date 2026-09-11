@@ -46,6 +46,12 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
     return snap.get("tier") === "premium" ? "premium" : "free";
   }
 
+  async getUserTimeZone(uid: string): Promise<string | null> {
+    const snap = await this.db.collection(USERS_COLLECTION).doc(uid).get();
+    const timeZone = snap.get("timeZone");
+    return typeof timeZone === "string" ? timeZone : null;
+  }
+
   async findTodayDeliveredContentId(uid: string, today: string): Promise<string | null> {
     const doc = await this.db.collection(HISTORY_COLLECTION).doc(historyDocId(uid, today)).get();
     return doc.exists ? (doc.get("contentId") as string) : null;

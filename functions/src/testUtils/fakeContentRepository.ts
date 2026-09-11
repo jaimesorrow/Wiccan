@@ -4,6 +4,7 @@ import { ContentRepositoryPort } from "../contentRepositoryPort";
 /** In-memory stand-in for Firestore, for testing selectTodayContent. */
 export class FakeContentRepository implements ContentRepositoryPort {
   tier: ContentTier = "free";
+  timeZone: string | null = null;
   content: Content[] = [];
   history: {
     userId: string;
@@ -17,6 +18,10 @@ export class FakeContentRepository implements ContentRepositoryPort {
 
   async getUserTier(): Promise<ContentTier> {
     return this.tier;
+  }
+
+  async getUserTimeZone(): Promise<string | null> {
+    return this.timeZone;
   }
 
   async findTodayDeliveredContentId(uid: string, today: string): Promise<string | null> {

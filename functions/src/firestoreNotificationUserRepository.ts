@@ -10,7 +10,11 @@ export class FirestoreNotificationUserRepository implements NotificationUserRepo
     const snap = await this.db.collection(USERS_COLLECTION).where("fcmToken", "!=", null).get();
     return snap.docs
       .filter((doc) => typeof doc.get("fcmToken") === "string")
-      .map((doc) => ({ uid: doc.id, fcmToken: doc.get("fcmToken") as string }));
+      .map((doc) => ({
+        uid: doc.id,
+        fcmToken: doc.get("fcmToken") as string,
+        timeZone: typeof doc.get("timeZone") === "string" ? (doc.get("timeZone") as string) : null,
+      }));
   }
 
   async clearToken(uid: string): Promise<void> {

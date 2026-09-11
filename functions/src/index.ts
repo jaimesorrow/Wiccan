@@ -7,7 +7,7 @@ import { auth as authV1 } from "firebase-functions/v1";
 import * as logger from "firebase-functions/logger";
 import { selectTodayContent } from "./getTodayContent";
 import { FirestoreContentRepository } from "./firestoreContentRepository";
-import { todayIsoDate } from "./dateUtils";
+import { getUserLocalDate } from "./dateUtils";
 import { GooglePlayBillingRepository } from "./googlePlayBillingRepository";
 import { FirestoreUserRepository } from "./firestoreUserRepository";
 import { verifyPurchaseAndSyncTier, PurchaseVerificationError } from "./verifyPurchase";
@@ -41,7 +41,8 @@ export const getTodayContent = onCall({ enforceAppCheck: true }, async (request)
 
   try {
     const repo = new FirestoreContentRepository(getFirestore());
-    return await selectTodayContent(uid, todayIsoDate(), repo);
+    const timeZone = await repo.getUserTimeZone(uid);
+    return await selectTodayContent(uid, getUserLocalDate(timeZone), repo);
   } catch (err) {
     logger.error("getTodayContent failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not select today's content.");
@@ -122,15 +123,18 @@ export const registerFcmToken = onCall(async (request) => {
 
 /**
  * Daily job: sends every user with a registered FCM token a "your content
- * is ready" push for today's selection. A single fixed UTC time for now —
- * per-user timezone-aware scheduling is a later pass once the user
- * profile actually stores a timezone.
+ * is ready" push for their own local today's selection (see
+ * sendDailyNotifications - each recipient's date comes from their own
+ * stored time zone, never a single shared batch date). The job still
+ * *fires* at one fixed UTC time for now; per-device ~9am-local send
+ * scheduling is a later, larger pass (multi-device registrations +
+ * per-device nextNotificationAt).
  */
 export const sendDailyNotificationsJob = onSchedule("every day 09:00", async () => {
   const repo = new FirestoreContentRepository(getFirestore());
   const users = new FirestoreNotificationUserRepository(getFirestore());
   const fcm = new FirebaseFcmSender(getMessaging());
-  const summary = await sendDailyNotifications(todayIsoDate(), users, repo, fcm);
+  const summary = await sendDailyNotifications(users, repo, fcm);
   logger.info("sendDailyNotifications complete", summary);
 });
 

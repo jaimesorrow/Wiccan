@@ -1,6 +1,8 @@
 export interface NotificationUserRecord {
   uid: string;
   fcmToken: string;
+  /** IANA time zone identifier, e.g. "America/Denver". Null if never recorded. */
+  timeZone: string | null;
 }
 
 /**

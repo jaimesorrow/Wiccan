@@ -9,6 +9,9 @@ export interface ContentRepositoryPort {
   /** Defaults to "free" for users with no subscription record. */
   getUserTier(uid: string): Promise<ContentTier>;
 
+  /** IANA time zone identifier for this user, e.g. "America/Denver". Null if never recorded. */
+  getUserTimeZone(uid: string): Promise<string | null>;
+
   /**
    * Fast, non-transactional read of the contentId already delivered to
    * this user today, if any. Used only to skip candidate selection on
