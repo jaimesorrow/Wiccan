@@ -12,12 +12,6 @@ import { GooglePlayBillingRepository } from "./googlePlayBillingRepository";
 import { FirestoreUserRepository } from "./firestoreUserRepository";
 import { verifyPurchaseAndSyncTier, PurchaseVerificationError } from "./verifyPurchase";
 import { recheckLapsedSubscriptions } from "./recheckLapsedSubscriptions";
-import { ContentTier, ContentType } from "./types";
-import { loadContentSources } from "./contentSource";
-import { ClaudeDraftGenerator } from "./claudeDraftGenerator";
-import { FirestoreContentAdminRepository } from "./firestoreContentAdminRepository";
-import { generateDrafts, InvalidGenerationRequestError } from "./generateDraft";
-import { approveDraft as approveDraftAndSync, DraftNotFoundError } from "./approveDraft";
 import { FirestoreNotificationUserRepository } from "./firestoreNotificationUserRepository";
 import { FirebaseFcmSender } from "./firebaseFcmSender";
 import { sendDailyNotifications } from "./sendDailyNotifications";
@@ -37,8 +31,9 @@ const ANDROID_PACKAGE_NAME = process.env.ANDROID_PACKAGE_NAME ?? "com.nyxwell.ap
  * recording it server-side if this is their first call of the day. The
  * uid always comes from the verified auth context, never from client
  * input, so a client cannot request (or game) another user's history.
+ * App Check-enforced: only the real, attested Android client may call this.
  */
-export const getTodayContent = onCall(async (request) => {
+export const getTodayContent = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to fetch today's content.");
@@ -57,9 +52,9 @@ export const getTodayContent = onCall(async (request) => {
  * Callable: verifies a Play purchase token server-side and syncs
  * `users/{uid}.tier`. Like getTodayContent, uid comes only from the
  * verified auth context — a client can never verify a purchase for, or
- * report a tier on behalf of, another user.
+ * report a tier on behalf of, another user. App Check-enforced.
  */
-export const verifyPurchase = onCall(async (request) => {
+export const verifyPurchase = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to verify a purchase.");
@@ -97,84 +92,6 @@ export const recheckLapsedSubscriptionsJob = onSchedule("every day 03:00", async
   const users = new FirestoreUserRepository(getFirestore());
   const summary = await recheckLapsedSubscriptions(billing, users);
   logger.info("recheckLapsedSubscriptions complete", summary);
-});
-
-const VALID_TIERS: ReadonlySet<string> = new Set(["free", "premium"]);
-const VALID_TYPES: ReadonlySet<string> = new Set(["spell", "potion", "lesson"]);
-
-/**
- * Callable: generates `count` (default 1) content drafts from the curated
- * sources.json pool via Claude, round-robining across eligible source/type
- * combinations. Every draft is written with status "draft" and a
- * sourceId — nothing here ever auto-publishes. Requires sign-in for now;
- * Session 17 locks this down to admin-only and removes it from the
- * public callable surface entirely.
- */
-export const generateDraft = onCall(async (request) => {
-  if (!request.auth?.uid) {
-    throw new HttpsError("unauthenticated", "Sign-in is required to generate content.");
-  }
-
-  const { tier, sourceId, type, count } = request.data ?? {};
-  if (typeof tier !== "string" || !VALID_TIERS.has(tier)) {
-    throw new HttpsError("invalid-argument", "tier must be 'free' or 'premium'.");
-  }
-  if (sourceId !== undefined && typeof sourceId !== "string") {
-    throw new HttpsError("invalid-argument", "sourceId must be a string when provided.");
-  }
-  if (type !== undefined && (typeof type !== "string" || !VALID_TYPES.has(type))) {
-    throw new HttpsError("invalid-argument", "type must be 'spell', 'potion', or 'lesson' when provided.");
-  }
-  if (count !== undefined && (typeof count !== "number" || !Number.isInteger(count) || count < 1)) {
-    throw new HttpsError("invalid-argument", "count must be a positive integer when provided.");
-  }
-
-  try {
-    const sources = loadContentSources();
-    const generator = new ClaudeDraftGenerator();
-    const repo = new FirestoreContentAdminRepository(getFirestore());
-    const results = await generateDrafts(
-      { tier: tier as ContentTier, sourceId, type: type as ContentType | undefined, count },
-      sources,
-      generator,
-      repo,
-    );
-    return { drafts: results };
-  } catch (err) {
-    if (err instanceof InvalidGenerationRequestError) {
-      throw new HttpsError("invalid-argument", err.message);
-    }
-    logger.error("generateDraft failed", { error: (err as Error).message });
-    throw new HttpsError("internal", "Could not generate a draft.");
-  }
-});
-
-/**
- * Callable: flips one content document from "draft" to "published". This
- * is the entire review step for now — Jaime reviews drafts directly in
- * the Firestore console and calls this per item he approves.
- */
-export const approveDraft = onCall(async (request) => {
-  if (!request.auth?.uid) {
-    throw new HttpsError("unauthenticated", "Sign-in is required to approve a draft.");
-  }
-
-  const contentId = request.data?.contentId;
-  if (typeof contentId !== "string" || contentId.length === 0) {
-    throw new HttpsError("invalid-argument", "contentId is required.");
-  }
-
-  try {
-    const repo = new FirestoreContentAdminRepository(getFirestore());
-    await approveDraftAndSync(contentId, repo);
-    return { contentId, status: "published" };
-  } catch (err) {
-    if (err instanceof DraftNotFoundError) {
-      throw new HttpsError("not-found", err.message);
-    }
-    logger.error("approveDraft failed", { contentId, error: (err as Error).message });
-    throw new HttpsError("internal", "Could not approve draft.");
-  }
 });
 
 /**
@@ -232,9 +149,9 @@ export const onUserCreated = authV1.user().onCreate(async (user) => {
  * Callable: permanently deletes the caller's profile, delivery history, and
  * Firebase Auth account. Self-delete only — like every other callable here,
  * uid comes exclusively from the verified auth context, so a client can
- * never delete another user's account.
+ * never delete another user's account. App Check-enforced.
  */
-export const deleteUserData = onCall(async (request) => {
+export const deleteUserData = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to delete your account.");

@@ -42,6 +42,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     testOptions {
@@ -99,6 +100,12 @@ dependencies {
     implementation(libs.firebase.messaging.ktx)
     implementation(libs.firebase.crashlytics.ktx)
     implementation(libs.firebase.analytics.ktx)
+    implementation(libs.firebase.appcheck.ktx)
+    implementation(libs.firebase.appcheck.playintegrity)
+    // Not debugImplementation: NyxwellApplication picks the provider at
+    // runtime via BuildConfig.DEBUG, so both providers must be on the
+    // classpath for every build type, not just debug's.
+    implementation(libs.firebase.appcheck.debug)
 
     implementation(libs.androidx.work.runtime.ktx)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
