@@ -5,9 +5,11 @@ import com.wiccan.app.analytics.AnalyticsLogger
 import com.wiccan.app.core.error.AppError
 import com.wiccan.app.core.result.AppResult
 import com.wiccan.app.domain.model.ContentTier
+import com.wiccan.app.domain.repository.NotificationRepository
 import com.wiccan.app.domain.usecase.DeleteAccountUseCase
 import com.wiccan.app.ui.auth.FakeAuthRepository
 import com.wiccan.app.ui.paywall.FakeSubscriptionRepository
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,6 +30,7 @@ class SettingsViewModelTest {
     private val dispatcher = StandardTestDispatcher()
     private lateinit var repository: FakeAuthRepository
     private lateinit var subscriptionRepository: FakeSubscriptionRepository
+    private lateinit var notificationRepository: NotificationRepository
     private lateinit var viewModel: SettingsViewModel
 
     @Before
@@ -35,8 +38,14 @@ class SettingsViewModelTest {
         Dispatchers.setMain(dispatcher)
         repository = FakeAuthRepository()
         subscriptionRepository = FakeSubscriptionRepository()
+        notificationRepository = mockk(relaxed = true)
         val analyticsLogger: AnalyticsLogger = mockk(relaxed = true)
-        viewModel = SettingsViewModel(repository, DeleteAccountUseCase(repository, analyticsLogger), subscriptionRepository)
+        viewModel = SettingsViewModel(
+            repository,
+            DeleteAccountUseCase(repository, analyticsLogger),
+            subscriptionRepository,
+            notificationRepository,
+        )
     }
 
     @After
@@ -49,6 +58,15 @@ class SettingsViewModelTest {
         viewModel.onEvent(SettingsUiEvent.SignOutClicked)
         dispatcher.scheduler.advanceUntilIdle()
 
+        assertEquals(1, repository.signOutCallCount)
+    }
+
+    @Test
+    fun `SignOutClicked best-effort unregisters the device token before signing out`() = runTest(dispatcher) {
+        viewModel.onEvent(SettingsUiEvent.SignOutClicked)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        coVerify { notificationRepository.unregisterToken() }
         assertEquals(1, repository.signOutCallCount)
     }
 

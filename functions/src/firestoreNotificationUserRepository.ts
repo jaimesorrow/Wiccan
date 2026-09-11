@@ -21,7 +21,15 @@ export class FirestoreNotificationUserRepository implements NotificationUserRepo
     await this.db.collection(USERS_COLLECTION).doc(uid).update({ fcmToken: FieldValue.delete() });
   }
 
-  async setToken(uid: string, token: string): Promise<void> {
-    await this.db.collection(USERS_COLLECTION).doc(uid).set({ fcmToken: token }, { merge: true });
+  async setToken(uid: string, token: string, timeZone?: string | null): Promise<void> {
+    const update: Record<string, unknown> = { fcmToken: token };
+    if (timeZone) {
+      update.timeZone = timeZone;
+    }
+    await this.db.collection(USERS_COLLECTION).doc(uid).set(update, { merge: true });
+  }
+
+  async setTimeZone(uid: string, timeZone: string): Promise<void> {
+    await this.db.collection(USERS_COLLECTION).doc(uid).set({ timeZone }, { merge: true });
   }
 }

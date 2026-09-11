@@ -14,6 +14,12 @@ export class FakeNotificationUserRepository implements NotificationUserRepositor
   }
 
   async setToken(uid: string, token: string, timeZone: string | null = null): Promise<void> {
-    this.users.set(uid, { fcmToken: token, timeZone });
+    const existing = this.users.get(uid);
+    this.users.set(uid, { fcmToken: token, timeZone: timeZone ?? existing?.timeZone ?? null });
+  }
+
+  async setTimeZone(uid: string, timeZone: string): Promise<void> {
+    const existing = this.users.get(uid);
+    this.users.set(uid, { fcmToken: existing?.fcmToken ?? "", timeZone });
   }
 }

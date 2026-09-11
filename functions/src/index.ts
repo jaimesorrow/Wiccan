@@ -20,6 +20,7 @@ import { FirestoreUserProfileRepository } from "./firestoreUserProfileRepository
 import { createUserProfileOnSignUp } from "./createUserProfile";
 import { FirestoreAccountDeletionRepository } from "./firestoreAccountDeletionRepository";
 import { deleteAccount } from "./deleteAccount";
+import { acceptTerms as acceptTermsCore, StalePolicyVersionError } from "./acceptTerms";
 
 initializeApp();
 
@@ -96,12 +97,14 @@ export const recheckLapsedSubscriptionsJob = onSchedule("every day 03:00", async
 });
 
 /**
- * Callable: stores the caller's current FCM token on their own user doc.
- * `users/{uid}` has no client write access in Firestore rules, so this is
- * the only way the token gets there — uid comes from the verified auth
- * context, same as every other callable here.
+ * Callable: stores the caller's current FCM token (and, optionally, their
+ * device time zone) on their own user doc. `users/{uid}` has no client
+ * write access in Firestore rules, so this is the only way either value
+ * gets there — uid comes from the verified auth context, same as every
+ * other callable here. App Check-enforced, per the final security state:
+ * device registration is a protected profile mutation.
  */
-export const registerFcmToken = onCall(async (request) => {
+export const registerDeviceToken = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to register a device token.");
@@ -111,13 +114,92 @@ export const registerFcmToken = onCall(async (request) => {
   if (typeof token !== "string" || token.length === 0) {
     throw new HttpsError("invalid-argument", "token is required.");
   }
+  const timeZone = request.data?.timeZone;
+  if (timeZone !== undefined && typeof timeZone !== "string") {
+    throw new HttpsError("invalid-argument", "timeZone must be a string when provided.");
+  }
 
   try {
     const users = new FirestoreNotificationUserRepository(getFirestore());
-    await users.setToken(uid, token);
+    await users.setToken(uid, token, timeZone);
   } catch (err) {
-    logger.error("registerFcmToken failed", { uid, error: (err as Error).message });
+    logger.error("registerDeviceToken failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not register device token.");
+  }
+});
+
+/**
+ * Callable: clears the caller's device token, e.g. before sign-out so a
+ * signed-out device stops receiving pushes meant for whoever signs in
+ * next. App Check-enforced.
+ */
+export const unregisterDeviceToken = onCall({ enforceAppCheck: true }, async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Sign-in is required to unregister a device token.");
+  }
+
+  try {
+    const users = new FirestoreNotificationUserRepository(getFirestore());
+    await users.clearToken(uid);
+  } catch (err) {
+    logger.error("unregisterDeviceToken failed", { uid, error: (err as Error).message });
+    throw new HttpsError("internal", "Could not unregister device token.");
+  }
+});
+
+/**
+ * Callable: updates the caller's stored time zone independent of their
+ * device token, e.g. when the app detects the device's time zone no
+ * longer matches what's on record. App Check-enforced.
+ */
+export const updateTimeZone = onCall({ enforceAppCheck: true }, async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Sign-in is required to update your time zone.");
+  }
+
+  const timeZone = request.data?.timeZone;
+  if (typeof timeZone !== "string" || timeZone.length === 0) {
+    throw new HttpsError("invalid-argument", "timeZone is required.");
+  }
+
+  try {
+    const users = new FirestoreNotificationUserRepository(getFirestore());
+    await users.setTimeZone(uid, timeZone);
+  } catch (err) {
+    logger.error("updateTimeZone failed", { uid, error: (err as Error).message });
+    throw new HttpsError("internal", "Could not update time zone.");
+  }
+});
+
+/**
+ * Callable: records the caller's Terms of Service/Privacy Policy
+ * acceptance. Rejects any version other than the server's current ones
+ * (see policyVersions.ts) rather than trusting the client's claim.
+ * App Check-enforced.
+ */
+export const acceptTerms = onCall({ enforceAppCheck: true }, async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Sign-in is required to accept the current policies.");
+  }
+
+  const termsVersion = request.data?.termsVersion;
+  const privacyVersion = request.data?.privacyVersion;
+  if (typeof termsVersion !== "number" || typeof privacyVersion !== "number") {
+    throw new HttpsError("invalid-argument", "termsVersion and privacyVersion are required.");
+  }
+
+  try {
+    const repo = new FirestoreUserProfileRepository(getFirestore());
+    await acceptTermsCore(uid, termsVersion, privacyVersion, repo);
+  } catch (err) {
+    if (err instanceof StalePolicyVersionError) {
+      throw new HttpsError("failed-precondition", err.message);
+    }
+    logger.error("acceptTerms failed", { uid, error: (err as Error).message });
+    throw new HttpsError("internal", "Could not record policy acceptance.");
   }
 });
 

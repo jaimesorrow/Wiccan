@@ -16,5 +16,9 @@ export interface NotificationUserRepositoryPort {
   /** Called when FCM reports a token as permanently invalid, so future runs skip it. */
   clearToken(uid: string): Promise<void>;
 
-  setToken(uid: string, token: string): Promise<void>;
+  /** `timeZone` is optional so a bare token refresh doesn't have to resend a value the client already sent once. */
+  setToken(uid: string, token: string, timeZone?: string | null): Promise<void>;
+
+  /** Updates only the time zone, independent of the device token (e.g. the user traveled). */
+  setTimeZone(uid: string, timeZone: string): Promise<void>;
 }
