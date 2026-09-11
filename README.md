@@ -92,3 +92,28 @@ npm run build   # tsc
 npm test        # jest
 npm run deploy  # firebase deploy --only functions (requires firebase-tools + a linked project)
 ```
+
+## Environments
+
+Dev, staging, and production must be three **separate** Firebase projects,
+never one project reused with a naming convention — Firestore data, Auth
+users, and Cloud Function config all live at the project level, so sharing
+one project across environments means a staging bug can touch production
+users' data.
+
+- `.firebaserc` declares three project aliases (`default`, `staging`,
+  `production`); replace the placeholder project IDs with your real ones
+  before deploying anywhere. Switch which one `firebase` commands target
+  with `firebase use <alias>`.
+- Each project needs its own Cloud Functions config: copy
+  `functions/.env.example` to `functions/.env.<project-id>` (Firebase
+  Functions v2 loads that file automatically for the matching project) and
+  fill in that environment's own `ANTHROPIC_API_KEY` and Play service
+  account credentials. Never reuse one environment's secrets in another —
+  a leaked or misbehaving key should be revocable without taking every
+  environment down.
+- The admin CLI scripts (`npm run generate-draft`, `npm run approve-draft`)
+  print the resolved Firebase project ID before doing anything, specifically
+  so an operator never mutates the wrong environment's content pool by
+  running a command against whatever project `firebase use` happened to be
+  pointed at.

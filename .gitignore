@@ -16,6 +16,8 @@ captures/
 functions/node_modules/
 functions/lib/
 functions/.env
+functions/.env.*
+!functions/.env.example
 *.tsbuildinfo
 npm-debug.log*
 
