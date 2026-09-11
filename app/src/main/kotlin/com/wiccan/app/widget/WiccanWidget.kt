@@ -2,12 +2,12 @@ package com.wiccan.app.widget
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionStartActivity as actionStartActivityIntent
@@ -26,6 +26,7 @@ import androidx.glance.unit.ColorProvider
 import com.wiccan.app.MainActivity
 import com.wiccan.app.domain.model.Content
 import com.wiccan.app.domain.model.ContentTier
+import com.wiccan.app.ui.navigation.WiccanDeepLinks
 import com.wiccan.app.ui.theme.WiccanColors
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.first
@@ -52,13 +53,10 @@ class WiccanWidget : GlanceAppWidget() {
 
 @Composable
 private fun WidgetContent(context: Context, tier: ContentTier, content: Content?) {
-    val clickAction = if (tier != ContentTier.PREMIUM) {
-        val intent = Intent(context, MainActivity::class.java)
-            .putExtra(MainActivity.EXTRA_OPEN_PAYWALL, true)
-        actionStartActivityIntent(intent)
-    } else {
-        actionStartActivity<MainActivity>()
-    }
+    val deepLinkUri = if (tier != ContentTier.PREMIUM) WiccanDeepLinks.PREMIUM_URI else WiccanDeepLinks.TODAY_URI
+    val clickAction = actionStartActivityIntent(
+        Intent(Intent.ACTION_VIEW, Uri.parse(deepLinkUri), context, MainActivity::class.java),
+    )
 
     Column(
         modifier = GlanceModifier

@@ -1,6 +1,9 @@
 import { Firestore, Timestamp } from "firebase-admin/firestore";
-import { Content, ContentTier } from "./types";
+import { Content, ContentCategory, ContentTier, isContentCategory } from "./types";
 import { ContentRepositoryPort } from "./contentRepositoryPort";
+
+/** Defensive fallback for any legacy content document written before category existed. */
+const DEFAULT_CATEGORY: ContentCategory = "MoonAndSeasonal";
 
 const CONTENT_COLLECTION = "content";
 const HISTORY_COLLECTION = "userContentHistory";
@@ -28,6 +31,7 @@ function toContent(id: string, data: FirebaseFirestore.DocumentData): Content {
     type: data.type,
     tier: data.tier,
     tradition: data.tradition,
+    category: isContentCategory(data.category) ? data.category : DEFAULT_CATEGORY,
     title: data.title,
     intro: data.intro,
     body: data.body,
@@ -91,6 +95,7 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
         title: candidate.title,
         type: candidate.type,
         tradition: candidate.tradition,
+        category: candidate.category,
       });
       return candidate.id;
     });

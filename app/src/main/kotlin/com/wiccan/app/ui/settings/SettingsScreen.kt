@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wiccan.app.billing.PREMIUM_MONTHLY_PRODUCT_ID
+import com.wiccan.app.core.config.PolicyUrls
 import com.wiccan.app.core.error.toUserMessage
 import com.wiccan.app.domain.model.ContentTier
 
@@ -128,6 +130,17 @@ fun SettingsScreen(
             }
 
             Spacer(modifier = Modifier.weight(1f))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PolicyUrls.TERMS_OF_SERVICE))) }) {
+                    Text("Terms of Service", style = MaterialTheme.typography.labelSmall)
+                }
+                TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PolicyUrls.PRIVACY_POLICY))) }) {
+                    Text("Privacy Policy", style = MaterialTheme.typography.labelSmall)
+                }
+                TextButton(onClick = { context.startActivity(supportEmailIntent()) }) {
+                    Text("Contact Support", style = MaterialTheme.typography.labelSmall)
+                }
+            }
             Text(
                 text = "Wiccan v${appVersionName(context)}",
                 style = MaterialTheme.typography.labelSmall,
@@ -145,6 +158,9 @@ private fun manageSubscriptionIntent(): Intent {
         "?sku=$PREMIUM_MONTHLY_PRODUCT_ID&package=$ANDROID_PACKAGE_NAME"
     return Intent(Intent.ACTION_VIEW, Uri.parse(url))
 }
+
+private fun supportEmailIntent(): Intent =
+    Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${PolicyUrls.SUPPORT_EMAIL}"))
 
 private fun appVersionName(context: Context): String = try {
     context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "unknown"

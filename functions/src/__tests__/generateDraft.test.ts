@@ -85,4 +85,62 @@ describe("generateDrafts", () => {
       generateDrafts({ tier: "free", sourceId: "source-b", type: "spell" }, [SOURCE_A, SOURCE_B], generator, repo),
     ).rejects.toThrow(InvalidGenerationRequestError);
   });
+
+  it("does not persist a generated draft whose title already exists in the pool", async () => {
+    const generator = new FakeDraftGenerationPort();
+    generator.titleOverride = "Candle of Clear Intent";
+    const repo = new FakeContentAdminRepository();
+    await repo.createDraft({
+      title: "Candle of Clear Intent",
+      intro: "i",
+      body: "b",
+      materials: null,
+      safetyNote: null,
+      tags: ["spell"],
+      category: "MoonAndSeasonal",
+      type: "spell",
+      tier: "free",
+      tradition: "European folk magic",
+      sourceId: "source-a",
+    });
+
+    const results = await generateDrafts(
+      { tier: "free", sourceId: "source-a", type: "spell" },
+      [SOURCE_A, SOURCE_B],
+      generator,
+      repo,
+    );
+
+    expect(results).toHaveLength(0);
+    expect(repo.docs.size).toBe(1);
+  });
+
+  it("skips only the duplicate-titled attempts within a batch, keeping the rest", async () => {
+    const generator = new FakeDraftGenerationPort();
+    const repo = new FakeContentAdminRepository();
+    await repo.createDraft({
+      title: "Generated spell #2",
+      intro: "i",
+      body: "b",
+      materials: null,
+      safetyNote: null,
+      tags: ["spell"],
+      category: "MoonAndSeasonal",
+      type: "spell",
+      tier: "free",
+      tradition: "European folk magic",
+      sourceId: "source-a",
+    });
+
+    // FakeDraftGenerationPort's auto-incrementing titles will produce
+    // "Generated spell #1", "#2" (pre-existing, should be skipped), "#3".
+    const results = await generateDrafts(
+      { tier: "free", sourceId: "source-a", type: "spell", count: 3 },
+      [SOURCE_A, SOURCE_B],
+      generator,
+      repo,
+    );
+
+    expect(results.map((r) => r.title)).toEqual(["Generated spell #1", "Generated spell #3"]);
+  });
 });

@@ -13,6 +13,9 @@ export interface PlaySubscriptionInfo {
   state: PlaySubscriptionState;
   /** Product IDs actually present on this purchase, for a defense-in-depth check against the client-supplied productId. */
   productIds: string[];
+  /** Epoch milliseconds the current billing period ends, if Play reports one. */
+  expiryTimeMillis: number | null;
+  autoRenewing: boolean;
 }
 
 /**
@@ -22,4 +25,12 @@ export interface PlaySubscriptionInfo {
  */
 export interface PlayBillingPort {
   getSubscriptionState(purchaseToken: string): Promise<PlaySubscriptionInfo>;
+
+  /**
+   * Acknowledges a subscription purchase, required within 3 days of
+   * purchase or Google auto-refunds it. Acknowledging an
+   * already-acknowledged purchase is expected to be a safe no-op -
+   * implementations must not throw for that case.
+   */
+  acknowledgePurchaseIfNeeded(purchaseToken: string, productId: string): Promise<void>;
 }

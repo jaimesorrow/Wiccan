@@ -24,4 +24,13 @@ export class FirestoreUserRepository implements UserRepositoryPort {
       .filter((doc) => typeof doc.get("purchaseToken") === "string")
       .map((doc) => ({ uid: doc.id, purchaseToken: doc.get("purchaseToken") as string }));
   }
+
+  async findUidByPurchaseToken(purchaseToken: string): Promise<string | null> {
+    const snap = await this.db
+      .collection(USERS_COLLECTION)
+      .where("purchaseToken", "==", purchaseToken)
+      .limit(1)
+      .get();
+    return snap.empty ? null : snap.docs[0].id;
+  }
 }

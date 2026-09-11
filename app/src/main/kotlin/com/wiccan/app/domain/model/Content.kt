@@ -9,6 +9,7 @@ data class Content(
     val type: ContentType,
     val tier: ContentTier,
     val tradition: String,
+    val category: ContentCategory,
     val title: String,
     val intro: String,
     val body: String,

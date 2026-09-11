@@ -25,19 +25,19 @@ class NotificationRepositoryImplTest {
     }
 
     @Test
-    fun `registerToken forwards the given token to the callable`() = runTest {
-        coEvery { functionsDataSource.registerToken("token-123") } returns Unit
+    fun `registerToken forwards the given token and the device time zone to the callable`() = runTest {
+        coEvery { functionsDataSource.registerToken("token-123", any()) } returns Unit
 
         val result = repository.registerToken("token-123")
 
         assertTrue(result is AppResult.Success)
-        coVerify { functionsDataSource.registerToken("token-123") }
+        coVerify { functionsDataSource.registerToken("token-123", any()) }
     }
 
     @Test
     fun `registerToken classifies a generic failure as Unknown`() = runTest {
         val failure = IllegalStateException("network error")
-        coEvery { functionsDataSource.registerToken(any()) } throws failure
+        coEvery { functionsDataSource.registerToken(any(), any()) } throws failure
 
         val result = repository.registerToken("token-123")
 
@@ -48,11 +48,33 @@ class NotificationRepositoryImplTest {
     @Test
     fun `refreshAndRegisterToken fetches the current token then registers it`() = runTest {
         coEvery { tokenProvider.getToken() } returns "fresh-token"
-        coEvery { functionsDataSource.registerToken("fresh-token") } returns Unit
+        coEvery { functionsDataSource.registerToken("fresh-token", any()) } returns Unit
 
         val result = repository.refreshAndRegisterToken()
 
         assertTrue(result is AppResult.Success)
-        coVerify { functionsDataSource.registerToken("fresh-token") }
+        coVerify { functionsDataSource.registerToken("fresh-token", any()) }
+    }
+
+    @Test
+    fun `unregisterToken fetches the current token and forwards it to the callable`() = runTest {
+        coEvery { tokenProvider.getToken() } returns "current-token"
+        coEvery { functionsDataSource.unregisterToken("current-token") } returns Unit
+
+        val result = repository.unregisterToken()
+
+        assertTrue(result is AppResult.Success)
+        coVerify { functionsDataSource.unregisterToken("current-token") }
+    }
+
+    @Test
+    fun `unregisterToken classifies a generic failure as Unknown`() = runTest {
+        val failure = IllegalStateException("network error")
+        coEvery { tokenProvider.getToken() } throws failure
+
+        val result = repository.unregisterToken()
+
+        assertTrue(result is AppResult.Failure)
+        assertEquals(AppError.Unknown("network error"), (result as AppResult.Failure).error)
     }
 }

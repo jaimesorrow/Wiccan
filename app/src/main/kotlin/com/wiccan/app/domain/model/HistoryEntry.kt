@@ -6,6 +6,7 @@ data class HistoryEntry(
     val title: String,
     val type: ContentType,
     val tradition: String,
+    val category: ContentCategory,
     /** ISO date string (yyyy-MM-dd). */
     val deliveredDate: String,
 )

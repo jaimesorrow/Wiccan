@@ -1,11 +1,7 @@
 package com.wiccan.app.ui.archive
 
 import app.cash.turbine.test
-import com.wiccan.app.core.error.AppError
-import com.wiccan.app.core.result.AppResult
-import com.wiccan.app.domain.model.Content
-import com.wiccan.app.domain.model.ContentStatus
-import com.wiccan.app.domain.model.ContentTier
+import com.wiccan.app.domain.model.ContentCategory
 import com.wiccan.app.domain.model.ContentType
 import com.wiccan.app.domain.model.HistoryEntry
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +12,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -33,21 +28,8 @@ class ArchiveViewModelTest {
         title = "Candle of Clear Intent",
         type = ContentType.SPELL,
         tradition = "European folk magic",
+        category = ContentCategory.MOON_AND_SEASONAL,
         deliveredDate = "2026-09-10"
-    )
-
-    private val content = Content(
-        id = "content-1",
-        type = ContentType.SPELL,
-        tier = ContentTier.FREE,
-        tradition = "European folk magic",
-        title = "Candle of Clear Intent",
-        intro = "intro",
-        body = "body",
-        materials = null,
-        safetyNote = null,
-        tags = emptyList(),
-        status = ContentStatus.PUBLISHED
     )
 
     @Before
@@ -83,38 +65,13 @@ class ArchiveViewModelTest {
     }
 
     @Test
-    fun `EntryClicked loads and sets the selected content on success`() = runTest(dispatcher) {
-        repository.contentResults["content-1"] = AppResult.Success(content)
-
-        viewModel.onEvent(ArchiveUiEvent.EntryClicked("content-1"))
-        dispatcher.scheduler.advanceUntilIdle()
-
-        assertEquals(content, viewModel.state.value.selectedContent)
-        assertEquals(false, viewModel.state.value.isDetailLoading)
-    }
-
-    @Test
-    fun `DismissDetail clears the selected content`() = runTest(dispatcher) {
-        repository.contentResults["content-1"] = AppResult.Success(content)
-        viewModel.onEvent(ArchiveUiEvent.EntryClicked("content-1"))
-        dispatcher.scheduler.advanceUntilIdle()
-
-        viewModel.onEvent(ArchiveUiEvent.DismissDetail)
-
-        assertNull(viewModel.state.value.selectedContent)
-    }
-
-    @Test
-    fun `a failed detail fetch forwards the repository's error and leaves content unset`() = runTest(dispatcher) {
-        repository.contentResults["missing"] = AppResult.Failure(AppError.NotFound)
-
+    fun `EntryClicked emits a NavigateToDetail effect for that content id`() = runTest(dispatcher) {
         viewModel.effects.test {
-            viewModel.onEvent(ArchiveUiEvent.EntryClicked("missing"))
+            viewModel.onEvent(ArchiveUiEvent.EntryClicked("content-1"))
             val effect = awaitItem()
-            assertTrue(effect is ArchiveUiEffect.ShowSnackbar)
-            assertEquals(AppError.NotFound, (effect as ArchiveUiEffect.ShowSnackbar).error)
+            assertTrue(effect is ArchiveUiEffect.NavigateToDetail)
+            assertEquals("content-1", (effect as ArchiveUiEffect.NavigateToDetail).contentId)
             cancelAndConsumeRemainingEvents()
         }
-        assertNull(viewModel.state.value.selectedContent)
     }
 }

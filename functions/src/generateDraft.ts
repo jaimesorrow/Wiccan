@@ -62,6 +62,14 @@ function buildEligiblePairs(
  * pool — e.g. bootstrapping toward the 365-entry launch target — rather
  * than repeating a single combination. Every draft is written with
  * status "draft" and a sourceId; nothing here ever auto-publishes.
+ *
+ * A generated draft whose title exactly matches an existing document
+ * (draft or published) is not persisted - the LLM occasionally proposes
+ * the same signature title for the same source/type pair, and silently
+ * storing both would leave two indistinguishable-looking entries in the
+ * pool. The returned array only ever contains drafts actually written, so
+ * a shorter-than-requested result means one or more duplicates were
+ * skipped; the operator can re-run for the remainder.
  */
 export async function generateDrafts(
   request: GenerateDraftRequest,
@@ -84,6 +92,10 @@ export async function generateDrafts(
       tradition: pair.source.tradition,
       summary: pair.source.summary,
     });
+
+    if (await repo.titleExists(generated.title)) {
+      continue;
+    }
 
     const contentId = await repo.createDraft({
       ...generated,

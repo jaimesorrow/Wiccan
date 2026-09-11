@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wiccan.app.core.result.AppResult
 import com.wiccan.app.domain.repository.AuthRepository
+import com.wiccan.app.domain.repository.NotificationRepository
 import com.wiccan.app.domain.repository.SubscriptionRepository
 import com.wiccan.app.domain.usecase.DeleteAccountUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +23,7 @@ class SettingsViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val deleteAccountUseCase: DeleteAccountUseCase,
     private val subscriptionRepository: SubscriptionRepository,
+    private val notificationRepository: NotificationRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsUiState())
@@ -48,7 +50,13 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun signOut() {
-        viewModelScope.launch { authRepository.signOut() }
+        viewModelScope.launch {
+            // Best-effort: a signed-out device shouldn't keep receiving pushes
+            // meant for whoever signs in next. A failure here (offline, etc.)
+            // must never block the actual sign-out.
+            notificationRepository.unregisterToken()
+            authRepository.signOut()
+        }
     }
 
     private fun deleteAccount() {

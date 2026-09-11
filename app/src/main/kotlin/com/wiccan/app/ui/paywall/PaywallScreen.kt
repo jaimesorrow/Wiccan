@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,7 +38,11 @@ import com.wiccan.app.ui.today.components.CrescentGlyph
  * one subscription, one screen.
  */
 @Composable
-fun PaywallScreen(modifier: Modifier = Modifier, viewModel: PaywallViewModel = hiltViewModel()) {
+fun PaywallScreen(
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit = {},
+    viewModel: PaywallViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -55,60 +61,81 @@ fun PaywallScreen(modifier: Modifier = Modifier, viewModel: PaywallViewModel = h
         containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { insets ->
-        Column(
-            modifier = Modifier
-                .padding(insets)
-                .fillMaxSize()
-                .padding(horizontal = 32.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            CrescentGlyph()
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "WICCAN PREMIUM",
-                style = MaterialTheme.typography.displaySmall,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-
-            BenefitRow("Access to every premium spell, potion, and lesson — not just the free daily pick")
-            Spacer(modifier = Modifier.height(16.dp))
-            BenefitRow("Home-screen widget access, so today's content is there without opening the app")
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            if (state.isLoadingPrice) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-            } else {
+        Column(modifier = Modifier.padding(insets).fillMaxSize()) {
+            TextButton(onClick = onBack, modifier = Modifier.padding(start = 16.dp, top = 8.dp)) {
+                Text("← Back")
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 32.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                CrescentGlyph()
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = state.price ?: "Price unavailable",
-                    style = MaterialTheme.typography.headlineSmall,
+                    text = "WICCAN PREMIUM",
+                    style = MaterialTheme.typography.displaySmall,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
-            }
+                Spacer(modifier = Modifier.height(32.dp))
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick = { context.findActivity()?.let(viewModel::subscribe) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isLoadingPrice,
-            ) {
-                Text("Subscribe")
-            }
+                BenefitRow("Access to every premium spell, potion, and lesson — not just the free daily pick")
+                Spacer(modifier = Modifier.height(16.dp))
+                BenefitRow("Home-screen widget access, so today's content is there without opening the app")
 
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedButton(
-                onClick = { viewModel.onEvent(PaywallUiEvent.RestorePurchasesClicked) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isRestoring,
-            ) {
-                Text("Restore Purchases")
-            }
+                Spacer(modifier = Modifier.height(40.dp))
 
-            if (state.isRestoring) {
+                if (state.isLoadingPrice) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                } else {
+                    Text(
+                        text = state.price ?: "Price unavailable",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                if (!state.isLoadingPrice) {
+                    Text(
+                        text = "${state.price ?: "This price"} per month. Auto-renews until canceled.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = { context.findActivity()?.let(viewModel::subscribe) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !state.isLoadingPrice,
+                ) {
+                    Text("Subscribe")
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedButton(
+                    onClick = { viewModel.onEvent(PaywallUiEvent.RestorePurchasesClicked) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !state.isRestoring,
+                ) {
+                    Text("Restore Purchases")
+                }
+
+                if (state.isRestoring) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Cancel anytime through Google Play. You can keep using Wiccan's free daily content either way.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
             }
         }
     }

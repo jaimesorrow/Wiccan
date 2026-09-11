@@ -3,13 +3,16 @@ package com.wiccan.app.data.repository
 import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 import com.wiccan.app.R
 import com.wiccan.app.analytics.AnalyticsLogger
 import com.wiccan.app.core.error.toAppError
 import com.wiccan.app.core.result.AppResult
 import com.wiccan.app.data.remote.AccountFunctionsDataSource
 import com.wiccan.app.data.remote.GoogleCredentialDataSource
+import com.wiccan.app.domain.model.AccountStatus
 import com.wiccan.app.domain.model.AuthState
+import com.wiccan.app.domain.model.PolicyVersions
 import com.wiccan.app.domain.repository.AuthRepository
 import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
@@ -17,8 +20,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
+private const val USERS_COLLECTION = "users"
+
 class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
+    private val firestore: FirebaseFirestore,
     private val googleCredentialDataSource: GoogleCredentialDataSource,
     private val accountFunctionsDataSource: AccountFunctionsDataSource,
     private val analyticsLogger: AnalyticsLogger,
@@ -31,6 +37,32 @@ class AuthRepositoryImpl @Inject constructor(
         }
         firebaseAuth.addAuthStateListener(listener)
         awaitClose { firebaseAuth.removeAuthStateListener(listener) }
+    }
+
+    override fun observeAccountStatus(uid: String): Flow<AccountStatus> = callbackFlow {
+        val registration = firestore.collection(USERS_COLLECTION).document(uid)
+            .addSnapshotListener { snapshot, _ ->
+                trySend(
+                    when {
+                        snapshot?.exists() != true -> AccountStatus.Initializing
+                        snapshot.getLong("acceptedTermsVersion")?.toInt() != PolicyVersions.TERMS -> {
+                            AccountStatus.RequiresPolicyAcceptance
+                        }
+                        snapshot.getLong("acceptedPrivacyVersion")?.toInt() != PolicyVersions.PRIVACY -> {
+                            AccountStatus.RequiresPolicyAcceptance
+                        }
+                        else -> AccountStatus.Ready
+                    },
+                )
+            }
+        awaitClose { registration.remove() }
+    }
+
+    override suspend fun acceptTerms(): AppResult<Unit> = try {
+        accountFunctionsDataSource.acceptTerms(PolicyVersions.TERMS, PolicyVersions.PRIVACY)
+        AppResult.Success(Unit)
+    } catch (t: Throwable) {
+        AppResult.Failure(t.toAppError())
     }
 
     override suspend fun signInWithGoogle(context: Context): AppResult<Unit> = try {
