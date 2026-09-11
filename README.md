@@ -76,7 +76,7 @@ functions/                    Cloud Functions (Node/TypeScript)
 ./gradlew :app:testDebugUnitTest
 ```
 
-Requires the Android SDK (`compileSdk`/`targetSdk` 35) — set `sdk.dir` in
+Requires the Android SDK (`compileSdk`/`targetSdk` 36) — set `sdk.dir` in
 a local `local.properties` file or the `ANDROID_HOME` environment
 variable. You'll also need a real `app/google-services.json` from your
 Firebase project (not checked in), including a configured OAuth web
