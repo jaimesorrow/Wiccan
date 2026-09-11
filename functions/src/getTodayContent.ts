@@ -8,21 +8,23 @@ function pickRandom(items: Content[]): Content {
 /**
  * Core daily-selection logic, per the Wiccan content-engine spec:
  *
- * 1. If this user already has a history entry for `today`, return that
- *    content (idempotent — repeated calls the same day agree).
+ * 1. Fast path: if this user already has a history entry for `today`,
+ *    return that content (idempotent — repeated calls the same day agree).
+ *    This is a plain read purely to skip the work below; it is never
+ *    relied on for correctness.
  * 2. Otherwise, gather published content within the user's tier, minus
  *    anything already delivered to them.
  * 3. If nothing remains (pool exhausted), fall back to the full published
  *    pool and log the exhaustion event for content-pool monitoring.
  * 4. Pick one candidate at random.
- * 5. Record the delivery.
+ * 5. Atomically commit that candidate as today's assignment via
+ *    `assignDailyContent`. If a concurrent call already won today's
+ *    assignment first, the candidate this call picked is discarded and
+ *    the winning content is fetched and returned instead - so two
+ *    truly simultaneous first-call-of-the-day requests always converge
+ *    on the same single committed assignment, with exactly one history
+ *    record created.
  * 6. Return the selected content.
- *
- * Note: steps 1 and 4-5 are not wrapped in a Firestore transaction, so two
- * truly simultaneous first-call-of-the-day requests from the same user
- * could each pick and record a delivery. That race is an accepted,
- * documented limitation of this foundation pass rather than something
- * this function guards against.
  */
 export async function selectTodayContent(
   uid: string,
@@ -57,7 +59,18 @@ export async function selectTodayContent(
     throw new Error(`No published content available for tier '${tier}'.`);
   }
 
-  const selected = pickRandom(candidates);
-  await repo.recordDelivery(uid, selected, today);
-  return selected;
+  const candidate = pickRandom(candidates);
+  const assignedId = await repo.assignDailyContent(uid, today, candidate);
+
+  if (assignedId === candidate.id) {
+    return candidate;
+  }
+
+  // A concurrent call already committed a different assignment first;
+  // defer to it so both callers agree on the same content.
+  const winner = await repo.getContentById(assignedId);
+  if (!winner) {
+    throw new Error(`Assigned content '${assignedId}' could not be found.`);
+  }
+  return winner;
 }

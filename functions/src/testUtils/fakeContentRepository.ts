@@ -37,15 +37,28 @@ export class FakeContentRepository implements ContentRepositoryPort {
     return this.content.filter((c) => c.status === "published" && eligible.includes(c.tier));
   }
 
-  async recordDelivery(userId: string, content: Content, deliveredDate: string): Promise<void> {
+  /**
+   * Mirrors FirestoreContentRepository's transactional behavior: check
+   * and write happen with no `await` in between, so this method's whole
+   * body runs to completion in one synchronous pass. That models a real
+   * Firestore transaction closely enough for concurrency tests driven
+   * via `Promise.all` - two calls racing for the same (uid, today) can
+   * never interleave inside this function, only around it.
+   */
+  async assignDailyContent(userId: string, deliveredDate: string, candidate: Content): Promise<string> {
+    const existing = this.history.find((h) => h.userId === userId && h.deliveredDate === deliveredDate);
+    if (existing) {
+      return existing.contentId;
+    }
     this.history.push({
       userId,
-      contentId: content.id,
+      contentId: candidate.id,
       deliveredDate,
-      title: content.title,
-      type: content.type,
-      tradition: content.tradition,
+      title: candidate.title,
+      type: candidate.type,
+      tradition: candidate.tradition,
     });
+    return candidate.id;
   }
 
   async logPoolExhaustion(userId: string, tier: ContentTier, today: string): Promise<void> {

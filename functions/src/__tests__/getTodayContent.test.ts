@@ -65,6 +65,28 @@ describe("selectTodayContent", () => {
     });
   });
 
+  it("two concurrent first-of-the-day calls converge on exactly one committed assignment", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [makeContent({ id: "c1" }), makeContent({ id: "c2" }), makeContent({ id: "c3" })];
+
+    const results = await Promise.all([
+      selectTodayContent(UID, TODAY, repo),
+      selectTodayContent(UID, TODAY, repo),
+      selectTodayContent(UID, TODAY, repo),
+    ]);
+
+    expect(new Set(results.map((r) => r.id)).size).toBe(1);
+    expect(repo.history).toHaveLength(1);
+    expect(repo.history[0]).toEqual({
+      userId: UID,
+      contentId: results[0].id,
+      deliveredDate: TODAY,
+      title: results[0].title,
+      type: results[0].type,
+      tradition: results[0].tradition,
+    });
+  });
+
   it("only offers a free user free-tier published content", async () => {
     const repo = new FakeContentRepository();
     repo.tier = "free";

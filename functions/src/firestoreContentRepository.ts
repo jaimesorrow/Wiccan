@@ -12,6 +12,16 @@ function eligibleTiers(tier: ContentTier): ContentTier[] {
   return tier === "premium" ? ["free", "premium"] : ["free"];
 }
 
+/**
+ * Deterministic per-user-per-day history document ID. Giving every
+ * caller racing for the same (uid, today) the same document identity is
+ * what lets `assignDailyContent`'s transaction guarantee a single winner:
+ * two concurrent transactions targeting the same doc always serialize.
+ */
+function historyDocId(uid: string, today: string): string {
+  return `${uid}_${today}`;
+}
+
 function toContent(id: string, data: FirebaseFirestore.DocumentData): Content {
   return {
     id,
@@ -37,14 +47,8 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
   }
 
   async findTodayDeliveredContentId(uid: string, today: string): Promise<string | null> {
-    const snap = await this.db
-      .collection(HISTORY_COLLECTION)
-      .where("userId", "==", uid)
-      .where("deliveredDate", "==", today)
-      .limit(1)
-      .get();
-    if (snap.empty) return null;
-    return snap.docs[0].get("contentId") as string;
+    const doc = await this.db.collection(HISTORY_COLLECTION).doc(historyDocId(uid, today)).get();
+    return doc.exists ? (doc.get("contentId") as string) : null;
   }
 
   async getDeliveredContentIds(uid: string): Promise<string[]> {
@@ -67,14 +71,22 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
     return snap.docs.map((doc) => toContent(doc.id, doc.data()));
   }
 
-  async recordDelivery(uid: string, content: Content, today: string): Promise<void> {
-    await this.db.collection(HISTORY_COLLECTION).add({
-      userId: uid,
-      contentId: content.id,
-      deliveredDate: today,
-      title: content.title,
-      type: content.type,
-      tradition: content.tradition,
+  async assignDailyContent(uid: string, today: string, candidate: Content): Promise<string> {
+    const docRef = this.db.collection(HISTORY_COLLECTION).doc(historyDocId(uid, today));
+    return this.db.runTransaction(async (txn) => {
+      const snap = await txn.get(docRef);
+      if (snap.exists) {
+        return snap.get("contentId") as string;
+      }
+      txn.set(docRef, {
+        userId: uid,
+        contentId: candidate.id,
+        deliveredDate: today,
+        title: candidate.title,
+        type: candidate.type,
+        tradition: candidate.tradition,
+      });
+      return candidate.id;
     });
   }
 
