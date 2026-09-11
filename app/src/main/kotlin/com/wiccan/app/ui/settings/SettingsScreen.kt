@@ -137,6 +137,9 @@ fun SettingsScreen(
                 TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PolicyUrls.PRIVACY_POLICY))) }) {
                     Text("Privacy Policy", style = MaterialTheme.typography.labelSmall)
                 }
+                TextButton(onClick = { context.startActivity(supportEmailIntent()) }) {
+                    Text("Contact Support", style = MaterialTheme.typography.labelSmall)
+                }
             }
             Text(
                 text = "Wiccan v${appVersionName(context)}",
@@ -155,6 +158,9 @@ private fun manageSubscriptionIntent(): Intent {
         "?sku=$PREMIUM_MONTHLY_PRODUCT_ID&package=$ANDROID_PACKAGE_NAME"
     return Intent(Intent.ACTION_VIEW, Uri.parse(url))
 }
+
+private fun supportEmailIntent(): Intent =
+    Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${PolicyUrls.SUPPORT_EMAIL}"))
 
 private fun appVersionName(context: Context): String = try {
     context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "unknown"
