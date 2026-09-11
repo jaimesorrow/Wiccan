@@ -8,7 +8,7 @@ grimoires.
 ## Structure
 
 ```
-app/                         Android app module (Kotlin, package com.nyxwell.app)
+app/                         Android app module (Kotlin, package com.wiccan.app)
   domain/model/                Content, ContentType, ContentTier, ContentStatus,
                                 UserContentHistory, AuthState
   domain/repository/           ContentRepository, SubscriptionRepository,

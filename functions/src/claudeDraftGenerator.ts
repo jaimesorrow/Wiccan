@@ -21,7 +21,7 @@ const GeneratedDraftSchema = z.object({
  * sources.json, never a verbatim excerpt of the original source.
  */
 function buildPrompt(request: DraftGenerationRequest): string {
-  return `You are drafting one original ${request.type} for Nyxwell, a modern witchcraft app.
+  return `You are drafting one original ${request.type} for Wiccan, a modern witchcraft app.
 Use the following historical tradition ONLY as thematic inspiration —
 do not quote, closely paraphrase, or mirror its structure or wording.
 Write something new, in your own words, that captures the same

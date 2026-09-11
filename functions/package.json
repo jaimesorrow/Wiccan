@@ -1,8 +1,8 @@
 {
-  "name": "nyxwell-functions",
+  "name": "wiccan-functions",
   "version": "1.0.0",
   "private": true,
-  "description": "Nyxwell Cloud Functions: server-side daily content selection.",
+  "description": "Wiccan Cloud Functions: server-side daily content selection.",
   "main": "lib/index.js",
   "engines": {
     "node": "20"

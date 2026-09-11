@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-    namespace = "com.nyxwell.app"
+    namespace = "com.wiccan.app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.nyxwell.app"
+        applicationId = "com.wiccan.app"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -102,7 +102,7 @@ dependencies {
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.appcheck.ktx)
     implementation(libs.firebase.appcheck.playintegrity)
-    // Not debugImplementation: NyxwellApplication picks the provider at
+    // Not debugImplementation: WiccanApplication picks the provider at
     // runtime via BuildConfig.DEBUG, so both providers must be on the
     // classpath for every build type, not just debug's.
     implementation(libs.firebase.appcheck.debug)

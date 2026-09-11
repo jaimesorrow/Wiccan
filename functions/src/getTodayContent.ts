@@ -6,7 +6,7 @@ function pickRandom(items: Content[]): Content {
 }
 
 /**
- * Core daily-selection logic, per the Nyxwell content-engine spec:
+ * Core daily-selection logic, per the Wiccan content-engine spec:
  *
  * 1. If this user already has a history entry for `today`, return that
  *    content (idempotent — repeated calls the same day agree).

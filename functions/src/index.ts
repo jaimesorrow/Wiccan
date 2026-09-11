@@ -24,7 +24,7 @@ import { deleteAccount } from "./deleteAccount";
 initializeApp();
 
 // Matches the Android app's applicationId (app/build.gradle.kts).
-const ANDROID_PACKAGE_NAME = process.env.ANDROID_PACKAGE_NAME ?? "com.nyxwell.app";
+const ANDROID_PACKAGE_NAME = process.env.ANDROID_PACKAGE_NAME ?? "com.wiccan.app";
 
 /**
  * Callable: returns the caller's content for today, selecting and

@@ -4,7 +4,7 @@ import { FakeUserRepository } from "../testUtils/fakeUserRepository";
 
 const UID = "user-123";
 const TOKEN = "token-abc";
-const PRODUCT_ID = "nyxwell_premium_monthly";
+const PRODUCT_ID = "wiccan_premium_monthly";
 
 describe("verifyPurchaseAndSyncTier", () => {
   it("grants premium for an active subscription and records the token", async () => {
