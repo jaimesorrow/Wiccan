@@ -14,6 +14,16 @@ interface AuthRepository {
     fun observeAuthState(): Flow<AuthState>
 
     /**
+     * Whether the server-side `users/{uid}` profile document exists yet.
+     * Its creation is a Firebase Auth trigger that runs asynchronously
+     * after sign-up, so a client can briefly observe [AuthState.SignedIn]
+     * before this turns true - the root state machine uses it to hold on
+     * an "initializing" state rather than entering the app against a
+     * profile that isn't there yet.
+     */
+    fun observeProfileReady(uid: String): Flow<Boolean>
+
+    /**
      * [context] must be an Activity context — Credential Manager attaches
      * its account-picker UI to it, the same requirement Billing has for
      * launching its purchase flow.

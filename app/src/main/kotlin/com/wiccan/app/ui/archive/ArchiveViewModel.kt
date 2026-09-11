@@ -2,7 +2,6 @@ package com.wiccan.app.ui.archive
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wiccan.app.core.result.AppResult
 import com.wiccan.app.domain.repository.ArchiveRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -15,6 +14,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * Drives the Archive list ("Book of Shadows" Timeline) only. Tapping an
+ * entry is a navigation event - the detail screen is its own route
+ * (`archive_detail/{contentId}`) with its own ViewModel, not internal
+ * state here.
+ */
 @HiltViewModel
 class ArchiveViewModel @Inject constructor(
     private val archiveRepository: ArchiveRepository,
@@ -36,22 +41,8 @@ class ArchiveViewModel @Inject constructor(
 
     fun onEvent(event: ArchiveUiEvent) {
         when (event) {
-            is ArchiveUiEvent.EntryClicked -> loadDetail(event.contentId)
-            ArchiveUiEvent.DismissDetail -> _state.update { it.copy(selectedContent = null) }
-        }
-    }
-
-    private fun loadDetail(contentId: String) {
-        _state.update { it.copy(isDetailLoading = true) }
-        viewModelScope.launch {
-            when (val result = archiveRepository.getContentById(contentId)) {
-                is AppResult.Success -> _state.update {
-                    it.copy(isDetailLoading = false, selectedContent = result.data)
-                }
-                is AppResult.Failure -> {
-                    _state.update { it.copy(isDetailLoading = false) }
-                    effectChannel.send(ArchiveUiEffect.ShowSnackbar(result.error))
-                }
+            is ArchiveUiEvent.EntryClicked -> viewModelScope.launch {
+                effectChannel.send(ArchiveUiEffect.NavigateToDetail(event.contentId))
             }
         }
     }

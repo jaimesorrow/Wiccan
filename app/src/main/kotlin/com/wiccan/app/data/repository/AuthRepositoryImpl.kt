@@ -3,6 +3,7 @@ package com.wiccan.app.data.repository
 import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 import com.wiccan.app.R
 import com.wiccan.app.analytics.AnalyticsLogger
 import com.wiccan.app.core.error.toAppError
@@ -17,8 +18,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
+private const val USERS_COLLECTION = "users"
+
 class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
+    private val firestore: FirebaseFirestore,
     private val googleCredentialDataSource: GoogleCredentialDataSource,
     private val accountFunctionsDataSource: AccountFunctionsDataSource,
     private val analyticsLogger: AnalyticsLogger,
@@ -31,6 +35,14 @@ class AuthRepositoryImpl @Inject constructor(
         }
         firebaseAuth.addAuthStateListener(listener)
         awaitClose { firebaseAuth.removeAuthStateListener(listener) }
+    }
+
+    override fun observeProfileReady(uid: String): Flow<Boolean> = callbackFlow {
+        val registration = firestore.collection(USERS_COLLECTION).document(uid)
+            .addSnapshotListener { snapshot, _ ->
+                trySend(snapshot?.exists() == true)
+            }
+        awaitClose { registration.remove() }
     }
 
     override suspend fun signInWithGoogle(context: Context): AppResult<Unit> = try {

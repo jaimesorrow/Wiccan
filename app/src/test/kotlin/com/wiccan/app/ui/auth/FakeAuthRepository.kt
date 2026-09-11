@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class FakeAuthRepository : AuthRepository {
 
     private val authStateFlow = MutableStateFlow<AuthState>(AuthState.SignedOut)
+    private val profileReadyFlows = mutableMapOf<String, MutableStateFlow<Boolean>>()
 
     var googleResult: AppResult<Unit> = AppResult.Success(Unit)
     var emailSignInResult: AppResult<Unit> = AppResult.Success(Unit)
@@ -25,6 +26,18 @@ class FakeAuthRepository : AuthRepository {
     var deleteAccountCallCount: Int = 0
 
     override fun observeAuthState(): Flow<AuthState> = authStateFlow
+
+    /** Defaults to "ready" so tests unrelated to profile initialization don't need to opt in. */
+    override fun observeProfileReady(uid: String): Flow<Boolean> =
+        profileReadyFlows.getOrPut(uid) { MutableStateFlow(true) }
+
+    fun setProfileReady(uid: String, ready: Boolean) {
+        profileReadyFlows.getOrPut(uid) { MutableStateFlow(ready) }.value = ready
+    }
+
+    fun setAuthState(state: AuthState) {
+        authStateFlow.value = state
+    }
 
     override suspend fun signInWithGoogle(context: Context): AppResult<Unit> = googleResult
 

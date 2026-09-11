@@ -1,34 +1,37 @@
 package com.wiccan.app
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.wiccan.app.domain.model.AuthState
+import com.wiccan.app.domain.model.RootState
 import com.wiccan.app.ui.auth.RootViewModel
 import com.wiccan.app.ui.auth.SignInScreen
+import com.wiccan.app.ui.navigation.WiccanAppShell
+import com.wiccan.app.ui.navigation.WiccanDeepLinks
 import com.wiccan.app.ui.notification.NotificationSetupEffect
-import com.wiccan.app.ui.paywall.PaywallScreen
 import com.wiccan.app.ui.theme.WiccanTheme
-import com.wiccan.app.ui.today.TodayScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
- * Root host, auth-aware: signed-out shows the sign-in screen, signed-in
- * shows Today (or the Paywall, when launched with [EXTRA_OPEN_PAYWALL] —
- * the locked widget's entry point). No navigation graph yet beyond that —
- * arrives once there are more signed-in destinations to route between.
- *
- * The AndroidX SplashScreen stays on screen (per [Theme.Wiccan.Starting])
- * until [RootViewModel.authState] resolves past its initial `null` — a
- * fixed timer would either flash blank content or wait longer than needed.
+ * Root host, resolved via [RootViewModel.rootState]: signed-out shows the
+ * sign-in screen; signed-in (with a ready profile) hosts the full
+ * navigation shell ([WiccanAppShell]). No fixed timer or `currentUser
+ * != null` shortcut — the AndroidX SplashScreen stays on screen (per
+ * [Theme.Wiccan.Starting]) until [RootState.Loading] resolves to
+ * something real.
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -37,32 +40,36 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        splashScreen.setKeepOnScreenCondition { rootViewModel.authState.value == null }
+        splashScreen.setKeepOnScreenCondition { rootViewModel.rootState.value == RootState.Loading }
 
         enableEdgeToEdge()
-        val openPaywall = intent.getBooleanExtra(EXTRA_OPEN_PAYWALL, false)
+        val startOnPaywall = intent?.data == Uri.parse(WiccanDeepLinks.PREMIUM_URI)
         setContent {
             WiccanTheme {
-                val authState by rootViewModel.authState.collectAsStateWithLifecycle()
-                var showPaywall by rememberSaveable { mutableStateOf(openPaywall) }
+                val rootState by rootViewModel.rootState.collectAsStateWithLifecycle()
 
-                when (authState) {
-                    is AuthState.SignedIn -> {
+                when (rootState) {
+                    RootState.SignedIn -> {
                         NotificationSetupEffect()
-                        if (showPaywall) {
-                            PaywallScreen()
-                        } else {
-                            TodayScreen()
-                        }
+                        WiccanAppShell(startOnPaywall = startOnPaywall)
                     }
-                    AuthState.SignedOut -> SignInScreen()
-                    null -> Unit // still resolving; the splash screen is covering this frame
+                    RootState.SignedOut -> SignInScreen()
+                    RootState.Loading,
+                    RootState.InitializingProfile,
+                    RootState.RequiresPolicyAcceptance,
+                    -> LoadingIndicator()
                 }
             }
         }
     }
+}
 
-    companion object {
-        const val EXTRA_OPEN_PAYWALL = "com.wiccan.app.EXTRA_OPEN_PAYWALL"
+@Composable
+private fun LoadingIndicator() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
     }
 }
