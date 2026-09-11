@@ -17,4 +17,11 @@ export class FakeUserRepository implements UserRepositoryPort {
       })
       .map(([uid, record]) => ({ uid, purchaseToken: record.purchaseToken }));
   }
+
+  async findUidByPurchaseToken(purchaseToken: string): Promise<string | null> {
+    for (const [uid, record] of this.users.entries()) {
+      if (record.purchaseToken === purchaseToken) return uid;
+    }
+    return null;
+  }
 }

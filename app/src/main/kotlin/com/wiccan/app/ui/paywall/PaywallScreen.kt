@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -96,6 +97,15 @@ fun PaywallScreen(
                     )
                 }
 
+                Spacer(modifier = Modifier.height(8.dp))
+                if (!state.isLoadingPrice) {
+                    Text(
+                        text = "${state.price ?: "This price"} per month. Auto-renews until canceled.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     onClick = { context.findActivity()?.let(viewModel::subscribe) },
@@ -118,6 +128,14 @@ fun PaywallScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Cancel anytime through Google Play. You can keep using Wiccan's free daily content either way.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
             }
         }
     }

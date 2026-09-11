@@ -1,9 +1,25 @@
 import { ContentTier } from "./types";
-import { PlaySubscriptionState } from "./playBillingPort";
+import { PlaySubscriptionInfo } from "./playBillingPort";
 
-/** Grace period still grants access while Google retries a failed renewal. */
-const ACTIVE_STATES: ReadonlySet<PlaySubscriptionState> = new Set(["active", "in_grace_period"]);
-
-export function tierForSubscriptionState(state: PlaySubscriptionState): ContentTier {
-  return ACTIVE_STATES.has(state) ? "premium" : "free";
+/**
+ * The real Play subscription entitlement rule:
+ *
+ * - active / in_grace_period -> premium (grace period still grants access
+ *   while Google retries a failed renewal charge)
+ * - canceled but not yet past its paid-through expiry -> premium until
+ *   expiry (canceling auto-renew does not revoke access the user already
+ *   paid for)
+ * - on_hold / paused / pending / expired / unspecified, or canceled past
+ *   expiry -> free
+ */
+export function tierForSubscription(info: PlaySubscriptionInfo, now: Date = new Date()): ContentTier {
+  switch (info.state) {
+    case "active":
+    case "in_grace_period":
+      return "premium";
+    case "canceled":
+      return info.expiryTimeMillis !== null && info.expiryTimeMillis > now.getTime() ? "premium" : "free";
+    default:
+      return "free";
+  }
 }

@@ -3,6 +3,7 @@ import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
+import { onMessagePublished } from "firebase-functions/v2/pubsub";
 import { auth as authV1 } from "firebase-functions/v1";
 import * as logger from "firebase-functions/logger";
 import { selectTodayContent } from "./getTodayContent";
@@ -21,11 +22,18 @@ import { createUserProfileOnSignUp } from "./createUserProfile";
 import { FirestoreAccountDeletionRepository } from "./firestoreAccountDeletionRepository";
 import { deleteAccount } from "./deleteAccount";
 import { acceptTerms as acceptTermsCore, StalePolicyVersionError } from "./acceptTerms";
+import { FirestoreSubscriptionRecordRepository } from "./firestoreSubscriptionRecordRepository";
+import { handleRtdnNotification, parseRtdnPurchaseToken } from "./handleRtdn";
 
 initializeApp();
 
 // Matches the Android app's applicationId (app/build.gradle.kts).
 const ANDROID_PACKAGE_NAME = process.env.ANDROID_PACKAGE_NAME ?? "com.wiccan.app";
+
+// The Pub/Sub topic Play Console's "Real-time developer notifications"
+// setting must be pointed at (Monetization setup -> RTDN). This is an
+// operational Play Console step, not something this code provisions.
+const PLAY_RTDN_TOPIC = process.env.PLAY_RTDN_TOPIC ?? "play-rtdn";
 
 /**
  * Callable: returns the caller's content for today, selecting and
@@ -71,7 +79,8 @@ export const verifyPurchase = onCall({ enforceAppCheck: true }, async (request) 
   try {
     const billing = new GooglePlayBillingRepository(ANDROID_PACKAGE_NAME);
     const users = new FirestoreUserRepository(getFirestore());
-    const tier = await verifyPurchaseAndSyncTier(uid, purchaseToken, productId, billing, users);
+    const subscriptions = new FirestoreSubscriptionRecordRepository(getFirestore());
+    const tier = await verifyPurchaseAndSyncTier(uid, purchaseToken, productId, billing, users, subscriptions);
     return { tier };
   } catch (err) {
     if (err instanceof PurchaseVerificationError) {
@@ -92,8 +101,48 @@ export const verifyPurchase = onCall({ enforceAppCheck: true }, async (request) 
 export const recheckLapsedSubscriptionsJob = onSchedule("every day 03:00", async () => {
   const billing = new GooglePlayBillingRepository(ANDROID_PACKAGE_NAME);
   const users = new FirestoreUserRepository(getFirestore());
-  const summary = await recheckLapsedSubscriptions(billing, users);
+  const subscriptions = new FirestoreSubscriptionRecordRepository(getFirestore());
+  const summary = await recheckLapsedSubscriptions(billing, users, subscriptions);
   logger.info("recheckLapsedSubscriptions complete", summary);
+});
+
+/**
+ * Pub/Sub-triggered: handles a Google Play Real-Time Developer
+ * Notification for a subscription lifecycle event (renewal,
+ * cancellation, recovery, price change, etc). Keeps `users/{uid}.tier`
+ * and the `subscriptions/{uid}` audit record current as events happen,
+ * rather than waiting for the next daily reconciliation pass.
+ *
+ * Requires Play Console's Monetization setup -> "Real-time developer
+ * notifications" to be pointed at this Pub/Sub topic
+ * (`PLAY_RTDN_TOPIC`/"play-rtdn"), and that topic to grant the Play
+ * publisher service account permission to publish to it - both
+ * operational Play Console/Cloud IAM steps this code cannot perform on
+ * its own. Daily reconciliation (`recheckLapsedSubscriptionsJob`) remains
+ * as a backup for any notification that is missed or delayed.
+ */
+export const handlePlayRtdn = onMessagePublished(PLAY_RTDN_TOPIC, async (event) => {
+  const messageData = event.data.message.data;
+  if (!messageData) {
+    return;
+  }
+
+  const purchaseToken = parseRtdnPurchaseToken(messageData);
+  if (!purchaseToken) {
+    // Not a subscription notification (e.g. a one-time-product or test
+    // notification also delivered through this topic) - nothing to do.
+    return;
+  }
+
+  try {
+    const billing = new GooglePlayBillingRepository(ANDROID_PACKAGE_NAME);
+    const users = new FirestoreUserRepository(getFirestore());
+    const subscriptions = new FirestoreSubscriptionRecordRepository(getFirestore());
+    const result = await handleRtdnNotification(purchaseToken, billing, users, subscriptions);
+    logger.info("handlePlayRtdn processed", { result });
+  } catch (err) {
+    logger.error("handlePlayRtdn failed", { error: (err as Error).message });
+  }
 });
 
 /**
