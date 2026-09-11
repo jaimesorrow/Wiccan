@@ -1,6 +1,7 @@
 package com.wiccan.app.ui.archive
 
 import app.cash.turbine.test
+import com.wiccan.app.domain.model.ContentCategory
 import com.wiccan.app.domain.model.ContentType
 import com.wiccan.app.domain.model.HistoryEntry
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,7 @@ class ArchiveViewModelTest {
         title = "Candle of Clear Intent",
         type = ContentType.SPELL,
         tradition = "European folk magic",
+        category = ContentCategory.MOON_AND_SEASONAL,
         deliveredDate = "2026-09-10"
     )
 

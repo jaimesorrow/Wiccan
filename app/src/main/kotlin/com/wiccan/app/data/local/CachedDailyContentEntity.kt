@@ -14,6 +14,7 @@ data class CachedDailyContentEntity(
     val type: String,
     val tier: String,
     val tradition: String,
+    val category: String,
     val title: String,
     val intro: String,
     val body: String,

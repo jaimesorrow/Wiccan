@@ -1,4 +1,4 @@
-import { ContentType } from "./types";
+import { ContentCategory, ContentType } from "./types";
 
 /** The fields an LLM generates for one draft; everything else (type, tier, tradition, sourceId, status) is assigned by generateDraft itself. */
 export interface GeneratedDraftFields {
@@ -8,6 +8,8 @@ export interface GeneratedDraftFields {
   materials: string[] | null;
   safetyNote: string | null;
   tags: string[];
+  /** The single Library category this piece best fits, chosen by the generator. */
+  category: ContentCategory;
 }
 
 export interface DraftGenerationRequest {

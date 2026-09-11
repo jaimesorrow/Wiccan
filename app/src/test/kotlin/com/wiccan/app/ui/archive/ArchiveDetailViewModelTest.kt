@@ -5,6 +5,7 @@ import app.cash.turbine.test
 import com.wiccan.app.core.error.AppError
 import com.wiccan.app.core.result.AppResult
 import com.wiccan.app.domain.model.Content
+import com.wiccan.app.domain.model.ContentCategory
 import com.wiccan.app.domain.model.ContentStatus
 import com.wiccan.app.domain.model.ContentTier
 import com.wiccan.app.domain.model.ContentType
@@ -32,6 +33,7 @@ class ArchiveDetailViewModelTest {
         type = ContentType.SPELL,
         tier = ContentTier.FREE,
         tradition = "European folk magic",
+        category = ContentCategory.MOON_AND_SEASONAL,
         title = "Candle of Clear Intent",
         intro = "intro",
         body = "body",

@@ -15,6 +15,7 @@ export class FakeDraftGenerationPort implements DraftGenerationPort {
       materials: request.type === "potion" ? ["a bowl of water", "a white candle"] : null,
       safetyNote: request.type === "potion" ? "Keep away from open flame." : null,
       tags: [request.type],
+      category: "MoonAndSeasonal",
     };
   }
 }

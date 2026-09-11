@@ -44,6 +44,17 @@ class ArchiveViewModel @Inject constructor(
             is ArchiveUiEvent.EntryClicked -> viewModelScope.launch {
                 effectChannel.send(ArchiveUiEffect.NavigateToDetail(event.contentId))
             }
+            is ArchiveUiEvent.TabSelected -> _state.update { it.copy(selectedTab = event.tab) }
+            is ArchiveUiEvent.CategoryToggled -> _state.update {
+                val collapsed = it.collapsedCategories
+                it.copy(
+                    collapsedCategories = if (event.category in collapsed) {
+                        collapsed - event.category
+                    } else {
+                        collapsed + event.category
+                    },
+                )
+            }
         }
     }
 }

@@ -29,6 +29,7 @@ class ContentRepositoryImplTest {
         "type" to "spell",
         "tier" to "free",
         "tradition" to "European folk magic",
+        "category" to "MoonAndSeasonal",
         "title" to "Candle of Clear Intent",
         "intro" to "A short, grounding ritual.",
         "body" to "Light the candle and speak your intention aloud.",

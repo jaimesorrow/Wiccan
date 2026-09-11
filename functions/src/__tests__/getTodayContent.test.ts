@@ -25,6 +25,7 @@ describe("selectTodayContent", () => {
         title: result.title,
         type: result.type,
         tradition: result.tradition,
+        category: result.category,
       },
     ]);
     expect(repo.poolExhaustionEvents).toHaveLength(0);
@@ -46,8 +47,8 @@ describe("selectTodayContent", () => {
     repo.content = [makeContent({ id: "c1" }), makeContent({ id: "c2" })];
     // Simulate the user having already seen every published item on prior days.
     repo.history = [
-      { userId: UID, contentId: "c1", deliveredDate: "2026-09-07", title: "Title c1", type: "spell", tradition: "European folk magic" },
-      { userId: UID, contentId: "c2", deliveredDate: "2026-09-08", title: "Title c2", type: "spell", tradition: "European folk magic" },
+      { userId: UID, contentId: "c1", deliveredDate: "2026-09-07", title: "Title c1", type: "spell", tradition: "European folk magic", category: "MoonAndSeasonal" },
+      { userId: UID, contentId: "c2", deliveredDate: "2026-09-08", title: "Title c2", type: "spell", tradition: "European folk magic", category: "MoonAndSeasonal" },
     ];
 
     const result = await selectTodayContent(UID, TODAY, repo);
@@ -62,6 +63,7 @@ describe("selectTodayContent", () => {
       title: result.title,
       type: result.type,
       tradition: result.tradition,
+      category: result.category,
     });
   });
 
@@ -84,6 +86,7 @@ describe("selectTodayContent", () => {
       title: results[0].title,
       type: results[0].type,
       tradition: results[0].tradition,
+      category: results[0].category,
     });
   });
 

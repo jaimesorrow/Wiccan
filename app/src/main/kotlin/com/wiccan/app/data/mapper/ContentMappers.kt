@@ -2,6 +2,7 @@ package com.wiccan.app.data.mapper
 
 import com.wiccan.app.data.local.CachedDailyContentEntity
 import com.wiccan.app.domain.model.Content
+import com.wiccan.app.domain.model.ContentCategory
 import com.wiccan.app.domain.model.ContentStatus
 import com.wiccan.app.domain.model.ContentTier
 import com.wiccan.app.domain.model.ContentType
@@ -13,6 +14,9 @@ fun Map<String, Any?>.toContent(): Content = Content(
     type = ContentType.valueOf((this["type"] as? String ?: error("Missing 'type' in content payload")).uppercase()),
     tier = ContentTier.valueOf((this["tier"] as? String ?: error("Missing 'tier' in content payload")).uppercase()),
     tradition = (this["tradition"] as? String).orEmpty(),
+    category = ContentCategory.fromWireValue(
+        this["category"] as? String ?: error("Missing 'category' in content payload"),
+    ),
     title = (this["title"] as? String).orEmpty(),
     intro = (this["intro"] as? String).orEmpty(),
     body = (this["body"] as? String).orEmpty(),
@@ -27,6 +31,7 @@ fun Content.toCachedEntity(deliveredDate: String): CachedDailyContentEntity = Ca
     type = type.name,
     tier = tier.name,
     tradition = tradition,
+    category = category.name,
     title = title,
     intro = intro,
     body = body,
@@ -42,6 +47,7 @@ fun CachedDailyContentEntity.toDomain(): Content = Content(
     type = ContentType.valueOf(type),
     tier = ContentTier.valueOf(tier),
     tradition = tradition,
+    category = ContentCategory.valueOf(category),
     title = title,
     intro = intro,
     body = body,

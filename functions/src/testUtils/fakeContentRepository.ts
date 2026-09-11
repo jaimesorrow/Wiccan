@@ -1,4 +1,4 @@
-import { Content, ContentTier } from "../types";
+import { Content, ContentCategory, ContentTier } from "../types";
 import { ContentRepositoryPort } from "../contentRepositoryPort";
 
 /** In-memory stand-in for Firestore, for testing selectTodayContent. */
@@ -13,6 +13,7 @@ export class FakeContentRepository implements ContentRepositoryPort {
     title: string;
     type: string;
     tradition: string;
+    category: ContentCategory;
   }[] = [];
   poolExhaustionEvents: { userId: string; tier: ContentTier; today: string }[] = [];
 
@@ -62,6 +63,7 @@ export class FakeContentRepository implements ContentRepositoryPort {
       title: candidate.title,
       type: candidate.type,
       tradition: candidate.tradition,
+      category: candidate.category,
     });
     return candidate.id;
   }
@@ -76,6 +78,7 @@ export function makeContent(overrides: Partial<Content> & { id: string }): Conte
     type: "spell",
     tier: "free",
     tradition: "European folk magic",
+    category: "MoonAndSeasonal",
     title: `Title ${overrides.id}`,
     intro: "intro",
     body: "body",
