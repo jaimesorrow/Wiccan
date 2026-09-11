@@ -25,5 +25,13 @@ service cloud.firestore {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow write: if false;
     }
+
+    // Device registrations (FCM token + time zone per device) are written
+    // only by the registerDeviceToken/unregisterDeviceToken/updateTimeZone
+    // callables via the Admin SDK. No client ever needs to read another
+    // device's token, including its own on a different device.
+    match /users/{uid}/devices/{deviceId} {
+      allow read, write: if false;
+    }
   }
 }

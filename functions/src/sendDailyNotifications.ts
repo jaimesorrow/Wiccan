@@ -24,19 +24,25 @@ function titleForType(type: ContentType): string {
 }
 
 /**
- * Sends the daily "your content is ready" push to every user with a
- * registered FCM token. Reuses selectTodayContent directly (the same
- * selection logic getTodayContent's callable wraps) rather than calling
- * that callable over HTTP — this function already runs with Admin SDK
- * access, so there's no reason to round-trip through the public surface.
+ * Sends the daily "your content is ready" push to every registered device
+ * across every user - a user with several devices (phone, tablet, ...)
+ * gets one push per device, each addressed to that device's own token.
+ * Reuses selectTodayContent directly (the same selection logic
+ * getTodayContent's callable wraps) rather than calling that callable over
+ * HTTP — this function already runs with Admin SDK access, so there's no
+ * reason to round-trip through the public surface. A user's daily content
+ * selection itself is still made exactly once (selectTodayContent is
+ * idempotent per uid+day), so multiple devices for the same user are told
+ * about the same selection, not separate draws.
  *
- * Each recipient's "today" is computed from their own stored time zone
- * via the same getUserLocalDate used by the getTodayContent callable -
- * never a single shared batch date - so a user's notification always
- * names the same content their next app open will show them, regardless
- * of how their local date compares to the server's or other users'.
+ * Each device's "today" is computed from its own stored time zone via the
+ * same getUserLocalDate used by the getTodayContent callable - never a
+ * single shared batch date - so a notification always names the same
+ * content that device's next app open will show, regardless of how its
+ * local date compares to the server's, another user's, or even another of
+ * the same user's own devices.
  *
- * One user's failure (empty content pool, transient FCM error) never
+ * One device's failure (empty content pool, transient FCM error) never
  * stops the batch; a permanently invalid token is cleared so future runs
  * skip it instead of retrying forever.
  */
@@ -45,7 +51,7 @@ export async function sendDailyNotifications(
   content: ContentRepositoryPort,
   fcm: FcmSenderPort,
 ): Promise<NotificationSendSummary> {
-  const recipients = await users.listUsersWithToken();
+  const recipients = await users.listDevicesWithToken();
   const summary: NotificationSendSummary = {
     attempted: recipients.length,
     sent: 0,
@@ -53,15 +59,15 @@ export async function sendDailyNotifications(
     failed: 0,
   };
 
-  for (const user of recipients) {
+  for (const device of recipients) {
     try {
-      const today = getUserLocalDate(user.timeZone);
-      const selected = await selectTodayContent(user.uid, today, content);
-      const result = await fcm.send(user.fcmToken, titleForType(selected.type), selected.title);
+      const today = getUserLocalDate(device.timeZone);
+      const selected = await selectTodayContent(device.uid, today, content);
+      const result = await fcm.send(device.token, titleForType(selected.type), selected.title);
       if (result.delivered) {
         summary.sent++;
       } else if (result.staleToken) {
-        await users.clearToken(user.uid);
+        await users.clearToken(device.uid, device.token);
         summary.skippedStale++;
       } else {
         summary.failed++;

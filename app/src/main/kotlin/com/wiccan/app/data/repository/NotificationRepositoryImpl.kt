@@ -29,7 +29,8 @@ class NotificationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun unregisterToken(): AppResult<Unit> = try {
-        functionsDataSource.unregisterToken()
+        val token = tokenProvider.getToken()
+        functionsDataSource.unregisterToken(token)
         AppResult.Success(Unit)
     } catch (t: Throwable) {
         AppResult.Failure(t.toAppError())

@@ -13,8 +13,8 @@ class NotificationFunctionsDataSource @Inject constructor(
             .await()
     }
 
-    suspend fun unregisterToken() {
-        functions.getHttpsCallable(UNREGISTER_FUNCTION_NAME).call().await()
+    suspend fun unregisterToken(token: String) {
+        functions.getHttpsCallable(UNREGISTER_FUNCTION_NAME).call(mapOf("token" to token)).await()
     }
 
     private companion object {

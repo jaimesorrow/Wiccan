@@ -57,19 +57,20 @@ class NotificationRepositoryImplTest {
     }
 
     @Test
-    fun `unregisterToken forwards to the callable`() = runTest {
-        coEvery { functionsDataSource.unregisterToken() } returns Unit
+    fun `unregisterToken fetches the current token and forwards it to the callable`() = runTest {
+        coEvery { tokenProvider.getToken() } returns "current-token"
+        coEvery { functionsDataSource.unregisterToken("current-token") } returns Unit
 
         val result = repository.unregisterToken()
 
         assertTrue(result is AppResult.Success)
-        coVerify { functionsDataSource.unregisterToken() }
+        coVerify { functionsDataSource.unregisterToken("current-token") }
     }
 
     @Test
     fun `unregisterToken classifies a generic failure as Unknown`() = runTest {
         val failure = IllegalStateException("network error")
-        coEvery { functionsDataSource.unregisterToken() } throws failure
+        coEvery { tokenProvider.getToken() } throws failure
 
         val result = repository.unregisterToken()
 

@@ -146,8 +146,11 @@ export const handlePlayRtdn = onMessagePublished(PLAY_RTDN_TOPIC, async (event) 
 });
 
 /**
- * Callable: stores the caller's current FCM token (and, optionally, their
- * device time zone) on their own user doc. `users/{uid}` has no client
+ * Callable: registers the caller's current device (its FCM token and,
+ * optionally, its time zone) as one entry in `users/{uid}/devices`.
+ * A user may have any number of registered devices at once - phone,
+ * tablet, etc. - each addressed independently, so signing in on a second
+ * device never displaces the first. `users/{uid}/devices` has no client
  * write access in Firestore rules, so this is the only way either value
  * gets there — uid comes from the verified auth context, same as every
  * other callable here. App Check-enforced, per the final security state:
@@ -178,9 +181,10 @@ export const registerDeviceToken = onCall({ enforceAppCheck: true }, async (requ
 });
 
 /**
- * Callable: clears the caller's device token, e.g. before sign-out so a
- * signed-out device stops receiving pushes meant for whoever signs in
- * next. App Check-enforced.
+ * Callable: removes the caller's *own* device registration (identified by
+ * its own token), e.g. before sign-out so a signed-out device stops
+ * receiving pushes meant for whoever signs in next on it - without
+ * touching this user's other registered devices. App Check-enforced.
  */
 export const unregisterDeviceToken = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
@@ -188,9 +192,14 @@ export const unregisterDeviceToken = onCall({ enforceAppCheck: true }, async (re
     throw new HttpsError("unauthenticated", "Sign-in is required to unregister a device token.");
   }
 
+  const token = request.data?.token;
+  if (typeof token !== "string" || token.length === 0) {
+    throw new HttpsError("invalid-argument", "token is required.");
+  }
+
   try {
     const users = new FirestoreNotificationUserRepository(getFirestore());
-    await users.clearToken(uid);
+    await users.clearToken(uid, token);
   } catch (err) {
     logger.error("unregisterDeviceToken failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not unregister device token.");
@@ -198,9 +207,9 @@ export const unregisterDeviceToken = onCall({ enforceAppCheck: true }, async (re
 });
 
 /**
- * Callable: updates the caller's stored time zone independent of their
- * device token, e.g. when the app detects the device's time zone no
- * longer matches what's on record. App Check-enforced.
+ * Callable: updates the time zone of one already-registered device,
+ * independent of its token, e.g. when the app detects the device's time
+ * zone no longer matches what's on record. App Check-enforced.
  */
 export const updateTimeZone = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
@@ -208,6 +217,10 @@ export const updateTimeZone = onCall({ enforceAppCheck: true }, async (request) 
     throw new HttpsError("unauthenticated", "Sign-in is required to update your time zone.");
   }
 
+  const token = request.data?.token;
+  if (typeof token !== "string" || token.length === 0) {
+    throw new HttpsError("invalid-argument", "token is required.");
+  }
   const timeZone = request.data?.timeZone;
   if (typeof timeZone !== "string" || timeZone.length === 0) {
     throw new HttpsError("invalid-argument", "timeZone is required.");
@@ -215,7 +228,7 @@ export const updateTimeZone = onCall({ enforceAppCheck: true }, async (request) 
 
   try {
     const users = new FirestoreNotificationUserRepository(getFirestore());
-    await users.setTimeZone(uid, timeZone);
+    await users.setTimeZone(uid, token, timeZone);
   } catch (err) {
     logger.error("updateTimeZone failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not update time zone.");

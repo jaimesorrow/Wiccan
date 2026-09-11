@@ -34,7 +34,7 @@ describe("sendDailyNotifications", () => {
     const summary = await sendDailyNotifications(users, content, fcm);
 
     expect(summary).toEqual({ attempted: 1, sent: 0, skippedStale: 1, failed: 0 });
-    expect(users.clearedTokens).toEqual(["user-1"]);
+    expect(users.cleared).toEqual([{ uid: "user-1", token: "dead-token" }]);
   });
 
   it("counts a transient send failure without clearing the token", async () => {
@@ -48,7 +48,39 @@ describe("sendDailyNotifications", () => {
     const summary = await sendDailyNotifications(users, content, fcm);
 
     expect(summary).toEqual({ attempted: 1, sent: 0, skippedStale: 0, failed: 1 });
-    expect(users.clearedTokens).toEqual([]);
+    expect(users.cleared).toEqual([]);
+  });
+
+  it("sends one push per registered device when a user has more than one", async () => {
+    const content = new FakeContentRepository();
+    content.content = [makeContent({ id: "c1", type: "spell", title: "Candle of Clear Intent" })];
+    const users = new FakeNotificationUserRepository();
+    users.setToken("user-1", "phone-token");
+    users.setToken("user-1", "tablet-token");
+    const fcm = new FakeFcmSenderPort();
+
+    const summary = await sendDailyNotifications(users, content, fcm);
+
+    expect(summary).toEqual({ attempted: 2, sent: 2, skippedStale: 0, failed: 0 });
+    expect(fcm.sentTo.map((s) => s.token).sort()).toEqual(["phone-token", "tablet-token"]);
+    // Both devices are told about the same selection - one draw per user per day, not per device.
+    expect(content.history).toHaveLength(1);
+  });
+
+  it("clearing a stale device leaves the same user's other devices untouched", async () => {
+    const content = new FakeContentRepository();
+    content.content = [makeContent({ id: "c1" })];
+    const users = new FakeNotificationUserRepository();
+    users.setToken("user-1", "dead-token");
+    users.setToken("user-1", "healthy-token");
+    const fcm = new FakeFcmSenderPort();
+    fcm.respondWith("dead-token", { delivered: false, staleToken: true, error: "not registered" });
+
+    const summary = await sendDailyNotifications(users, content, fcm);
+
+    expect(summary).toEqual({ attempted: 2, sent: 1, skippedStale: 1, failed: 0 });
+    expect(users.cleared).toEqual([{ uid: "user-1", token: "dead-token" }]);
+    expect(await users.listDevicesWithToken()).toEqual([{ uid: "user-1", token: "healthy-token", timeZone: null }]);
   });
 
   it("keeps processing remaining users after one user's selection throws", async () => {
