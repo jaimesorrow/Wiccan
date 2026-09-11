@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "REPLACE_WITH_DEV_FIREBASE_PROJECT_ID",
+    "staging": "REPLACE_WITH_STAGING_FIREBASE_PROJECT_ID",
+    "production": "REPLACE_WITH_PRODUCTION_FIREBASE_PROJECT_ID"
+  }
+}

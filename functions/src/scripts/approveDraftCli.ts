@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase-admin/app";
+import { getApp, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { FirestoreContentAdminRepository } from "../firestoreContentAdminRepository";
 import { approveDraft } from "../approveDraft";
@@ -19,6 +19,11 @@ async function main(): Promise<void> {
   }
 
   initializeApp();
+  // Printed first and unconditionally: this publishes into a real
+  // project's content pool, so the operator gets one last look at which
+  // environment they're about to touch before anything happens.
+  console.log(`Operating against Firebase project: ${getApp().options.projectId ?? "(unknown)"}`);
+
   const repo = new FirestoreContentAdminRepository(getFirestore());
   await approveDraft(contentId, repo);
   console.log(`Approved '${contentId}'.`);

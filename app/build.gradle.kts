@@ -54,6 +54,8 @@ android {
     sourceSets["main"].kotlin.srcDirs("src/main/kotlin")
     sourceSets["test"].kotlin.srcDirs("src/test/kotlin")
     sourceSets["androidTest"].kotlin.srcDirs("src/androidTest/kotlin")
+    // MigrationTestHelper loads each version's exported schema JSON as a test asset.
+    sourceSets["androidTest"].assets.srcDirs("$projectDir/schemas")
 
     packaging {
         resources {
@@ -126,4 +128,5 @@ dependencies {
 
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.room.testing)
 }

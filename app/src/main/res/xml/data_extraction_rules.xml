@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ (API 31+) backup/transfer rules.
+
+  The app itself never writes SharedPreferences (all app state is either
+  server-driven or in the Room cache), so every entry there belongs to a
+  bundled SDK (Firebase Auth, App Check, Play services). Those tokens are
+  device- and install-bound; restoring them onto a different device/install
+  can leave the app holding stale, invalid credentials instead of simply
+  signing back in cleanly, so the whole domain is excluded rather than
+  guessing at any one SDK's internal file names.
+
+  wiccan.db is a same-day content cache, trivially rebuilt from the server
+  on next refresh - excluded so a restore never resurrects stale content.
+  androidx.work.workdb is WorkManager's own scheduling state, which Google
+  documents as unsafe to carry across devices/installs.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" />
+        <exclude domain="database" path="wiccan.db" />
+        <exclude domain="database" path="wiccan.db-wal" />
+        <exclude domain="database" path="wiccan.db-shm" />
+        <exclude domain="database" path="androidx.work.workdb" />
+        <exclude domain="database" path="androidx.work.workdb-wal" />
+        <exclude domain="database" path="androidx.work.workdb-shm" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" />
+        <exclude domain="database" path="wiccan.db" />
+        <exclude domain="database" path="wiccan.db-wal" />
+        <exclude domain="database" path="wiccan.db-shm" />
+        <exclude domain="database" path="androidx.work.workdb" />
+        <exclude domain="database" path="androidx.work.workdb-wal" />
+        <exclude domain="database" path="androidx.work.workdb-shm" />
+    </device-transfer>
+</data-extraction-rules>

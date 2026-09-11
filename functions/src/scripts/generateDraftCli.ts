@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase-admin/app";
+import { getApp, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { loadContentSources } from "../contentSource";
 import { ClaudeDraftGenerator } from "../claudeDraftGenerator";
@@ -47,6 +47,11 @@ async function main(): Promise<void> {
   }
 
   initializeApp();
+  // Printed first and unconditionally: this writes drafts into a real
+  // project's content pool, so the operator gets one last look at which
+  // environment they're about to touch before anything happens.
+  console.log(`Operating against Firebase project: ${getApp().options.projectId ?? "(unknown)"}`);
+
   const sources = loadContentSources();
   const generator = new ClaudeDraftGenerator();
   const repo = new FirestoreContentAdminRepository(getFirestore());
