@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Pre-Android 12 (API 23-30) fallback for data_extraction_rules.xml - same
+  exclusions, older syntax. See data_extraction_rules.xml for the reasoning.
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" />
+    <exclude domain="database" path="wiccan.db" />
+    <exclude domain="database" path="wiccan.db-wal" />
+    <exclude domain="database" path="wiccan.db-shm" />
+    <exclude domain="database" path="androidx.work.workdb" />
+    <exclude domain="database" path="androidx.work.workdb-wal" />
+    <exclude domain="database" path="androidx.work.workdb-shm" />
+</full-backup-content>
