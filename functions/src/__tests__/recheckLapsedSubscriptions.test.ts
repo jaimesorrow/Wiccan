@@ -2,7 +2,7 @@ import { recheckLapsedSubscriptions } from "../recheckLapsedSubscriptions";
 import { FakePlayBillingPort } from "../testUtils/fakePlayBillingPort";
 import { FakeUserRepository } from "../testUtils/fakeUserRepository";
 
-const PRODUCT_ID = "nyxwell_premium_monthly";
+const PRODUCT_ID = "wiccan_premium_monthly";
 
 describe("recheckLapsedSubscriptions", () => {
   it("downgrades only users whose subscription has lapsed, leaving active ones alone", async () => {

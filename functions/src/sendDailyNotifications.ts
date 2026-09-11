@@ -3,6 +3,7 @@ import { ContentRepositoryPort } from "./contentRepositoryPort";
 import { selectTodayContent } from "./getTodayContent";
 import { NotificationUserRepositoryPort } from "./notificationUserRepositoryPort";
 import { FcmSenderPort } from "./fcmSenderPort";
+import { getUserLocalDate } from "./dateUtils";
 
 export interface NotificationSendSummary {
   attempted: number;
@@ -29,12 +30,17 @@ function titleForType(type: ContentType): string {
  * that callable over HTTP — this function already runs with Admin SDK
  * access, so there's no reason to round-trip through the public surface.
  *
+ * Each recipient's "today" is computed from their own stored time zone
+ * via the same getUserLocalDate used by the getTodayContent callable -
+ * never a single shared batch date - so a user's notification always
+ * names the same content their next app open will show them, regardless
+ * of how their local date compares to the server's or other users'.
+ *
  * One user's failure (empty content pool, transient FCM error) never
  * stops the batch; a permanently invalid token is cleared so future runs
  * skip it instead of retrying forever.
  */
 export async function sendDailyNotifications(
-  today: string,
   users: NotificationUserRepositoryPort,
   content: ContentRepositoryPort,
   fcm: FcmSenderPort,
@@ -49,6 +55,7 @@ export async function sendDailyNotifications(
 
   for (const user of recipients) {
     try {
+      const today = getUserLocalDate(user.timeZone);
       const selected = await selectTodayContent(user.uid, today, content);
       const result = await fcm.send(user.fcmToken, titleForType(selected.type), selected.title);
       if (result.delivered) {
