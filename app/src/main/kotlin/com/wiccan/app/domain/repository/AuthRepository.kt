@@ -2,6 +2,7 @@ package com.wiccan.app.domain.repository
 
 import android.content.Context
 import com.wiccan.app.core.result.AppResult
+import com.wiccan.app.domain.model.AccountStatus
 import com.wiccan.app.domain.model.AuthState
 import kotlinx.coroutines.flow.Flow
 
@@ -14,14 +15,22 @@ interface AuthRepository {
     fun observeAuthState(): Flow<AuthState>
 
     /**
-     * Whether the server-side `users/{uid}` profile document exists yet.
-     * Its creation is a Firebase Auth trigger that runs asynchronously
-     * after sign-up, so a client can briefly observe [AuthState.SignedIn]
-     * before this turns true - the root state machine uses it to hold on
-     * an "initializing" state rather than entering the app against a
-     * profile that isn't there yet.
+     * Where the server-side `users/{uid}` profile stands for [uid]:
+     * not yet created by the Auth trigger, created but missing current
+     * policy acceptance, or fully ready. The root state machine uses
+     * this to hold on an intermediate state rather than entering the
+     * app against a profile that isn't there yet or hasn't accepted the
+     * current Terms/Privacy Policy.
      */
-    fun observeProfileReady(uid: String): Flow<Boolean>
+    fun observeAccountStatus(uid: String): Flow<AccountStatus>
+
+    /**
+     * Records acceptance of the current Terms of Service/Privacy Policy
+     * ([com.wiccan.app.domain.model.PolicyVersions]) for the signed-in
+     * user. The server rejects anything other than its own current
+     * versions, so this always sends the client's current constants.
+     */
+    suspend fun acceptTerms(): AppResult<Unit>
 
     /**
      * [context] must be an Activity context — Credential Manager attaches

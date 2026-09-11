@@ -22,16 +22,18 @@ import com.wiccan.app.ui.auth.SignInScreen
 import com.wiccan.app.ui.navigation.WiccanAppShell
 import com.wiccan.app.ui.navigation.WiccanDeepLinks
 import com.wiccan.app.ui.notification.NotificationSetupEffect
+import com.wiccan.app.ui.policy.PolicyAcceptanceScreen
 import com.wiccan.app.ui.theme.WiccanTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Root host, resolved via [RootViewModel.rootState]: signed-out shows the
- * sign-in screen; signed-in (with a ready profile) hosts the full
- * navigation shell ([WiccanAppShell]). No fixed timer or `currentUser
- * != null` shortcut — the AndroidX SplashScreen stays on screen (per
- * [Theme.Wiccan.Starting]) until [RootState.Loading] resolves to
- * something real.
+ * sign-in screen; a signed-in user owing current Terms/Privacy acceptance
+ * sees the blocking [PolicyAcceptanceScreen]; only once fully ready does
+ * the full navigation shell ([WiccanAppShell]) mount. No fixed timer or
+ * `currentUser != null` shortcut — the AndroidX SplashScreen stays on
+ * screen (per [Theme.Wiccan.Starting]) until [RootState.Loading] resolves
+ * to something real.
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -54,10 +56,8 @@ class MainActivity : ComponentActivity() {
                         WiccanAppShell(startOnPaywall = startOnPaywall)
                     }
                     RootState.SignedOut -> SignInScreen()
-                    RootState.Loading,
-                    RootState.InitializingProfile,
-                    RootState.RequiresPolicyAcceptance,
-                    -> LoadingIndicator()
+                    RootState.RequiresPolicyAcceptance -> PolicyAcceptanceScreen()
+                    RootState.Loading, RootState.InitializingProfile -> LoadingIndicator()
                 }
             }
         }

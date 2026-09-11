@@ -10,7 +10,9 @@ import com.wiccan.app.core.error.toAppError
 import com.wiccan.app.core.result.AppResult
 import com.wiccan.app.data.remote.AccountFunctionsDataSource
 import com.wiccan.app.data.remote.GoogleCredentialDataSource
+import com.wiccan.app.domain.model.AccountStatus
 import com.wiccan.app.domain.model.AuthState
+import com.wiccan.app.domain.model.PolicyVersions
 import com.wiccan.app.domain.repository.AuthRepository
 import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
@@ -37,12 +39,30 @@ class AuthRepositoryImpl @Inject constructor(
         awaitClose { firebaseAuth.removeAuthStateListener(listener) }
     }
 
-    override fun observeProfileReady(uid: String): Flow<Boolean> = callbackFlow {
+    override fun observeAccountStatus(uid: String): Flow<AccountStatus> = callbackFlow {
         val registration = firestore.collection(USERS_COLLECTION).document(uid)
             .addSnapshotListener { snapshot, _ ->
-                trySend(snapshot?.exists() == true)
+                trySend(
+                    when {
+                        snapshot?.exists() != true -> AccountStatus.Initializing
+                        snapshot.getLong("acceptedTermsVersion")?.toInt() != PolicyVersions.TERMS -> {
+                            AccountStatus.RequiresPolicyAcceptance
+                        }
+                        snapshot.getLong("acceptedPrivacyVersion")?.toInt() != PolicyVersions.PRIVACY -> {
+                            AccountStatus.RequiresPolicyAcceptance
+                        }
+                        else -> AccountStatus.Ready
+                    },
+                )
             }
         awaitClose { registration.remove() }
+    }
+
+    override suspend fun acceptTerms(): AppResult<Unit> = try {
+        accountFunctionsDataSource.acceptTerms(PolicyVersions.TERMS, PolicyVersions.PRIVACY)
+        AppResult.Success(Unit)
+    } catch (t: Throwable) {
+        AppResult.Failure(t.toAppError())
     }
 
     override suspend fun signInWithGoogle(context: Context): AppResult<Unit> = try {

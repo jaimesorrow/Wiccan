@@ -1,5 +1,6 @@
 package com.wiccan.app.ui.auth
 
+import com.wiccan.app.domain.model.AccountStatus
 import com.wiccan.app.domain.model.AuthState
 import com.wiccan.app.domain.model.RootState
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +49,7 @@ class RootViewModelTest {
 
     @Test
     fun `holds InitializingProfile while signed in but the profile doc doesn't exist yet`() = runTest(dispatcher) {
-        repository.setProfileReady("uid-1", false)
+        repository.setAccountStatus("uid-1", AccountStatus.Initializing)
         viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedIn("uid-1"))
         dispatcher.scheduler.advanceUntilIdle()
@@ -58,22 +59,46 @@ class RootViewModelTest {
 
     @Test
     fun `advances to SignedIn once the profile becomes ready`() = runTest(dispatcher) {
-        repository.setProfileReady("uid-1", false)
+        repository.setAccountStatus("uid-1", AccountStatus.Initializing)
         viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedIn("uid-1"))
         dispatcher.scheduler.advanceUntilIdle()
         assertEquals(RootState.InitializingProfile, viewModel.rootState.value)
 
-        repository.setProfileReady("uid-1", true)
+        repository.setAccountStatus("uid-1", AccountStatus.Ready)
         dispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(RootState.SignedIn, viewModel.rootState.value)
     }
 
     @Test
-    fun `resolves straight to SignedIn when the profile already exists`() = runTest(dispatcher) {
+    fun `resolves straight to SignedIn when the profile already exists and terms are current`() = runTest(dispatcher) {
         viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedIn("uid-1"))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(RootState.SignedIn, viewModel.rootState.value)
+    }
+
+    @Test
+    fun `holds RequiresPolicyAcceptance when the profile is missing current policy acceptance`() = runTest(dispatcher) {
+        repository.setAccountStatus("uid-1", AccountStatus.RequiresPolicyAcceptance)
+        viewModel = RootViewModel(repository)
+        repository.setAuthState(AuthState.SignedIn("uid-1"))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(RootState.RequiresPolicyAcceptance, viewModel.rootState.value)
+    }
+
+    @Test
+    fun `advances to SignedIn once policy acceptance is recorded`() = runTest(dispatcher) {
+        repository.setAccountStatus("uid-1", AccountStatus.RequiresPolicyAcceptance)
+        viewModel = RootViewModel(repository)
+        repository.setAuthState(AuthState.SignedIn("uid-1"))
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(RootState.RequiresPolicyAcceptance, viewModel.rootState.value)
+
+        repository.setAccountStatus("uid-1", AccountStatus.Ready)
         dispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(RootState.SignedIn, viewModel.rootState.value)
