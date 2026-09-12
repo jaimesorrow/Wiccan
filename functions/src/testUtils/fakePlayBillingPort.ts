@@ -4,6 +4,7 @@ import { PlayBillingPort, PlaySubscriptionInfo, PlaySubscriptionState } from "..
 export class FakePlayBillingPort implements PlayBillingPort {
   private readonly responses = new Map<string, PlaySubscriptionInfo>();
   acknowledgedTokens: { purchaseToken: string; productId: string }[] = [];
+  canceledTokens: { purchaseToken: string; productId: string }[] = [];
 
   respondWith(
     token: string,
@@ -29,5 +30,9 @@ export class FakePlayBillingPort implements PlayBillingPort {
 
   async acknowledgePurchaseIfNeeded(purchaseToken: string, productId: string): Promise<void> {
     this.acknowledgedTokens.push({ purchaseToken, productId });
+  }
+
+  async cancelSubscription(purchaseToken: string, productId: string): Promise<void> {
+    this.canceledTokens.push({ purchaseToken, productId });
   }
 }

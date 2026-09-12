@@ -92,4 +92,25 @@ export class GooglePlayBillingRepository implements PlayBillingPort {
       });
     }
   }
+
+  async cancelSubscription(purchaseToken: string, productId: string): Promise<void> {
+    const authClient = await auth.getClient({ scopes: [ANDROID_PUBLISHER_SCOPE] });
+    const client = androidpublisher({ version: "v3", auth: authClient });
+
+    try {
+      await client.purchases.subscriptions.cancel({
+        packageName: this.packageName,
+        subscriptionId: productId,
+        token: purchaseToken,
+      });
+    } catch (err) {
+      // Canceling an already-canceled/expired subscription returns an
+      // error from the Play API; the desired end state (not auto-renewing)
+      // already holds, so this is logged and swallowed the same way
+      // acknowledgePurchaseIfNeeded treats an already-acknowledged purchase.
+      logger.info("cancelSubscription: cancel call did not succeed (likely already canceled/expired)", {
+        error: (err as Error).message,
+      });
+    }
+  }
 }

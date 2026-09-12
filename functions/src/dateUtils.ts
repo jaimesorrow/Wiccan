@@ -22,6 +22,24 @@ export function getUserLocalDate(timeZone: string | null | undefined, now: Date 
   }).format(now);
 }
 
+/**
+ * The current hour (0-23) in the given time zone - the other half of "what
+ * time is it for this user right now", alongside getUserLocalDate. Used to
+ * decide whether a device's local time currently falls in its 9am delivery
+ * window. Same UTC/invalid-zone fallback as getUserLocalDate.
+ */
+export function getUserLocalHour(timeZone: string | null | undefined, now: Date = new Date()): number {
+  const zone = timeZone && isValidTimeZone(timeZone) ? timeZone : "UTC";
+  const hourString = new Intl.DateTimeFormat("en-US", {
+    timeZone: zone,
+    hour: "numeric",
+    hour12: false,
+  }).format(now);
+  // Some locales/runtimes render midnight as "24" rather than "00" under
+  // hour12: false - normalize so callers always get a plain 0-23 value.
+  return Number(hourString) % 24;
+}
+
 function isValidTimeZone(timeZone: string): boolean {
   try {
     new Intl.DateTimeFormat(undefined, { timeZone });

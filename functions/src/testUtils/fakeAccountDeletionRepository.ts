@@ -15,6 +15,10 @@ export class FakeAccountDeletionRepository implements AccountDeletionPort {
     this.calls.push(`devices:${uid}`);
   }
 
+  async cancelActiveSubscription(uid: string): Promise<void> {
+    this.calls.push(`cancel-subscription:${uid}`);
+  }
+
   async deleteSubscriptionRecord(uid: string): Promise<void> {
     this.calls.push(`subscription:${uid}`);
   }

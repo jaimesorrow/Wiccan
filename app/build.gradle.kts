@@ -80,6 +80,8 @@ android {
     }
 
     sourceSets["main"].kotlin.srcDirs("src/main/kotlin")
+    sourceSets["debug"].kotlin.srcDirs("src/debug/kotlin")
+    sourceSets["release"].kotlin.srcDirs("src/release/kotlin")
     sourceSets["test"].kotlin.srcDirs("src/test/kotlin")
     sourceSets["androidTest"].kotlin.srcDirs("src/androidTest/kotlin")
     // MigrationTestHelper loads each version's exported schema JSON as a test asset.
@@ -133,10 +135,11 @@ dependencies {
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.appcheck.ktx)
     implementation(libs.firebase.appcheck.playintegrity)
-    // Not debugImplementation: WiccanApplication picks the provider at
-    // runtime via BuildConfig.DEBUG, so both providers must be on the
-    // classpath for every build type, not just debug's.
-    implementation(libs.firebase.appcheck.debug)
+    // debugImplementation, not implementation: only src/debug's
+    // DebugAppCheckProviderInstaller references this, so a release build
+    // never carries the debug provider class at all - see
+    // com.wiccan.app.appcheck.AppCheckProviderInstaller.
+    debugImplementation(libs.firebase.appcheck.debug)
 
     implementation(libs.androidx.work.runtime.ktx)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
