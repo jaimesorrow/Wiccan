@@ -23,6 +23,10 @@ jobs:
       # every push. Running it for real needs a connectedAndroidTest job
       # against an emulator, tracked as a known CI gap.
       - run: ./gradlew compileDebugAndroidTestKotlin
+      - run: ./gradlew :app:bundleRelease
+      # Android 15+ 16KB-page-size devices require every bundled 64-bit
+      # native library's ELF LOAD segments to be 16KB-aligned.
+      - run: ./scripts/check-16kb-alignment.sh
 
   functions:
     runs-on: ubuntu-latest

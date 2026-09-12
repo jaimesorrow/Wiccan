@@ -23,10 +23,15 @@ it says so instead of pretending.
 - `versionCode`/`versionName` live in `app/build.gradle.kts` (`defaultConfig`). Bump both on every Play submission — `versionCode` must strictly increase, Play rejects a re-upload otherwise.
 - [ ] Decide a versioning scheme (this checklist doesn't impose one) and document it once chosen.
 
+## 16KB page size (Android 15+)
+
+- [x] `scripts/check-16kb-alignment.sh` inspects every native library bundled in the release `.aab` and fails if a 64-bit ABI's (arm64-v8a, x86_64) ELF LOAD segments aren't 16KB-aligned. Runs in CI on every push. Currently passing — the one bundled native library (`libandroidx.graphics.path.so`, a transitive AndroidX dependency) is already 16KB-aligned on every ABI.
+
 ## Automated checks (already verified by this repo)
 
 - [x] `./gradlew clean ktlintCheck :app:testDebugUnitTest :app:assembleDebug :app:compileDebugAndroidTestKotlin`
 - [x] `./gradlew :app:bundleRelease` — builds (unsigned without `keystore.properties`)
+- [x] `./scripts/check-16kb-alignment.sh` — all bundled native libraries pass
 - [x] `cd functions && npm run build && npm test && npm run lint`
 
 ## Needs a real device/emulator (not verified here)
