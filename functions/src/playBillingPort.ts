@@ -33,4 +33,14 @@ export interface PlayBillingPort {
    * implementations must not throw for that case.
    */
   acknowledgePurchaseIfNeeded(purchaseToken: string, productId: string): Promise<void>;
+
+  /**
+   * Stops auto-renewal for a subscription (the user keeps access through
+   * the current paid period, matching tierForSubscription's own policy).
+   * Called when a user deletes their account, so deleting the app-side
+   * record doesn't leave them still being charged by Google. Canceling an
+   * already-canceled/expired subscription is expected to be a safe no-op -
+   * implementations must not throw for that case.
+   */
+  cancelSubscription(purchaseToken: string, productId: string): Promise<void>;
 }

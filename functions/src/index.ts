@@ -266,15 +266,16 @@ export const acceptTerms = onCall({ enforceAppCheck: true }, async (request) => 
 });
 
 /**
- * Daily job: sends every user with a registered FCM token a "your content
- * is ready" push for their own local today's selection (see
- * sendDailyNotifications - each recipient's date comes from their own
- * stored time zone, never a single shared batch date). The job still
- * *fires* at one fixed UTC time for now; per-device ~9am-local send
- * scheduling is a later, larger pass (multi-device registrations +
- * per-device nextNotificationAt).
+ * Hourly job: on each run, sendDailyNotifications filters every registered
+ * device down to only those whose *local* time (from their own stored
+ * time zone) currently reads 9am, and sends just that slice its "your
+ * content is ready" push. Running hourly - rather than once at a single
+ * fixed UTC instant - is what makes "9am" actually mean 9am in each
+ * device's own time zone instead of 9am in whichever zone the function
+ * happens to run in. See sendDailyNotifications for the tracked limitation
+ * of an hourly poll vs. exact per-device scheduling.
  */
-export const sendDailyNotificationsJob = onSchedule("every day 09:00", async () => {
+export const sendDailyNotificationsJob = onSchedule("every 1 hours", async () => {
   const repo = new FirestoreContentRepository(getFirestore());
   const users = new FirestoreNotificationUserRepository(getFirestore());
   const fcm = new FirebaseFcmSender(getMessaging());
@@ -294,10 +295,11 @@ export const onUserCreated = authV1.user().onCreate(async (user) => {
 });
 
 /**
- * Callable: permanently deletes the caller's profile, delivery history, and
- * Firebase Auth account. Self-delete only — like every other callable here,
- * uid comes exclusively from the verified auth context, so a client can
- * never delete another user's account. App Check-enforced.
+ * Callable: permanently deletes the caller's profile, delivery history,
+ * live Play subscription (canceled, not just its local record erased),
+ * and Firebase Auth account. Self-delete only — like every other callable
+ * here, uid comes exclusively from the verified auth context, so a client
+ * can never delete another user's account. App Check-enforced.
  */
 export const deleteUserData = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
@@ -306,7 +308,8 @@ export const deleteUserData = onCall({ enforceAppCheck: true }, async (request) 
   }
 
   try {
-    const repo = new FirestoreAccountDeletionRepository(getFirestore(), getAuth());
+    const billing = new GooglePlayBillingRepository(ANDROID_PACKAGE_NAME);
+    const repo = new FirestoreAccountDeletionRepository(getFirestore(), getAuth(), billing);
     await deleteAccount(uid, repo);
   } catch (err) {
     logger.error("deleteUserData failed", { uid, error: (err as Error).message });

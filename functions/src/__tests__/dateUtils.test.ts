@@ -1,4 +1,4 @@
-import { getUserLocalDate } from "../dateUtils";
+import { getUserLocalDate, getUserLocalHour } from "../dateUtils";
 
 describe("getUserLocalDate", () => {
   it("falls back to UTC when time zone is null", () => {
@@ -31,5 +31,30 @@ describe("getUserLocalDate", () => {
     const afterTransition = new Date("2026-03-08T12:00:00.000Z"); // 08:00 EDT Mar 8
     expect(getUserLocalDate("America/New_York", beforeTransition)).toBe("2026-03-07");
     expect(getUserLocalDate("America/New_York", afterTransition)).toBe("2026-03-08");
+  });
+});
+
+describe("getUserLocalHour", () => {
+  it("falls back to UTC when time zone is null or invalid", () => {
+    const now = new Date("2026-01-01T09:00:00.000Z");
+    expect(getUserLocalHour(null, now)).toBe(9);
+    expect(getUserLocalHour("Not/A_Real_Zone", now)).toBe(9);
+  });
+
+  it("computes the local hour for a positive UTC offset", () => {
+    // 09:00 UTC is 18:00 in UTC+9 (Asia/Tokyo).
+    const now = new Date("2026-01-01T09:00:00.000Z");
+    expect(getUserLocalHour("Asia/Tokyo", now)).toBe(18);
+  });
+
+  it("computes the local hour for a negative UTC offset, wrapping to the previous day", () => {
+    // 02:00 UTC is 15:00 the previous day in UTC-11.
+    const now = new Date("2026-01-01T02:00:00.000Z");
+    expect(getUserLocalHour("Pacific/Midway", now)).toBe(15);
+  });
+
+  it("normalizes midnight to 0 rather than 24", () => {
+    const now = new Date("2026-01-01T00:00:00.000Z");
+    expect(getUserLocalHour("UTC", now)).toBe(0);
   });
 });
