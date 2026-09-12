@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,6 +9,18 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.ktlint)
+}
+
+// app/keystore.properties is gitignored (holds a real signing key's
+// credentials) so it never exists on a fresh checkout - see
+// keystore.properties.example. Without it, release builds stay unsigned
+// (same as today) rather than failing the build; see docs/RELEASE_CHECKLIST.md.
+val keystorePropertiesFile = file("keystore.properties")
+val hasKeystoreProperties = keystorePropertiesFile.exists()
+val keystoreProperties = Properties().apply {
+    if (hasKeystoreProperties) {
+        load(keystorePropertiesFile.inputStream())
+    }
 }
 
 android {
@@ -23,10 +37,24 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (hasKeystoreProperties) {
+            create("release") {
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (hasKeystoreProperties) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 

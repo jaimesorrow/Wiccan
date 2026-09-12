@@ -36,5 +36,10 @@ replay_pid*
 # Firebase
 app/google-services.json
 
+# Release signing - never commit a real keystore or its credentials
+app/keystore.properties
+*.jks
+*.keystore
+
 # macOS
 .DS_Store
