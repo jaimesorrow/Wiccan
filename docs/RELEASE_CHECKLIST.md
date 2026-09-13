@@ -9,7 +9,7 @@ it says so instead of pretending.
 ## Signing
 
 - [ ] Generate a real release keystore (`keytool -genkeypair -v -keystore release.keystore.jks -alias wiccan -keyalg RSA -keysize 2048 -validity 10000`) and store it somewhere durable **outside** this repo — losing it means you can never publish an update to an app already live under it.
-- [ ] Copy `app/keystore.properties.example` to `app/keystore.properties` and fill in the real `storeFile`/`storePassword`/`keyAlias`/`keyPassword`. `app/build.gradle.kts` picks this up automatically when present (`bundleRelease`/`assembleRelease` builds unsigned without it, same as today).
+- [ ] Copy `app/keystore.properties.example` to `app/keystore.properties` and fill in the real `storeFile`/`storePassword`/`keyAlias`/`keyPassword`. `app/build.gradle.kts` picks this up automatically when present (`bundleProdRelease`/`assembleProdRelease` builds unsigned without it, same as today).
 - [ ] Decide Play App Signing vs. self-managed signing at first upload. Play App Signing (Google holds the app signing key, you keep an upload key) is Google's recommended default and is what this checklist assumes; a self-managed key has no recovery path if lost.
 
 ## Minification (R8/ProGuard)
@@ -27,10 +27,15 @@ it says so instead of pretending.
 
 - [x] `scripts/check-16kb-alignment.sh` inspects every native library bundled in the release `.aab` and fails if a 64-bit ABI's (arm64-v8a, x86_64) ELF LOAD segments aren't 16KB-aligned. Runs in CI on every push. Currently passing — the one bundled native library (`libandroidx.graphics.path.so`, a transitive AndroidX dependency) is already 16KB-aligned on every ABI.
 
+## Product flavors (dev/staging/prod)
+
+- The app builds three product flavors, one per environment (see the README's Environments section) — `dev`/`staging`/`prod`, matching `.firebaserc`'s aliases. Only `prod` (applicationId `com.wiccan.app`, no suffix) has a CI-usable `google-services.json` (the checked-in placeholder, `google-services.ci.json`); `dev`/`staging` need their own real one from that environment's Firebase project before they'll build (`app/src/dev/google-services.json`, `app/src/staging/google-services.json`).
+- [ ] Once real dev/staging Firebase projects exist, add their `google-services.json` files and confirm `./gradlew :app:assembleDevDebug` / `:app:assembleStagingDebug` build cleanly.
+
 ## Automated checks (already verified by this repo)
 
-- [x] `./gradlew clean ktlintCheck :app:testDebugUnitTest :app:assembleDebug :app:compileDebugAndroidTestKotlin`
-- [x] `./gradlew :app:bundleRelease` — builds (unsigned without `keystore.properties`)
+- [x] `./gradlew clean ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug :app:compileProdDebugAndroidTestKotlin`
+- [x] `./gradlew :app:bundleProdRelease` — builds (unsigned without `keystore.properties`)
 - [x] `./scripts/check-16kb-alignment.sh` — all bundled native libraries pass
 - [x] `cd functions && npm run build && npm test && npm run lint`
 

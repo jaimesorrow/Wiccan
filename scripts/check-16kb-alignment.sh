@@ -7,11 +7,12 @@
 # checked too for visibility but never fail the run.
 #
 # Usage: scripts/check-16kb-alignment.sh [path/to/app-release.aab]
-# Defaults to app/build/outputs/bundle/release/app-release.aab (the
-# standard `./gradlew :app:bundleRelease` output path).
+# Defaults to app/build/outputs/bundle/prodRelease/app-prod-release.aab
+# (the standard `./gradlew :app:bundleProdRelease` output path - "prod" is
+# the flavor CI actually builds; pass an explicit path for dev/staging).
 set -euo pipefail
 
-AAB_PATH="${1:-app/build/outputs/bundle/release/app-release.aab}"
+AAB_PATH="${1:-app/build/outputs/bundle/prodRelease/app-prod-release.aab}"
 REQUIRED_ALIGNMENT="0x4000"
 SIXTY_FOUR_BIT_ABIS="arm64-v8a x86_64"
 

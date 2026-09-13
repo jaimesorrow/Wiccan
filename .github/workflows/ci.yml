@@ -16,14 +16,19 @@ jobs:
       # credentials and is never used outside this workflow.
       - run: cp app/google-services.ci.json app/google-services.json
       - run: ./gradlew ktlintCheck
-      - run: ./gradlew test
-      - run: ./gradlew assembleDebug
+      # "prod" is the flavor whose applicationId (com.wiccan.app) matches
+      # google-services.ci.json above - "dev"/"staging" are scaffolding
+      # for real per-environment Firebase projects that don't exist yet
+      # (see app/build.gradle.kts's productFlavors comment) and are not
+      # built here.
+      - run: ./gradlew :app:testProdDebugUnitTest
+      - run: ./gradlew :app:assembleProdDebug
       # No emulator here, so this can't run the instrumented Room migration
       # test - it at least catches a compile regression in androidTest on
       # every push. Running it for real needs a connectedAndroidTest job
       # against an emulator, tracked as a known CI gap.
-      - run: ./gradlew compileDebugAndroidTestKotlin
-      - run: ./gradlew :app:bundleRelease
+      - run: ./gradlew :app:compileProdDebugAndroidTestKotlin
+      - run: ./gradlew :app:bundleProdRelease
       # Android 15+ 16KB-page-size devices require every bundled 64-bit
       # native library's ELF LOAD segments to be 16KB-aligned.
       - run: ./scripts/check-16kb-alignment.sh

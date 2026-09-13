@@ -72,9 +72,15 @@ functions/                    Cloud Functions (Node/TypeScript)
 ### Android app
 
 ```
-./gradlew :app:assembleDebug
-./gradlew :app:testDebugUnitTest
+./gradlew :app:assembleProdDebug
+./gradlew :app:testProdDebugUnitTest
 ```
+
+The app has three product flavors (`dev`/`staging`/`prod`, one per
+environment - see Environments below); `prod` is the one that matches the
+checked-in `google-services.ci.json` placeholder and what CI builds.
+Building `dev`/`staging` requires that environment's own real
+`google-services.json` under `app/src/dev/` or `app/src/staging/`.
 
 Requires the Android SDK (`compileSdk`/`targetSdk` 36) — set `sdk.dir` in
 a local `local.properties` file or the `ANDROID_HOME` environment
@@ -117,3 +123,10 @@ users' data.
   so an operator never mutates the wrong environment's content pool by
   running a command against whatever project `firebase use` happened to be
   pointed at.
+- The Android app has a matching `dev`/`staging`/`prod` product flavor per
+  environment (`app/build.gradle.kts`), each with its own applicationId
+  suffix (`prod` has none — it's the real `com.wiccan.app`) so all three
+  can be installed side by side on one device. Each flavor needs its own
+  `google-services.json` from that environment's Firebase project, placed
+  at `app/src/<flavor>/google-services.json` — only `prod` has a
+  (CI-only, placeholder) one checked in via `google-services.ci.json`.
