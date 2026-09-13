@@ -29,6 +29,7 @@ require_grep 'applicationId = "com\.nyxwell\.app"' app/build.gradle.kts \
 require_grep 'compileSdk = 36' app/build.gradle.kts 'compileSdk is API 36'
 require_grep 'targetSdk = 36' app/build.gradle.kts 'targetSdk is API 36'
 require_grep 'minSdk = 24' app/build.gradle.kts 'minSdk is API 24'
+require_grep 'create\("prod"\)' app/build.gradle.kts 'production flavor exists'
 require_grep 'billing = "9\.1\.0"' gradle/libs.versions.toml 'Play Billing Library baseline is 9.1.0'
 
 require_grep 'debugImplementation\(libs\.firebase\.appcheck\.debug\)' app/build.gradle.kts \
@@ -42,7 +43,7 @@ require_grep 'allow write: if false;' firestore.rules 'protected Firestore write
 forbid_grep 'export const (generateDraft|approveDraft)\s*=\s*on(Call|Request)' functions/src/index.ts \
   'admin generation/approval are absent from public HTTPS/callable exports'
 
-for fn in getTodayContent verifyPurchase registerDeviceToken unregisterDeviceToken updateTimeZone acceptTerms deleteUserData; do
+for fn in getTodayContent verifyPurchase registerDeviceToken unregisterDeviceToken updateTimeZone setNotificationsEnabled acceptTerms deleteUserData; do
   if grep -Eq "export const ${fn} = onCall\\(\\{ enforceAppCheck: true \\}" functions/src/index.ts; then
     pass "${fn} enforces App Check"
   else
@@ -60,13 +61,17 @@ require_grep 'subscriptions' functions/src/firestoreSubscriptionRecordRepository
 require_grep 'onMessagePublished' functions/src/index.ts 'RTDN Pub/Sub handler is exported'
 require_grep 'com\.nyxwell\.app' functions/src/index.ts \
   'backend Play verification uses canonical technical package identity'
+require_grep 'dailyContentEnabled' functions/src/services/contentService.ts \
+  'daily-content kill switch is enforced in content service'
+require_grep 'notificationsEnabled' functions/src/services/notificationService.ts \
+  'notification kill switch is enforced in notification service'
 
 require_grep 'android:dataExtractionRules="@xml/data_extraction_rules"' app/src/main/AndroidManifest.xml \
   'Android 12+ data extraction rules are explicit'
 require_grep 'android:fullBackupContent="@xml/backup_rules"' app/src/main/AndroidManifest.xml \
   'Android 6-11 backup rules are explicit'
 
-for service in contentService subscriptionService userService analyticsService; do
+for service in contentService subscriptionService userService notificationService analyticsService; do
   if [[ -f "functions/src/services/${service}.ts" ]]; then
     pass "internal ${service} exists"
   else
@@ -74,10 +79,10 @@ for service in contentService subscriptionService userService analyticsService; 
   fi
 done
 
-if [[ -f app/build/outputs/bundle/release/app-release.aab ]]; then
-  pass 'release AAB exists'
+if [[ -f app/build/outputs/bundle/prodRelease/app-prod-release.aab ]]; then
+  pass 'prod release AAB exists'
 else
-  warn 'release AAB not present; run ./gradlew :app:bundleRelease before final release preflight'
+  warn 'prod release AAB not present; run ./gradlew :app:bundleProdRelease before final release preflight'
 fi
 
 if grep -Rq 'REPLACE_WITH_\|https://wiccan\.app/\|support@wiccan\.app' .firebaserc app/src/main/kotlin docs 2>/dev/null; then
