@@ -100,7 +100,7 @@ class WiccanBillingClient @Inject constructor(
             )
             .build()
 
-        return client.queryProductDetails(queryParams).productDetailsList.firstOrNull()
+        return client.queryProductDetails(queryParams).productDetailsList?.firstOrNull()
             ?: error("Product '$productId' is not available from Play.")
     }
 
