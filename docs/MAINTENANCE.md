@@ -31,13 +31,31 @@ currently handled (automated, manual, or not yet built).
 
 ## Play Billing Library version
 
-- Currently pinned to 7.1.1 (`gradle/libs.versions.toml`). A later major
-  version (9.1.0 was referenced in earlier planning) was deliberately
-  **not** attempted in this pass: a major version bump can carry breaking
-  API changes to the purchase flow, and this sandbox has no way to test
-  against a live purchase to confirm nothing broke. Bumping it should be
-  its own isolated change, done with access to a real Play Billing
-  sandbox purchase to verify against before merging.
+- Currently pinned to 7.1.1 (`gradle/libs.versions.toml`). 9.1.0 is the
+  real latest release (confirmed against Google's Maven metadata) and was
+  attempted directly: bumping the version and recompiling surfaced a real,
+  verified blocker rather than a guess — `billing-ktx:9.1.0`'s Kotlin
+  metadata requires Kotlin compiler **2.3.0 or newer** (this project was
+  on 2.0.21), which itself requires migrating the now-removed
+  `kotlinOptions { jvmTarget = "17" }` DSL to the `compilerOptions` DSL
+  (straightforward — done and reverted along with everything else below,
+  ready to reapply). Bumping Kotlin to 2.3.0 in turn surfaced a KSP/Hilt
+  Gradle-plugin classloader conflict ("KSP plugin was detected to be
+  applied but its task class could not be found") that this sandbox could
+  not resolve with confidence — matching the exact KSP release for
+  Kotlin 2.3.0 needs the real KSP/Kotlin compatibility table, which
+  wasn't reliably obtainable here. Reverted rather than ship a toolchain
+  bump validated only by guesswork.
+- **To finish this**: on a machine with reliable access to KSP's official
+  compatibility docs (https://github.com/google/ksp/releases), bump
+  `kotlin` and `ksp` together to a verified-matching pair at or above
+  Kotlin 2.3.0, re-apply the `compilerOptions` DSL migration (see git
+  history for this attempt), bump `billing` to `9.1.0`, then run the full
+  `./gradlew clean ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug
+  :app:bundleProdRelease` suite before touching `WiccanBillingClient.kt`'s
+  API usage itself (a second, separate verification pass, since Billing
+  9.x's actual method signatures haven't been diffed against 7.1.1 yet —
+  that compile only got as far as the Kotlin/KSP toolchain blocker).
 
 ## Room schema migrations
 
@@ -52,6 +70,14 @@ currently handled (automated, manual, or not yet built).
   exported schema JSON in `app/schemas/`, run the migration, assert the
   result) — see `docs/RELEASE_CHECKLIST.md` for why this currently
   compiles but has never executed against a real SQLite engine.
+
+## Runtime kill switches
+
+- `systemConfig/global` (Firestore, no client access — `firestore.rules`) holds two ops-only emergency flags, both fail-open (default `true`, i.e. normal operation, if the doc or field doesn't exist):
+  - `dailyContentEnabled` — stops `getTodayContent` (the interactive callable) and `sendDailyNotificationsJob` (which also selects content) from serving any content at all. Flip to `false` if a bad content batch needs to be pulled from delivery immediately.
+  - `notificationsEnabled` — stops just the daily push job, independent of content selection (e.g. an FCM incident). Flip to `false` to silence the hourly job without touching `getTodayContent`.
+- To flip either: edit the `systemConfig/global` document directly in the Firebase Console (or via the Admin SDK) — there is no CLI script for this, since it's meant to be a rare, deliberate, auditable manual action, not an automated one.
+- `FirestoreSystemConfigRepository`/`FakeSystemConfigRepository` (`functions/src/systemConfigPort.ts`) are the read path; nothing in this codebase writes to `systemConfig/global` — creating/editing it is an operator action, not a code path.
 
 ## Policy versions
 
