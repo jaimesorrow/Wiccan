@@ -1,46 +1,40 @@
+import { getAuth } from "firebase-admin/auth";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
-import { getAuth } from "firebase-admin/auth";
-import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { onSchedule } from "firebase-functions/v2/scheduler";
-import { onMessagePublished } from "firebase-functions/v2/pubsub";
-import { auth as authV1 } from "firebase-functions/v1";
-import * as logger from "firebase-functions/logger";
-import { selectTodayContent } from "./getTodayContent";
-import { FirestoreContentRepository } from "./firestoreContentRepository";
-import { getUserLocalDate } from "./dateUtils";
-import { GooglePlayBillingRepository } from "./googlePlayBillingRepository";
-import { FirestoreUserRepository } from "./firestoreUserRepository";
-import { verifyPurchaseAndSyncTier, PurchaseVerificationError } from "./verifyPurchase";
-import { recheckLapsedSubscriptions } from "./recheckLapsedSubscriptions";
-import { FirestoreNotificationUserRepository } from "./firestoreNotificationUserRepository";
-import { FirebaseFcmSender } from "./firebaseFcmSender";
-import { sendDailyNotifications } from "./sendDailyNotifications";
 import { getMessaging } from "firebase-admin/messaging";
-import { FirestoreUserProfileRepository } from "./firestoreUserProfileRepository";
-import { createUserProfileOnSignUp } from "./createUserProfile";
-import { FirestoreAccountDeletionRepository } from "./firestoreAccountDeletionRepository";
-import { deleteAccount } from "./deleteAccount";
-import { acceptTerms as acceptTermsCore, StalePolicyVersionError } from "./acceptTerms";
-import { FirestoreSubscriptionRecordRepository } from "./firestoreSubscriptionRecordRepository";
-import { handleRtdnNotification, parseRtdnPurchaseToken } from "./handleRtdn";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onMessagePublished } from "firebase-functions/v2/pubsub";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { auth as authV1 } from "firebase-functions/v1";
+import { StalePolicyVersionError } from "./acceptTerms";
+import { AnalyticsService } from "./services/analyticsService";
+import { ContentService } from "./services/contentService";
+import { NotificationService } from "./services/notificationService";
+import { SubscriptionService } from "./services/subscriptionService";
+import { UserService } from "./services/userService";
+import { PurchaseVerificationError } from "./verifyPurchase";
 
 initializeApp();
 
-// Matches the Android app's applicationId (app/build.gradle.kts).
-const ANDROID_PACKAGE_NAME = process.env.ANDROID_PACKAGE_NAME ?? "com.wiccan.app";
-
-// The Pub/Sub topic Play Console's "Real-time developer notifications"
-// setting must be pointed at (Monetization setup -> RTDN). This is an
-// operational Play Console step, not something this code provisions.
+/**
+ * Canonical technical Android identity. Product branding is Wiccan, but the
+ * installed package/application ID remains com.nyxwell.app. Changing this
+ * requires a coordinated Firebase/OAuth/App Check/Play migration.
+ */
+const ANDROID_PACKAGE_NAME = process.env.ANDROID_PACKAGE_NAME ?? "com.nyxwell.app";
 const PLAY_RTDN_TOPIC = process.env.PLAY_RTDN_TOPIC ?? "play-rtdn";
 
+const db = getFirestore();
+const auth = getAuth();
+const analytics = new AnalyticsService();
+const contentService = new ContentService(db);
+const subscriptionService = new SubscriptionService(db, ANDROID_PACKAGE_NAME);
+const userService = new UserService(db, auth, ANDROID_PACKAGE_NAME);
+const notificationService = new NotificationService(db, getMessaging());
+
 /**
- * Callable: returns the caller's content for today, selecting and
- * recording it server-side if this is their first call of the day. The
- * uid always comes from the verified auth context, never from client
- * input, so a client cannot request (or game) another user's history.
- * App Check-enforced: only the real, attested Android client may call this.
+ * Returns the authenticated caller's transaction-safe daily assignment.
+ * App Check is mandatory and uid is derived exclusively from auth context.
  */
 export const getTodayContent = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
@@ -49,20 +43,16 @@ export const getTodayContent = onCall({ enforceAppCheck: true }, async (request)
   }
 
   try {
-    const repo = new FirestoreContentRepository(getFirestore());
-    const timeZone = await repo.getUserTimeZone(uid);
-    return await selectTodayContent(uid, getUserLocalDate(timeZone), repo);
+    return await contentService.getTodayContent(uid);
   } catch (err) {
-    logger.error("getTodayContent failed", { uid, error: (err as Error).message });
+    analytics.error("getTodayContent_failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not select today's content.");
   }
 });
 
 /**
- * Callable: verifies a Play purchase token server-side and syncs
- * `users/{uid}.tier`. Like getTodayContent, uid comes only from the
- * verified auth context — a client can never verify a purchase for, or
- * report a tier on behalf of, another user. App Check-enforced.
+ * Verifies a Play purchase server-side. Client billing state is never the
+ * entitlement source of truth.
  */
 export const verifyPurchase = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
@@ -72,90 +62,47 @@ export const verifyPurchase = onCall({ enforceAppCheck: true }, async (request) 
 
   const purchaseToken = request.data?.purchaseToken;
   const productId = request.data?.productId;
-  if (typeof purchaseToken !== "string" || typeof productId !== "string") {
+  if (typeof purchaseToken !== "string" || purchaseToken.length === 0 || typeof productId !== "string" || productId.length === 0) {
     throw new HttpsError("invalid-argument", "purchaseToken and productId are required.");
   }
 
   try {
-    const billing = new GooglePlayBillingRepository(ANDROID_PACKAGE_NAME);
-    const users = new FirestoreUserRepository(getFirestore());
-    const subscriptions = new FirestoreSubscriptionRecordRepository(getFirestore());
-    const tier = await verifyPurchaseAndSyncTier(uid, purchaseToken, productId, billing, users, subscriptions);
+    const tier = await subscriptionService.verifyPurchase(uid, purchaseToken, productId);
     return { tier };
   } catch (err) {
     if (err instanceof PurchaseVerificationError) {
       throw new HttpsError("failed-precondition", err.message);
     }
-    logger.error("verifyPurchase failed", { uid, error: (err as Error).message });
+    analytics.error("verifyPurchase_failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not verify purchase.");
   }
 });
 
-/**
- * Daily job: re-verifies every user currently marked premium and
- * downgrades any whose subscription has lapsed since their last check —
- * subscriptions can expire without any app-side event firing. `onSchedule`
- * provisions its own Cloud Scheduler job on deploy; no separate manual
- * setup is needed beyond `firebase deploy`.
- */
+/** Daily safety-net reconciliation for missed/delayed RTDN events. */
 export const recheckLapsedSubscriptionsJob = onSchedule("every day 03:00", async () => {
-  const billing = new GooglePlayBillingRepository(ANDROID_PACKAGE_NAME);
-  const users = new FirestoreUserRepository(getFirestore());
-  const subscriptions = new FirestoreSubscriptionRecordRepository(getFirestore());
-  const summary = await recheckLapsedSubscriptions(billing, users, subscriptions);
-  logger.info("recheckLapsedSubscriptions complete", summary);
+  const summary = await subscriptionService.recheckLapsedSubscriptions();
+  analytics.info("recheckLapsedSubscriptions_complete", summary as unknown as Record<string, unknown>);
 });
 
 /**
- * Pub/Sub-triggered: handles a Google Play Real-Time Developer
- * Notification for a subscription lifecycle event (renewal,
- * cancellation, recovery, price change, etc). Keeps `users/{uid}.tier`
- * and the `subscriptions/{uid}` audit record current as events happen,
- * rather than waiting for the next daily reconciliation pass.
- *
- * Requires Play Console's Monetization setup -> "Real-time developer
- * notifications" to be pointed at this Pub/Sub topic
- * (`PLAY_RTDN_TOPIC`/"play-rtdn"), and that topic to grant the Play
- * publisher service account permission to publish to it - both
- * operational Play Console/Cloud IAM steps this code cannot perform on
- * its own. Daily reconciliation (`recheckLapsedSubscriptionsJob`) remains
- * as a backup for any notification that is missed or delayed.
+ * Google Play RTDN handler. The RTDN event is only a signal; the service
+ * re-queries Google Play and persists server-verified entitlement state.
  */
 export const handlePlayRtdn = onMessagePublished(PLAY_RTDN_TOPIC, async (event) => {
   const messageData = event.data.message.data;
-  if (!messageData) {
-    return;
-  }
-
-  const purchaseToken = parseRtdnPurchaseToken(messageData);
-  if (!purchaseToken) {
-    // Not a subscription notification (e.g. a one-time-product or test
-    // notification also delivered through this topic) - nothing to do.
-    return;
-  }
+  if (!messageData) return;
 
   try {
-    const billing = new GooglePlayBillingRepository(ANDROID_PACKAGE_NAME);
-    const users = new FirestoreUserRepository(getFirestore());
-    const subscriptions = new FirestoreSubscriptionRecordRepository(getFirestore());
-    const result = await handleRtdnNotification(purchaseToken, billing, users, subscriptions);
-    logger.info("handlePlayRtdn processed", { result });
+    const result = await subscriptionService.handleRtdnMessage(messageData);
+    if (result) {
+      analytics.info("handlePlayRtdn_processed", { result });
+    }
   } catch (err) {
-    logger.error("handlePlayRtdn failed", { error: (err as Error).message });
+    analytics.error("handlePlayRtdn_failed", { error: (err as Error).message });
   }
 });
 
-/**
- * Callable: registers the caller's current device (its FCM token and,
- * optionally, its time zone) as one entry in `users/{uid}/devices`.
- * A user may have any number of registered devices at once - phone,
- * tablet, etc. - each addressed independently, so signing in on a second
- * device never displaces the first. `users/{uid}/devices` has no client
- * write access in Firestore rules, so this is the only way either value
- * gets there — uid comes from the verified auth context, same as every
- * other callable here. App Check-enforced, per the final security state:
- * device registration is a protected profile mutation.
- */
+/** Protected per-device registration. */
 export const registerDeviceToken = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
@@ -163,29 +110,23 @@ export const registerDeviceToken = onCall({ enforceAppCheck: true }, async (requ
   }
 
   const token = request.data?.token;
+  const timeZone = request.data?.timeZone;
   if (typeof token !== "string" || token.length === 0) {
     throw new HttpsError("invalid-argument", "token is required.");
   }
-  const timeZone = request.data?.timeZone;
   if (timeZone !== undefined && typeof timeZone !== "string") {
     throw new HttpsError("invalid-argument", "timeZone must be a string when provided.");
   }
 
   try {
-    const users = new FirestoreNotificationUserRepository(getFirestore());
-    await users.setToken(uid, token, timeZone);
+    await userService.registerDevice(uid, token, timeZone);
   } catch (err) {
-    logger.error("registerDeviceToken failed", { uid, error: (err as Error).message });
+    analytics.error("registerDeviceToken_failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not register device token.");
   }
 });
 
-/**
- * Callable: removes the caller's *own* device registration (identified by
- * its own token), e.g. before sign-out so a signed-out device stops
- * receiving pushes meant for whoever signs in next on it - without
- * touching this user's other registered devices. App Check-enforced.
- */
+/** Protected removal of only the caller's current device registration. */
 export const unregisterDeviceToken = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
@@ -198,19 +139,14 @@ export const unregisterDeviceToken = onCall({ enforceAppCheck: true }, async (re
   }
 
   try {
-    const users = new FirestoreNotificationUserRepository(getFirestore());
-    await users.clearToken(uid, token);
+    await userService.unregisterDevice(uid, token);
   } catch (err) {
-    logger.error("unregisterDeviceToken failed", { uid, error: (err as Error).message });
+    analytics.error("unregisterDeviceToken_failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not unregister device token.");
   }
 });
 
-/**
- * Callable: updates the time zone of one already-registered device,
- * independent of its token, e.g. when the app detects the device's time
- * zone no longer matches what's on record. App Check-enforced.
- */
+/** Protected timezone mutation for one registered device. */
 export const updateTimeZone = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
@@ -218,29 +154,20 @@ export const updateTimeZone = onCall({ enforceAppCheck: true }, async (request) 
   }
 
   const token = request.data?.token;
-  if (typeof token !== "string" || token.length === 0) {
-    throw new HttpsError("invalid-argument", "token is required.");
-  }
   const timeZone = request.data?.timeZone;
-  if (typeof timeZone !== "string" || timeZone.length === 0) {
-    throw new HttpsError("invalid-argument", "timeZone is required.");
+  if (typeof token !== "string" || token.length === 0 || typeof timeZone !== "string" || timeZone.length === 0) {
+    throw new HttpsError("invalid-argument", "token and timeZone are required.");
   }
 
   try {
-    const users = new FirestoreNotificationUserRepository(getFirestore());
-    await users.setTimeZone(uid, token, timeZone);
+    await userService.updateTimeZone(uid, token, timeZone);
   } catch (err) {
-    logger.error("updateTimeZone failed", { uid, error: (err as Error).message });
+    analytics.error("updateTimeZone_failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not update time zone.");
   }
 });
 
-/**
- * Callable: records the caller's Terms of Service/Privacy Policy
- * acceptance. Rejects any version other than the server's current ones
- * (see policyVersions.ts) rather than trusting the client's claim.
- * App Check-enforced.
- */
+/** Versioned Terms/Privacy acceptance; server validates accepted versions. */
 export const acceptTerms = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
@@ -254,53 +181,28 @@ export const acceptTerms = onCall({ enforceAppCheck: true }, async (request) => 
   }
 
   try {
-    const repo = new FirestoreUserProfileRepository(getFirestore());
-    await acceptTermsCore(uid, termsVersion, privacyVersion, repo);
+    await userService.acceptTerms(uid, termsVersion, privacyVersion);
   } catch (err) {
     if (err instanceof StalePolicyVersionError) {
       throw new HttpsError("failed-precondition", err.message);
     }
-    logger.error("acceptTerms failed", { uid, error: (err as Error).message });
+    analytics.error("acceptTerms_failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not record policy acceptance.");
   }
 });
 
-/**
- * Hourly job: on each run, sendDailyNotifications filters every registered
- * device down to only those whose *local* time (from their own stored
- * time zone) currently reads 9am, and sends just that slice its "your
- * content is ready" push. Running hourly - rather than once at a single
- * fixed UTC instant - is what makes "9am" actually mean 9am in each
- * device's own time zone instead of 9am in whichever zone the function
- * happens to run in. See sendDailyNotifications for the tracked limitation
- * of an hourly poll vs. exact per-device scheduling.
- */
+/** Hourly poll; service filters to devices whose local hour is due. */
 export const sendDailyNotificationsJob = onSchedule("every 1 hours", async () => {
-  const repo = new FirestoreContentRepository(getFirestore());
-  const users = new FirestoreNotificationUserRepository(getFirestore());
-  const fcm = new FirebaseFcmSender(getMessaging());
-  const summary = await sendDailyNotifications(users, repo, fcm);
-  logger.info("sendDailyNotifications complete", summary);
+  const summary = await notificationService.sendDueDailyNotifications();
+  analytics.info("sendDailyNotifications_complete", summary as unknown as Record<string, unknown>);
 });
 
-/**
- * 1st-gen Auth trigger: creates users/{uid} the moment a new Firebase Auth
- * account exists, so the client never creates its own profile document.
- * 1st-gen triggers coexist fine with the 2nd-gen callables/scheduled
- * functions used everywhere else in this codebase.
- */
+/** Server-only profile creation on Firebase Auth account creation. */
 export const onUserCreated = authV1.user().onCreate(async (user) => {
-  const repo = new FirestoreUserProfileRepository(getFirestore());
-  await createUserProfileOnSignUp(user.uid, repo);
+  await userService.createProfile(user.uid);
 });
 
-/**
- * Callable: permanently deletes the caller's profile, delivery history,
- * live Play subscription (canceled, not just its local record erased),
- * and Firebase Auth account. Self-delete only — like every other callable
- * here, uid comes exclusively from the verified auth context, so a client
- * can never delete another user's account. App Check-enforced.
- */
+/** Protected self-delete; uid is never accepted from client data. */
 export const deleteUserData = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
@@ -308,11 +210,9 @@ export const deleteUserData = onCall({ enforceAppCheck: true }, async (request) 
   }
 
   try {
-    const billing = new GooglePlayBillingRepository(ANDROID_PACKAGE_NAME);
-    const repo = new FirestoreAccountDeletionRepository(getFirestore(), getAuth(), billing);
-    await deleteAccount(uid, repo);
+    await userService.deleteAccount(uid);
   } catch (err) {
-    logger.error("deleteUserData failed", { uid, error: (err as Error).message });
+    analytics.error("deleteUserData_failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not delete account data.");
   }
 });
