@@ -17,41 +17,71 @@ const GeneratedDraftSchema = z.object({
 });
 
 /**
- * Builds the generation prompt per the hard constraint: the source is
- * thematic inspiration only — never quoted, closely paraphrased, or
- * structurally mirrored. `summary` is Jaime's own vetted summary from
- * sources.json, never a verbatim excerpt of the original source.
+ * Builds Wiccan's editorial prompt. The source is thematic inspiration
+ * only — never quoted, closely paraphrased, or structurally mirrored.
+ * `summary` is a vetted source summary, never a verbatim excerpt.
  *
- * The safety rules below are non-negotiable content-policy requirements,
- * not stylistic suggestions - Wiccan ships real safety instructions to
- * real users, so a generated piece that fails them cannot be published.
+ * The voice and safety rules are production requirements, not suggestions.
+ * See docs/CONTENT_VOICE_AND_LESSON_STANDARD.md.
  */
 function buildPrompt(request: DraftGenerationRequest): string {
   return `You are drafting one original ${request.type} for Wiccan, a modern witchcraft app.
-Use the following historical tradition ONLY as thematic inspiration —
-do not quote, closely paraphrase, or mirror its structure or wording.
-Write something new, in your own words, that captures the same
-practical spirit and lineage.
+
+VOICE
+Write in a grounded, mature, historically careful, practical, reflective,
+subtly grimoire-inspired voice. The writing must feel serious and credible,
+not theatrical or cheesy. Use clear modern English. Do not use fake archaic
+English, sensational occult language, horror imagery, or fantasy narration.
+
+SOURCE USE
+Use the following historical tradition ONLY as thematic inspiration. Do not
+quote it, closely paraphrase it, mirror its structure, or imply uncertain
+historical claims are established fact. Clearly distinguish historical or
+customary practice, modern practice, symbolism, and personal reflection.
 
 Tradition: ${request.tradition}
 Background (for inspiration only, not to be echoed): ${request.summary}
 
-Choose exactly one category that best fits this piece from:
+CATEGORY
+Choose exactly one category from:
 ${CONTENT_CATEGORIES.join(", ")}
 
-Safety rules - the draft must NOT:
+LESSON FORMAT
+If type=lesson, structure the content so it reads naturally as:
+1. Introduction — concise factual/contextual opening in intro.
+2. Lesson — substantial explanation in body.
+3. Reflection — end body with a clearly labeled "Reflection" section and one thoughtful question.
+4. Practice — optional, clearly labeled, only when a safe simple action genuinely adds value.
+5. Safety Note — use safetyNote whenever risk warrants it.
+
+Reflection must be specific to the lesson, not generic filler.
+Do not claim the moon, herbs, symbols, salt, ritual, or other practices
+objectively cause supernatural outcomes. You may explain that practitioners
+use them symbolically, devotionally, ritually, historically, or as a framework
+for attention and reflection.
+
+SPELLS AND POTIONS
+For spells and potions, keep the same grounded philosophy. Distinguish
+symbolism/tradition from established physical effects. Give clear materials
+and steps when appropriate. Never promise guaranteed love, wealth, healing,
+protection, divination accuracy, or another supernatural result. Treat
+"potion" cautiously: prefer non-ingestible ritual preparations unless every
+ingredient and intended use is plainly food-safe.
+
+SAFETY — the draft must NOT:
 - diagnose, treat, or claim to cure any medical or mental health condition
-- present itself as a replacement for professional medical, legal, or financial care
-- instruct ingestion of anything unsafe, or of any unidentified wild plant
+- present ritual as a replacement for professional medical, legal, financial, or emergency care
+- instruct ingestion of anything unsafe or any unidentified wild plant
 - call for toxic, poisonous, or otherwise hazardous materials
 - guarantee a specific supernatural outcome
+- present folklore or symbolism as scientific fact
 
-If the piece involves open flame, smoke/incense, an allergen, an ingredient
-unsafe for pets or children, or anything applied to skin, include a clear
-safetyNote covering it. Set safetyNote to null only when the piece
-genuinely carries none of these risks.
+If the piece involves open flame, smoke/incense, allergens, pets, children,
+skin contact, ingestion, plants, or another meaningful risk, include a clear
+safetyNote. Set safetyNote to null only when no meaningful safety note is needed.
 
-Output strict JSON matching this shape:
+OUTPUT
+Return strict JSON matching:
 { "title": string, "intro": string, "body": string,
   "materials": string[] | null, "safetyNote": string | null,
   "tags": string[], "category": string }`;
