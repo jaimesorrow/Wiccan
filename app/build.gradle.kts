@@ -24,9 +24,8 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    // Source code remains under the product-oriented com.wiccan.app namespace,
-    // while the installed/Play/Firebase technical identity is intentionally
-    // preserved as com.nyxwell.app. Do not change applicationId casually.
+    // Source namespace stays product-oriented. The installed/Play/Firebase
+    // technical identity is intentionally preserved as com.nyxwell.app.
     namespace = "com.wiccan.app"
     compileSdk = 36
 
@@ -38,6 +37,28 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // One Android flavor per Firebase environment. Only prod has no suffix;
+    // it is the canonical Play/Firebase package com.nyxwell.app. Dev and
+    // staging can be installed side-by-side and require their own Firebase
+    // registrations/google-services.json files before they can be built
+    // against real projects.
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+        }
+        create("staging") {
+            dimension = "environment"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+        }
+        create("prod") {
+            dimension = "environment"
+        }
     }
 
     signingConfigs {
@@ -137,10 +158,10 @@ dependencies {
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.appcheck.ktx)
     implementation(libs.firebase.appcheck.playintegrity)
-    // Release never carries the App Check debug provider.
     debugImplementation(libs.firebase.appcheck.debug)
 
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.datastore.preferences)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     implementation(libs.billing.ktx)
