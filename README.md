@@ -45,8 +45,8 @@ functions/                    Cloud Functions (Node/TypeScript)
   eligible for delivery.
 - `userContentHistory` — one row per (user, day) delivery, written only by
   the Cloud Function.
-- `users/{uid}` — `tier` ("free"/"premium"), `fcmToken`, `createdAt`.
-  Created server-side on sign-up; the client never writes it directly.
+- `users/{uid}` — server-controlled account/profile data. Device messaging
+  registrations live under `users/{uid}/devices`.
 
 ## Core mechanics
 
@@ -62,10 +62,34 @@ functions/                    Cloud Functions (Node/TypeScript)
 - **Content generation** draws only from a hand-curated `sources.json` of
   public-domain sources, using each source as thematic inspiration only —
   never quoted or closely paraphrased. Every generated draft needs a
-  separate `approveDraft` call before it's eligible for delivery.
+  separate `approveDraft` action before it's eligible for delivery.
 - **Auth** uses Android Credential Manager for Google sign-in and
   Firebase Auth for email/password. `users/{uid}` creation is a 1st-gen
   Auth trigger, never a client-side write.
+
+## Content voice and lesson format
+
+`docs/CONTENT_VOICE_AND_LESSON_STANDARD.md` is the authoritative editorial
+standard for Wiccan lessons, spells, potions, generation prompts,
+validation, and content-detail UI.
+
+Lessons should feel grounded, mature, historically careful, practical,
+reflective, and subtly grimoire-inspired — never theatrical or cheesy.
+The preferred lesson structure is:
+
+```text
+Introduction
+Lesson
+Reflection
+Practice      (optional)
+Safety Note   (when warranted)
+```
+
+Historical/customary claims must be qualified appropriately, symbolic
+claims must not be presented as scientifically established supernatural
+facts, and safety notes are required whenever meaningful material or
+health risks exist. Lesson artwork should use restrained Wiccan line-art,
+not physical photography.
 
 ## Building
 
