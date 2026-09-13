@@ -1,4 +1,5 @@
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -11,10 +12,6 @@ plugins {
     alias(libs.plugins.ktlint)
 }
 
-// app/keystore.properties is gitignored (holds a real signing key's
-// credentials) so it never exists on a fresh checkout - see
-// keystore.properties.example. Without it, release builds stay unsigned
-// rather than failing the build; see docs/RELEASE_CHECKLIST.md.
 val keystorePropertiesFile = file("keystore.properties")
 val hasKeystoreProperties = keystorePropertiesFile.exists()
 val keystoreProperties = Properties().apply {
@@ -39,11 +36,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    // One Android flavor per Firebase environment. Only prod has no suffix;
-    // it is the canonical Play/Firebase package com.nyxwell.app. Dev and
-    // staging can be installed side-by-side and require their own Firebase
-    // registrations/google-services.json files before they can be built
-    // against real projects.
     flavorDimensions += "environment"
     productFlavors {
         create("dev") {
@@ -88,10 +80,6 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         compose = true
         buildConfig = true
@@ -114,6 +102,12 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget("17")
     }
 }
 
