@@ -1,5 +1,13 @@
 name: CI
 on: [push, pull_request]
+
+# Every commit on an open PR produces both push and pull_request events.
+# Keep only the newest run for a branch so stale remediation commits cannot
+# consume the runner queue for minutes after a newer fix has landed.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   android:
     runs-on: ubuntu-latest
