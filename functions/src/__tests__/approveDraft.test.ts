@@ -1,6 +1,7 @@
 import { approveDraft, DraftNotFoundError, UnsafeContentError } from "../approveDraft";
 import { FakeContentAdminRepository } from "../testUtils/fakeContentAdminRepository";
 import { NewDraftContent } from "../contentAdminRepositoryPort";
+import { ContentSource } from "../contentSource";
 
 const BASE_DRAFT: NewDraftContent = {
   title: "t",
@@ -14,6 +15,25 @@ const BASE_DRAFT: NewDraftContent = {
   tier: "free",
   tradition: "European folk magic",
   sourceId: "source-a",
+};
+
+const ANCIENT_LESSON_SOURCE: ContentSource = {
+  id: "ancient-source",
+  title: "Ancient Source",
+  tradition: "Ancient ritual tradition",
+  era: "ancient",
+  period: "Ancient period",
+  publicDomainBasis: "Ancient historical subject matter.",
+  sourceReference: "Catalogue reference",
+  summary: "Curated historical summary.",
+  groundedFacts: ["One verified historical fact."],
+  eligibleTypes: ["lesson"],
+};
+
+const EARLY_MODERN_SOURCE: ContentSource = {
+  ...ANCIENT_LESSON_SOURCE,
+  id: "early-modern-source",
+  era: "early-modern",
 };
 
 describe("approveDraft", () => {
@@ -76,5 +96,46 @@ describe("approveDraft", () => {
     await approveDraft(contentId, repo);
 
     expect(await repo.getStatus(contentId)).toBe("published");
+  });
+
+  it("publishes a lesson only when its source is curated, ancient, and lesson-eligible", async () => {
+    const repo = new FakeContentAdminRepository();
+    const contentId = await repo.createDraft({
+      ...BASE_DRAFT,
+      type: "lesson",
+      tags: ["lesson"],
+      tradition: ANCIENT_LESSON_SOURCE.tradition,
+      sourceId: ANCIENT_LESSON_SOURCE.id,
+    });
+
+    await approveDraft(contentId, repo, [ANCIENT_LESSON_SOURCE]);
+
+    expect(await repo.getStatus(contentId)).toBe("published");
+  });
+
+  it("refuses to publish a lesson whose source is not ancient", async () => {
+    const repo = new FakeContentAdminRepository();
+    const contentId = await repo.createDraft({
+      ...BASE_DRAFT,
+      type: "lesson",
+      tags: ["lesson"],
+      sourceId: EARLY_MODERN_SOURCE.id,
+    });
+
+    await expect(approveDraft(contentId, repo, [EARLY_MODERN_SOURCE])).rejects.toThrow(UnsafeContentError);
+    expect(await repo.getStatus(contentId)).toBe("draft");
+  });
+
+  it("refuses to publish a lesson with an unknown sourceId", async () => {
+    const repo = new FakeContentAdminRepository();
+    const contentId = await repo.createDraft({
+      ...BASE_DRAFT,
+      type: "lesson",
+      tags: ["lesson"],
+      sourceId: "unknown-source",
+    });
+
+    await expect(approveDraft(contentId, repo, [ANCIENT_LESSON_SOURCE])).rejects.toThrow(UnsafeContentError);
+    expect(await repo.getStatus(contentId)).toBe("draft");
   });
 });
