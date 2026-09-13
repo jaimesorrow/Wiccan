@@ -37,6 +37,32 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Mirrors the dev/staging/production Firebase project split in
+    // .firebaserc and the README's Environments section: each flavor is
+    // meant to point at its own separate Firebase project, never share
+    // one across environments. Only "prod" has no applicationId suffix -
+    // it's the real com.wiccan.app, matching google-services.ci.json and
+    // what CI actually builds/tests. "dev"/"staging" are scaffolding:
+    // building them requires that environment's own real
+    // google-services.json under app/src/dev/ or app/src/staging/ (not
+    // present here - no real dev/staging Firebase project exists yet).
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+        }
+        create("staging") {
+            dimension = "environment"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+        }
+        create("prod") {
+            dimension = "environment"
+        }
+    }
+
     signingConfigs {
         if (hasKeystoreProperties) {
             create("release") {
@@ -142,6 +168,7 @@ dependencies {
     debugImplementation(libs.firebase.appcheck.debug)
 
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.datastore.preferences)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     implementation(libs.billing.ktx)

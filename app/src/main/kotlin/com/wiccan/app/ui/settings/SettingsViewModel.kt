@@ -38,6 +38,11 @@ class SettingsViewModel @Inject constructor(
                 _state.update { it.copy(tier = tier) }
             }
         }
+        viewModelScope.launch {
+            notificationRepository.notificationsEnabled.collect { enabled ->
+                _state.update { it.copy(notificationsEnabled = enabled) }
+            }
+        }
     }
 
     fun onEvent(event: SettingsUiEvent) {
@@ -46,6 +51,23 @@ class SettingsViewModel @Inject constructor(
             SettingsUiEvent.DeleteAccountClicked -> _state.update { it.copy(showDeleteConfirmation = true) }
             SettingsUiEvent.CancelDeleteAccount -> _state.update { it.copy(showDeleteConfirmation = false) }
             SettingsUiEvent.ConfirmDeleteAccount -> deleteAccount()
+            is SettingsUiEvent.NotificationsToggled -> toggleNotifications(event.enabled)
+        }
+    }
+
+    private fun toggleNotifications(enabled: Boolean) {
+        // Optimistic: the switch should feel instant. Reverted if the
+        // server call fails, so the UI never claims a state that didn't
+        // actually take effect.
+        _state.update { it.copy(notificationsEnabled = enabled) }
+        viewModelScope.launch {
+            when (val result = notificationRepository.setNotificationsEnabled(enabled)) {
+                is AppResult.Success -> Unit
+                is AppResult.Failure -> {
+                    _state.update { it.copy(notificationsEnabled = !enabled) }
+                    effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
+                }
+            }
         }
     }
 

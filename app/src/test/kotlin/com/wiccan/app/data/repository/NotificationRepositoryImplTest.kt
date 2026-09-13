@@ -2,6 +2,7 @@ package com.wiccan.app.data.repository
 
 import com.wiccan.app.core.error.AppError
 import com.wiccan.app.core.result.AppResult
+import com.wiccan.app.data.local.NotificationPreferences
 import com.wiccan.app.data.remote.FcmTokenProvider
 import com.wiccan.app.data.remote.NotificationFunctionsDataSource
 import io.mockk.coEvery
@@ -17,11 +18,12 @@ class NotificationRepositoryImplTest {
 
     private val functionsDataSource: NotificationFunctionsDataSource = mockk()
     private val tokenProvider: FcmTokenProvider = mockk()
+    private val preferences: NotificationPreferences = mockk(relaxed = true)
     private lateinit var repository: NotificationRepositoryImpl
 
     @Before
     fun setUp() {
-        repository = NotificationRepositoryImpl(functionsDataSource, tokenProvider)
+        repository = NotificationRepositoryImpl(functionsDataSource, tokenProvider, preferences)
     }
 
     @Test
@@ -73,6 +75,29 @@ class NotificationRepositoryImplTest {
         coEvery { tokenProvider.getToken() } throws failure
 
         val result = repository.unregisterToken()
+
+        assertTrue(result is AppResult.Failure)
+        assertEquals(AppError.Unknown("network error"), (result as AppResult.Failure).error)
+    }
+
+    @Test
+    fun `setNotificationsEnabled forwards the current token and value, then updates the local cache`() = runTest {
+        coEvery { tokenProvider.getToken() } returns "current-token"
+        coEvery { functionsDataSource.setNotificationsEnabled("current-token", false) } returns Unit
+
+        val result = repository.setNotificationsEnabled(false)
+
+        assertTrue(result is AppResult.Success)
+        coVerify { functionsDataSource.setNotificationsEnabled("current-token", false) }
+        coVerify { preferences.setNotificationsEnabled(false) }
+    }
+
+    @Test
+    fun `setNotificationsEnabled classifies a generic failure as Unknown`() = runTest {
+        val failure = IllegalStateException("network error")
+        coEvery { tokenProvider.getToken() } throws failure
+
+        val result = repository.setNotificationsEnabled(false)
 
         assertTrue(result is AppResult.Failure)
         assertEquals(AppError.Unknown("network error"), (result as AppResult.Failure).error)

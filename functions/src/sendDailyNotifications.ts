@@ -27,15 +27,18 @@ function titleForType(type: ContentType): string {
 }
 
 /**
- * Sends the daily "your content is ready" push to every registered device
- * whose *local* time is currently in its 9am hour - a user with several
- * devices (phone, tablet, ...) gets one push per device, each addressed to
- * that device's own token, each at that device's own local 9am rather than
- * one instant shared across every time zone on earth. Intended to be
- * called from an hourly scheduled job (see sendDailyNotificationsJob):
- * each run only ever matches the slice of devices currently in their 9am
- * window, so calling it more or less often than hourly would either miss
- * or double-count devices at the boundary.
+ * Sends the daily "your content is ready" push to every registered,
+ * notifications-enabled device whose *local* time is currently in its 9am
+ * hour - a user with several devices (phone, tablet, ...) gets one push
+ * per device, each addressed to that device's own token, each at that
+ * device's own local 9am rather than one instant shared across every time
+ * zone on earth. A device with notificationsEnabled=false is skipped
+ * entirely (it's still registered - the user just opted out of the push
+ * without unregistering). Intended to be called from an hourly scheduled
+ * job (see sendDailyNotificationsJob): each run only ever matches the
+ * slice of devices currently in their 9am window, so calling it more or
+ * less often than hourly would either miss or double-count devices at
+ * the boundary.
  *
  * Reuses selectTodayContent directly (the same selection logic
  * getTodayContent's callable wraps) rather than calling that callable over
@@ -63,7 +66,9 @@ export async function sendDailyNotifications(
   now: Date = new Date(),
 ): Promise<NotificationSendSummary> {
   const allDevices = await users.listDevicesWithToken();
-  const recipients = allDevices.filter((device) => getUserLocalHour(device.timeZone, now) === TARGET_LOCAL_HOUR);
+  const recipients = allDevices.filter(
+    (device) => device.notificationsEnabled && getUserLocalHour(device.timeZone, now) === TARGET_LOCAL_HOUR,
+  );
   const summary: NotificationSendSummary = {
     attempted: recipients.length,
     sent: 0,
