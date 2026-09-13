@@ -19,7 +19,7 @@ firebaseCrashlyticsPlugin = "3.0.2"
 ktlint = "12.1.1"
 workManager = "2.10.0"
 desugarJdkLibs = "2.1.4"
-billing = "7.1.1"
+billing = "9.1.0"
 glance = "1.2.0"
 credentials = "1.6.0"
 googleid = "1.2.0"
@@ -48,7 +48,7 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWork" }
+hilt-work = { group = "androidx.hilt", name = "hilt-work-runtime", version.ref = "hiltWork" }
 hilt-work-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltWork" }
 
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
