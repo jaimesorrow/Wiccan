@@ -14,7 +14,7 @@ plugins {
 // app/keystore.properties is gitignored (holds a real signing key's
 // credentials) so it never exists on a fresh checkout - see
 // keystore.properties.example. Without it, release builds stay unsigned
-// (same as today) rather than failing the build; see docs/RELEASE_CHECKLIST.md.
+// rather than failing the build; see docs/RELEASE_CHECKLIST.md.
 val keystorePropertiesFile = file("keystore.properties")
 val hasKeystoreProperties = keystorePropertiesFile.exists()
 val keystoreProperties = Properties().apply {
@@ -24,11 +24,14 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
+    // Source code remains under the product-oriented com.wiccan.app namespace,
+    // while the installed/Play/Firebase technical identity is intentionally
+    // preserved as com.nyxwell.app. Do not change applicationId casually.
     namespace = "com.wiccan.app"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.wiccan.app"
+        applicationId = "com.nyxwell.app"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -84,7 +87,6 @@ android {
     sourceSets["release"].kotlin.srcDirs("src/release/kotlin")
     sourceSets["test"].kotlin.srcDirs("src/test/kotlin")
     sourceSets["androidTest"].kotlin.srcDirs("src/androidTest/kotlin")
-    // MigrationTestHelper loads each version's exported schema JSON as a test asset.
     sourceSets["androidTest"].assets.srcDirs("$projectDir/schemas")
 
     packaging {
@@ -135,10 +137,7 @@ dependencies {
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.appcheck.ktx)
     implementation(libs.firebase.appcheck.playintegrity)
-    // debugImplementation, not implementation: only src/debug's
-    // DebugAppCheckProviderInstaller references this, so a release build
-    // never carries the debug provider class at all - see
-    // com.wiccan.app.appcheck.AppCheckProviderInstaller.
+    // Release never carries the App Check debug provider.
     debugImplementation(libs.firebase.appcheck.debug)
 
     implementation(libs.androidx.work.runtime.ktx)
