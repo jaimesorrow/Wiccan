@@ -1,91 +1,141 @@
-# Wiccan — repair-order status
+# Wiccan — current implementation status
 
-Honest status against the repair order this branch worked through. PASS
-means built and verified by this repo's own automated checks. FIXED means
-a real gap was found and closed in this pass. BLOCKED means it needs
-something this sandbox genuinely cannot provide (real credentials, a real
-project, a device/emulator) — never worked around with a placeholder
-pretending to be real.
+This file records the codebase state after the September 2026 security,
+concurrency, billing, and architecture remediation pass.
 
-**Revision note**: an earlier version of this file claimed "every gap
-that isn't [a real Firebase project/keystore/Play listing] has been
-closed." An external audit of the codebase correctly caught that this was
-an overclaim — several real, code-level gaps were still open despite not
-depending on external infrastructure. This revision corrects that: the
-audit's findings are listed below, and every one of them either has been
-fixed (with the fix verified the same way as everything else in this
-file) or is named explicitly as still open, with a reason.
-
-## Core app (pre-existing, prior sessions)
+## Canonical identity and platform baseline
 
 | Area | Status |
 |---|---|
-| Daily content selection (deterministic, tier-filtered, transactional) | PASS |
-| Room cache + DAO | PASS |
-| Today/Archive/Settings/Paywall screens (MVI) | PASS |
-| Auth (Credential Manager Google sign-in + Firebase email/password) | PASS |
-| Billing (Play Billing Library 7.1.1, server-verified entitlement) | PASS |
-| Content generation pipeline (Claude-backed, admin-only) | PASS |
-| Home-screen widget | PASS |
-| Shared AppResult/AppError error taxonomy | PASS |
-| Full Nyxwell → Wiccan rebrand (including applicationId) | PASS |
-| API 36 baseline (compileSdk/targetSdk 36) | PASS |
+| Product name | PASS — Wiccan |
+| Android application ID / Play-Firebase package identity | PASS — `com.nyxwell.app` |
+| Kotlin source namespace | PASS — `com.wiccan.app` (source namespace only; not Play identity) |
+| minSdk | PASS — 24 |
+| compileSdk / targetSdk | PASS — 36 / 36 |
+| Java | PASS — 17 |
+| Play Billing Library | PASS — 9.1.0 |
 
-## This pass's repair order
+The application ID is intentionally different from the source namespace.
+Do not migrate `com.nyxwell.app` without coordinating Firebase app
+registration, OAuth fingerprints, App Check, backend package verification,
+and the Google Play listing.
+
+## Security and concurrency
 
 | Area | Status |
 |---|---|
-| Navigation Compose app shell + real `RootState` | PASS |
-| Server-controlled profile mutations (device token, time zone, terms) | PASS |
-| Versioned Terms/Privacy acceptance gate | PASS |
-| Subscription lifecycle hardening (entitlement fix, RTDN, acknowledgement) | PASS |
-| Category-organized Library | PASS |
-| Multi-device FCM (per-device registration, no cross-device clobbering) | FIXED |
-| Content safety gate + duplicate-title prevention | FIXED |
-| Account deletion completeness (devices subcollection + subscription record were orphaned) | FIXED |
-| Room migration test infra + Android backup safety | FIXED |
-| Environment separation (`.firebaserc`, `.env.example`) + admin CLI project-ID guard | FIXED |
-| Technical release preflight + Play Console readiness | DOCUMENTED — `docs/RELEASE_CHECKLIST.md`, `docs/PLAY_CONSOLE_READINESS.md` |
+| User Firestore writes | PASS — `users/{uid}` and `users/{uid}/devices/{deviceId}` are server-write-only |
+| Public content generation/approval callables | PASS — absent; operator CLI/Admin SDK only |
+| App Check | PASS — enforced on all user-facing callable mutations/reads; Play Integrity in release |
+| Debug App Check provider | PASS — debug dependency/source set only; excluded from release classpath |
+| Daily assignment race | PASS — deterministic `{uid}_{YYYY-MM-DD}` doc + Firestore transaction |
+| Auth trust boundary | PASS — UID derived from Firebase Auth context, not client-supplied user IDs |
+| Android permissions | PASS — manifest requests only INTERNET and POST_NOTIFICATIONS |
+| Backup/data extraction | PASS — explicit backup/data-extraction rules configured |
 
-## Audit remediation round (this revision)
+## Billing lifecycle
 
-An external audit reviewed the codebase directly (not just this file) and
-found the following. Each is now addressed as noted:
-
-| Finding | Resolution |
+| Area | Status |
 |---|---|
-| CI never ran Cloud Functions build/test/lint | **FIXED** — CI split into `android` and `functions` jobs; `functions` job verified green on its first real run |
-| No dependency-update automation | **FIXED** — `.github/dependabot.yml` (npm, gradle, github-actions) |
-| Account deletion didn't cancel the live Play subscription (local record deleted, but Google kept billing) | **FIXED** — `cancelActiveSubscription` calls `purchases.subscriptions.cancel` before the local record is erased |
-| App Check's debug provider shipped inside release builds | **FIXED** — split into build-variant source sets (`src/debug`, `src/release`); verified absent from the release `.aab`'s dex strings |
-| Notifications fired once at a fixed UTC instant, not per-device local 9am | **FIXED** — hourly job now filters to devices whose local time currently reads 9am (`getUserLocalHour`); see the documented hourly-poll-vs-exact-dispatch limitation below |
-| No automated 16KB/ABI native-library check | **FIXED** — `scripts/check-16kb-alignment.sh`, runs in CI against the real release `.aab` on every push; currently passing |
-| No disaster recovery / incident response / maintenance docs | **FIXED** — `docs/DISASTER_RECOVERY.md`, `docs/INCIDENT_RESPONSE.md`, `docs/MAINTENANCE.md` |
-| Billing Library still 7.1.1, not a later major version | **Still open** — deliberately not attempted; a major version can carry breaking purchase-flow API changes this sandbox has no live purchase to verify against. See `docs/MAINTENANCE.md`. |
-| Device registration schema is minimal (token + time zone + updatedAt; no `notificationsEnabled`/`platform`/`createdAt`/`lastSeenAt`) | **Still open** — these are reasonable ops fields, but adding them without a client UI to actually populate/use them (a notification toggle, platform detection) would be dead schema. Scope call, not attempted this pass. |
-| Visual theme is still near-black (`#0A0810`-direction) / generic serif+sans typography, not a distinct final direction | **Still open — needs your input, not mine to decide.** I have no record in this session of a specific rejected direction or an approved replacement; redoing the visual identity on an unverified third-party claim risks guessing wrong twice. Tell me what direction you want and I'll build it. |
-| No Android product flavors for dev/staging/prod (environment separation is `.firebaserc` + `.env` only) | **Still open** — a real architectural change (per-flavor `applicationIdSuffix`, per-flavor `google-services.json`) that needs at least one real Firebase project to build against meaningfully. |
-| No runtime kill switches (`dailyContentEnabled`, `notificationsEnabled`, etc.) | **Still open** — not attempted; would need a `systemConfig` Firestore doc + client/function read paths that don't exist yet. Real scope, not started. |
-| Launch content pool is still 1 curated source, not the target pool | **Still open, unchanged** — real content curation, not fabricatable here (see `functions/src/contentSource.ts`'s own doc comment: never auto-populated). |
-| Account deletion + active subscription | **FIXED** (see above) — this was the same finding as the billing-cancellation gap. |
+| Android billing client | PASS — Play Billing Library 9.1.0 |
+| Client entitlement trust | PASS — client purchase state is never authoritative |
+| Google Play Developer API verification | PASS — backend verification path exists |
+| Durable subscription state | PASS — `subscriptions/{uid}` |
+| Purchase acknowledgement | PASS |
+| Canceled-but-unexpired entitlement | PASS — remains premium until paid-through expiry |
+| RTDN | PASS in code — live Play/Pub/Sub path still requires external configuration/testing |
+| Scheduled reconciliation | PASS — retained as missed-RTDN safety net |
+| Account deletion subscription handling | PASS in code — active Play subscription cancellation is attempted server-side before local record deletion |
 
-## Known, still-flagged gaps (external infrastructure)
+## Backend architecture
 
-- `PolicyUrls` (Terms, Privacy, account deletion) and `SUPPORT_EMAIL` are placeholders — no real hosted pages exist yet.
-- `WiccanDatabaseMigrationTest` compiles clean but has never run against a real SQLite engine — no emulator here.
-- `handlePlayRtdn`, `verifyPurchase`'s field shapes, and the `users/{uid}/devices` collection-group query have never been exercised against a real Play Console / Firebase project.
-- No real Firebase project, signing keystore, or Play Console listing exists — `.firebaserc`, `keystore.properties.example`, and the store-listing checklist are all scaffolding for values only the app's owner can provide.
+Cloud Function exports in `functions/src/index.ts` are transport adapters.
+Business orchestration is separated into internal services:
+
+- `services/contentService.ts`
+- `services/subscriptionService.ts`
+- `services/userService.ts`
+- `services/notificationService.ts`
+- `services/analyticsService.ts`
+
+Domain/repository modules continue to own the testable implementation details
+such as deterministic assignment, Play verification, RTDN parsing, and
+account deletion.
+
+## CI and automated preflight
+
+CI runs:
+
+```text
+./gradlew ktlintCheck
+./gradlew test
+./gradlew assembleDebug
+./gradlew compileDebugAndroidTestKotlin
+./gradlew :app:bundleRelease
+./scripts/check-16kb-alignment.sh
+bash ./scripts/play-preflight.sh
+
+cd functions
+npm ci
+npm run build
+npm test
+npm run lint
+```
+
+`play-preflight.sh` fails on internal security/release regressions and warns
+on external placeholders by default. Final release operators should run:
+
+```bash
+STRICT_EXTERNAL=1 bash scripts/play-preflight.sh
+```
+
+## Existing product implementation
+
+- Today / daily content
+- Book of Shadows Timeline + category Library
+- Settings
+- Paywall
+- Credential Manager Google sign-in + Firebase email/password auth
+- versioned Terms/Privacy acceptance gate
+- multi-device FCM registrations and timezone-aware daily notification logic
+- Glance home-screen widget
+- Room cache + explicit migration infrastructure
+- Crashlytics / Analytics
+- admin-only content generation and approval workflow
+- Wiccan editorial/content standard in `docs/CONTENT_VOICE_AND_LESSON_STANDARD.md`
+
+## External / runtime validation still required
+
+The repository must not claim these are complete until they are exercised
+against real infrastructure:
+
+- real Firebase dev/staging/production project IDs and `google-services.json`;
+- production OAuth SHA fingerprints / Play App Signing identity;
+- Play Integrity App Check configuration in the production Firebase project;
+- real signing/upload key;
+- live Play Console app listing for package `com.nyxwell.app`;
+- `wiccan_premium_monthly` product/base plan and license testers;
+- RTDN Pub/Sub topic/IAM wiring and an end-to-end live RTDN test;
+- live Play Billing sandbox purchase / restore / cancellation / expiry test;
+- real hosted Terms, Privacy, account-deletion URLs and monitored support email;
+- connected-device/emulator execution of Room migration and backup/restore tests.
+
+## Remaining product/release work outside this security pass
+
+These are known work items rather than security fixes falsely marked done:
+
+- final visual redesign away from the near-black theme to the approved
+  serious modern-dark Wiccan direction;
+- richer device metadata/preferences if product requirements require it;
+- complete curated launch content pool;
+- final store assets/screenshots and Play Console declarations;
+- release-device smoke testing and staged rollout.
 
 ## Final status
 
-**NOT READY — BLOCKED BY:** no real Firebase project, signing keystore, or
-Play Console listing exists yet, **and** the visual/typography redesign
-needs your direction before it can be built, **and** the Billing Library
-major-version bump needs a live purchase to verify against.
+**NOT READY FOR PRODUCTION.**
 
-Everything else — every code-level gap the external audit surfaced — has
-been fixed and verified by this repo's own build/test/lint/CI commands,
-including the new `functions` CI job and the new 16KB-alignment check.
-The remaining architectural items (product flavors, runtime kill
-switches, richer device schema) are explicitly scoped as not started,
-not partially done and mis-described as complete.
+Code-level security and architecture are substantially hardened, but release
+readiness still depends on real Firebase/Play configuration, signing,
+legal/support endpoints, Play-distributed billing/App Check/RTDN validation,
+and the remaining product/release work listed above.
