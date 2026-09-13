@@ -35,6 +35,11 @@ export class UserService {
     await users.setTimeZone(uid, token, timeZone);
   }
 
+  async setNotificationsEnabled(uid: string, token: string, enabled: boolean) {
+    const users = new FirestoreNotificationUserRepository(this.db);
+    await users.setNotificationsEnabled(uid, token, enabled);
+  }
+
   async acceptTerms(uid: string, termsVersion: number, privacyVersion: number) {
     const repo = new FirestoreUserProfileRepository(this.db);
     await acceptTerms(uid, termsVersion, privacyVersion, repo);
