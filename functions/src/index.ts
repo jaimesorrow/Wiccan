@@ -8,7 +8,7 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { auth as authV1 } from "firebase-functions/v1";
 import { StalePolicyVersionError } from "./acceptTerms";
 import { AnalyticsService } from "./services/analyticsService";
-import { ContentService } from "./services/contentService";
+import { ContentService, DailyContentDisabledError } from "./services/contentService";
 import { NotificationService } from "./services/notificationService";
 import { SubscriptionService } from "./services/subscriptionService";
 import { UserService } from "./services/userService";
@@ -32,10 +32,7 @@ const subscriptionService = new SubscriptionService(db, ANDROID_PACKAGE_NAME);
 const userService = new UserService(db, auth, ANDROID_PACKAGE_NAME);
 const notificationService = new NotificationService(db, getMessaging());
 
-/**
- * Returns the authenticated caller's transaction-safe daily assignment.
- * App Check is mandatory and uid is derived exclusively from auth context.
- */
+/** App-Check-protected, transaction-safe daily assignment. */
 export const getTodayContent = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
@@ -45,15 +42,15 @@ export const getTodayContent = onCall({ enforceAppCheck: true }, async (request)
   try {
     return await contentService.getTodayContent(uid);
   } catch (err) {
+    if (err instanceof DailyContentDisabledError) {
+      throw new HttpsError("unavailable", err.message);
+    }
     analytics.error("getTodayContent_failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not select today's content.");
   }
 });
 
-/**
- * Verifies a Play purchase server-side. Client billing state is never the
- * entitlement source of truth.
- */
+/** Server-authoritative Play purchase verification. */
 export const verifyPurchase = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
@@ -78,36 +75,28 @@ export const verifyPurchase = onCall({ enforceAppCheck: true }, async (request) 
   }
 });
 
-/** Daily safety-net reconciliation for missed/delayed RTDN events. */
+/** Daily reconciliation is a safety net for missed/delayed RTDN events. */
 export const recheckLapsedSubscriptionsJob = onSchedule("every day 03:00", async () => {
   const summary = await subscriptionService.recheckLapsedSubscriptions();
   analytics.info("recheckLapsedSubscriptions_complete", summary as unknown as Record<string, unknown>);
 });
 
-/**
- * Google Play RTDN handler. The RTDN event is only a signal; the service
- * re-queries Google Play and persists server-verified entitlement state.
- */
+/** RTDN is a signal only; entitlement is re-verified against Google Play. */
 export const handlePlayRtdn = onMessagePublished(PLAY_RTDN_TOPIC, async (event) => {
   const messageData = event.data.message.data;
   if (!messageData) return;
 
   try {
     const result = await subscriptionService.handleRtdnMessage(messageData);
-    if (result) {
-      analytics.info("handlePlayRtdn_processed", { result });
-    }
+    if (result) analytics.info("handlePlayRtdn_processed", { result });
   } catch (err) {
     analytics.error("handlePlayRtdn_failed", { error: (err as Error).message });
   }
 });
 
-/** Protected per-device registration. */
 export const registerDeviceToken = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
-  if (!uid) {
-    throw new HttpsError("unauthenticated", "Sign-in is required to register a device token.");
-  }
+  if (!uid) throw new HttpsError("unauthenticated", "Sign-in is required to register a device token.");
 
   const token = request.data?.token;
   const timeZone = request.data?.timeZone;
@@ -126,12 +115,9 @@ export const registerDeviceToken = onCall({ enforceAppCheck: true }, async (requ
   }
 });
 
-/** Protected removal of only the caller's current device registration. */
 export const unregisterDeviceToken = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
-  if (!uid) {
-    throw new HttpsError("unauthenticated", "Sign-in is required to unregister a device token.");
-  }
+  if (!uid) throw new HttpsError("unauthenticated", "Sign-in is required to unregister a device token.");
 
   const token = request.data?.token;
   if (typeof token !== "string" || token.length === 0) {
@@ -146,12 +132,9 @@ export const unregisterDeviceToken = onCall({ enforceAppCheck: true }, async (re
   }
 });
 
-/** Protected timezone mutation for one registered device. */
 export const updateTimeZone = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
-  if (!uid) {
-    throw new HttpsError("unauthenticated", "Sign-in is required to update your time zone.");
-  }
+  if (!uid) throw new HttpsError("unauthenticated", "Sign-in is required to update your time zone.");
 
   const token = request.data?.token;
   const timeZone = request.data?.timeZone;
@@ -167,12 +150,30 @@ export const updateTimeZone = onCall({ enforceAppCheck: true }, async (request) 
   }
 });
 
-/** Versioned Terms/Privacy acceptance; server validates accepted versions. */
+export const setNotificationsEnabled = onCall({ enforceAppCheck: true }, async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) throw new HttpsError("unauthenticated", "Sign-in is required to update notification settings.");
+
+  const token = request.data?.token;
+  const enabled = request.data?.enabled;
+  if (typeof token !== "string" || token.length === 0) {
+    throw new HttpsError("invalid-argument", "token is required.");
+  }
+  if (typeof enabled !== "boolean") {
+    throw new HttpsError("invalid-argument", "enabled must be a boolean.");
+  }
+
+  try {
+    await userService.setNotificationsEnabled(uid, token, enabled);
+  } catch (err) {
+    analytics.error("setNotificationsEnabled_failed", { uid, error: (err as Error).message });
+    throw new HttpsError("internal", "Could not update notification settings.");
+  }
+});
+
 export const acceptTerms = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
-  if (!uid) {
-    throw new HttpsError("unauthenticated", "Sign-in is required to accept the current policies.");
-  }
+  if (!uid) throw new HttpsError("unauthenticated", "Sign-in is required to accept the current policies.");
 
   const termsVersion = request.data?.termsVersion;
   const privacyVersion = request.data?.privacyVersion;
@@ -191,23 +192,23 @@ export const acceptTerms = onCall({ enforceAppCheck: true }, async (request) => 
   }
 });
 
-/** Hourly poll; service filters to devices whose local hour is due. */
+/** Hourly scheduler; internal service applies kill switches and local-time filtering. */
 export const sendDailyNotificationsJob = onSchedule("every 1 hours", async () => {
-  const summary = await notificationService.sendDueDailyNotifications();
-  analytics.info("sendDailyNotifications_complete", summary as unknown as Record<string, unknown>);
+  const result = await notificationService.sendDueDailyNotifications();
+  if (result.skipped) {
+    analytics.info("sendDailyNotifications_skipped", { reason: result.reason });
+  } else {
+    analytics.info("sendDailyNotifications_complete", result.summary as unknown as Record<string, unknown>);
+  }
 });
 
-/** Server-only profile creation on Firebase Auth account creation. */
 export const onUserCreated = authV1.user().onCreate(async (user) => {
   await userService.createProfile(user.uid);
 });
 
-/** Protected self-delete; uid is never accepted from client data. */
 export const deleteUserData = onCall({ enforceAppCheck: true }, async (request) => {
   const uid = request.auth?.uid;
-  if (!uid) {
-    throw new HttpsError("unauthenticated", "Sign-in is required to delete your account.");
-  }
+  if (!uid) throw new HttpsError("unauthenticated", "Sign-in is required to delete your account.");
 
   try {
     await userService.deleteAccount(uid);
