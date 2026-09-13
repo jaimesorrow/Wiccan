@@ -31,6 +31,27 @@ describe("selectTodayContent", () => {
     expect(repo.poolExhaustionEvents).toHaveLength(0);
   });
 
+  it("delivers a lesson only when its sourceId is in the ancient lesson registry", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "old-lesson", type: "lesson", sourceId: "early-modern-source" }),
+      makeContent({ id: "ancient-lesson", type: "lesson", sourceId: "ancient-source" }),
+    ];
+
+    const result = await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]));
+
+    expect(result.id).toBe("ancient-lesson");
+  });
+
+  it("does not fall back to a non-ancient lesson when no eligible content exists", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [makeContent({ id: "old-lesson", type: "lesson", sourceId: "early-modern-source" })];
+
+    await expect(
+      selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"])),
+    ).rejects.toThrow("No published content available for tier 'free'.");
+  });
+
   it("is idempotent: a repeat call the same day returns the same content without a new history row", async () => {
     const repo = new FakeContentRepository();
     repo.content = [makeContent({ id: "c1" }), makeContent({ id: "c2" })];
