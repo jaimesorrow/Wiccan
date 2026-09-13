@@ -5,10 +5,22 @@ content — a spell, a potion, or a lesson — per day on a subscription.
 Content is original writing inspired by public-domain folklore and
 grimoires.
 
+## Product and technical identity
+
+- Product name: **Wiccan**
+- Android application ID / Play-Firebase package identity: `com.nyxwell.app`
+- Kotlin source namespace: `com.wiccan.app`
+
+The source namespace is product-oriented, but the installed application ID
+is intentionally preserved as `com.nyxwell.app`. Do not change the
+application ID independently from Firebase registration, OAuth SHA
+fingerprints, App Check, Google Play, deep links, or server-side package
+verification.
+
 ## Structure
 
-```
-app/                         Android app module (Kotlin, package com.wiccan.app)
+```text
+app/                         Android app module (Kotlin source namespace com.wiccan.app)
   domain/model/                Content, ContentType, ContentTier, ContentStatus,
                                 UserContentHistory, AuthState
   domain/repository/           ContentRepository, SubscriptionRepository,
@@ -18,54 +30,56 @@ app/                         Android app module (Kotlin, package com.wiccan.app)
                                 wrappers
   data/repository/             Firebase-backed repository implementations
   di/                          Hilt modules
-  billing/                     Play Billing Library wrapper
+  billing/                     Play Billing Library 9.1.0 wrapper
   notification/                FirebaseMessagingService
   widget/                      Home-screen Glance widget
   worker/                      WorkManager daily cache-refresh worker
   ui/today/                    Today screen (MVI)
-  ui/auth/                     Sign-in screen (MVI) — sign in, create account,
-                                password reset, all in one screen
-  ui/subscription/             Minimal, unstyled Upgrade CTA
+  ui/auth/                     Sign-in screen (MVI)
 
 functions/                    Cloud Functions (Node/TypeScript)
-  src/getTodayContent.ts        Daily-selection logic (server-side, never a
-                                 client-side Firestore query)
-  src/verifyPurchase.ts         Google Play purchase verification
-  src/recheckLapsedSubscriptions.ts  Daily subscription re-check
-  src/generateDraft.ts          Content generation from curated sources.json
-  src/approveDraft.ts           draft -> published
-  src/sendDailyNotifications.ts Daily FCM push
-  src/createUserProfile.ts      users/{uid} creation on sign-up
-  src/index.ts                  Callable/scheduled/trigger entry points
+  src/services/                Internal business-service layer
+    contentService.ts          Daily-content assignment orchestration
+    subscriptionService.ts     Play verification / RTDN / reconciliation
+    userService.ts             Protected profile/device/account mutations
+    notificationService.ts     Multi-device notification orchestration
+    analyticsService.ts        Structured backend events/logging boundary
+  src/getTodayContent.ts        Daily-selection domain logic
+  src/verifyPurchase.ts         Server-side Play verification domain logic
+  src/recheckLapsedSubscriptions.ts  Subscription reconciliation
+  src/generateDraft.ts          Admin-only content generation core
+  src/approveDraft.ts           Admin-only draft approval core
+  src/index.ts                  Thin callable/scheduled/trigger adapters only
 ```
 
 ## Data model (Firestore)
 
 - `content` — spells/potions/lessons. Only `status: published` docs are
   eligible for delivery.
-- `userContentHistory` — one row per (user, day) delivery, written only by
-  the Cloud Function.
-- `users/{uid}` — server-controlled account/profile data. Device messaging
-  registrations live under `users/{uid}/devices`.
+- `userContentHistory` — deterministic `{uid}_{YYYY-MM-DD}` daily assignment
+  documents, written only by the backend transaction.
+- `users/{uid}` — server-controlled account/profile data. Client writes are
+  denied by Firestore Rules.
+- `users/{uid}/devices/{deviceId}` — server-controlled device messaging data.
+- `subscriptions/{uid}` — durable server-verified subscription state.
 
-## Core mechanics
+## Core security mechanics
 
-- **Daily selection** runs entirely server-side (`getTodayContent`) so a
-  user can't reset or game their delivery history. It's idempotent for
-  repeat calls the same day, tier-filters candidates, and falls back to
-  allowing repeats (with monitoring) once a user exhausts the published
-  pool for their tier.
-- **Billing** is a single subscription product verified server-side via
-  the Google Play Developer API; the client's own purchase state is never
-  trusted as the tier source of truth. A daily job re-checks active
-  subscriptions for lapses.
-- **Content generation** draws only from a hand-curated `sources.json` of
-  public-domain sources, using each source as thematic inspiration only —
-  never quoted or closely paraphrased. Every generated draft needs a
-  separate `approveDraft` action before it's eligible for delivery.
-- **Auth** uses Android Credential Manager for Google sign-in and
-  Firebase Auth for email/password. `users/{uid}` creation is a 1st-gen
-  Auth trigger, never a client-side write.
+- **Daily selection** runs entirely server-side. The daily assignment is
+  committed using a deterministic document ID inside a Firestore transaction,
+  so concurrent first requests converge on one assignment.
+- **Billing** uses Play Billing Library 9.1.0 on Android, but entitlement is
+  server-authoritative via the Google Play Developer API. RTDN handles
+  lifecycle changes in near real time and scheduled reconciliation remains a
+  safety net.
+- **App Check** uses Play Integrity in release builds. The debug provider is a
+  debug-only dependency/source-set path and does not ship in release.
+- **Profile/device mutations** are auth- and App-Check-gated Cloud Functions.
+  Firestore clients cannot directly mutate protected user state.
+- **Content generation/approval** are not public callable endpoints. They are
+  operator/admin CLI workflows using Admin SDK credentials.
+- **Account deletion** is self-only, derives UID from Firebase Auth context,
+  and runs server-side.
 
 ## Content voice and lesson format
 
@@ -91,53 +105,54 @@ facts, and safety notes are required whenever meaningful material or
 health risks exist. Lesson artwork should use restrained Wiccan line-art,
 not physical photography.
 
-## Building
+## Building and validation
 
-### Android app
+### Android
 
+```bash
+./gradlew assembleDebug
+./gradlew test
+./gradlew bundleRelease
 ```
-./gradlew :app:assembleDebug
-./gradlew :app:testDebugUnitTest
-```
 
-Requires the Android SDK (`compileSdk`/`targetSdk` 36) — set `sdk.dir` in
-a local `local.properties` file or the `ANDROID_HOME` environment
-variable. You'll also need a real `app/google-services.json` from your
-Firebase project (not checked in), including a configured OAuth web
-client if you want Google sign-in to work, for the Google Services
-plugin to run.
+Requires Android API 36, minSdk 24, and Java 17. A real
+`app/google-services.json` is required outside CI and must register
+`com.nyxwell.app`.
 
 ### Cloud Functions
 
-```
+```bash
 cd functions
-npm install
-npm run build   # tsc
-npm test        # jest
-npm run deploy  # firebase deploy --only functions (requires firebase-tools + a linked project)
+npm ci
+npm run lint
+npm run build
+npm test
+```
+
+### Security / Play preflight
+
+```bash
+bash scripts/play-preflight.sh
+```
+
+For a final release gate that also fails on known external placeholders:
+
+```bash
+STRICT_EXTERNAL=1 bash scripts/play-preflight.sh
 ```
 
 ## Environments
 
 Dev, staging, and production must be three **separate** Firebase projects,
 never one project reused with a naming convention — Firestore data, Auth
-users, and Cloud Function config all live at the project level, so sharing
-one project across environments means a staging bug can touch production
-users' data.
+users, and Cloud Function config all live at the project level.
 
-- `.firebaserc` declares three project aliases (`default`, `staging`,
-  `production`); replace the placeholder project IDs with your real ones
-  before deploying anywhere. Switch which one `firebase` commands target
-  with `firebase use <alias>`.
-- Each project needs its own Cloud Functions config: copy
-  `functions/.env.example` to `functions/.env.<project-id>` (Firebase
-  Functions v2 loads that file automatically for the matching project) and
-  fill in that environment's own `ANTHROPIC_API_KEY` and Play service
-  account credentials. Never reuse one environment's secrets in another —
-  a leaked or misbehaving key should be revocable without taking every
-  environment down.
-- The admin CLI scripts (`npm run generate-draft`, `npm run approve-draft`)
-  print the resolved Firebase project ID before doing anything, specifically
-  so an operator never mutates the wrong environment's content pool by
-  running a command against whatever project `firebase use` happened to be
-  pointed at.
+- `.firebaserc` declares project aliases; replace placeholder project IDs
+  before any deployment.
+- Each project needs its own Cloud Functions config using
+  `functions/.env.<project-id>` and its own credentials.
+- `ANDROID_PACKAGE_NAME` must remain aligned with `com.nyxwell.app` unless a
+  deliberate package migration is performed across Android, Firebase, OAuth,
+  App Check, and Play together.
+- Admin CLI scripts print the resolved Firebase project ID before mutating
+  content so an operator can catch an environment mistake.
