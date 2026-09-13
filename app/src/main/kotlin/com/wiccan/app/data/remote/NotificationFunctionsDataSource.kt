@@ -17,8 +17,15 @@ class NotificationFunctionsDataSource @Inject constructor(
         functions.getHttpsCallable(UNREGISTER_FUNCTION_NAME).call(mapOf("token" to token)).await()
     }
 
+    suspend fun setNotificationsEnabled(token: String, enabled: Boolean) {
+        functions.getHttpsCallable(SET_NOTIFICATIONS_ENABLED_FUNCTION_NAME)
+            .call(mapOf("token" to token, "enabled" to enabled))
+            .await()
+    }
+
     private companion object {
         const val REGISTER_FUNCTION_NAME = "registerDeviceToken"
         const val UNREGISTER_FUNCTION_NAME = "unregisterDeviceToken"
+        const val SET_NOTIFICATIONS_ENABLED_FUNCTION_NAME = "setNotificationsEnabled"
     }
 }

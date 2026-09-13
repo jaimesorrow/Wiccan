@@ -3,6 +3,8 @@ export interface NotificationDeviceRecord {
   token: string;
   /** IANA time zone identifier, e.g. "America/Denver". Null if never recorded for this device. */
   timeZone: string | null;
+  /** Per-device opt-out of the daily push, independent of unregistering the device entirely. Defaults to true. */
+  notificationsEnabled: boolean;
 }
 
 /**
@@ -24,4 +26,7 @@ export interface NotificationUserRepositoryPort {
 
   /** Updates only the time zone for one already-registered device, independent of its token. */
   setTimeZone(uid: string, token: string, timeZone: string): Promise<void>;
+
+  /** Toggles the daily push for one already-registered device, without unregistering it. */
+  setNotificationsEnabled(uid: string, token: string, enabled: boolean): Promise<void>;
 }

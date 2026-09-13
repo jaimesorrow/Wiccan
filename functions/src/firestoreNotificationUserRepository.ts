@@ -27,6 +27,9 @@ export class FirestoreNotificationUserRepository implements NotificationUserRepo
         uid: doc.ref.parent.parent?.id ?? "",
         token: doc.get("token") as string,
         timeZone: typeof doc.get("timeZone") === "string" ? (doc.get("timeZone") as string) : null,
+        // Devices registered before this field existed default to enabled,
+        // matching the behavior every device already had.
+        notificationsEnabled: doc.get("notificationsEnabled") !== false,
       }))
       .filter((device) => device.uid !== "");
   }
@@ -36,15 +39,35 @@ export class FirestoreNotificationUserRepository implements NotificationUserRepo
   }
 
   async setToken(uid: string, token: string, timeZone?: string | null): Promise<void> {
-    const data: Record<string, unknown> = { token, updatedAt: FieldValue.serverTimestamp() };
+    const ref = this.deviceDoc(uid, token);
+    // A benign extra read on what is at most a once-per-app-launch call:
+    // createdAt/notificationsEnabled should only ever be set once, on the
+    // device's actual first registration, never reset on every later
+    // token refresh.
+    const existing = await ref.get();
+
+    const data: Record<string, unknown> = {
+      token,
+      platform: "android",
+      updatedAt: FieldValue.serverTimestamp(),
+    };
     if (timeZone) {
       data.timeZone = timeZone;
     }
-    await this.deviceDoc(uid, token).set(data, { merge: true });
+    if (!existing.exists) {
+      data.createdAt = FieldValue.serverTimestamp();
+      data.notificationsEnabled = true;
+    }
+
+    await ref.set(data, { merge: true });
   }
 
   async setTimeZone(uid: string, token: string, timeZone: string): Promise<void> {
     await this.deviceDoc(uid, token).set({ timeZone }, { merge: true });
+  }
+
+  async setNotificationsEnabled(uid: string, token: string, enabled: boolean): Promise<void> {
+    await this.deviceDoc(uid, token).set({ notificationsEnabled: enabled }, { merge: true });
   }
 
   private deviceDoc(uid: string, token: string) {
