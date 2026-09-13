@@ -33,5 +33,14 @@ service cloud.firestore {
     match /users/{uid}/devices/{deviceId} {
       allow read, write: if false;
     }
+
+    // Ops-only runtime kill switches (dailyContentEnabled,
+    // notificationsEnabled). Read only by the Admin SDK inside
+    // getTodayContent/sendDailyNotificationsJob; edited only by an
+    // operator directly in the Firebase Console or via the Admin SDK -
+    // never by the app.
+    match /systemConfig/{doc} {
+      allow read, write: if false;
+    }
   }
 }

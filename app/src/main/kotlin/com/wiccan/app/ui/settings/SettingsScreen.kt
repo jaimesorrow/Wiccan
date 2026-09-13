@@ -18,6 +18,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -38,9 +39,8 @@ private const val ANDROID_PACKAGE_NAME = "com.wiccan.app"
 
 /**
  * Account settings: sign out, manage the subscription (deep link to Play
- * for premium, or an entry to the Paywall for free), and delete the
- * account. No notification-time preferences or other settings live here —
- * those belong to later sessions.
+ * for premium, or an entry to the Paywall for free), toggle the daily
+ * notification, and delete the account.
  */
 @Composable
 fun SettingsScreen(
@@ -115,7 +115,23 @@ fun SettingsScreen(
                 Text(if (state.tier == ContentTier.PREMIUM) "Manage Subscription" else "Go Premium")
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = "Daily Notifications",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+                Switch(
+                    checked = state.notificationsEnabled,
+                    onCheckedChange = { viewModel.onEvent(SettingsUiEvent.NotificationsToggled(it)) },
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
             OutlinedButton(
                 onClick = { viewModel.onEvent(SettingsUiEvent.DeleteAccountClicked) },
                 modifier = Modifier.fillMaxWidth(),

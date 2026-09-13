@@ -1,6 +1,7 @@
 package com.wiccan.app.domain.repository
 
 import com.wiccan.app.core.result.AppResult
+import kotlinx.coroutines.flow.Flow
 
 /**
  * The only layer allowed to touch FCM/the device-registration Cloud
@@ -17,4 +18,10 @@ interface NotificationRepository {
 
     /** Best-effort: clears this device's server-side registration, e.g. before sign-out. */
     suspend fun unregisterToken(): AppResult<Unit>
+
+    /** Local cache of the toggle state for Settings to display - defaults to true. */
+    val notificationsEnabled: Flow<Boolean>
+
+    /** Toggles the daily push for this device on the server, without unregistering it. */
+    suspend fun setNotificationsEnabled(enabled: Boolean): AppResult<Unit>
 }

@@ -61,19 +61,22 @@ found the following. Each is now addressed as noted:
 | Notifications fired once at a fixed UTC instant, not per-device local 9am | **FIXED** — hourly job now filters to devices whose local time currently reads 9am (`getUserLocalHour`); see the documented hourly-poll-vs-exact-dispatch limitation below |
 | No automated 16KB/ABI native-library check | **FIXED** — `scripts/check-16kb-alignment.sh`, runs in CI against the real release `.aab` on every push; currently passing |
 | No disaster recovery / incident response / maintenance docs | **FIXED** — `docs/DISASTER_RECOVERY.md`, `docs/INCIDENT_RESPONSE.md`, `docs/MAINTENANCE.md` |
-| Billing Library still 7.1.1, not a later major version | **Still open** — deliberately not attempted; a major version can carry breaking purchase-flow API changes this sandbox has no live purchase to verify against. See `docs/MAINTENANCE.md`. |
-| Device registration schema is minimal (token + time zone + updatedAt; no `notificationsEnabled`/`platform`/`createdAt`/`lastSeenAt`) | **Still open** — these are reasonable ops fields, but adding them without a client UI to actually populate/use them (a notification toggle, platform detection) would be dead schema. Scope call, not attempted this pass. |
+| Billing Library still 7.1.1, not a later major version | **Attempted, real blocker found** — 9.1.0 (confirmed the real latest via Google's Maven metadata) requires Kotlin ≥2.3.0, which itself surfaced a KSP/Hilt Gradle-plugin classloader conflict this sandbox couldn't resolve with confidence (needs KSP's real compatibility table). Reverted rather than guess further; exact next steps recorded in `docs/MAINTENANCE.md`. |
+| Device registration schema is minimal (token + time zone + updatedAt; no `notificationsEnabled`/`platform`/`createdAt`/`lastSeenAt`) | **FIXED** — added all four: `createdAt`/`platform` written on first registration, `notificationsEnabled` is a real per-device toggle with a Settings switch (DataStore-backed locally, since Firestore rules give the client no read access to its own device doc), and `sendDailyNotifications` now skips opted-out devices. |
 | Visual theme is still near-black (`#0A0810`-direction) / generic serif+sans typography, not a distinct final direction | **Still open — needs your input, not mine to decide.** I have no record in this session of a specific rejected direction or an approved replacement; redoing the visual identity on an unverified third-party claim risks guessing wrong twice. Tell me what direction you want and I'll build it. |
-| No Android product flavors for dev/staging/prod (environment separation is `.firebaserc` + `.env` only) | **Still open** — a real architectural change (per-flavor `applicationIdSuffix`, per-flavor `google-services.json`) that needs at least one real Firebase project to build against meaningfully. |
-| No runtime kill switches (`dailyContentEnabled`, `notificationsEnabled`, etc.) | **Still open** — not attempted; would need a `systemConfig` Firestore doc + client/function read paths that don't exist yet. Real scope, not started. |
+| No Android product flavors for dev/staging/prod (environment separation is `.firebaserc` + `.env` only) | **FIXED** — `dev`/`staging`/`prod` product flavors added (`app/build.gradle.kts`), matching `.firebaserc`'s aliases; only `prod` (applicationId `com.wiccan.app`, no suffix) has a CI-usable placeholder `google-services.json` today. Confirmed `dev`/`staging` fail cleanly and specifically (missing `google-services.json` for that applicationId) rather than in some unexpected way. |
+| No runtime kill switches (`dailyContentEnabled`, `notificationsEnabled`, etc.) | **FIXED** — `systemConfig/global` (Firestore, no client access) with both flags, fail-open by default. `getTodayContent` and the hourly notification job both check it before doing anything. |
 | Launch content pool is still 1 curated source, not the target pool | **Still open, unchanged** — real content curation, not fabricatable here (see `functions/src/contentSource.ts`'s own doc comment: never auto-populated). |
 | Account deletion + active subscription | **FIXED** (see above) — this was the same finding as the billing-cancellation gap. |
 
-## Known, still-flagged gaps (external infrastructure)
+## Known, still-flagged gaps (external infrastructure, or needing your input)
 
+- **Visual/typography redesign** — needs your direction (see table above); not attempted.
+- **Billing Library major version** — real Kotlin/KSP toolchain blocker found and documented; needs KSP's official compatibility table to finish safely (`docs/MAINTENANCE.md`).
 - `PolicyUrls` (Terms, Privacy, account deletion) and `SUPPORT_EMAIL` are placeholders — no real hosted pages exist yet.
 - `WiccanDatabaseMigrationTest` compiles clean but has never run against a real SQLite engine — no emulator here.
 - `handlePlayRtdn`, `verifyPurchase`'s field shapes, and the `users/{uid}/devices` collection-group query have never been exercised against a real Play Console / Firebase project.
+- `dev`/`staging` product flavors exist but need their own real `google-services.json` (from their own real Firebase projects) before they'll build.
 - No real Firebase project, signing keystore, or Play Console listing exists — `.firebaserc`, `keystore.properties.example`, and the store-listing checklist are all scaffolding for values only the app's owner can provide.
 
 ## Final status
@@ -81,11 +84,11 @@ found the following. Each is now addressed as noted:
 **NOT READY — BLOCKED BY:** no real Firebase project, signing keystore, or
 Play Console listing exists yet, **and** the visual/typography redesign
 needs your direction before it can be built, **and** the Billing Library
-major-version bump needs a live purchase to verify against.
+major-version bump needs KSP's real compatibility table (a genuine
+toolchain blocker was found and documented, not guessed past).
 
-Everything else — every code-level gap the external audit surfaced — has
-been fixed and verified by this repo's own build/test/lint/CI commands,
-including the new `functions` CI job and the new 16KB-alignment check.
-The remaining architectural items (product flavors, runtime kill
-switches, richer device schema) are explicitly scoped as not started,
-not partially done and mis-described as complete.
+Every other code-level gap the external audit surfaced — CI coverage,
+subscription cancellation, App Check hardening, real per-device
+notifications, the 16KB check, ops docs, the device schema, product
+flavors, and runtime kill switches — has been fixed and verified by this
+repo's own build/test/lint/CI commands.

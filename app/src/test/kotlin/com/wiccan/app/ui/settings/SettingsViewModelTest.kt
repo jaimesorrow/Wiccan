@@ -9,6 +9,7 @@ import com.wiccan.app.domain.repository.NotificationRepository
 import com.wiccan.app.domain.usecase.DeleteAccountUseCase
 import com.wiccan.app.ui.auth.FakeAuthRepository
 import com.wiccan.app.ui.paywall.FakeSubscriptionRepository
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -124,5 +125,32 @@ class SettingsViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(ContentTier.PREMIUM, viewModel.state.value.tier)
+    }
+
+    @Test
+    fun `NotificationsToggled optimistically updates state and forwards to the repository`() = runTest(dispatcher) {
+        coEvery { notificationRepository.setNotificationsEnabled(false) } returns AppResult.Success(Unit)
+
+        viewModel.onEvent(SettingsUiEvent.NotificationsToggled(false))
+
+        assertFalse(viewModel.state.value.notificationsEnabled)
+        dispatcher.scheduler.advanceUntilIdle()
+        coVerify { notificationRepository.setNotificationsEnabled(false) }
+        assertFalse(viewModel.state.value.notificationsEnabled)
+    }
+
+    @Test
+    fun `NotificationsToggled reverts optimistic state and shows an error on failure`() = runTest(dispatcher) {
+        coEvery { notificationRepository.setNotificationsEnabled(false) } returns AppResult.Failure(AppError.Network)
+
+        viewModel.effects.test {
+            viewModel.onEvent(SettingsUiEvent.NotificationsToggled(false))
+            val effect = awaitItem()
+            assertTrue(effect is SettingsUiEffect.ShowSnackbar)
+            assertEquals(AppError.Network, (effect as SettingsUiEffect.ShowSnackbar).error)
+            cancelAndConsumeRemainingEvents()
+        }
+
+        assertTrue(viewModel.state.value.notificationsEnabled)
     }
 }

@@ -85,7 +85,9 @@ describe("sendDailyNotifications", () => {
 
     expect(summary).toEqual({ attempted: 2, sent: 1, skippedStale: 1, failed: 0 });
     expect(users.cleared).toEqual([{ uid: "user-1", token: "dead-token" }]);
-    expect(await users.listDevicesWithToken()).toEqual([{ uid: "user-1", token: "healthy-token", timeZone: null }]);
+    expect(await users.listDevicesWithToken()).toEqual([
+      { uid: "user-1", token: "healthy-token", timeZone: null, notificationsEnabled: true },
+    ]);
   });
 
   it("only sends to devices whose local time currently reads 9am, skipping the rest", async () => {
@@ -102,6 +104,29 @@ describe("sendDailyNotifications", () => {
 
     expect(summary).toEqual({ attempted: 1, sent: 1, skippedStale: 0, failed: 0 });
     expect(fcm.sentTo.map((s) => s.token)).toEqual(["utc-token"]);
+  });
+
+  it("skips a device that opted out of notifications without unregistering", async () => {
+    const content = new FakeContentRepository();
+    content.content = [makeContent({ id: "c1" })];
+    const users = new FakeNotificationUserRepository();
+    users.setToken("user-1", "enabled-token");
+    users.setToken("user-2", "disabled-token");
+    await users.setNotificationsEnabled("user-2", "disabled-token", false);
+    const fcm = new FakeFcmSenderPort();
+
+    const summary = await sendDailyNotifications(users, content, fcm, NINE_AM_UTC);
+
+    expect(summary).toEqual({ attempted: 1, sent: 1, skippedStale: 0, failed: 0 });
+    expect(fcm.sentTo.map((s) => s.token)).toEqual(["enabled-token"]);
+    // The opted-out device stays registered - only the push itself is skipped.
+    const devices = await users.listDevicesWithToken();
+    expect(devices.find((d) => d.token === "disabled-token")).toEqual({
+      uid: "user-2",
+      token: "disabled-token",
+      timeZone: null,
+      notificationsEnabled: false,
+    });
   });
 
   it("computes each recipient's delivery date from their own time zone, not a shared batch date", async () => {

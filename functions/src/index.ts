@@ -24,6 +24,7 @@ import { deleteAccount } from "./deleteAccount";
 import { acceptTerms as acceptTermsCore, StalePolicyVersionError } from "./acceptTerms";
 import { FirestoreSubscriptionRecordRepository } from "./firestoreSubscriptionRecordRepository";
 import { handleRtdnNotification, parseRtdnPurchaseToken } from "./handleRtdn";
+import { FirestoreSystemConfigRepository } from "./firestoreSystemConfigRepository";
 
 initializeApp();
 
@@ -49,10 +50,18 @@ export const getTodayContent = onCall({ enforceAppCheck: true }, async (request)
   }
 
   try {
+    const systemConfig = new FirestoreSystemConfigRepository(getFirestore());
+    if (!(await systemConfig.getConfig()).dailyContentEnabled) {
+      throw new HttpsError("unavailable", "Daily content is temporarily unavailable.");
+    }
+
     const repo = new FirestoreContentRepository(getFirestore());
     const timeZone = await repo.getUserTimeZone(uid);
     return await selectTodayContent(uid, getUserLocalDate(timeZone), repo);
   } catch (err) {
+    if (err instanceof HttpsError) {
+      throw err;
+    }
     logger.error("getTodayContent failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not select today's content.");
   }
@@ -236,6 +245,35 @@ export const updateTimeZone = onCall({ enforceAppCheck: true }, async (request) 
 });
 
 /**
+ * Callable: toggles the daily push for one already-registered device,
+ * without unregistering it - e.g. a Settings switch the user can flip
+ * back on later without re-registering. App Check-enforced.
+ */
+export const setNotificationsEnabled = onCall({ enforceAppCheck: true }, async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Sign-in is required to update notification settings.");
+  }
+
+  const token = request.data?.token;
+  if (typeof token !== "string" || token.length === 0) {
+    throw new HttpsError("invalid-argument", "token is required.");
+  }
+  const enabled = request.data?.enabled;
+  if (typeof enabled !== "boolean") {
+    throw new HttpsError("invalid-argument", "enabled must be a boolean.");
+  }
+
+  try {
+    const users = new FirestoreNotificationUserRepository(getFirestore());
+    await users.setNotificationsEnabled(uid, token, enabled);
+  } catch (err) {
+    logger.error("setNotificationsEnabled failed", { uid, error: (err as Error).message });
+    throw new HttpsError("internal", "Could not update notification settings.");
+  }
+});
+
+/**
  * Callable: records the caller's Terms of Service/Privacy Policy
  * acceptance. Rejects any version other than the server's current ones
  * (see policyVersions.ts) rather than trusting the client's claim.
@@ -274,8 +312,20 @@ export const acceptTerms = onCall({ enforceAppCheck: true }, async (request) => 
  * device's own time zone instead of 9am in whichever zone the function
  * happens to run in. See sendDailyNotifications for the tracked limitation
  * of an hourly poll vs. exact per-device scheduling.
+ *
+ * Respects both systemConfig/global kill switches: dailyContentEnabled
+ * (this job also selects content, same as getTodayContent) and
+ * notificationsEnabled (an emergency stop for the push itself, e.g. an
+ * FCM incident, independent of content selection).
  */
 export const sendDailyNotificationsJob = onSchedule("every 1 hours", async () => {
+  const systemConfig = new FirestoreSystemConfigRepository(getFirestore());
+  const config = await systemConfig.getConfig();
+  if (!config.dailyContentEnabled || !config.notificationsEnabled) {
+    logger.info("sendDailyNotifications skipped: disabled by systemConfig/global", config);
+    return;
+  }
+
   const repo = new FirestoreContentRepository(getFirestore());
   const users = new FirestoreNotificationUserRepository(getFirestore());
   const fcm = new FirebaseFcmSender(getMessaging());

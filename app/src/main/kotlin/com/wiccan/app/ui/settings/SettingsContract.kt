@@ -7,6 +7,7 @@ data class SettingsUiState(
     val isDeleting: Boolean = false,
     val showDeleteConfirmation: Boolean = false,
     val tier: ContentTier = ContentTier.FREE,
+    val notificationsEnabled: Boolean = true,
 )
 
 sealed class SettingsUiEvent {
@@ -14,6 +15,7 @@ sealed class SettingsUiEvent {
     data object DeleteAccountClicked : SettingsUiEvent()
     data object ConfirmDeleteAccount : SettingsUiEvent()
     data object CancelDeleteAccount : SettingsUiEvent()
+    data class NotificationsToggled(val enabled: Boolean) : SettingsUiEvent()
 }
 
 sealed class SettingsUiEffect {
