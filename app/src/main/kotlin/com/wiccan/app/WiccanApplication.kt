@@ -26,11 +26,10 @@ class WiccanApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-        // Must run before any other Firebase call - App Check attaches its
-        // token to every subsequent Functions/Firestore request. Which
-        // provider this installs is decided per build variant (src/debug
-        // vs src/release), not at runtime - see AppCheckProviderInstaller.
         appCheckProviderInstaller.install()
+        // The manifest removes WorkManagerInitializer so Hilt's WorkerFactory
+        // can be supplied. Initialize explicitly before getInstance().
+        WorkManager.initialize(this, workManagerConfiguration)
         scheduleDailyContentRefresh()
     }
 
