@@ -71,6 +71,48 @@ currently handled (automated, manual, or not yet built).
   result) — see `docs/RELEASE_CHECKLIST.md` for why this currently
   compiles but has never executed against a real SQLite engine.
 
+## Seasonal theme mapping
+
+- `app/src/main/kotlin/com/wiccan/app/ui/theme/SeasonalThemeResolver.kt`
+  maps the eight-spoke Wheel of the Year to the six `WiccanPalette`
+  values, on one continuous mood arc starting and ending at the year's
+  darkest point (Yule) and peaking at its brightest (Litha):
+
+  | Sabbat | ~Date | Palette | Why |
+  |---|---|---|---|
+  | Yule | Dec 21 | Near Black | Longest night — the year's darkest, most minimal point. |
+  | Imbolc | Feb 1 | Midnight Blue | First light returning, still cold and quiet. |
+  | Ostara | Mar 20 | Deep Forest | Spring equinox — new growth, herbs and earth waking. |
+  | Beltane | May 1 | Royal Plum | Fire festival — blossoming, vivid, mystical. |
+  | Litha | Jun 21 | Light / Ivory | Summer solstice — the year's brightest point. |
+  | Lughnasadh | Aug 1 | Warm Earth | First harvest — grain fields, candlelight. |
+  | Mabon | Sep 22 | Royal Plum | Autumn equinox — dusk, orchard/wine harvest; mirrors Beltane descending. |
+  | Samhain | Oct 31 | Midnight Blue | The veil thins; mirrors Imbolc descending. |
+
+  In the week before each sabbat the resolved color scheme cross-fades
+  toward the next palette (`SeasonalResolution.blendFraction`) instead of
+  switching instantly at midnight; the rest of each ~6-7 week span shows a
+  pure palette. The mapping is pure/deterministic (`java.time.LocalDate`
+  in, `SeasonalResolution` out) — no clock/timezone side effects beyond
+  the caller's own `today` parameter, and no network dependency.
+- A user's explicit Settings choice (a locked palette, or Follow System)
+  always overrides this — see `WiccanThemeMode`.
+- **Typography**: `Type.kt` uses Android's downloadable Google Fonts
+  provider (`androidx.compose.ui:ui-text-google-fonts`) for Cinzel
+  (display/headings) and Manrope (everything else), rather than bundled
+  font files, since this sandbox has no way to source licensed font
+  binaries to embed. The provider's certificates
+  (`res/values-v23/font_certs.xml`) are copied verbatim from Google's own
+  Jetchat Compose sample — never fabricated. This requires Google Play
+  Services to actually download the fonts (falls back to the system font
+  otherwise); the app already depends on Play Services for Firebase/Play
+  Billing, so this adds no new class of device incompatibility.
+- **No on-device visual validation**: like `WiccanDatabaseMigrationTest`,
+  there's no Android emulator in this environment to render the six
+  palettes or capture real screenshots. `WiccanThemePreviews.kt`'s
+  `@Preview` composables are the visual-QA surface — open them in Android
+  Studio's Design view on a real machine before shipping a theme change.
+
 ## Runtime kill switches
 
 - `systemConfig/global` (Firestore, no client access — `firestore.rules`) holds two ops-only emergency flags, both fail-open (default `true`, i.e. normal operation, if the doc or field doesn't exist):

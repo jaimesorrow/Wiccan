@@ -3,10 +3,12 @@ package com.wiccan.app.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wiccan.app.core.result.AppResult
+import com.wiccan.app.data.local.ThemePreferences
 import com.wiccan.app.domain.repository.AuthRepository
 import com.wiccan.app.domain.repository.NotificationRepository
 import com.wiccan.app.domain.repository.SubscriptionRepository
 import com.wiccan.app.domain.usecase.DeleteAccountUseCase
+import com.wiccan.app.ui.theme.WiccanThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
@@ -24,6 +26,7 @@ class SettingsViewModel @Inject constructor(
     private val deleteAccountUseCase: DeleteAccountUseCase,
     private val subscriptionRepository: SubscriptionRepository,
     private val notificationRepository: NotificationRepository,
+    private val themePreferences: ThemePreferences,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsUiState())
@@ -43,6 +46,11 @@ class SettingsViewModel @Inject constructor(
                 _state.update { it.copy(notificationsEnabled = enabled) }
             }
         }
+        viewModelScope.launch {
+            themePreferences.themeMode.collect { mode ->
+                _state.update { it.copy(themeMode = mode) }
+            }
+        }
     }
 
     fun onEvent(event: SettingsUiEvent) {
@@ -52,7 +60,15 @@ class SettingsViewModel @Inject constructor(
             SettingsUiEvent.CancelDeleteAccount -> _state.update { it.copy(showDeleteConfirmation = false) }
             SettingsUiEvent.ConfirmDeleteAccount -> deleteAccount()
             is SettingsUiEvent.NotificationsToggled -> toggleNotifications(event.enabled)
+            is SettingsUiEvent.ThemeModeSelected -> selectThemeMode(event.mode)
         }
+    }
+
+    private fun selectThemeMode(mode: WiccanThemeMode) {
+        // Purely local persistence (no server/AppResult involved) - the
+        // DataStore flow collected in init() reflects the new value back
+        // into state as soon as the write completes.
+        viewModelScope.launch { themePreferences.setThemeMode(mode) }
     }
 
     private fun toggleNotifications(enabled: Boolean) {

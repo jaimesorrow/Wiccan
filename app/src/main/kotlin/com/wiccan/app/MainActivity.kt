@@ -23,6 +23,7 @@ import com.wiccan.app.ui.navigation.WiccanAppShell
 import com.wiccan.app.ui.navigation.WiccanDeepLinks
 import com.wiccan.app.ui.notification.NotificationSetupEffect
 import com.wiccan.app.ui.policy.PolicyAcceptanceScreen
+import com.wiccan.app.ui.theme.ThemeViewModel
 import com.wiccan.app.ui.theme.WiccanTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -38,6 +39,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val rootViewModel: RootViewModel by viewModels()
+    private val themeViewModel: ThemeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -47,7 +49,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val startOnPaywall = intent?.data == Uri.parse(WiccanDeepLinks.PREMIUM_URI)
         setContent {
-            WiccanTheme {
+            val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
+            WiccanTheme(themeMode = themeMode) {
                 val rootState by rootViewModel.rootState.collectAsStateWithLifecycle()
 
                 when (rootState) {

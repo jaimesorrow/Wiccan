@@ -4,16 +4,20 @@ import app.cash.turbine.test
 import com.wiccan.app.analytics.AnalyticsLogger
 import com.wiccan.app.core.error.AppError
 import com.wiccan.app.core.result.AppResult
+import com.wiccan.app.data.local.ThemePreferences
 import com.wiccan.app.domain.model.ContentTier
 import com.wiccan.app.domain.repository.NotificationRepository
 import com.wiccan.app.domain.usecase.DeleteAccountUseCase
 import com.wiccan.app.ui.auth.FakeAuthRepository
 import com.wiccan.app.ui.paywall.FakeSubscriptionRepository
+import com.wiccan.app.ui.theme.WiccanThemeMode
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -32,6 +36,7 @@ class SettingsViewModelTest {
     private lateinit var repository: FakeAuthRepository
     private lateinit var subscriptionRepository: FakeSubscriptionRepository
     private lateinit var notificationRepository: NotificationRepository
+    private lateinit var themePreferences: ThemePreferences
     private lateinit var viewModel: SettingsViewModel
 
     @Before
@@ -40,12 +45,15 @@ class SettingsViewModelTest {
         repository = FakeAuthRepository()
         subscriptionRepository = FakeSubscriptionRepository()
         notificationRepository = mockk(relaxed = true)
+        themePreferences = mockk(relaxed = true)
+        every { themePreferences.themeMode } returns flowOf(WiccanThemeMode.DEFAULT)
         val analyticsLogger: AnalyticsLogger = mockk(relaxed = true)
         viewModel = SettingsViewModel(
             repository,
             DeleteAccountUseCase(repository, analyticsLogger),
             subscriptionRepository,
             notificationRepository,
+            themePreferences,
         )
     }
 
@@ -152,5 +160,28 @@ class SettingsViewModelTest {
         }
 
         assertTrue(viewModel.state.value.notificationsEnabled)
+    }
+
+    @Test
+    fun `ThemeModeSelected persists the chosen mode`() = runTest(dispatcher) {
+        viewModel.onEvent(SettingsUiEvent.ThemeModeSelected(WiccanThemeMode.DEEP_FOREST))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        coVerify { themePreferences.setThemeMode(WiccanThemeMode.DEEP_FOREST) }
+    }
+
+    @Test
+    fun `themeMode reflects the persisted preference stream`() = runTest(dispatcher) {
+        every { themePreferences.themeMode } returns flowOf(WiccanThemeMode.ROYAL_PLUM)
+        val viewModelWithPlum = SettingsViewModel(
+            repository,
+            DeleteAccountUseCase(repository, mockk(relaxed = true)),
+            subscriptionRepository,
+            notificationRepository,
+            themePreferences,
+        )
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(WiccanThemeMode.ROYAL_PLUM, viewModelWithPlum.state.value.themeMode)
     }
 }

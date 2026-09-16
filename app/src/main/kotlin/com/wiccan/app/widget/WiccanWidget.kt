@@ -2,7 +2,9 @@ package com.wiccan.app.widget
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
+import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,7 +29,8 @@ import com.wiccan.app.MainActivity
 import com.wiccan.app.domain.model.Content
 import com.wiccan.app.domain.model.ContentTier
 import com.wiccan.app.ui.navigation.WiccanDeepLinks
-import com.wiccan.app.ui.theme.WiccanColors
+import com.wiccan.app.ui.theme.resolveWiccanPalette
+import com.wiccan.app.ui.theme.toColorScheme
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.first
 
@@ -37,6 +40,13 @@ import kotlinx.coroutines.flow.first
  * never real content. Data is read fresh from the same repositories the
  * app uses (Room-cached content, server-synced tier) each time Glance
  * asks for a render, rather than a separate widget-owned state store.
+ *
+ * Glance renders in its own composition, separate from the in-app Compose
+ * tree, so it can't read `MaterialTheme.colorScheme` - instead it resolves
+ * the same active [com.wiccan.app.ui.theme.WiccanPalette] directly
+ * (discrete, not the in-app cross-fade animation, since Glance re-renders
+ * on its own schedule rather than continuously) and pulls colors from the
+ * same centralized [ColorScheme] every other screen uses.
  */
 class WiccanWidget : GlanceAppWidget() {
 
@@ -44,15 +54,19 @@ class WiccanWidget : GlanceAppWidget() {
         val entryPoint = EntryPointAccessors.fromApplication(context, WiccanWidgetEntryPoint::class.java)
         val tier = entryPoint.subscriptionRepository().observeTier().first()
         val content = entryPoint.contentRepository().observeTodayContent().first()
+        val themeMode = entryPoint.themePreferences().themeMode.first()
+        val isSystemDark = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+        val colorScheme = resolveWiccanPalette(themeMode, isSystemDark).toColorScheme()
 
         provideContent {
-            WidgetContent(context = context, tier = tier, content = content)
+            WidgetContent(context = context, tier = tier, content = content, colorScheme = colorScheme)
         }
     }
 }
 
 @Composable
-private fun WidgetContent(context: Context, tier: ContentTier, content: Content?) {
+private fun WidgetContent(context: Context, tier: ContentTier, content: Content?, colorScheme: ColorScheme) {
     val deepLinkUri = if (tier != ContentTier.PREMIUM) WiccanDeepLinks.PREMIUM_URI else WiccanDeepLinks.TODAY_URI
     val clickAction = actionStartActivityIntent(
         Intent(Intent.ACTION_VIEW, Uri.parse(deepLinkUri), context, MainActivity::class.java),
@@ -61,21 +75,21 @@ private fun WidgetContent(context: Context, tier: ContentTier, content: Content?
     Column(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(ColorProvider(WiccanColors.Background))
+            .background(ColorProvider(colorScheme.background))
             .padding(16.dp)
             .clickable(clickAction),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         when {
-            tier != ContentTier.PREMIUM -> LockedContent()
-            content != null -> PremiumTeaser(content)
-            else -> EmptyContent()
+            tier != ContentTier.PREMIUM -> LockedContent(colorScheme)
+            content != null -> PremiumTeaser(content, colorScheme)
+            else -> EmptyContent(colorScheme)
         }
     }
 }
 
 @Composable
-private fun LockedContent() {
+private fun LockedContent(colorScheme: ColorScheme) {
     Column(
         modifier = GlanceModifier.fillMaxSize(),
         verticalAlignment = Alignment.CenterVertically,
@@ -83,25 +97,25 @@ private fun LockedContent() {
     ) {
         Text(
             text = "🔒",
-            style = TextStyle(fontSize = 24.sp, color = ColorProvider(WiccanColors.Brass)),
+            style = TextStyle(fontSize = 24.sp, color = ColorProvider(colorScheme.tertiary)),
         )
         Spacer(modifier = GlanceModifier.height(8.dp))
         Text(
             text = "Upgrade to Wiccan Premium for widget access",
-            style = TextStyle(fontSize = 13.sp, color = ColorProvider(WiccanColors.OnSurfaceMuted)),
+            style = TextStyle(fontSize = 13.sp, color = ColorProvider(colorScheme.onSurfaceVariant)),
         )
     }
 }
 
 @Composable
-private fun PremiumTeaser(content: Content) {
+private fun PremiumTeaser(content: Content, colorScheme: ColorScheme) {
     Column(modifier = GlanceModifier.fillMaxSize()) {
         Text(
             text = content.type.name,
             style = TextStyle(
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
-                color = ColorProvider(WiccanColors.DeepPurple),
+                color = ColorProvider(colorScheme.primary),
             ),
         )
         Spacer(modifier = GlanceModifier.height(6.dp))
@@ -110,23 +124,23 @@ private fun PremiumTeaser(content: Content) {
             style = TextStyle(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = ColorProvider(WiccanColors.OnBackground),
+                color = ColorProvider(colorScheme.onBackground),
             ),
             maxLines = 2,
         )
         Spacer(modifier = GlanceModifier.height(4.dp))
         Text(
             text = content.intro,
-            style = TextStyle(fontSize = 12.sp, color = ColorProvider(WiccanColors.OnSurfaceMuted)),
+            style = TextStyle(fontSize = 12.sp, color = ColorProvider(colorScheme.onSurfaceVariant)),
             maxLines = 2,
         )
     }
 }
 
 @Composable
-private fun EmptyContent() {
+private fun EmptyContent(colorScheme: ColorScheme) {
     Text(
         text = "Today's content isn't ready yet",
-        style = TextStyle(fontSize = 13.sp, color = ColorProvider(WiccanColors.OnSurfaceMuted)),
+        style = TextStyle(fontSize = 13.sp, color = ColorProvider(colorScheme.onSurfaceVariant)),
     )
 }

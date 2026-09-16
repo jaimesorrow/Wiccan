@@ -1,5 +1,6 @@
 package com.wiccan.app.widget
 
+import com.wiccan.app.data.local.ThemePreferences
 import com.wiccan.app.domain.repository.ContentRepository
 import com.wiccan.app.domain.repository.SubscriptionRepository
 import dagger.hilt.EntryPoint
@@ -16,4 +17,5 @@ import dagger.hilt.components.SingletonComponent
 interface WiccanWidgetEntryPoint {
     fun contentRepository(): ContentRepository
     fun subscriptionRepository(): SubscriptionRepository
+    fun themePreferences(): ThemePreferences
 }
