@@ -24,7 +24,7 @@ private val Context.notificationDataStore: DataStore<Preferences> by preferences
  */
 @Singleton
 class NotificationPreferences @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) {
     val notificationsEnabled: Flow<Boolean> = context.notificationDataStore.data.map {
         it[KEY_NOTIFICATIONS_ENABLED] ?: true
