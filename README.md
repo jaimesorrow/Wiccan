@@ -132,9 +132,12 @@ one project across environments means a staging bug can touch production
 users' data.
 
 - `.firebaserc` declares three project aliases (`default`, `staging`,
-  `production`); replace the placeholder project IDs with your real ones
-  before deploying anywhere. Switch which one `firebase` commands target
-  with `firebase use <alias>`.
+  `production`). `production` is the real `wiccan-android` project;
+  `default` and `staging` are still placeholders, so deploys must name the
+  environment explicitly (`firebase deploy --project production`) — a bare
+  `firebase deploy` fails on the unresolved placeholder rather than
+  silently shipping to production. Switch which one `firebase` commands
+  target with `firebase use <alias>`.
 - Each project needs its own Cloud Functions config: copy
   `functions/.env.example` to `functions/.env.<project-id>` (Firebase
   Functions v2 loads that file automatically for the matching project) and

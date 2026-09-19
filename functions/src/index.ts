@@ -29,7 +29,7 @@ import { FirestoreSystemConfigRepository } from "./firestoreSystemConfigReposito
 initializeApp();
 
 // Matches the Android app's applicationId (app/build.gradle.kts).
-const ANDROID_PACKAGE_NAME = process.env.ANDROID_PACKAGE_NAME ?? "com.wiccan.app";
+const ANDROID_PACKAGE_NAME = process.env.ANDROID_PACKAGE_NAME ?? "com.jaimesorrow.wiccan";
 
 // The Pub/Sub topic Play Console's "Real-time developer notifications"
 // setting must be pointed at (Monetization setup -> RTDN). This is an
