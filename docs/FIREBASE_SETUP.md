@@ -82,9 +82,9 @@ v1 API, so it deploys as a 1st-gen function.
 ## 4. App Check
 
 **CONSOLE.** Every callable function in `index.ts` is declared
-`onCall({ enforceAppCheck: true })` — all nine of them reject unattested
-calls outright. Until App Check is registered, a real (non-emulator) build
-gets `UNAUTHENTICATED` on every single backend call.
+`onCall({ enforceAppCheck: true })` — all eight of them reject unattested
+calls outright. Until App Check is registered, a real build gets
+`UNAUTHENTICATED` on every single backend call.
 
 1. Firebase Console → App Check → register the Android app with
    **Play Integrity**.
@@ -142,18 +142,59 @@ cd .. && firebase emulators:start --project wiccan-android
 Emulator UI at <http://127.0.0.1:4000>. Ports: auth 9099, functions 5001,
 firestore 8080, pubsub 8085.
 
-Verified working: all twelve functions initialize, and callable functions
-correctly reject unauthenticated requests —
+All twelve functions initialize. Rebuild (`npm run build`) after editing
+anything under `functions/src` — the emulator serves compiled output from
+`functions/lib`.
+
+### End-to-end script
+
+`scripts/e2e-emulator.mjs` drives the whole backend against the emulators:
+it seeds content, creates a real Auth user, and exercises the paths unit
+tests cannot reach.
 
 ```bash
-curl -s -X POST \
-  http://127.0.0.1:5001/wiccan-android/us-central1/getTodayContent \
-  -H "Content-Type: application/json" -d '{"data":{}}'
-# {"error":{"message":"Unauthenticated","status":"UNAUTHENTICATED"}}
+# terminal 1
+cd functions && npm install && npm run build
+cd .. && firebase emulators:start --project wiccan-android
+# terminal 2
+node scripts/e2e-emulator.mjs
 ```
 
-Rebuild (`npm run build`) after editing anything under `functions/src` —
-the emulator serves compiled output from `functions/lib`.
+### App Check blocks this script by default
+
+All 8 callables are `enforceAppCheck: true`, the Functions emulator
+honors that, and there is no App Check emulator to mint a token — so every
+callable returns `UNAUTHENTICATED` even with a valid ID token. The
+emulator log shows the split precisely:
+
+```
+{"verifications":{"app":"MISSING","auth":"VALID"}}
+```
+
+The script detects this case and explains it rather than reporting a wall
+of bogus failures. Two ways forward, neither yet adopted:
+
+- Scope enforcement to non-emulator runs —
+  `enforceAppCheck: process.env.FUNCTIONS_EMULATOR !== "true"`. The
+  Functions emulator sets `FUNCTIONS_EMULATOR=true` and deployed functions
+  never do, so production enforcement is unchanged. This is a deliberate
+  weakening of an audit-hardened control in one environment, so it needs
+  an explicit decision rather than a quiet default.
+- Drive the flows from a real debug build with an App Check debug token
+  registered (§4), which tests the real client path but cannot run in CI.
+
+With enforcement isolated locally, the suite passes 18/18, covering:
+authenticated and unauthenticated `getTodayContent`; daily-assignment
+stability across repeat calls (same content returned twice); tier gating
+(a free user is never served premium or draft content); the
+`userContentHistory` write; `acceptTerms` and the `users/{uid}` document;
+`registerDeviceToken` and the `users/{uid}/devices` subcollection; the
+`devices` collection-group query; `verifyPurchase` argument validation;
+the `dailyContentEnabled` kill switch; and the `deleteUserData` cascade.
+
+That covers three things `docs/STATUS.md` previously listed as never
+exercised against a real Firestore: the collection-group device query, the
+daily-assignment transaction, and the deletion cascade.
 
 ## Still blocked after all of the above
 
