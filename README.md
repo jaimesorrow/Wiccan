@@ -149,7 +149,7 @@ users' data.
   pointed at.
 - The Android app has a matching `dev`/`staging`/`prod` product flavor per
   environment (`app/build.gradle.kts`), each with its own applicationId
-  suffix (`prod` has none — it's the real `com.wiccan.app`) so all three
+  suffix (`prod` has none — it's the real `com.jaimesorrow.wiccan`) so all three
   can be installed side by side on one device. Each flavor needs its own
   `google-services.json` from that environment's Firebase project, placed
   at `app/src/<flavor>/google-services.json` — only `prod` has a

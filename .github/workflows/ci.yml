@@ -16,8 +16,8 @@ jobs:
       # credentials and is never used outside this workflow.
       - run: cp app/google-services.ci.json app/google-services.json
       - run: ./gradlew ktlintCheck
-      # "prod" is the flavor whose applicationId (com.wiccan.app) matches
-      # google-services.ci.json above - "dev"/"staging" are scaffolding
+      # "prod" is the flavor whose applicationId (com.jaimesorrow.wiccan)
+      # matches google-services.ci.json above - "dev"/"staging" are scaffolding
       # for real per-environment Firebase projects that don't exist yet
       # (see app/build.gradle.kts's productFlavors comment) and are not
       # built here.
