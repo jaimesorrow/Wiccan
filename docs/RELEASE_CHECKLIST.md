@@ -29,7 +29,7 @@ it says so instead of pretending.
 
 ## Product flavors (dev/staging/prod)
 
-- The app builds three product flavors, one per environment (see the README's Environments section) — `dev`/`staging`/`prod`, matching `.firebaserc`'s aliases. Only `prod` (applicationId `com.wiccan.app`, no suffix) has a CI-usable `google-services.json` (the checked-in placeholder, `google-services.ci.json`); `dev`/`staging` need their own real one from that environment's Firebase project before they'll build (`app/src/dev/google-services.json`, `app/src/staging/google-services.json`).
+- The app builds three product flavors, one per environment (see the README's Environments section) — `dev`/`staging`/`prod`, matching `.firebaserc`'s aliases. Only `prod` (applicationId `com.jaimesorrow.wiccan`, no suffix) has a CI-usable `google-services.json` (the checked-in placeholder, `google-services.ci.json`); `dev`/`staging` need their own real one from that environment's Firebase project before they'll build (`app/src/dev/google-services.json`, `app/src/staging/google-services.json`).
 - [ ] Once real dev/staging Firebase projects exist, add their `google-services.json` files and confirm `./gradlew :app:assembleDevDebug` / `:app:assembleStagingDebug` build cleanly.
 
 ## Automated checks (already verified by this repo)
