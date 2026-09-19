@@ -1,6 +1,7 @@
 package com.wiccan.app.ui.theme
 
 import com.wiccan.app.data.local.ThemePreferences
+import com.wiccan.app.domain.model.WiccanThemeMode
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers

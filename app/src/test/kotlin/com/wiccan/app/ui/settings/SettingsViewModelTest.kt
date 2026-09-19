@@ -6,11 +6,12 @@ import com.wiccan.app.core.error.AppError
 import com.wiccan.app.core.result.AppResult
 import com.wiccan.app.data.local.ThemePreferences
 import com.wiccan.app.domain.model.ContentTier
+import com.wiccan.app.domain.model.WiccanThemeMode
 import com.wiccan.app.domain.repository.NotificationRepository
 import com.wiccan.app.domain.usecase.DeleteAccountUseCase
 import com.wiccan.app.ui.auth.FakeAuthRepository
 import com.wiccan.app.ui.paywall.FakeSubscriptionRepository
-import com.wiccan.app.ui.theme.WiccanThemeMode
+import com.wiccan.app.widget.WiccanWidgetUpdater
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -37,6 +38,7 @@ class SettingsViewModelTest {
     private lateinit var subscriptionRepository: FakeSubscriptionRepository
     private lateinit var notificationRepository: NotificationRepository
     private lateinit var themePreferences: ThemePreferences
+    private lateinit var wiccanWidgetUpdater: WiccanWidgetUpdater
     private lateinit var viewModel: SettingsViewModel
 
     @Before
@@ -46,6 +48,7 @@ class SettingsViewModelTest {
         subscriptionRepository = FakeSubscriptionRepository()
         notificationRepository = mockk(relaxed = true)
         themePreferences = mockk(relaxed = true)
+        wiccanWidgetUpdater = mockk(relaxed = true)
         every { themePreferences.themeMode } returns flowOf(WiccanThemeMode.DEFAULT)
         val analyticsLogger: AnalyticsLogger = mockk(relaxed = true)
         viewModel = SettingsViewModel(
@@ -54,6 +57,7 @@ class SettingsViewModelTest {
             subscriptionRepository,
             notificationRepository,
             themePreferences,
+            wiccanWidgetUpdater,
         )
     }
 
@@ -112,8 +116,8 @@ class SettingsViewModelTest {
     fun `a failed deletion forwards the repository's error and does not sign out`() = runTest(dispatcher) {
         repository.deleteAccountResult = AppResult.Failure(AppError.Network)
 
-        viewModel.onEvent(SettingsUiEvent.DeleteAccountClicked)
         viewModel.effects.test {
+            viewModel.onEvent(SettingsUiEvent.DeleteAccountClicked)
             viewModel.onEvent(SettingsUiEvent.ConfirmDeleteAccount)
             val effect = awaitItem()
             assertTrue(effect is SettingsUiEffect.ShowSnackbar)
@@ -163,11 +167,12 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun `ThemeModeSelected persists the chosen mode`() = runTest(dispatcher) {
+    fun `ThemeModeSelected persists the chosen mode and refreshes the widget`() = runTest(dispatcher) {
         viewModel.onEvent(SettingsUiEvent.ThemeModeSelected(WiccanThemeMode.DEEP_FOREST))
         dispatcher.scheduler.advanceUntilIdle()
 
         coVerify { themePreferences.setThemeMode(WiccanThemeMode.DEEP_FOREST) }
+        coVerify { wiccanWidgetUpdater.updateAll() }
     }
 
     @Test
@@ -179,6 +184,7 @@ class SettingsViewModelTest {
             subscriptionRepository,
             notificationRepository,
             themePreferences,
+            wiccanWidgetUpdater,
         )
         dispatcher.scheduler.advanceUntilIdle()
 

@@ -3,6 +3,7 @@ package com.wiccan.app.ui.theme
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wiccan.app.data.local.ThemePreferences
+import com.wiccan.app.domain.model.WiccanThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted

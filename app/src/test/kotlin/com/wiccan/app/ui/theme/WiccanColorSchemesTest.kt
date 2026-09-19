@@ -9,10 +9,6 @@ class WiccanColorSchemesTest {
     @Test
     fun `every palette builds a color scheme whose isLight flag matches the palette`() {
         WiccanPalette.entries.forEach { palette ->
-            // Material3's ColorScheme has no public isLight flag, but the
-            // Light Ivory palette should read as bright (a light background)
-            // while every other palette should read as dark - a coarse but
-            // useful smoke check that nobody swapped a builder function.
             val luminanceProxy = palette.toColorScheme().background
             if (palette.isLight) {
                 assert(luminanceProxy.red > 0.8f && luminanceProxy.green > 0.8f && luminanceProxy.blue > 0.8f) {
@@ -34,9 +30,19 @@ class WiccanColorSchemesTest {
 
     @Test
     fun `no palette reuses Material's default jarring red for error`() {
-        val materialRed = androidx.compose.ui.graphics.Color(0xFFB3261E) // M3 baseline light error
+        val materialRed = androidx.compose.ui.graphics.Color(0xFFB3261E)
         WiccanPalette.entries.forEach { palette ->
             assertNotEquals(materialRed, palette.toColorScheme().error)
+        }
+    }
+
+    @Test
+    fun `every palette fills the extended Material3 surface roles from Wiccan colors`() {
+        WiccanPalette.entries.forEach { palette ->
+            val scheme = palette.toColorScheme()
+            assertEquals(scheme.primary, scheme.surfaceTint)
+            assertNotEquals(scheme.surface, scheme.surfaceContainerHigh)
+            assertNotEquals(scheme.outline, scheme.outlineVariant)
         }
     }
 }

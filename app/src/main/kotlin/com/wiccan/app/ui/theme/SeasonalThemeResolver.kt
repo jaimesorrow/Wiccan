@@ -25,9 +25,9 @@ data class SeasonalResolution(
  * ## The mapping
  *
  * The eight sabbats sit on one continuous mood arc that starts and ends at
- * the year's darkest point (Yule) and peaks at its brightest (Litha),
- * mirrored on the way back down so the festival on each side of a solstice
- * shares a palette with its mirror:
+ * the year's darkest point (Yule) and peaks at its brightest (Litha), then
+ * returns through warmer harvest/autumn tones rather than mirroring the
+ * spring ascent exactly:
  *
  * | Sabbat     | ~Date  | Palette       | Why |
  * |---|---|---|---|
@@ -41,8 +41,8 @@ data class SeasonalResolution(
  * | Samhain    | Oct 31 | Midnight Blue | The veil thins and the year turns inward; mirrors Imbolc descending. |
  *
  * Royal Plum and Midnight Blue each anchor two points (rising and falling
- * sides of the year) so all six palettes are used while the arc stays
- * symmetric around the solstices.
+ * sides of the year), while Lughnasadh keeps its distinct Warm Earth
+ * harvest palette instead of mirroring Beltane exactly.
  *
  * ## Transitions
  *

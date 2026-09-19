@@ -76,7 +76,9 @@ currently handled (automated, manual, or not yet built).
 - `app/src/main/kotlin/com/wiccan/app/ui/theme/SeasonalThemeResolver.kt`
   maps the eight-spoke Wheel of the Year to the six `WiccanPalette`
   values, on one continuous mood arc starting and ending at the year's
-  darkest point (Yule) and peaking at its brightest (Litha):
+  darkest point (Yule) and peaking at its brightest (Litha), then
+  returning through warmer harvest/autumn tones rather than mirroring
+  the spring ascent exactly:
 
   | Sabbat | ~Date | Palette | Why |
   |---|---|---|---|

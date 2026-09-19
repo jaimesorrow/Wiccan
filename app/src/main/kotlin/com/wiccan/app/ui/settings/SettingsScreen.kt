@@ -41,7 +41,9 @@ import com.wiccan.app.billing.PREMIUM_MONTHLY_PRODUCT_ID
 import com.wiccan.app.core.config.PolicyUrls
 import com.wiccan.app.core.error.toUserMessage
 import com.wiccan.app.domain.model.ContentTier
-import com.wiccan.app.ui.theme.WiccanThemeMode
+import com.wiccan.app.domain.model.WiccanThemeMode
+import com.wiccan.app.ui.theme.description
+import com.wiccan.app.ui.theme.displayName
 
 private const val ANDROID_PACKAGE_NAME = "com.wiccan.app"
 

@@ -4,11 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wiccan.app.core.result.AppResult
 import com.wiccan.app.data.local.ThemePreferences
+import com.wiccan.app.domain.model.WiccanThemeMode
 import com.wiccan.app.domain.repository.AuthRepository
 import com.wiccan.app.domain.repository.NotificationRepository
 import com.wiccan.app.domain.repository.SubscriptionRepository
 import com.wiccan.app.domain.usecase.DeleteAccountUseCase
-import com.wiccan.app.ui.theme.WiccanThemeMode
+import com.wiccan.app.widget.WiccanWidgetUpdater
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
@@ -27,6 +28,7 @@ class SettingsViewModel @Inject constructor(
     private val subscriptionRepository: SubscriptionRepository,
     private val notificationRepository: NotificationRepository,
     private val themePreferences: ThemePreferences,
+    private val wiccanWidgetUpdater: WiccanWidgetUpdater,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsUiState())
@@ -68,7 +70,10 @@ class SettingsViewModel @Inject constructor(
         // Purely local persistence (no server/AppResult involved) - the
         // DataStore flow collected in init() reflects the new value back
         // into state as soon as the write completes.
-        viewModelScope.launch { themePreferences.setThemeMode(mode) }
+        viewModelScope.launch {
+            themePreferences.setThemeMode(mode)
+            wiccanWidgetUpdater.updateAll()
+        }
     }
 
     private fun toggleNotifications(enabled: Boolean) {

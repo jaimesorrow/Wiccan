@@ -3,17 +3,22 @@ package com.wiccan.app
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wiccan.app.domain.model.RootState
@@ -46,11 +51,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         splashScreen.setKeepOnScreenCondition { rootViewModel.rootState.value == RootState.Loading }
 
-        enableEdgeToEdge()
         val startOnPaywall = intent?.data == Uri.parse(WiccanDeepLinks.PREMIUM_URI)
         setContent {
             val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
             WiccanTheme(themeMode = themeMode) {
+                EdgeToEdgeEffect()
                 val rootState by rootViewModel.rootState.collectAsStateWithLifecycle()
 
                 when (rootState) {
@@ -64,6 +69,20 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MainActivity.EdgeToEdgeEffect(colorScheme: ColorScheme = MaterialTheme.colorScheme) {
+    val background = colorScheme.background.toArgb()
+    val usesLightBars = colorScheme.background.luminance() > 0.5f
+    SideEffect {
+        val style = if (usesLightBars) {
+            SystemBarStyle.light(background, background)
+        } else {
+            SystemBarStyle.dark(background)
+        }
+        enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
     }
 }
 
