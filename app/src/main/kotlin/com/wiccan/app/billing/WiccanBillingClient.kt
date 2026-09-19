@@ -28,12 +28,9 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 const val PREMIUM_MONTHLY_PRODUCT_ID = "wiccan_premium_monthly"
 
 /**
- * Thin wrapper around the Play Billing Library. Owns the [BillingClient]
- * connection for the process lifetime and republishes purchase results as
- * a [Flow] so callers don't need to implement [PurchasesUpdatedListener]
- * themselves. Business logic (verification, acknowledgement sequencing,
- * tier sync) lives in [com.wiccan.app.data.repository.SubscriptionRepositoryImpl]
- * — this class only talks to the Billing Library.
+ * Thin wrapper around Play Billing Library 9.1.0. Entitlement remains
+ * server-authoritative; this class only discovers offers, launches Play UI,
+ * reports purchases, and acknowledges purchases after server verification.
  */
 @Singleton
 class WiccanBillingClient @Inject constructor(
@@ -50,24 +47,41 @@ class WiccanBillingClient @Inject constructor(
 
     private val client: BillingClient = BillingClient.newBuilder(context)
         .setListener(listener)
-        // Subscriptions get pending-purchase support by default; the
-        // no-arg opt-in only matters for one-time products, which Wiccan
-        // doesn't sell.
-        .enablePendingPurchases(PendingPurchasesParams.newBuilder().build())
+        // PBL 9 removed the no-arg enablePendingPurchases API. Google's
+        // migration guidance uses enableOneTimeProducts() for the required
+        // PendingPurchasesParams opt-in; Wiccan still sells subscriptions only.
+        .enablePendingPurchases(
+            PendingPurchasesParams.newBuilder()
+                .enableOneTimeProducts()
+                .build(),
+        )
+        // PBL 8+ can reconnect automatically before API calls, reducing
+        // transient SERVICE_DISCONNECTED failures.
+        .enableAutoServiceReconnection()
         .build()
 
     private suspend fun ensureConnected() {
         if (client.isReady) return
-        suspendCancellableCoroutine { continuation ->
+        val result = suspendCancellableCoroutine<BillingResult> { continuation ->
             client.startConnection(object : BillingClientStateListener {
                 override fun onBillingSetupFinished(billingResult: BillingResult) {
-                    if (continuation.isActive) continuation.resume(Unit)
+                    if (continuation.isActive) continuation.resume(billingResult)
                 }
 
                 override fun onBillingServiceDisconnected() {
-                    // Reconnection is attempted lazily the next time a call needs the client.
+                    if (continuation.isActive) {
+                        continuation.resume(
+                            BillingResult.newBuilder()
+                                .setResponseCode(BillingClient.BillingResponseCode.SERVICE_DISCONNECTED)
+                                .setDebugMessage("Billing service disconnected during setup")
+                                .build(),
+                        )
+                    }
                 }
             })
+        }
+        check(result.responseCode == BillingClient.BillingResponseCode.OK) {
+            "Play Billing connection failed (${result.responseCode}): ${result.debugMessage}"
         }
     }
 
@@ -107,14 +121,13 @@ class WiccanBillingClient @Inject constructor(
             )
             .build()
 
-        client.launchBillingFlow(activity, flowParams)
+        val result = client.launchBillingFlow(activity, flowParams)
+        check(result.responseCode == BillingClient.BillingResponseCode.OK) {
+            "Play Billing flow failed (${result.responseCode}): ${result.debugMessage}"
+        }
     }
 
-    /**
-     * Purchases made while the app wasn't running, or whose verification/
-     * acknowledgement was interrupted, don't arrive via [purchaseUpdates].
-     * Google's guidance is to re-query on every startup to catch those.
-     */
+    /** Re-query active purchases on startup/restore; entitlement is still server verified. */
     suspend fun queryOwnedSubscriptions(): List<Purchase> {
         ensureConnected()
         val params = QueryPurchasesParams.newBuilder()
@@ -129,7 +142,10 @@ class WiccanBillingClient @Inject constructor(
         val params = AcknowledgePurchaseParams.newBuilder()
             .setPurchaseToken(purchase.purchaseToken)
             .build()
-        client.acknowledgePurchase(params)
+        val result = client.acknowledgePurchase(params)
+        check(result.responseCode == BillingClient.BillingResponseCode.OK) {
+            "Purchase acknowledgement failed (${result.responseCode}): ${result.debugMessage}"
+        }
     }
 }
 
