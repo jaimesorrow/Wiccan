@@ -77,15 +77,20 @@ found the following. Each is now addressed as noted:
 - `WiccanDatabaseMigrationTest` compiles clean but has never run against a real SQLite engine — no emulator here.
 - `handlePlayRtdn`, `verifyPurchase`'s field shapes, and the `users/{uid}/devices` collection-group query have never been exercised against a real Play Console / Firebase project.
 - `dev`/`staging` product flavors exist but need their own real `google-services.json` (from their own real Firebase projects) before they'll build.
-- No real Firebase project, signing keystore, or Play Console listing exists — `.firebaserc`, `keystore.properties.example`, and the store-listing checklist are all scaffolding for values only the app's owner can provide.
+- The real Firebase project (`wiccan-android`) now exists and is wired into `.firebaserc`'s `production` alias, but its console-side services are not yet enabled — see `docs/FIREBASE_SETUP.md`. No signing keystore or Play Console listing exists yet; `keystore.properties.example` and the store-listing checklist remain scaffolding for values only the app's owner can provide.
+- **The app does not currently compile against the real `google-services.json`.** Google Sign-In is not enabled on `wiccan-android`, so its `oauth_client` array is empty, so the Google Services plugin generates no `default_web_client_id` — the string `AuthRepositoryImpl.kt:69` requires. Verified by a real `compileProdDebugKotlin` run (`Unresolved reference 'default_web_client_id'`), and verified fixed by supplying an `oauth_client` entry. CI misses it because `google-services.ci.json` carries a dummy one. Fix is console-side: `docs/FIREBASE_SETUP.md` §0.
 
 ## Final status
 
-**NOT READY — BLOCKED BY:** no real Firebase project, signing keystore, or
-Play Console listing exists yet, **and** the visual/typography redesign
-needs your direction before it can be built, **and** the Billing Library
-major-version bump needs KSP's real compatibility table (a genuine
-toolchain blocker was found and documented, not guessed past).
+**NOT READY — BLOCKED BY:** the app does not compile against the real
+`google-services.json` until Google Sign-In is enabled on the
+`wiccan-android` project (`docs/FIREBASE_SETUP.md` §0), **and** that
+project's console-side services (Blaze, Firestore, Auth, App Check) are
+not yet enabled, **and** no signing keystore or Play Console listing
+exists yet, **and** the visual/typography redesign needs your direction
+before it can be built, **and** the Billing Library major-version bump
+needs KSP's real compatibility table (a genuine toolchain blocker was
+found and documented, not guessed past).
 
 Every other code-level gap the external audit surfaced — CI coverage,
 subscription cancellation, App Check hardening, real per-device
