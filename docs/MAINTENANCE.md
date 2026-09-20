@@ -29,33 +29,17 @@ currently handled (automated, manual, or not yet built).
   365-entry launch target referenced in code comments is still just 1
   source; this is ongoing content work, not a code task.
 
-## Play Billing Library version
+## Play Billing / Kotlin toolchain
 
-- Currently pinned to 7.1.1 (`gradle/libs.versions.toml`). 9.1.0 is the
-  real latest release (confirmed against Google's Maven metadata) and was
-  attempted directly: bumping the version and recompiling surfaced a real,
-  verified blocker rather than a guess — `billing-ktx:9.1.0`'s Kotlin
-  metadata requires Kotlin compiler **2.3.0 or newer** (this project was
-  on 2.0.21), which itself requires migrating the now-removed
-  `kotlinOptions { jvmTarget = "17" }` DSL to the `compilerOptions` DSL
-  (straightforward — done and reverted along with everything else below,
-  ready to reapply). Bumping Kotlin to 2.3.0 in turn surfaced a KSP/Hilt
-  Gradle-plugin classloader conflict ("KSP plugin was detected to be
-  applied but its task class could not be found") that this sandbox could
-  not resolve with confidence — matching the exact KSP release for
-  Kotlin 2.3.0 needs the real KSP/Kotlin compatibility table, which
-  wasn't reliably obtainable here. Reverted rather than ship a toolchain
-  bump validated only by guesswork.
-- **To finish this**: on a machine with reliable access to KSP's official
-  compatibility docs (https://github.com/google/ksp/releases), bump
-  `kotlin` and `ksp` together to a verified-matching pair at or above
-  Kotlin 2.3.0, re-apply the `compilerOptions` DSL migration (see git
-  history for this attempt), bump `billing` to `9.1.0`, then run the full
+- `billing-ktx` is currently pinned to `9.1.0` (`gradle/libs.versions.toml`).
+  That release requires Kotlin 2.3.x metadata, so this project's Android
+  Gradle script must keep the Kotlin JVM target on the newer
+  `kotlin { compilerOptions { ... } }` DSL rather than the removed
+  `android.kotlinOptions { jvmTarget = "17" }` form.
+- If Kotlin, KSP, Hilt, or AGP is bumped again, verify the versions as a
+  compatible set before merging and rerun the full Android suite:
   `./gradlew clean ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug
-  :app:bundleProdRelease` suite before touching `WiccanBillingClient.kt`'s
-  API usage itself (a second, separate verification pass, since Billing
-  9.x's actual method signatures haven't been diffed against 7.1.1 yet —
-  that compile only got as far as the Kotlin/KSP toolchain blocker).
+  :app:bundleProdRelease`.
 
 ## Room schema migrations
 
