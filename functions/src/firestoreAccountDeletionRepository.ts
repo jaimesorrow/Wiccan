@@ -6,6 +6,7 @@ import { PlayBillingPort } from "./playBillingPort";
 
 const USERS_COLLECTION = "users";
 const HISTORY_COLLECTION = "userContentHistory";
+const CONTENT_USAGE_COLLECTION = "userContentUsage";
 const DEVICES_SUBCOLLECTION = "devices";
 const SUBSCRIPTIONS_COLLECTION = "subscriptions";
 
@@ -22,6 +23,11 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionPort {
 
   async deleteUserContentHistory(uid: string): Promise<void> {
     const snap = await this.db.collection(HISTORY_COLLECTION).where("userId", "==", uid).get();
+    await this.deleteAll(snap.docs.map((doc) => doc.ref));
+  }
+
+  async deleteUserContentUsage(uid: string): Promise<void> {
+    const snap = await this.db.collection(CONTENT_USAGE_COLLECTION).doc(uid).collection("content").get();
     await this.deleteAll(snap.docs.map((doc) => doc.ref));
   }
 
@@ -67,8 +73,10 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionPort {
     if (refs.length === 0) {
       return;
     }
-    const batch = this.db.batch();
-    refs.forEach((ref) => batch.delete(ref));
-    await batch.commit();
+    for (let offset = 0; offset < refs.length; offset += 400) {
+      const batch = this.db.batch();
+      refs.slice(offset, offset + 400).forEach((ref) => batch.delete(ref));
+      await batch.commit();
+    }
   }
 }

@@ -29,7 +29,7 @@ import { FirestoreSystemConfigRepository } from "./firestoreSystemConfigReposito
 initializeApp();
 
 // Matches the Android app's applicationId (app/build.gradle.kts).
-const ANDROID_PACKAGE_NAME = process.env.ANDROID_PACKAGE_NAME ?? "com.wiccan.app";
+const ANDROID_PACKAGE_NAME = process.env.ANDROID_PACKAGE_NAME ?? "com.jaimesorrow.wiccan";
 
 // The Pub/Sub topic Play Console's "Real-time developer notifications"
 // setting must be pointed at (Monetization setup -> RTDN). This is an
@@ -133,7 +133,7 @@ export const recheckLapsedSubscriptionsJob = onSchedule("every day 03:00", async
  * its own. Daily reconciliation (`recheckLapsedSubscriptionsJob`) remains
  * as a backup for any notification that is missed or delayed.
  */
-export const handlePlayRtdn = onMessagePublished(PLAY_RTDN_TOPIC, async (event) => {
+export const handlePlayRtdn = onMessagePublished({ topic: PLAY_RTDN_TOPIC, retry: true }, async (event) => {
   const messageData = event.data.message.data;
   if (!messageData) {
     return;
@@ -154,6 +154,9 @@ export const handlePlayRtdn = onMessagePublished(PLAY_RTDN_TOPIC, async (event) 
     logger.info("handlePlayRtdn processed", { result });
   } catch (err) {
     logger.error("handlePlayRtdn failed", { error: (err as Error).message });
+    // Throw so Pub/Sub marks this delivery as failed and retries transient
+    // Play/Firestore errors instead of silently losing an entitlement update.
+    throw err;
   }
 });
 

@@ -1,12 +1,13 @@
 import { Firestore, Timestamp } from "firebase-admin/firestore";
 import { Content, ContentCategory, ContentTier, isContentCategory } from "./types";
-import { ContentRepositoryPort } from "./contentRepositoryPort";
+import { ContentAlreadyDeliveredError, ContentRepositoryPort } from "./contentRepositoryPort";
 
 /** Defensive fallback for any legacy content document written before category existed. */
 const DEFAULT_CATEGORY: ContentCategory = "MoonAndSeasonal";
 
 const CONTENT_COLLECTION = "content";
 const HISTORY_COLLECTION = "userContentHistory";
+const CONTENT_USAGE_COLLECTION = "userContentUsage";
 const USERS_COLLECTION = "users";
 const POOL_EXHAUSTION_COLLECTION = "contentPoolExhaustionEvents";
 
@@ -84,10 +85,15 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
 
   async assignDailyContent(uid: string, today: string, candidate: Content): Promise<string> {
     const docRef = this.db.collection(HISTORY_COLLECTION).doc(historyDocId(uid, today));
+    const usedRef = this.db.collection(CONTENT_USAGE_COLLECTION).doc(uid).collection("content").doc(candidate.id);
     return this.db.runTransaction(async (txn) => {
       const snap = await txn.get(docRef);
       if (snap.exists) {
         return snap.get("contentId") as string;
+      }
+      const used = await txn.get(usedRef);
+      if (used.exists) {
+        throw new ContentAlreadyDeliveredError(candidate.id);
       }
       txn.set(docRef, {
         userId: uid,
@@ -98,6 +104,7 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
         tradition: candidate.tradition,
         category: candidate.category,
       });
+      txn.set(usedRef, { deliveredDate: today });
       return candidate.id;
     });
   }

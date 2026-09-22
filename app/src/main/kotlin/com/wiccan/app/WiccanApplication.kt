@@ -31,6 +31,11 @@ class WiccanApplication : Application(), Configuration.Provider {
         // provider this installs is decided per build variant (src/debug
         // vs src/release), not at runtime - see AppCheckProviderInstaller.
         appCheckProviderInstaller.install()
+
+        // The manifest removes WorkManager's default App Startup initializer
+        // so the Hilt-aware worker factory is always used. Initialize it
+        // explicitly before the first getInstance() call below.
+        WorkManager.initialize(this, workManagerConfiguration)
         scheduleDailyContentRefresh()
     }
 

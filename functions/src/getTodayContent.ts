@@ -1,5 +1,5 @@
 import { Content } from "./types";
-import { ContentRepositoryPort } from "./contentRepositoryPort";
+import { ContentAlreadyDeliveredError, ContentRepositoryPort } from "./contentRepositoryPort";
 import { loadContentSources } from "./contentSource";
 
 const DEFAULT_ANCIENT_LESSON_SOURCE_IDS = new Set(
@@ -36,15 +36,11 @@ function isEligibleForDailyDelivery(content: Content, ancientLessonSourceIds: Re
  * 3. Exclude anything already delivered to the user.
  * 4. If nothing remains, log pool exhaustion and fail closed. Never repeat
  *    a lesson already delivered to this user.
- * 5. Pick one candidate at random.
- * 6. Atomically commit that candidate as today's assignment via
- *    `assignDailyContent`. If a concurrent call already won today's
- *    assignment first, the candidate this call picked is discarded and
- *    the winning content is fetched and returned instead - so two
- *    truly simultaneous first-call-of-the-day requests always converge
- *    on the same single committed assignment, with exactly one history
- *    record created.
- * 7. Return the selected content.
+ * 5. Pick a candidate at random and atomically reserve both its content
+ *    ID and today's assignment. If another date reserved that ID first,
+ *    retry with a different candidate. If another call won today, return
+ *    that same-day winner. Never deliver the same ID on two days.
+ * 6. Return the selected content.
  *
  * An already-committed history row is intentionally honored even if the
  * referenced lesson predates the ancient-source policy; changing it during
@@ -76,25 +72,29 @@ export async function selectTodayContent(
     isEligibleForDailyDelivery(content, ancientLessonSourceIds),
   );
   const deliveredSet = new Set(deliveredIds);
-  const candidates = eligiblePublished.filter((content) => !deliveredSet.has(content.id));
+  let candidates = eligiblePublished.filter((content) => !deliveredSet.has(content.id));
 
-  if (candidates.length === 0) {
-    await repo.logPoolExhaustion(uid, tier, today);
-    throw new ContentPoolExhaustedError(tier);
+  while (candidates.length > 0) {
+    const candidate = pickRandom(candidates);
+    let assignedId: string;
+    try {
+      assignedId = await repo.assignDailyContent(uid, today, candidate);
+    } catch (err) {
+      if (!(err instanceof ContentAlreadyDeliveredError)) throw err;
+      candidates = candidates.filter((content) => content.id !== candidate.id);
+      continue;
+    }
+
+    if (assignedId === candidate.id) return candidate;
+
+    // Another call won today's assignment. Return its committed content.
+    const winner = await repo.getContentById(assignedId);
+    if (!winner) {
+      throw new Error(`Assigned content '${assignedId}' could not be found.`);
+    }
+    return winner;
   }
 
-  const candidate = pickRandom(candidates);
-  const assignedId = await repo.assignDailyContent(uid, today, candidate);
-
-  if (assignedId === candidate.id) {
-    return candidate;
-  }
-
-  // A concurrent call already committed a different assignment first;
-  // defer to it so both callers agree on the same single assignment.
-  const winner = await repo.getContentById(assignedId);
-  if (!winner) {
-    throw new Error(`Assigned content '${assignedId}' could not be found.`);
-  }
-  return winner;
+  await repo.logPoolExhaustion(uid, tier, today);
+  throw new ContentPoolExhaustedError(tier);
 }

@@ -108,6 +108,22 @@ describe("selectTodayContent", () => {
     });
   });
 
+  it("cannot deliver the same content on two concurrently selected dates", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [makeContent({ id: "c1" }), makeContent({ id: "c2" })];
+    const random = jest.spyOn(Math, "random").mockReturnValue(0);
+    try {
+      const [first, second] = await Promise.all([
+        selectTodayContent(UID, TODAY, repo),
+        selectTodayContent(UID, "2026-09-10", repo),
+      ]);
+      expect(new Set([first.id, second.id])).toEqual(new Set(["c1", "c2"]));
+      expect(repo.history).toHaveLength(2);
+    } finally {
+      random.mockRestore();
+    }
+  });
+
   it("only offers a free user free-tier published content", async () => {
     const repo = new FakeContentRepository();
     repo.tier = "free";
