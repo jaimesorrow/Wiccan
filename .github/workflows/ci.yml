@@ -15,6 +15,7 @@ jobs:
       # the steps below run. This CI-only placeholder has no real
       # credentials and is never used outside this workflow.
       - run: cp app/google-services.ci.json app/google-services.json
+      - run: bash scripts/release-preflight.sh
       - run: ./gradlew ktlintCheck
       # "prod" is the flavor whose applicationId (com.jaimesorrow.wiccan)
       # matches google-services.ci.json above - "dev"/"staging" are scaffolding
