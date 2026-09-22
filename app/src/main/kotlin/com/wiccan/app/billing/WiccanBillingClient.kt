@@ -22,9 +22,9 @@ import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 const val PREMIUM_MONTHLY_PRODUCT_ID = "wiccan_premium_monthly"
 const val PREMIUM_YEARLY_PRODUCT_ID = "wiccan_premium_yearly"
