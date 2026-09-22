@@ -42,7 +42,10 @@ class PaywallViewModel @Inject constructor(
 
     fun subscribe(activity: Activity) {
         viewModelScope.launch {
-            subscriptionRepository.launchPurchaseFlow(activity)
+            when (val result = subscriptionRepository.launchPurchaseFlow(activity)) {
+                is AppResult.Success -> Unit
+                is AppResult.Failure -> effectChannel.send(PaywallUiEffect.ShowSnackbar(result.error))
+            }
         }
     }
 
