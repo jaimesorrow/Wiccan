@@ -30,12 +30,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.wiccan.app.billing.PREMIUM_MONTHLY_PRODUCT_ID
 import com.wiccan.app.core.config.PolicyUrls
 import com.wiccan.app.core.error.toUserMessage
 import com.wiccan.app.domain.model.ContentTier
-
-private const val ANDROID_PACKAGE_NAME = "com.wiccan.app"
 
 /**
  * Account settings: sign out, manage the subscription (deep link to Play
@@ -169,11 +166,8 @@ fun SettingsScreen(
     }
 }
 
-private fun manageSubscriptionIntent(): Intent {
-    val url = "https://play.google.com/store/account/subscriptions" +
-        "?sku=$PREMIUM_MONTHLY_PRODUCT_ID&package=$ANDROID_PACKAGE_NAME"
-    return Intent(Intent.ACTION_VIEW, Uri.parse(url))
-}
+private fun manageSubscriptionIntent(): Intent =
+    Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/account/subscriptions"))
 
 private fun supportEmailIntent(): Intent =
     Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${PolicyUrls.SUPPORT_EMAIL}"))
