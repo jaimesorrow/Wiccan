@@ -53,7 +53,7 @@ based on your answers. Two things worth confirming before you fill it out:
 
 ## Subscriptions / Monetization setup (Play Console side, not code)
 
-- [ ] Create the `wiccan_premium_monthly` subscription product in Play Console matching `PREMIUM_MONTHLY_PRODUCT_ID` (`app/src/main/kotlin/com/wiccan/app/billing/`).
+- [ ] Create `wiccan_premium_monthly` at **$5.99/month** and `wiccan_premium_yearly` at **$39.99/year** in Play Console. The backend allow-lists only these two product IDs for premium entitlement. The current paywall launches the monthly product; yearly purchase UI can be exposed once the yearly product is active in Play.
 - [ ] Enable Real-time developer notifications (Monetization setup) pointed at the `PLAY_RTDN_TOPIC` Pub/Sub topic (`play-rtdn` by default), and grant Play's publisher service account permission to publish to it — `handlePlayRtdn` (Session 23) is written and tested against fakes, but has no live RTDN traffic to react to until this is done.
 - [ ] Link a Google Play Developer API service account with access to this app's listing, and put its key path in `GOOGLE_APPLICATION_CREDENTIALS` for whichever environment needs to call `verifyPurchase`/`recheckLapsedSubscriptions` (see `functions/.env.example`).
 
@@ -62,3 +62,10 @@ based on your answers. Two things worth confirming before you fill it out:
 See `docs/RELEASE_CHECKLIST.md` for the technical (signing, minification,
 versioning) side of preflight, and the README's Environments section for
 the dev/staging/production project separation this all assumes.
+
+
+## Production Firebase config
+
+- The production Android identity is `com.jaimesorrow.wiccan` in Firebase project `wiccan-android`.
+- `app/src/prod/google-services.json` contains that production project's base Android config.
+- The supplied Firebase config currently has no OAuth client entries. Google Sign-In therefore remains unavailable until the Play App Signing SHA certificates are added in Firebase/Google Cloud, Google Authentication is enabled, and a refreshed config contains the web OAuth client. Email/password auth and the other Firebase services do not require that generated web client resource.
