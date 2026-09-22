@@ -1,4 +1,4 @@
-import { selectTodayContent } from "../getTodayContent";
+import { ContentPoolExhaustedError, selectTodayContent } from "../getTodayContent";
 import { FakeContentRepository, makeContent } from "../testUtils/fakeContentRepository";
 
 const UID = "user-123";
@@ -77,6 +77,12 @@ describe("selectTodayContent", () => {
     );
     expect(repo.poolExhaustionEvents).toEqual([{ userId: UID, tier: "free", today: TODAY }]);
     expect(repo.history).toHaveLength(2);
+  });
+
+  it("signals pool exhaustion with a distinct error for the callable and app", async () => {
+    const repo = new FakeContentRepository();
+    await expect(selectTodayContent(UID, TODAY, repo)).rejects.toBeInstanceOf(ContentPoolExhaustedError);
+    expect(repo.poolExhaustionEvents).toEqual([{ userId: UID, tier: "free", today: TODAY }]);
   });
 
   it("two concurrent first-of-the-day calls converge on exactly one committed assignment", async () => {

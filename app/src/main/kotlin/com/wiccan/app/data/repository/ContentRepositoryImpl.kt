@@ -1,5 +1,7 @@
 package com.wiccan.app.data.repository
 
+import com.google.firebase.functions.FirebaseFunctionsException
+import com.wiccan.app.core.error.AppError
 import com.wiccan.app.core.error.toAppError
 import com.wiccan.app.core.result.AppResult
 import com.wiccan.app.data.local.CachedDailyContentDao
@@ -26,7 +28,10 @@ class ContentRepositoryImpl @Inject constructor(
             dao.replace(content.toCachedEntity(deliveredDate = LocalDate.now(ZoneOffset.UTC).toString()))
             AppResult.Success(content)
         } catch (t: Throwable) {
-            AppResult.Failure(t.toAppError())
+            val error = if ((t as? FirebaseFunctionsException)?.code ==
+                FirebaseFunctionsException.Code.RESOURCE_EXHAUSTED
+            ) AppError.NoNewLesson else t.toAppError()
+            AppResult.Failure(error)
         }
     }
 

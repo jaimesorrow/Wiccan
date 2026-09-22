@@ -8,6 +8,13 @@ const DEFAULT_ANCIENT_LESSON_SOURCE_IDS = new Set(
     .map((source) => source.id),
 );
 
+export class ContentPoolExhaustedError extends Error {
+  constructor(tier: string) {
+    super(`No new published content available for tier '${tier}'.`);
+    this.name = "ContentPoolExhaustedError";
+  }
+}
+
 function pickRandom(items: Content[]): Content {
   return items[Math.floor(Math.random() * items.length)];
 }
@@ -69,11 +76,11 @@ export async function selectTodayContent(
     isEligibleForDailyDelivery(content, ancientLessonSourceIds),
   );
   const deliveredSet = new Set(deliveredIds);
-  let candidates = eligiblePublished.filter((content) => !deliveredSet.has(content.id));
+  const candidates = eligiblePublished.filter((content) => !deliveredSet.has(content.id));
 
   if (candidates.length === 0) {
     await repo.logPoolExhaustion(uid, tier, today);
-    throw new Error(`No new published content available for tier '${tier}'.`);
+    throw new ContentPoolExhaustedError(tier);
   }
 
   const candidate = pickRandom(candidates);

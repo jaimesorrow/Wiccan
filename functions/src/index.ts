@@ -6,7 +6,7 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { onMessagePublished } from "firebase-functions/v2/pubsub";
 import { auth as authV1 } from "firebase-functions/v1";
 import * as logger from "firebase-functions/logger";
-import { selectTodayContent } from "./getTodayContent";
+import { ContentPoolExhaustedError, selectTodayContent } from "./getTodayContent";
 import { FirestoreContentRepository } from "./firestoreContentRepository";
 import { getUserLocalDate } from "./dateUtils";
 import { GooglePlayBillingRepository } from "./googlePlayBillingRepository";
@@ -61,6 +61,9 @@ export const getTodayContent = onCall({ enforceAppCheck: true }, async (request)
   } catch (err) {
     if (err instanceof HttpsError) {
       throw err;
+    }
+    if (err instanceof ContentPoolExhaustedError) {
+      throw new HttpsError("resource-exhausted", "Today's new lesson is being prepared.");
     }
     logger.error("getTodayContent failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not select today's content.");
