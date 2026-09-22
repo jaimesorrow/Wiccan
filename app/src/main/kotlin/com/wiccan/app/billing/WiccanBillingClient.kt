@@ -2,7 +2,6 @@ package com.wiccan.app.billing
 
 import android.app.Activity
 import android.content.Context
-import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
@@ -13,7 +12,6 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
-import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -39,7 +37,7 @@ class PlayBillingException(message: String) : IllegalStateException(message)
 /**
  * Thin wrapper around Play Billing Library 9.1.0. Entitlement remains
  * server-authoritative; this class only discovers offers, launches Play UI,
- * reports purchases, and acknowledges purchases after server verification.
+ * and reports purchases. Entitlement and acknowledgement are handled server-side.
  */
 @Singleton
 class WiccanBillingClient @Inject constructor(
@@ -148,14 +146,6 @@ class WiccanBillingClient @Inject constructor(
         val result = client.queryPurchasesAsync(params)
         result.billingResult.requireOk("query owned subscriptions")
         return result.purchasesList
-    }
-
-    suspend fun acknowledgePurchase(purchase: Purchase) {
-        if (purchase.isAcknowledged) return
-        val params = AcknowledgePurchaseParams.newBuilder()
-            .setPurchaseToken(purchase.purchaseToken)
-            .build()
-        client.acknowledgePurchase(params).requireOk("acknowledge purchase")
     }
 
     private fun BillingResult.requireOk(operation: String) {
