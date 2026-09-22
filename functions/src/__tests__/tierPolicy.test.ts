@@ -4,7 +4,13 @@ import { PlaySubscriptionInfo, PlaySubscriptionState } from "../playBillingPort"
 const NOW = new Date("2026-09-11T00:00:00.000Z");
 
 function info(state: PlaySubscriptionState, expiryTimeMillis: number | null = null): PlaySubscriptionInfo {
-  return { state, productIds: ["wiccan_premium_monthly"], expiryTimeMillis, autoRenewing: false };
+  return {
+    state,
+    productIds: ["wiccan_premium_monthly"],
+    expiryTimeMillis,
+    autoRenewing: false,
+    acknowledged: true,
+  };
 }
 
 describe("tierForSubscription", () => {
