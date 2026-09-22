@@ -22,18 +22,24 @@ import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-/** Wiccan's single subscription product — no pricing ladder, per spec. */
 const val PREMIUM_MONTHLY_PRODUCT_ID = "wiccan_premium_monthly"
+const val PREMIUM_YEARLY_PRODUCT_ID = "wiccan_premium_yearly"
+
+val PREMIUM_PRODUCT_IDS: Set<String> = setOf(
+    PREMIUM_MONTHLY_PRODUCT_ID,
+    PREMIUM_YEARLY_PRODUCT_ID,
+)
+
+class PlayBillingException(message: String) : IllegalStateException(message)
 
 /**
- * Thin wrapper around the Play Billing Library. Owns the [BillingClient]
- * connection for the process lifetime and republishes purchase results as
- * a [Flow] so callers don't need to implement [PurchasesUpdatedListener]
- * themselves. Business logic (verification, acknowledgement sequencing,
- * tier sync) lives in [com.wiccan.app.data.repository.SubscriptionRepositoryImpl]
- * — this class only talks to the Billing Library.
+ * Thin wrapper around Play Billing Library 9.1.0. Entitlement remains
+ * server-authoritative; this class only discovers offers, launches Play UI,
+ * reports purchases, and acknowledges purchases after server verification.
  */
 @Singleton
 class WiccanBillingClient @Inject constructor(
@@ -41,6 +47,8 @@ class WiccanBillingClient @Inject constructor(
 ) {
     private val _purchaseUpdates = MutableSharedFlow<List<Purchase>>(extraBufferCapacity = 1)
     val purchaseUpdates: Flow<List<Purchase>> = _purchaseUpdates
+
+    private val connectionMutex = Mutex()
 
     private val listener = PurchasesUpdatedListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
@@ -50,28 +58,42 @@ class WiccanBillingClient @Inject constructor(
 
     private val client: BillingClient = BillingClient.newBuilder(context)
         .setListener(listener)
-        // Subscriptions get pending-purchase support by default; the
-        // no-arg opt-in only matters for one-time products, which Wiccan
-        // doesn't sell.
-        .enablePendingPurchases(PendingPurchasesParams.newBuilder().build())
+        .enablePendingPurchases(
+            PendingPurchasesParams.newBuilder()
+                .enableOneTimeProducts()
+                .build(),
+        )
+        .enableAutoServiceReconnection()
         .build()
 
     private suspend fun ensureConnected() {
         if (client.isReady) return
-        suspendCancellableCoroutine { continuation ->
-            client.startConnection(object : BillingClientStateListener {
-                override fun onBillingSetupFinished(billingResult: BillingResult) {
-                    if (continuation.isActive) continuation.resume(Unit)
-                }
 
-                override fun onBillingServiceDisconnected() {
-                    // Reconnection is attempted lazily the next time a call needs the client.
-                }
-            })
+        connectionMutex.withLock {
+            if (client.isReady) return@withLock
+
+            val result = suspendCancellableCoroutine<BillingResult> { continuation ->
+                client.startConnection(object : BillingClientStateListener {
+                    override fun onBillingSetupFinished(billingResult: BillingResult) {
+                        if (continuation.isActive) continuation.resume(billingResult)
+                    }
+
+                    override fun onBillingServiceDisconnected() {
+                        if (continuation.isActive) {
+                            continuation.resume(
+                                BillingResult.newBuilder()
+                                    .setResponseCode(BillingClient.BillingResponseCode.SERVICE_DISCONNECTED)
+                                    .setDebugMessage("Billing service disconnected during setup")
+                                    .build(),
+                            )
+                        }
+                    }
+                })
+            }
+            result.requireOk("connect to Play Billing")
         }
     }
 
-    /** Queries Play for the current, localized [ProductDetails] for [productId]. */
     suspend fun queryProductDetails(productId: String = PREMIUM_MONTHLY_PRODUCT_ID): ProductDetails {
         ensureConnected()
 
@@ -86,15 +108,23 @@ class WiccanBillingClient @Inject constructor(
             )
             .build()
 
-        return client.queryProductDetails(queryParams).productDetailsList?.firstOrNull()
-            ?: error("Product '$productId' is not available from Play.")
+        val result = client.queryProductDetails(queryParams)
+        result.billingResult.requireOk("query product '$productId'")
+        return result.productDetailsList?.firstOrNull()
+            ?: throw PlayBillingException("Product '$productId' is not available from Play.")
     }
 
-    /** Queries product details and launches the Play purchase UI for [productId]. */
-    suspend fun launchPurchaseFlow(activity: Activity, productId: String = PREMIUM_MONTHLY_PRODUCT_ID) {
+    /**
+     * Launches Play's purchase UI. A non-OK result is returned to the repository
+     * so the UI can surface a recoverable error instead of crashing.
+     */
+    suspend fun launchPurchaseFlow(
+        activity: Activity,
+        productId: String = PREMIUM_MONTHLY_PRODUCT_ID,
+    ): BillingResult {
         val productDetails = queryProductDetails(productId)
         val offerToken = productDetails.subscriptionOfferDetails?.firstOrNull()?.offerToken
-            ?: error("No subscription offer available for '$productId'.")
+            ?: throw PlayBillingException("No subscription offer available for '$productId'.")
 
         val flowParams = BillingFlowParams.newBuilder()
             .setProductDetailsParamsList(
@@ -107,32 +137,35 @@ class WiccanBillingClient @Inject constructor(
             )
             .build()
 
-        client.launchBillingFlow(activity, flowParams)
+        return client.launchBillingFlow(activity, flowParams)
     }
 
-    /**
-     * Purchases made while the app wasn't running, or whose verification/
-     * acknowledgement was interrupted, don't arrive via [purchaseUpdates].
-     * Google's guidance is to re-query on every startup to catch those.
-     */
     suspend fun queryOwnedSubscriptions(): List<Purchase> {
         ensureConnected()
         val params = QueryPurchasesParams.newBuilder()
             .setProductType(BillingClient.ProductType.SUBS)
             .build()
-        return client.queryPurchasesAsync(params).purchasesList
+        val result = client.queryPurchasesAsync(params)
+        result.billingResult.requireOk("query owned subscriptions")
+        return result.purchasesList
     }
 
-    /** Play requires acknowledgement within 3 days or the purchase is auto-refunded. */
     suspend fun acknowledgePurchase(purchase: Purchase) {
         if (purchase.isAcknowledged) return
         val params = AcknowledgePurchaseParams.newBuilder()
             .setPurchaseToken(purchase.purchaseToken)
             .build()
-        client.acknowledgePurchase(params)
+        client.acknowledgePurchase(params).requireOk("acknowledge purchase")
+    }
+
+    private fun BillingResult.requireOk(operation: String) {
+        if (responseCode != BillingClient.BillingResponseCode.OK) {
+            throw PlayBillingException(
+                "Failed to $operation ($responseCode): $debugMessage",
+            )
+        }
     }
 }
 
-/** The subscription's localized recurring price, e.g. "$4.99/mo". */
 fun ProductDetails.formattedPrice(): String? =
     subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice
