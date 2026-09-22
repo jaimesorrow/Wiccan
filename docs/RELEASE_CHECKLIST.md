@@ -26,20 +26,20 @@ it says so instead of pretending.
 
 ## 16KB page size (Android 15+)
 
-- [x] `scripts/check-16kb-alignment.sh` inspects every native library bundled in the release `.aab` and fails if a 64-bit ABI's (arm64-v8a, x86_64) ELF LOAD segments aren't 16KB-aligned. Runs in CI on every push. Currently passing — the one bundled native library (`libandroidx.graphics.path.so`, a transitive AndroidX dependency) is already 16KB-aligned on every ABI.
+- [ ] `scripts/check-16kb-alignment.sh` inspects every native library bundled in the release `.aab` and fails if a 64-bit ABI's (arm64-v8a, x86_64) ELF LOAD segments aren't 16KB-aligned. Re-run this check on the Billing 8 bundle; the prior baseline passed.
 
 ## Product flavors (dev/staging/prod)
 
 - The app builds three product flavors, one per environment (see the README's Environments section) — `dev`/`staging`/`prod`, matching `.firebaserc`'s aliases. Production uses the verified source-specific config at `app/src/prod/google-services.json` for Firebase project `wiccan-android` and application ID `com.jaimesorrow.wiccan`. CI still copies `app/google-services.ci.json` as a non-production fallback, but the prod source-set config is authoritative for the prod variant. `dev`/`staging` still need their own real Firebase projects/configs before those variants can be treated as connected environments.
 - [ ] Once real dev/staging Firebase projects exist, add their `google-services.json` files and confirm `./gradlew :app:assembleDevDebug` / `:app:assembleStagingDebug` build cleanly.
 
-## Automated checks (already verified by this repo)
+## Automated checks (rerun for this PR before release)
 
-- [x] `bash scripts/release-preflight.sh` — verifies package/Firebase identity, App Check wiring, protected writes, RTDN retry behavior, WorkManager initialization, and obvious committed server-secret patterns
-- [x] `./gradlew ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug :app:compileProdDebugAndroidTestKotlin`
-- [x] `./gradlew :app:bundleProdRelease :app:lintProdRelease` — release bundle and lint gate (bundle is unsigned without `keystore.properties`)
-- [x] `./scripts/check-16kb-alignment.sh` — all bundled native libraries pass
-- [x] `cd functions && npm run build && npm test && npm run lint`
+- [ ] `bash scripts/release-preflight.sh` — verifies package/Firebase identity, App Check wiring, protected writes, RTDN retry behavior, WorkManager initialization, and obvious committed server-secret patterns
+- [ ] `./gradlew ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug :app:compileProdDebugAndroidTestKotlin`
+- [ ] `./gradlew :app:bundleProdRelease :app:lintProdRelease` — release bundle and lint gate (bundle is unsigned without `keystore.properties`)
+- [ ] `./scripts/check-16kb-alignment.sh` — all bundled native libraries pass
+- [ ] `cd functions && npm run build && npm test && npm run lint`
 
 ## Needs a real device/emulator (not verified here)
 

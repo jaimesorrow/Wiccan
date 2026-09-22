@@ -2,14 +2,9 @@ import { ContentTier } from "./types";
 import { PlayBillingPort } from "./playBillingPort";
 import { UserRepositoryPort } from "./userRepositoryPort";
 import { SubscriptionRecordPort } from "./subscriptionRecordPort";
-import { tierForSubscription } from "./tierPolicy";
+import { PREMIUM_PRODUCT_IDS, tierForSubscription } from "./tierPolicy";
 
 export class PurchaseVerificationError extends Error {}
-
-export const PREMIUM_PRODUCT_IDS = new Set([
-  "wiccan_premium_monthly",
-  "wiccan_premium_yearly",
-]);
 
 /**
  * Verifies a purchase token server-side and syncs `users/{uid}.tier`
