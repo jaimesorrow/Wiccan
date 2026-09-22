@@ -55,10 +55,12 @@ functions/                    Cloud Functions (Node/TypeScript)
   repeat calls the same day, tier-filters candidates, and falls back to
   allowing repeats (with monitoring) once a user exhausts the published
   pool for their tier.
-- **Billing** is a single subscription product verified server-side via
-  the Google Play Developer API; the client's own purchase state is never
-  trusted as the tier source of truth. A daily job re-checks active
-  subscriptions for lapses.
+- **Billing** uses two allow-listed premium subscription products
+  (`wiccan_premium_monthly` and `wiccan_premium_yearly`) verified
+  server-side via the Google Play Developer API; the client's own purchase
+  state is never trusted as the tier source of truth. The current paywall
+  launches the monthly offer; restore/server verification recognizes both,
+  and a daily job re-checks active subscriptions for lapses.
 - **Content generation** draws only from a hand-curated `sources.json` of
   public-domain sources, using each source as thematic inspiration only —
   never quoted or closely paraphrased. Every generated draft needs a
@@ -101,17 +103,18 @@ not physical photography.
 ```
 
 The app has three product flavors (`dev`/`staging`/`prod`, one per
-environment - see Environments below); `prod` is the one that matches the
-checked-in `google-services.ci.json` placeholder and what CI builds.
-Building `dev`/`staging` requires that environment's own real
+environment - see Environments below). Production uses the verified
+`app/src/prod/google-services.json` for Firebase project `wiccan-android`
+and application ID `com.jaimesorrow.wiccan`. Building `dev`/`staging`
+as connected environments still requires each environment's own real
 `google-services.json` under `app/src/dev/` or `app/src/staging/`.
 
 Requires the Android SDK (`compileSdk`/`targetSdk` 36) — set `sdk.dir` in
 a local `local.properties` file or the `ANDROID_HOME` environment
-variable. You'll also need a real `app/google-services.json` from your
-Firebase project (not checked in), including a configured OAuth web
-client if you want Google sign-in to work, for the Google Services
-plugin to run.
+variable. The current production Firebase file has no OAuth client, so
+Google Sign-In intentionally reports "not configured" until the real Play
+App Signing SHA certificates and Google Auth/OAuth configuration are added
+and Firebase provides a refreshed production config.
 
 ### Cloud Functions
 
@@ -132,9 +135,10 @@ one project across environments means a staging bug can touch production
 users' data.
 
 - `.firebaserc` declares three project aliases (`default`, `staging`,
-  `production`); replace the placeholder project IDs with your real ones
-  before deploying anywhere. Switch which one `firebase` commands target
-  with `firebase use <alias>`.
+  `production`). Production is pinned to `wiccan-android`; dev and
+  staging intentionally remain placeholders until separate projects are
+  created. Switch the CLI target explicitly with `firebase use <alias>`
+  before any deploy or admin operation.
 - Each project needs its own Cloud Functions config: copy
   `functions/.env.example` to `functions/.env.<project-id>` (Firebase
   Functions v2 loads that file automatically for the matching project) and
@@ -147,10 +151,9 @@ users' data.
   so an operator never mutates the wrong environment's content pool by
   running a command against whatever project `firebase use` happened to be
   pointed at.
-- The Android app has a matching `dev`/`staging`/`prod` product flavor per
-  environment (`app/build.gradle.kts`), each with its own applicationId
-  suffix (`prod` has none — it's the real `com.jaimesorrow.wiccan`) so all three
-  can be installed side by side on one device. Each flavor needs its own
-  `google-services.json` from that environment's Firebase project, placed
-  at `app/src/<flavor>/google-services.json` — only `prod` has a
-  (CI-only, placeholder) one checked in via `google-services.ci.json`.
+- The Android app has matching `dev`/`staging`/`prod` product flavors.
+  Production installs as `com.jaimesorrow.wiccan` and uses
+  `app/src/prod/google-services.json`. Dev/staging use application-ID
+  suffixes and need their own source-specific Firebase configs once those
+  projects exist. `app/google-services.ci.json` remains a deliberately
+  fake build fallback and is not the production Firebase configuration.
