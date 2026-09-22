@@ -29,6 +29,7 @@ jobs:
       # against an emulator, tracked as a known CI gap.
       - run: ./gradlew :app:compileProdDebugAndroidTestKotlin
       - run: ./gradlew :app:bundleProdRelease
+      - run: ./gradlew :app:lintProdRelease
       # Android 15+ 16KB-page-size devices require every bundled 64-bit
       # native library's ELF LOAD segments to be 16KB-aligned.
       - run: ./scripts/check-16kb-alignment.sh
