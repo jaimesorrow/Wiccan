@@ -49,7 +49,7 @@ describe("selectTodayContent", () => {
 
     await expect(
       selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"])),
-    ).rejects.toThrow("No published content available for tier 'free'.");
+    ).rejects.toThrow("No new published content available for tier 'free'.");
   });
 
   it("is idempotent: a repeat call the same day returns the same content without a new history row", async () => {
@@ -63,7 +63,7 @@ describe("selectTodayContent", () => {
     expect(repo.history).toHaveLength(1);
   });
 
-  it("falls back to repeats and logs pool exhaustion once the published pool is used up", async () => {
+  it("never repeats delivered content when the published pool is used up", async () => {
     const repo = new FakeContentRepository();
     repo.content = [makeContent({ id: "c1" }), makeContent({ id: "c2" })];
     // Simulate the user having already seen every published item on prior days.
@@ -72,20 +72,11 @@ describe("selectTodayContent", () => {
       { userId: UID, contentId: "c2", deliveredDate: "2026-09-08", title: "Title c2", type: "spell", tradition: "European folk magic", category: "MoonAndSeasonal" },
     ];
 
-    const result = await selectTodayContent(UID, TODAY, repo);
-
-    expect(["c1", "c2"]).toContain(result.id);
+    await expect(selectTodayContent(UID, TODAY, repo)).rejects.toThrow(
+      "No new published content available for tier 'free'.",
+    );
     expect(repo.poolExhaustionEvents).toEqual([{ userId: UID, tier: "free", today: TODAY }]);
-    expect(repo.history).toHaveLength(3);
-    expect(repo.history[2]).toEqual({
-      userId: UID,
-      contentId: result.id,
-      deliveredDate: TODAY,
-      title: result.title,
-      type: result.type,
-      tradition: result.tradition,
-      category: result.category,
-    });
+    expect(repo.history).toHaveLength(2);
   });
 
   it("two concurrent first-of-the-day calls converge on exactly one committed assignment", async () => {
@@ -117,7 +108,7 @@ describe("selectTodayContent", () => {
     repo.content = [makeContent({ id: "premium-only", tier: "premium" })];
 
     await expect(selectTodayContent(UID, TODAY, repo)).rejects.toThrow(
-      "No published content available for tier 'free'.",
+      "No new published content available for tier 'free'.",
     );
   });
 
