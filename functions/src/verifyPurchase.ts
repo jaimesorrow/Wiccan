@@ -49,7 +49,7 @@ export async function verifyPurchaseAndSyncTier(
     autoRenewing: info.autoRenewing,
   });
 
-  if (tier === "premium") {
+  if (tier === "premium" && !info.acknowledged) {
     await billing.acknowledgePurchaseIfNeeded(purchaseToken, productId);
   }
 
