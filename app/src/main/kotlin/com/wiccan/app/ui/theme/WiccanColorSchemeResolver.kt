@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
@@ -41,7 +42,7 @@ fun resolveWiccanPalette(
     }
 }
 
-/** The full (un-animated) target [ColorScheme] for [themeMode] right now, blending across a seasonal transition. */
+/** The target [ColorScheme], blending dark palettes while preserving contrast at light/dark boundaries. */
 internal fun targetColorScheme(
     themeMode: WiccanThemeMode,
     isSystemInDarkTheme: Boolean,
@@ -57,6 +58,11 @@ internal fun targetColorScheme(
             val blendTarget = resolution.blendTarget
             if (blendTarget == null || resolution.blendFraction <= 0f) {
                 dominantScheme
+            } else if (resolution.dominant.isLight != blendTarget.isLight) {
+                // Blending a dark surface into a light surface produces midtones
+                // for which neither endpoint foreground reaches 4.5:1 contrast.
+                // Change the whole scheme together at the midpoint instead.
+                if (resolution.blendFraction < 0.5f) dominantScheme else blendTarget.toColorScheme()
             } else {
                 lerpColorScheme(dominantScheme, blendTarget.toColorScheme(), resolution.blendFraction)
             }
@@ -160,10 +166,10 @@ private fun rememberReducedMotionEnabled(): Boolean {
 
 /**
  * The animated Material3 [ColorScheme] to render right now for [themeMode].
- * Seasonal drift (see [SeasonalThemeResolver]) is already gradual day to
- * day; this additionally cross-fades over [THEME_TRANSITION_DURATION_MS]
- * whenever the resolved target changes abruptly (e.g. the user switches
- * modes), so a theme change never looks like a jump-cut. Recomposing this
+ * Seasonal drift (see [SeasonalThemeResolver]) is gradual between dark
+ * palettes; transitions between light and dark replace the full scheme to
+ * preserve contrast. Other mode changes cross-fade over
+ * [THEME_TRANSITION_DURATION_MS]. Recomposing this
  * does not recreate anything below it - screens keep their state, and
  * repositories/navigation/Firebase are untouched.
  */
@@ -175,6 +181,15 @@ fun rememberWiccanColorScheme(
 ): ColorScheme {
     val target = targetColorScheme(themeMode, isSystemInDarkTheme, today)
     val reducedMotion = rememberReducedMotionEnabled()
+    // Reset all color animations together when the theme changes polarity.
+    // Otherwise independent role animations pass through unreadable midtones.
+    return key(target.background.luminance() > 0.5f) {
+        animateWiccanColorScheme(target, reducedMotion)
+    }
+}
+
+@Composable
+private fun animateWiccanColorScheme(target: ColorScheme, reducedMotion: Boolean): ColorScheme {
     val spec = tween<Color>(if (reducedMotion) 0 else THEME_TRANSITION_DURATION_MS)
 
     val background by animateColorAsState(target.background, spec, label = "wiccanBackground")

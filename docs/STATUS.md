@@ -63,73 +63,15 @@ found the following. Each is now addressed as noted:
 | No disaster recovery / incident response / maintenance docs | **FIXED** — `docs/DISASTER_RECOVERY.md`, `docs/INCIDENT_RESPONSE.md`, `docs/MAINTENANCE.md` |
 | Billing Library still 7.1.1, not a later major version | **Attempted, real blocker found** — 9.1.0 (confirmed the real latest via Google's Maven metadata) requires Kotlin ≥2.3.0, which itself surfaced a KSP/Hilt Gradle-plugin classloader conflict this sandbox couldn't resolve with confidence (needs KSP's real compatibility table). Reverted rather than guess further; exact next steps recorded in `docs/MAINTENANCE.md`. |
 | Device registration schema is minimal (token + time zone + updatedAt; no `notificationsEnabled`/`platform`/`createdAt`/`lastSeenAt`) | **FIXED** — added all four: `createdAt`/`platform` written on first registration, `notificationsEnabled` is a real per-device toggle with a Settings switch (DataStore-backed locally, since Firestore rules give the client no read access to its own device doc), and `sendDailyNotifications` now skips opted-out devices. |
-| Visual theme is still near-black (`#0A0810`-direction) / generic serif+sans typography, not a distinct final direction | **FIXED** — replaced with a six-palette dynamic design system (Near Black, Midnight Blue, Royal Plum, Deep Forest, Warm Earth, Light/Ivory) rolling automatically through the Wheel of the Year, or lockable to any single palette or Follow System, from Settings. See "Visual identity system" below. |
-| No Android product flavors for dev/staging/prod (environment separation is `.firebaserc` + `.env` only) | **FIXED** — `dev`/`staging`/`prod` product flavors added (`app/build.gradle.kts`), matching `.firebaserc`'s aliases; only `prod` (applicationId `com.wiccan.app`, no suffix) has a CI-usable placeholder `google-services.json` today. Confirmed `dev`/`staging` fail cleanly and specifically (missing `google-services.json` for that applicationId) rather than in some unexpected way. |
+| Visual theme is still near-black (`#0A0810`-direction) / generic serif+sans typography, not a distinct final direction | **IN REVIEW** — PR #24 adds six seasonal palettes and typography, now ported onto the current main branch. The dark/light transition contrast has been corrected, but Android build and device validation are still required before calling it fixed. |
+| No Android product flavors for dev/staging/prod (environment separation is `.firebaserc` + `.env` only) | **FIXED** — `dev`/`staging`/`prod` product flavors added (`app/build.gradle.kts`), matching `.firebaserc`'s aliases; only `prod` (applicationId `com.jaimesorrow.wiccan`, no suffix) has a CI-usable placeholder `google-services.json` today. Confirmed `dev`/`staging` fail cleanly and specifically (missing `google-services.json` for that applicationId) rather than in some unexpected way. |
 | No runtime kill switches (`dailyContentEnabled`, `notificationsEnabled`, etc.) | **FIXED** — `systemConfig/global` (Firestore, no client access) with both flags, fail-open by default. `getTodayContent` and the hourly notification job both check it before doing anything. |
 | Launch content pool is still 1 curated source, not the target pool | **Still open, unchanged** — real content curation, not fabricatable here (see `functions/src/contentSource.ts`'s own doc comment: never auto-populated). |
 | Account deletion + active subscription | **FIXED** (see above) — this was the same finding as the billing-cancellation gap. |
 
-## Visual identity system (this revision)
-
-Replaces the single near-black theme with one design system expressed
-through six coordinated Material3 palettes — typography, spacing,
-component geometry, navigation, and icon language stay identical across
-all six; only color changes:
-
-| Palette | Mood |
-|---|---|
-| Near Black | Modern & minimal |
-| Midnight Blue | Celestial & serene |
-| Royal Plum | Mystical & elegant |
-| Deep Forest | Earthy & grounded |
-| Warm Earth | Ritual & candlelight |
-| Light / Ivory | Airy & peaceful |
-
-**Theme modes** (Settings → Theme): **Automatic — Wheel of the Year**
-(default) rolls through all six on a documented, deterministic date
-mapping (`SeasonalThemeResolver.kt`) with a gradual week-long cross-fade
-around each seasonal boundary — never a harsh midnight switch. Any single
-palette can be locked instead, or **Follow System** (Near Black in dark
-mode, Light/Ivory in light mode). The choice persists via DataStore
-(`ThemePreferences`) and always overrides the automatic behavior.
-`docs/MAINTENANCE.md`'s "Seasonal theme mapping" section documents the
-exact date-to-palette table and the reasoning behind it.
-
-**Typography**: Cinzel (an elegant, letterspaced classical serif) for the
-Wiccan wordmark, major headings, and ritual/lesson titles; Manrope (a
-highly readable modern sans) for everything else — body copy, settings,
-navigation, forms, buttons. Both are downloaded via Android's official
-Google Fonts provider (`androidx.compose.ui:ui-text-google-fonts`,
-verified against Android's own documentation and the real, published
-provider certificates from Google's Jetchat sample — not fabricated),
-falling back to the system font while loading or if Google Play Services
-is unavailable.
-
-**Verified working**: all six palettes compile into real Material3
-`ColorScheme`s (`WiccanColorSchemesTest`), the seasonal resolver is unit
-tested at every sabbat, at transition-window boundaries, across a
-year-wrap, and for determinism (`SeasonalThemeResolverTest`), theme-mode
-persistence/fallback-on-invalid-value is tested
-(`WiccanThemeModeTest`), and Settings/root ViewModel wiring is tested
-(`SettingsViewModelTest`, `ThemeViewModelTest`) — 73/73 unit tests pass,
-`ktlintCheck`, `lintProdRelease`, `assembleProdDebug`, and
-`bundleProdRelease` are all green, and the 16KB native-library check
-still passes.
-
-**Known limitation — no visual screenshots**: this sandbox has no Android
-emulator or device (see the pre-existing `WiccanDatabaseMigrationTest`
-caveat above — this is the same constraint, not a new one). Visual
-validation for all six palettes is real `@Preview` composables
-(`WiccanThemePreviews.kt`) for the Today screen and the Settings picker —
-open in Android Studio's Design view to see all six side by side — rather
-than a fabricated screenshot. Automated on-device screenshot tests
-(Paparazzi/Roborazzi, or an instrumented run) would need a real device or
-a new test-infrastructure dependency neither of which exists in this
-sandbox; that's the one remaining manual-validation step before shipping
-this pass.
-
 ## Known, still-flagged gaps (external infrastructure, or needing your input)
 
+- **Visual/typography redesign** — the six-palette implementation needs a successful Android build, palette review, and real-device visual validation before release.
 - **Billing Library major version** — real Kotlin/KSP toolchain blocker found and documented; needs KSP's official compatibility table to finish safely (`docs/MAINTENANCE.md`).
 - `PolicyUrls` (Terms, Privacy, account deletion) and `SUPPORT_EMAIL` are placeholders — no real hosted pages exist yet.
 - `WiccanDatabaseMigrationTest` compiles clean but has never run against a real SQLite engine — no emulator here.
@@ -144,11 +86,6 @@ Play Console listing exists yet, **and** the Billing Library major-version
 bump needs KSP's real compatibility table (a genuine toolchain blocker was
 found and documented, not guessed past).
 
-Every other code-level gap the external audit surfaced — CI coverage,
-subscription cancellation, App Check hardening, real per-device
-notifications, the 16KB check, ops docs, the device schema, product
-flavors, runtime kill switches, and the visual/typography identity — has
-been fixed and verified by this repo's own build/test/lint/CI commands.
-The one manual step left on the visual identity system is opening the new
-`@Preview`s on a real machine with Android Studio, since this sandbox has
-no emulator to render them itself.
+The visual/typography implementation remains in review. Its theme unit
+tests, Android build/lint, and a real-device visual pass still need to run
+after this integration; previous PR test claims do not verify this merge.

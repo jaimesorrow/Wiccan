@@ -17,14 +17,19 @@ const GeneratedDraftSchema = z.object({
 });
 
 /**
- * Builds Wiccan's editorial prompt. The source is thematic inspiration
- * only — never quoted, closely paraphrased, or structurally mirrored.
- * `summary` is a vetted source summary, never a verbatim excerpt.
+ * Builds Wiccan's editorial prompt.
+ *
+ * Lessons are historical-source-grounded: factual claims about an ancient
+ * tradition must stay within the curated groundedFacts supplied by an
+ * editor. Spells and potions may use the source as inspiration, but must
+ * not pretend to reproduce an ancient rite or quotation.
  *
  * The voice and safety rules are production requirements, not suggestions.
  * See docs/CONTENT_VOICE_AND_LESSON_STANDARD.md.
  */
 function buildPrompt(request: DraftGenerationRequest): string {
+  const groundedFacts = request.groundedFacts.map((fact, index) => `${index + 1}. ${fact}`).join("\n");
+
   return `You are drafting one original ${request.type} for Wiccan, a modern witchcraft app.
 
 VOICE
@@ -33,14 +38,38 @@ subtly grimoire-inspired voice. The writing must feel serious and credible,
 not theatrical or cheesy. Use clear modern English. Do not use fake archaic
 English, sensational occult language, horror imagery, or fantasy narration.
 
-SOURCE USE
-Use the following historical tradition ONLY as thematic inspiration. Do not
-quote it, closely paraphrase it, mirror its structure, or imply uncertain
-historical claims are established fact. Clearly distinguish historical or
-customary practice, modern practice, symbolism, and personal reflection.
-
+SOURCE
+Title: ${request.sourceTitle}
 Tradition: ${request.tradition}
-Background (for inspiration only, not to be echoed): ${request.summary}
+Period: ${request.period}
+Editorial reference: ${request.sourceReference}
+Background summary: ${request.summary}
+
+CURATED HISTORICAL FACTS
+${groundedFacts}
+
+HISTORICAL INTEGRITY
+If type=lesson, the lesson must teach real historical information grounded
+in the CURATED HISTORICAL FACTS above. Treat those facts as the boundary for
+claims about antiquity. You may explain their significance in your own words,
+but you must not invent quotations, translations, dates, ritual steps,
+deities, objects, lineages, or historical claims that are not supported by
+those facts. Never fabricate a primary-source quotation.
+
+Do not describe ancient Egyptian, Mesopotamian, Greek, Roman, or other
+pre-modern traditions as "ancient Wicca" or imply that modern Wicca is an
+unchanged survival of them. Present the ancient material on its own terms,
+then clearly label any modern reflection or optional practice as a modern
+adaptation inspired by the historical material rather than an authentic
+reconstruction.
+
+If the evidence is partial, contested, fragmentary, or culturally specific,
+state that limitation rather than filling the gap. Distinguish historical
+practice, scholarly interpretation, symbolism, and modern personal reflection.
+
+If type=spell or type=potion, use the source only as thematic inspiration.
+Do not claim that the generated instructions are an authentic ancient rite,
+translation, or reconstruction. Do not quote or closely paraphrase a source.
 
 CATEGORY
 Choose exactly one category from:
@@ -51,14 +80,19 @@ If type=lesson, structure the content so it reads naturally as:
 1. Introduction — concise factual/contextual opening in intro.
 2. Lesson — substantial explanation in body.
 3. Reflection — end body with a clearly labeled "Reflection" section and one thoughtful question.
-4. Practice — optional, clearly labeled, only when a safe simple action genuinely adds value.
+4. Practice — optional, clearly labeled, only when a safe simple modern reflection genuinely adds value.
 5. Safety Note — use safetyNote whenever risk warrants it.
+
+For a lesson, prioritize historical understanding over spell instructions.
+A lesson may describe an attested ritual historically without instructing the
+reader to reproduce hazardous, coercive, medical, funerary, or culturally
+restricted practices.
 
 Reflection must be specific to the lesson, not generic filler.
 Do not claim the moon, herbs, symbols, salt, ritual, or other practices
 objectively cause supernatural outcomes. You may explain that practitioners
-use them symbolically, devotionally, ritually, historically, or as a framework
-for attention and reflection.
+used or use them symbolically, devotionally, ritually, historically, or as a
+framework for attention and reflection.
 
 SPELLS AND POTIONS
 For spells and potions, keep the same grounded philosophy. Distinguish
@@ -75,6 +109,7 @@ SAFETY — the draft must NOT:
 - call for toxic, poisonous, or otherwise hazardous materials
 - guarantee a specific supernatural outcome
 - present folklore or symbolism as scientific fact
+- turn historical descriptions of harmful, coercive, or dangerous rites into instructions
 
 If the piece involves open flame, smoke/incense, allergens, pets, children,
 skin contact, ingestion, plants, or another meaningful risk, include a clear

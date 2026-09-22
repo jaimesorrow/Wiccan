@@ -75,6 +75,34 @@ class WiccanColorSchemeResolverTest {
         assertTrue(contrast(blended.background, blended.onBackground) >= 4.5f)
     }
 
+    @Test
+    fun `all seasonal dates preserve normal text contrast across semantic roles`() {
+        val firstDay = LocalDate.of(2026, 1, 1)
+        for (day in 0..364) {
+            val date = firstDay.plusDays(day.toLong())
+            val scheme = targetColorScheme(WiccanThemeMode.AUTOMATIC_SEASONAL, false, date)
+            val textPairs = mapOf(
+                "background" to (scheme.background to scheme.onBackground),
+                "surface" to (scheme.surface to scheme.onSurface),
+                "surfaceVariant" to (scheme.surfaceVariant to scheme.onSurfaceVariant),
+                "primary" to (scheme.primary to scheme.onPrimary),
+                "primaryContainer" to (scheme.primaryContainer to scheme.onPrimaryContainer),
+                "secondary" to (scheme.secondary to scheme.onSecondary),
+                "secondaryContainer" to (scheme.secondaryContainer to scheme.onSecondaryContainer),
+                "tertiary" to (scheme.tertiary to scheme.onTertiary),
+                "tertiaryContainer" to (scheme.tertiaryContainer to scheme.onTertiaryContainer),
+                "error" to (scheme.error to scheme.onError),
+                "errorContainer" to (scheme.errorContainer to scheme.onErrorContainer),
+                "primaryOnBackground" to (scheme.background to scheme.primary),
+                "secondaryOnSurface" to (scheme.surface to scheme.secondary),
+                "tertiaryOnSurfaceVariant" to (scheme.surfaceVariant to scheme.tertiary),
+            )
+            textPairs.forEach { (role, colors) ->
+                assertTrue("$date: $role below 4.5:1", contrast(colors.first, colors.second) >= 4.5f)
+            }
+        }
+    }
+
     private fun contrast(first: Color, second: Color): Float {
         val firstLuminance = first.luminance()
         val secondLuminance = second.luminance()

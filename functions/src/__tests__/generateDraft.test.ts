@@ -5,10 +5,14 @@ import { FakeContentAdminRepository } from "../testUtils/fakeContentAdminReposit
 
 const SOURCE_A: ContentSource = {
   id: "source-a",
-  title: "Source A",
-  tradition: "European folk magic",
-  publicDomainBasis: "pre-1930",
-  summary: "Herb charms for the hearth.",
+  title: "Ancient Source A",
+  tradition: "Ancient ritual tradition",
+  era: "ancient",
+  period: "Ancient period",
+  publicDomainBasis: "Ancient source; independently written summary.",
+  sourceReference: "Catalogue A",
+  summary: "Historically attested protective ritual material.",
+  groundedFacts: ["A documented protective symbol was used in this tradition."],
   eligibleTypes: ["spell", "lesson"],
 };
 
@@ -16,8 +20,12 @@ const SOURCE_B: ContentSource = {
   id: "source-b",
   title: "Source B",
   tradition: "Mediterranean folk magic",
+  era: "early-modern",
+  period: "Early modern period",
   publicDomainBasis: "pre-1930",
+  sourceReference: "Catalogue B",
   summary: "Household potions for prosperity.",
+  groundedFacts: ["The curated source record describes a household preparation."],
   eligibleTypes: ["potion"],
 };
 
@@ -39,7 +47,30 @@ describe("generateDrafts", () => {
     expect(doc?.sourceId).toBe("source-a");
     expect(doc?.type).toBe("spell");
     expect(doc?.tier).toBe("free");
-    expect(doc?.tradition).toBe("European folk magic");
+    expect(doc?.tradition).toBe("Ancient ritual tradition");
+  });
+
+  it("passes source provenance and grounded facts into lesson generation", async () => {
+    const generator = new FakeDraftGenerationPort();
+    const repo = new FakeContentAdminRepository();
+
+    await generateDrafts(
+      { tier: "free", sourceId: "source-a", type: "lesson" },
+      [SOURCE_A],
+      generator,
+      repo,
+    );
+
+    expect(generator.calls).toHaveLength(1);
+    expect(generator.calls[0]).toMatchObject({
+      type: "lesson",
+      tradition: SOURCE_A.tradition,
+      period: SOURCE_A.period,
+      sourceTitle: SOURCE_A.title,
+      sourceReference: SOURCE_A.sourceReference,
+      summary: SOURCE_A.summary,
+      groundedFacts: SOURCE_A.groundedFacts,
+    });
   });
 
   it("round-robins across eligible source/type combinations for a batch", async () => {
@@ -100,7 +131,7 @@ describe("generateDrafts", () => {
       category: "MoonAndSeasonal",
       type: "spell",
       tier: "free",
-      tradition: "European folk magic",
+      tradition: "Ancient ritual tradition",
       sourceId: "source-a",
     });
 
@@ -128,7 +159,7 @@ describe("generateDrafts", () => {
       category: "MoonAndSeasonal",
       type: "spell",
       tier: "free",
-      tradition: "European folk magic",
+      tradition: "Ancient ritual tradition",
       sourceId: "source-a",
     });
 

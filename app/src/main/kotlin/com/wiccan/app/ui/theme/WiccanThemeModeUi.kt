@@ -25,7 +25,7 @@ val WiccanThemeMode.displayName: String
 /** Subtitle for the Settings theme picker. */
 val WiccanThemeMode.description: String
     get() = when (this) {
-        WiccanThemeMode.AUTOMATIC_SEASONAL -> "Recommended. Rolls gradually through all six palettes with the seasons."
+        WiccanThemeMode.AUTOMATIC_SEASONAL -> "Recommended. Changes palettes with the seasons."
         WiccanThemeMode.FOLLOW_SYSTEM -> "Near Black in dark mode, Light/Ivory in light mode."
         else -> checkNotNull(lockedPalette).moodDescription
     }

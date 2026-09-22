@@ -28,7 +28,10 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.wiccan.app"
+        // Matches the registered wiccan-android Firebase project's package
+        // name (namespace above stays com.wiccan.app - that's just the
+        // Kotlin/R class package, independent of applicationId).
+        applicationId = "com.jaimesorrow.wiccan"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -41,8 +44,8 @@ android {
     // .firebaserc and the README's Environments section: each flavor is
     // meant to point at its own separate Firebase project, never share
     // one across environments. Only "prod" has no applicationId suffix -
-    // it's the real com.wiccan.app, matching google-services.ci.json and
-    // what CI actually builds/tests. "dev"/"staging" are scaffolding:
+    // it's the real com.jaimesorrow.wiccan, matching google-services.ci.json
+    // and what CI actually builds/tests. "dev"/"staging" are scaffolding:
     // building them requires that environment's own real
     // google-services.json under app/src/dev/ or app/src/staging/ (not
     // present here - no real dev/staging Firebase project exists yet).

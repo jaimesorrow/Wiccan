@@ -7,8 +7,9 @@ import java.time.temporal.ChronoUnit
 /**
  * Result of resolving the Wheel-of-the-Year palette for a given date.
  * [blendTarget]/[blendFraction] are only non-default in the week leading
- * up to the next sabbat, so a caller can cross-fade toward it instead of
- * snapping at midnight.
+ * up to the next sabbat. Dark palettes may blend gradually; transitions
+ * involving the light palette switch complete schemes at the midpoint
+ * to preserve readable text contrast.
  */
 data class SeasonalResolution(
     val dominant: WiccanPalette,
@@ -49,7 +50,7 @@ data class SeasonalResolution(
  * A palette holds steady for most of its ~6-7 week span. In the final
  * [TRANSITION_WINDOW_DAYS] days before the next anchor, [resolve] reports a
  * rising [SeasonalResolution.blendFraction] toward [SeasonalResolution.blendTarget]
- * (see `rememberWiccanColorScheme`) instead of changing harshly at midnight.
+ * (see `targetColorScheme`) instead of changing only on the anchor day.
  * On the anchor day itself the new palette becomes the pure dominant.
  */
 object SeasonalThemeResolver {

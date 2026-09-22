@@ -15,8 +15,13 @@ export interface GeneratedDraftFields {
 export interface DraftGenerationRequest {
   type: ContentType;
   tradition: string;
-  /** The vetted source summary — inspiration only, never to be echoed. */
+  period: string;
+  sourceTitle: string;
+  sourceReference: string;
+  /** The vetted source summary — independently written, never a verbatim excerpt. */
   summary: string;
+  /** The factual boundary for historical claims in generated lessons. */
+  groundedFacts: string[];
 }
 
 /**
