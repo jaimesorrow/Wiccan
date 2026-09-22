@@ -6,6 +6,7 @@ import { FakeSubscriptionRecordRepository } from "../testUtils/fakeSubscriptionR
 const UID = "user-123";
 const TOKEN = "token-abc";
 const PRODUCT_ID = "wiccan_premium_monthly";
+const YEARLY_PRODUCT_ID = "wiccan_premium_yearly";
 
 describe("verifyPurchaseAndSyncTier", () => {
   it("grants premium for an active subscription, records the token, and acknowledges the purchase", async () => {
@@ -26,6 +27,37 @@ describe("verifyPurchaseAndSyncTier", () => {
       expiryTimeMillis: null,
       autoRenewing: false,
     });
+  });
+
+  it("accepts the yearly premium product", async () => {
+    const billing = new FakePlayBillingPort();
+    billing.respondWith(TOKEN, "active", [YEARLY_PRODUCT_ID]);
+    const users = new FakeUserRepository();
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    const tier = await verifyPurchaseAndSyncTier(
+      UID,
+      TOKEN,
+      YEARLY_PRODUCT_ID,
+      billing,
+      users,
+      subscriptions,
+    );
+
+    expect(tier).toBe("premium");
+    expect(subscriptions.records.get(UID)?.productId).toBe(YEARLY_PRODUCT_ID);
+  });
+
+  it("does not acknowledge again when Play reports an active purchase already acknowledged", async () => {
+    const billing = new FakePlayBillingPort();
+    billing.respondWith(TOKEN, "active", [PRODUCT_ID], { acknowledged: true });
+    const users = new FakeUserRepository();
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    const tier = await verifyPurchaseAndSyncTier(UID, TOKEN, PRODUCT_ID, billing, users, subscriptions);
+
+    expect(tier).toBe("premium");
+    expect(billing.acknowledgedTokens).toEqual([]);
   });
 
   it("grants premium during the grace period", async () => {
@@ -91,5 +123,27 @@ describe("verifyPurchaseAndSyncTier", () => {
     ).rejects.toThrow(PurchaseVerificationError);
     expect(users.users.has(UID)).toBe(false);
     expect(subscriptions.records.has(UID)).toBe(false);
+  });
+
+  it("rejects an arbitrary active subscription product even when the token matches it", async () => {
+    const billing = new FakePlayBillingPort();
+    billing.respondWith(TOKEN, "active", ["unrelated_subscription"]);
+    const users = new FakeUserRepository();
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    await expect(
+      verifyPurchaseAndSyncTier(
+        UID,
+        TOKEN,
+        "unrelated_subscription",
+        billing,
+        users,
+        subscriptions,
+      ),
+    ).rejects.toThrow(PurchaseVerificationError);
+
+    expect(users.users.has(UID)).toBe(false);
+    expect(subscriptions.records.has(UID)).toBe(false);
+    expect(billing.acknowledgedTokens).toEqual([]);
   });
 });
