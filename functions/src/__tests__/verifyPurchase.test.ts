@@ -48,6 +48,18 @@ describe("verifyPurchaseAndSyncTier", () => {
     expect(subscriptions.records.get(UID)?.productId).toBe(YEARLY_PRODUCT_ID);
   });
 
+  it("does not acknowledge again when Play reports an active purchase already acknowledged", async () => {
+    const billing = new FakePlayBillingPort();
+    billing.respondWith(TOKEN, "active", [PRODUCT_ID], { acknowledged: true });
+    const users = new FakeUserRepository();
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    const tier = await verifyPurchaseAndSyncTier(UID, TOKEN, PRODUCT_ID, billing, users, subscriptions);
+
+    expect(tier).toBe("premium");
+    expect(billing.acknowledgedTokens).toEqual([]);
+  });
+
   it("grants premium during the grace period", async () => {
     const billing = new FakePlayBillingPort();
     billing.respondWith(TOKEN, "in_grace_period", [PRODUCT_ID]);
