@@ -106,7 +106,6 @@ class SubscriptionRepositoryImpl @Inject constructor(
                 productId = productId,
             )
             analyticsLogger.logSubscriptionStarted()
-            billingClient.acknowledgePurchase(purchase)
         } catch (t: Throwable) {
             Log.e(TAG, "Failed to verify/acknowledge purchase", t)
         }
