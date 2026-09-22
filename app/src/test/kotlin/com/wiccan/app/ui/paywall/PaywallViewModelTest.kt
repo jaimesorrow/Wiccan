@@ -74,6 +74,21 @@ class PaywallViewModelTest {
     }
 
     @Test
+    fun `a failed purchase launch is surfaced instead of crashing`() = runTest(dispatcher) {
+        val error = AppError.PurchaseVerificationFailed("Play unavailable")
+        repository.launchResult = AppResult.Failure(error)
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        val activity = mockk<Activity>()
+
+        viewModel.effects.test {
+            viewModel.subscribe(activity)
+            assertEquals(PaywallUiEffect.ShowSnackbar(error), awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
     fun `RestorePurchasesClicked restores and emits a confirmation effect`() = runTest(dispatcher) {
         val viewModel = PaywallViewModel(repository, analyticsLogger)
         dispatcher.scheduler.advanceUntilIdle()
@@ -99,7 +114,7 @@ class PaywallViewModelTest {
             assertTrue(effect is PaywallUiEffect.ShowSnackbar)
             assertEquals(
                 AppError.PurchaseVerificationFailed("play unavailable"),
-                (effect as PaywallUiEffect.ShowSnackbar).error
+                (effect as PaywallUiEffect.ShowSnackbar).error,
             )
             cancelAndConsumeRemainingEvents()
         }
