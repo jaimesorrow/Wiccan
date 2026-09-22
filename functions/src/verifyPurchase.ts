@@ -6,16 +6,16 @@ import { tierForSubscription } from "./tierPolicy";
 
 export class PurchaseVerificationError extends Error {}
 
+export const PREMIUM_PRODUCT_IDS = new Set([
+  "wiccan_premium_monthly",
+  "wiccan_premium_yearly",
+]);
+
 /**
  * Verifies a purchase token server-side and syncs `users/{uid}.tier`
- * accordingly. This — and `recheckLapsedSubscriptions`/the RTDN handler —
- * are the ONLY writers of that field; the client's own reported purchase
- * state is never trusted, matching how getTodayContent already treats
- * tier reads.
- *
- * Also persists the fuller `subscriptions/{uid}` audit record and
- * acknowledges the purchase with Google when it grants premium (a new,
- * unacknowledged purchase is auto-refunded after 3 days otherwise).
+ * accordingly. Only explicitly allow-listed Wiccan premium products may
+ * grant entitlement; the client cannot submit an arbitrary active
+ * subscription product and have it treated as premium.
  */
 export async function verifyPurchaseAndSyncTier(
   uid: string,
@@ -25,6 +25,12 @@ export async function verifyPurchaseAndSyncTier(
   users: UserRepositoryPort,
   subscriptions: SubscriptionRecordPort,
 ): Promise<ContentTier> {
+  if (!PREMIUM_PRODUCT_IDS.has(productId)) {
+    throw new PurchaseVerificationError(
+      `Product '${productId}' is not a recognized Wiccan premium product.`,
+    );
+  }
+
   const info = await billing.getSubscriptionState(purchaseToken);
 
   if (!info.productIds.includes(productId)) {
