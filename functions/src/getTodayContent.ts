@@ -27,8 +27,8 @@ function isEligibleForDailyDelivery(content: Content, ancientLessonSourceIds: Re
  * 2. Otherwise, gather published content within the user's tier and drop
  *    any lesson that is not traceable to a curated ancient source.
  * 3. Exclude anything already delivered to the user.
- * 4. If nothing remains (pool exhausted), fall back to the full eligible
- *    published pool and log the exhaustion event for content-pool monitoring.
+ * 4. If nothing remains, log pool exhaustion and fail closed. Never repeat
+ *    a lesson already delivered to this user.
  * 5. Pick one candidate at random.
  * 6. Atomically commit that candidate as today's assignment via
  *    `assignDailyContent`. If a concurrent call already won today's
@@ -73,11 +73,7 @@ export async function selectTodayContent(
 
   if (candidates.length === 0) {
     await repo.logPoolExhaustion(uid, tier, today);
-    candidates = eligiblePublished;
-  }
-
-  if (candidates.length === 0) {
-    throw new Error(`No published content available for tier '${tier}'.`);
+    throw new Error(`No new published content available for tier '${tier}'.`);
   }
 
   const candidate = pickRandom(candidates);
