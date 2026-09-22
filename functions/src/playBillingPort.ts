@@ -16,6 +16,8 @@ export interface PlaySubscriptionInfo {
   /** Epoch milliseconds the current billing period ends, if Play reports one. */
   expiryTimeMillis: number | null;
   autoRenewing: boolean;
+  /** Whether Google Play reports this purchase as already acknowledged. */
+  acknowledged: boolean;
 }
 
 /**
