@@ -1,27 +1,12 @@
 [
   {
-    "id": "17c-english-herb-charms",
-    "title": "17th-century English herbal charms collection",
-    "tradition": "European folk magic",
-    "era": "early-modern",
-    "period": "17th century CE",
-    "publicDomainBasis": "Early-modern source tradition; Wiccan uses only independently written editorial summaries and does not reproduce a modern copyrighted edition or translation.",
-    "sourceReference": "Existing Wiccan curated source record; retained for spell inspiration only and not eligible for ancient-history lessons.",
-    "summary": "A collection of household charms built around common kitchen and garden herbs, used for protection, healing, and marking the turn of the seasons. Rituals are simple and tied to the hearth: herbs are gathered, dried, and spoken over at specific times of day, then kept near doorways or cookfires rather than consumed in large quantities.",
-    "groundedFacts": [
-      "This source belongs to an early-modern European folk-magic context rather than an ancient one.",
-      "The curated Wiccan summary emphasizes household and hearth-centered herbal charms rather than ingestion."
-    ],
-    "eligibleTypes": ["spell"]
-  },
-  {
     "id": "ancient-egypt-heka-amulets",
     "title": "Ancient Egyptian heka and amuletic practice",
     "tradition": "Ancient Egyptian religious-magical practice",
     "era": "ancient",
     "period": "Predynastic through Roman-period Egypt",
     "publicDomainBasis": "The ancient practices and artifacts are public-domain historical subject matter. Wiccan uses independently written factual summaries and does not reproduce copyrighted modern translations or museum prose.",
-    "sourceReference": "British Museum, 'Heka: magic in ancient Egypt'; Metropolitan Museum of Art, 'Ancient Egyptian Amulets'.",
+    "sourceReference": "British Museum, 'Heka: magic in ancient Egypt'; Metropolitan Museum of Art, 'Ancient Egyptian Amulets'. https://www.metmuseum.org/essays/egyptian-amulets",
     "summary": "Ancient Egyptian magical practice, commonly discussed through the concept of heka, was integrated with religion and everyday concerns. Amulets were widely used, and their intended efficacy could depend on form, material, color, inscription, spoken words, and ritual action.",
     "groundedFacts": [
       "Heka was treated in ancient Egypt as a power woven into religious life and was used in contexts including protection, health, justice, childbirth, and the afterlife.",
@@ -30,7 +15,9 @@
       "Textual amulets could consist of short magical texts written on linen or papyrus, folded, and worn on a string.",
       "Modern lessons must describe these beliefs historically and must not present amulets as scientifically proven protection or medical treatment."
     ],
-    "eligibleTypes": ["lesson"]
+    "eligibleTypes": [
+      "lesson"
+    ]
   },
   {
     "id": "mesopotamian-maqlu",
@@ -39,7 +26,7 @@
     "era": "ancient",
     "period": "Ancient Mesopotamia; first-millennium BCE manuscript tradition",
     "publicDomainBasis": "The ancient cuneiform source tradition is public-domain historical subject matter. Wiccan uses independently written summaries and does not reproduce modern copyrighted translations.",
-    "sourceReference": "ORACC Corpus of Mesopotamian Anti-witchcraft Rituals (CMAwR), Maqlû ritual tablets including Q002713 and related ritual texts.",
+    "sourceReference": "ORACC Corpus of Mesopotamian Anti-witchcraft Rituals (CMAwR), Maqlû ritual tablets including Q002713 and related ritual texts. https://oracc.museum.upenn.edu/cmawro/corpus",
     "summary": "Maqlû is an ancient Mesopotamian anti-witchcraft ritual and incantation tradition. Surviving ritual tablets combine spoken incantations with symbolic actions such as work with figurines, fire, washing or purification, and appeals to divine powers including Šamaš and Girra.",
     "groundedFacts": [
       "Maqlû is preserved as a Mesopotamian incantation-and-ritual series concerned with undoing perceived witchcraft.",
@@ -49,7 +36,9 @@
       "These texts reflect ancient Mesopotamian religious and ritual assumptions; they must not be presented as modern Wicca or as evidence that accusations of witchcraft were objectively true.",
       "Descriptions of burning, illness, or hostile magic are historical material only and must not be converted into instructions for harming people or property."
     ],
-    "eligibleTypes": ["lesson"]
+    "eligibleTypes": [
+      "lesson"
+    ]
   },
   {
     "id": "london-leiden-demotic-magical-papyrus",
@@ -58,7 +47,7 @@
     "era": "ancient",
     "period": "Early 3rd century CE",
     "publicDomainBasis": "The ancient papyrus is public-domain historical subject matter. Wiccan uses independently written summaries and does not reproduce copyrighted modern translations.",
-    "sourceReference": "British Museum EA10070; P. Leiden/London, commonly catalogued as PDM XIV.",
+    "sourceReference": "British Museum EA10070; P. Leiden/London, commonly catalogued as PDM XIV. https://www.britishmuseum.org/collection/object/Y_EA10070-1",
     "summary": "The London-Leiden papyrus preserves a Roman-period Egyptian collection of spells, ritual recipes, invocations, and divinatory procedures written mainly in Demotic, with Old Coptic glosses and Greek recitation. It is evidence for the multilingual and syncretic ritual culture of late antique Egypt.",
     "groundedFacts": [
       "The surviving papyrus is dated to the early third century CE and is associated with Thebes in Egypt.",
@@ -68,7 +57,9 @@
       "Lessons may discuss the manuscript's historical contents and cultural setting but must not turn poisonous, coercive, or medical recipes into modern instructions.",
       "The papyrus belongs to a syncretic late-antique Egyptian context and must not be described as an ancient Wiccan text."
     ],
-    "eligibleTypes": ["lesson"]
+    "eligibleTypes": [
+      "lesson"
+    ]
   },
   {
     "id": "harris-magical-papyrus",
@@ -77,7 +68,7 @@
     "era": "ancient",
     "period": "New Kingdom Egypt",
     "publicDomainBasis": "The ancient papyrus is public-domain historical subject matter. Wiccan uses independently written summaries and does not reproduce copyrighted modern translations.",
-    "sourceReference": "British Museum EA10042, the Harris Magical Papyrus.",
+    "sourceReference": "British Museum EA10042, the Harris Magical Papyrus. https://www.britishmuseum.org/collection/object/Y_EA10042-1",
     "summary": "The Harris Magical Papyrus is a New Kingdom Egyptian magical manuscript preserving a collection of hymns and incantations. It provides direct evidence that written ritual literature could combine devotional language and protective or magical speech in ancient Egypt.",
     "groundedFacts": [
       "The Harris Magical Papyrus is an ancient Egyptian manuscript from the New Kingdom.",
@@ -86,6 +77,8 @@
       "A lesson may discuss the coexistence of hymn, invocation, and incantation as categories of ritual language without inventing lost wording or ritual steps.",
       "The manuscript must be presented as ancient Egyptian material, not as evidence of an ancient Wiccan lineage."
     ],
-    "eligibleTypes": ["lesson"]
+    "eligibleTypes": [
+      "lesson"
+    ]
   }
 ]
