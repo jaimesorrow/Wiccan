@@ -69,7 +69,7 @@ require_grep '^\s*throw err;' functions/src/index.ts   'Play RTDN rethrows failu
 require_grep 'tools:node="remove"' app/src/main/AndroidManifest.xml   'default WorkManager initializer is removed'
 require_grep 'WorkManager\.initialize\(this, workManagerConfiguration\)'   app/src/main/kotlin/com/wiccan/app/WiccanApplication.kt   'WorkManager uses the Hilt-aware configuration'
 
-if grep -RIl --exclude-dir=.git -E '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|sk-proj-[A-Za-z0-9_-]{20,}|sk-ant-[A-Za-z0-9_-]{20,}' . | grep -q .; then
+if git ls-files -z | xargs -0 grep -IlE -e '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|sk-proj-[A-Za-z0-9_-]{20,}|sk-ant-[A-Za-z0-9_-]{20,}' | grep -q .; then
   fail 'no private key material or obvious server API secret is committed'
 else
   pass 'no private key material or obvious server API secret is committed'
