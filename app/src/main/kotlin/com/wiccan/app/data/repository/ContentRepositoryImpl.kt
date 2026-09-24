@@ -30,7 +30,11 @@ class ContentRepositoryImpl @Inject constructor(
         } catch (t: Throwable) {
             val error = if ((t as? FirebaseFunctionsException)?.code ==
                 FirebaseFunctionsException.Code.RESOURCE_EXHAUSTED
-            ) AppError.NoNewLesson else t.toAppError()
+            ) {
+                AppError.NoNewLesson
+            } else {
+                t.toAppError()
+            }
             AppResult.Failure(error)
         }
     }
