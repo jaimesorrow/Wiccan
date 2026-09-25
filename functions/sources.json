@@ -12,7 +12,9 @@
       "This source belongs to an early-modern European folk-magic context rather than an ancient one.",
       "The curated Wiccan summary emphasizes household and hearth-centered herbal charms rather than ingestion."
     ],
-    "eligibleTypes": ["spell"]
+    "eligibleTypes": [
+      "spell"
+    ]
   },
   {
     "id": "ancient-egypt-heka-amulets",
@@ -30,26 +32,34 @@
       "Textual amulets could consist of short magical texts written on linen or papyrus, folded, and worn on a string.",
       "Modern lessons must describe these beliefs historically and must not present amulets as scientifically proven protection or medical treatment."
     ],
-    "eligibleTypes": ["lesson"]
+    "eligibleTypes": [
+      "lesson",
+      "spell",
+      "potion"
+    ]
   },
   {
     "id": "mesopotamian-maqlu",
-    "title": "Maqlû anti-witchcraft incantation and ritual series",
+    "title": "Maql\u00fb anti-witchcraft incantation and ritual series",
     "tradition": "Ancient Mesopotamian ritual practice",
     "era": "ancient",
     "period": "Ancient Mesopotamia; first-millennium BCE manuscript tradition",
     "publicDomainBasis": "The ancient cuneiform source tradition is public-domain historical subject matter. Wiccan uses independently written summaries and does not reproduce modern copyrighted translations.",
-    "sourceReference": "ORACC Corpus of Mesopotamian Anti-witchcraft Rituals (CMAwR), Maqlû ritual tablets including Q002713 and related ritual texts.",
-    "summary": "Maqlû is an ancient Mesopotamian anti-witchcraft ritual and incantation tradition. Surviving ritual tablets combine spoken incantations with symbolic actions such as work with figurines, fire, washing or purification, and appeals to divine powers including Šamaš and Girra.",
+    "sourceReference": "ORACC Corpus of Mesopotamian Anti-witchcraft Rituals (CMAwR), Maql\u00fb ritual tablets including Q002713 and related ritual texts.",
+    "summary": "Maql\u00fb is an ancient Mesopotamian anti-witchcraft ritual and incantation tradition. Surviving ritual tablets combine spoken incantations with symbolic actions such as work with figurines, fire, washing or purification, and appeals to divine powers including \u0160ama\u0161 and Girra.",
     "groundedFacts": [
-      "Maqlû is preserved as a Mesopotamian incantation-and-ritual series concerned with undoing perceived witchcraft.",
+      "Maql\u00fb is preserved as a Mesopotamian incantation-and-ritual series concerned with undoing perceived witchcraft.",
       "The ritual tablet includes instructions accompanying recited incantations and purification actions.",
-      "Related Maqlû ritual texts attest the burning of figurines as a symbolic action in rites intended to counter witchcraft.",
-      "Some rites invoke deities such as Šamaš and Girra in judicial, purifying, or destructive symbolic roles.",
+      "Related Maql\u00fb ritual texts attest the burning of figurines as a symbolic action in rites intended to counter witchcraft.",
+      "Some rites invoke deities such as \u0160ama\u0161 and Girra in judicial, purifying, or destructive symbolic roles.",
       "These texts reflect ancient Mesopotamian religious and ritual assumptions; they must not be presented as modern Wicca or as evidence that accusations of witchcraft were objectively true.",
       "Descriptions of burning, illness, or hostile magic are historical material only and must not be converted into instructions for harming people or property."
     ],
-    "eligibleTypes": ["lesson"]
+    "eligibleTypes": [
+      "lesson",
+      "spell",
+      "potion"
+    ]
   },
   {
     "id": "london-leiden-demotic-magical-papyrus",
@@ -68,7 +78,11 @@
       "Lessons may discuss the manuscript's historical contents and cultural setting but must not turn poisonous, coercive, or medical recipes into modern instructions.",
       "The papyrus belongs to a syncretic late-antique Egyptian context and must not be described as an ancient Wiccan text."
     ],
-    "eligibleTypes": ["lesson"]
+    "eligibleTypes": [
+      "lesson",
+      "spell",
+      "potion"
+    ]
   },
   {
     "id": "harris-magical-papyrus",
@@ -86,6 +100,10 @@
       "A lesson may discuss the coexistence of hymn, invocation, and incantation as categories of ritual language without inventing lost wording or ritual steps.",
       "The manuscript must be presented as ancient Egyptian material, not as evidence of an ancient Wiccan lineage."
     ],
-    "eligibleTypes": ["lesson"]
+    "eligibleTypes": [
+      "lesson",
+      "spell",
+      "potion"
+    ]
   }
 ]

@@ -72,6 +72,55 @@ The app should distinguish:
 
 When evidence is fragmentary or uncertain, say so rather than filling gaps.
 
+## The checked-in seed pool
+
+`functions/ancientContentSeed.json` holds 150 hand-reviewed entries written
+against the four ancient sources above: 54 lessons, 59 spells, 37 potions,
+split 50/50/50 across `difficulty` beginner, intermediate and advanced.
+
+Every entry follows the canonical structure in
+`docs/CONTENT_VOICE_AND_LESSON_STANDARD.md` (`intro`, `body`, `reflection`,
+optional `practice`, optional `safetyNote`) and carries `sourceCitation` and
+`sourceUrl` so the citation block can be rendered with the entry. Spells and
+potions are written as historical records with a safety note, never as
+instructions to perform; the four ancient sources' `eligibleTypes` were
+widened to `lesson`, `spell` and `potion` to reflect that.
+
+`functions/src/contentSeed.ts` validates the file and applies the same
+structural gates as `approveDraft`. `functions/src/__tests__/contentSeed.test.ts`
+runs those gates against the real checked-in file in CI, so an edit that breaks
+the pool fails the build.
+
+### Seeding
+
+```
+cd functions
+npm run seed-content              # validate only, writes nothing
+npm run seed-content -- --commit  # upsert into the selected project
+```
+
+Document IDs are deterministic, so a re-run updates the same 150 documents
+rather than creating duplicates. Every entry is seeded as `status: "draft"`,
+and an already-published document keeps its status - seeding fills the pool
+and never publishes. Publication stays a per-document `approve-draft` action.
+Confirm the printed project ID before committing a write.
+
+### Rights review
+
+54 entries carry `rightsReviewRequired: true`: they either retain a short
+phrase from a modern translation or derive from museum prose whose reuse terms
+have not been confirmed (the two Metropolitan Museum amulet entries). Under the
+copyright policy above, clear those rights or rewrite the phrasing before any
+of those entries is approved for publication.
+
+### Reader levels
+
+`difficulty` is assigned once, in the file, and must be read as-is rather than
+derived from `safetyNote`, `type` or material hazard. It is independent of
+`tier`: the current seed maps beginner to `free` and intermediate/advanced to
+`premium`, which is a product decision that can change without touching the
+editorial fields.
+
 ## Existing published lessons
 
 This code change governs newly generated and newly approved lessons. It does **not** automatically rewrite or unpublish existing Firestore documents that were published before this policy existed.
