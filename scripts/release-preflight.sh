@@ -31,8 +31,9 @@ require_grep 'minSdk = 24' app/build.gradle.kts 'minSdk is API 24'
 require_grep '"production": "wiccan-android"' .firebaserc   'Firebase production alias is wiccan-android'
 forbid_grep 'REPLACE_WITH_PRODUCTION_FIREBASE_PROJECT_ID' .firebaserc   'production Firebase alias is not a placeholder'
 
-require_grep 'ANDROID_PACKAGE_NAME=com\.jaimesorrow\.wiccan' functions/.env.example   'Functions environment example uses installed package ID'
-require_grep 'process\.env\.ANDROID_PACKAGE_NAME \?\? "com\.jaimesorrow\.wiccan"' functions/src/index.ts   'Play Developer API backend defaults to installed package ID'
+require_grep '^ANDROID_PACKAGE_NAME=$' functions/.env.example   'Functions environment requires a project-specific package ID'
+require_grep 'const packageName = process\.env\.ANDROID_PACKAGE_NAME;' functions/src/index.ts   'Play Developer API reads the project-specific package ID'
+forbid_grep 'process\.env\.ANDROID_PACKAGE_NAME \?\? ' functions/src/index.ts   'Play Developer API has no production package fallback'
 
 require_grep 'debugImplementation\(libs\.firebase\.appcheck\.debug\)' app/build.gradle.kts   'App Check debug provider is debug-only'
 forbid_grep '^\s*implementation\(libs\.firebase\.appcheck\.debug\)' app/build.gradle.kts   'release classpath excludes App Check debug provider'
@@ -69,10 +70,15 @@ require_grep '^\s*throw err;' functions/src/index.ts   'Play RTDN rethrows failu
 require_grep 'tools:node="remove"' app/src/main/AndroidManifest.xml   'default WorkManager initializer is removed'
 require_grep 'WorkManager\.initialize\(this, workManagerConfiguration\)'   app/src/main/kotlin/com/wiccan/app/WiccanApplication.kt   'WorkManager uses the Hilt-aware configuration'
 
-if grep -RIl --exclude-dir=.git -E '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|sk-proj-[A-Za-z0-9_-]{20,}|sk-ant-[A-Za-z0-9_-]{20,}' . | grep -q .; then
+if git grep --cached -I -l -E -- '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|sk-proj-[A-Za-z0-9_-]{20,}|sk-ant-[A-Za-z0-9_-]{20,}' -- . >/dev/null; then
   fail 'no private key material or obvious server API secret is committed'
 else
-  pass 'no private key material or obvious server API secret is committed'
+  scan_status=$?
+  if (( scan_status == 1 )); then
+    pass 'no private key material or obvious server API secret is committed'
+  else
+    fail 'secret scan completed without errors'
+  fi
 fi
 
 printf '\nResult: %d failure(s)\n' "$failures"

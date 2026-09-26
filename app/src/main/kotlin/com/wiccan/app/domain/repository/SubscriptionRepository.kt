@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.Flow
  * the same concept.
  */
 interface SubscriptionRepository {
-    /** Launches the Play purchase UI for the single premium subscription. */
-    suspend fun launchPurchaseFlow(activity: Activity)
+    /** Launches the Play purchase UI and reports recoverable Play errors. */
+    suspend fun launchPurchaseFlow(activity: Activity): AppResult<Unit>
 
     /**
      * The server-verified tier, synced from `users/{uid}.tier`. Never
@@ -22,7 +22,7 @@ interface SubscriptionRepository {
      */
     fun observeTier(): Flow<ContentTier>
 
-    /** The subscription's current localized recurring price, for paywall display. */
+    /** The monthly subscription's current localized recurring price. */
     suspend fun getFormattedPrice(): AppResult<String>
 
     /**

@@ -47,6 +47,18 @@ describe("recheckLapsedSubscriptions", () => {
     expect(users.users.get("user-canceled")?.tier).toBe("premium");
   });
 
+  it("downgrades a legacy premium user whose active token is for another product", async () => {
+    const billing = new FakePlayBillingPort();
+    billing.respondWith("legacy-token", "active", ["unrelated_subscription"]);
+    const users = new FakeUserRepository();
+    await users.setTier("legacy-user", "premium", "legacy-token");
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    expect(await recheckLapsedSubscriptions(billing, users, subscriptions)).toEqual({ checked: 1, downgraded: 1 });
+    expect(users.users.get("legacy-user")?.tier).toBe("free");
+    expect(subscriptions.records.get("legacy-user")?.productId).toBe("unrelated_subscription");
+  });
+
   it("reports zero checked when nobody is currently premium", async () => {
     const billing = new FakePlayBillingPort();
     const users = new FakeUserRepository();
