@@ -28,6 +28,10 @@ app/                         Android app module (Kotlin, package com.wiccan.app)
   ui/subscription/             Minimal, unstyled Upgrade CTA
 
 functions/                    Cloud Functions (Node/TypeScript)
+  ancientContentSeed.json       150 hand-reviewed ancient-source entries
+                                 (seed pool, all status=draft)
+  src/contentSeed.ts            Seed loading + validation gates
+  src/scripts/seedContentCli.ts Admin CLI: upsert the seed pool into Firestore
   src/getTodayContent.ts        Daily-selection logic (server-side, never a
                                  client-side Firestore query)
   src/verifyPurchase.ts         Google Play purchase verification
@@ -61,6 +65,10 @@ functions/                    Cloud Functions (Node/TypeScript)
   state is never trusted as the tier source of truth. The current paywall
   launches the monthly offer; restore/server verification recognizes both,
   and a daily job re-checks active subscriptions for lapses.
+- **Seed content** ships in `functions/ancientContentSeed.json`: 150 entries
+  written from the four curated ancient sources, 50 each at beginner,
+  intermediate and advanced reader level. `npm run seed-content` validates it;
+  `-- --commit` upserts it as drafts. See `docs/ANCIENT_LESSON_SOURCING.md`.
 - **Content generation** draws only from a hand-curated `sources.json` of
   public-domain sources, using each source as thematic inspiration only —
   never quoted or closely paraphrased. Every generated draft needs a
