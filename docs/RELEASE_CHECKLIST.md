@@ -12,6 +12,55 @@ it says so instead of pretending.
 - [ ] Copy `app/keystore.properties.example` to `app/keystore.properties` and fill in the real `storeFile`/`storePassword`/`keyAlias`/`keyPassword`. `app/build.gradle.kts` picks this up automatically when present (`bundleProdRelease`/`assembleProdRelease` builds unsigned without it, same as today).
 - [ ] Decide Play App Signing vs. self-managed signing at first upload. Play App Signing (Google holds the app signing key, you keep an upload key) is Google's recommended default and is what this checklist assumes; a self-managed key has no recovery path if lost.
 
+### Building the signed bundle in CI (no local machine needed)
+
+`.github/workflows/release.yml` produces the uploadable `.aab` on a GitHub
+runner, so shipping never depends on having Android Studio installed. The
+keystore exists only as a repository secret and in the runner's temp
+directory — never in the repo, and never in the build log.
+
+No local machine? **Google Cloud Shell** (<https://shell.cloud.google.com>)
+runs in the browser and already has `keytool` and `base64`, so the key can
+be created without installing anything and without passing through any
+third party:
+
+```bash
+keytool -genkeypair -v -keystore upload.jks -alias wiccan \
+  -keyalg RSA -keysize 2048 -validity 10000
+base64 -w0 upload.jks           # the value for RELEASE_KEYSTORE_BASE64
+```
+
+Download `upload.jks` from Cloud Shell and back it up somewhere durable
+before closing the session — Cloud Shell's home directory is not a backup.
+
+Then add four repository secrets under **Settings → Secrets and variables
+→ Actions**:
+
+| Secret | Value |
+|---|---|
+| `RELEASE_KEYSTORE_BASE64` | the `base64 -w0` output above |
+| `RELEASE_KEYSTORE_PASSWORD` | the store password you chose |
+| `RELEASE_KEY_ALIAS` | `wiccan`, or whatever `-alias` you used |
+| `RELEASE_KEY_PASSWORD` | the key password you chose |
+
+Run it from the **Actions** tab, or push a `v*` tag. The signed `.aab` is
+attached to the run as an artifact.
+
+- [ ] The workflow refuses to publish an unsigned bundle. This matters
+  because `app/build.gradle.kts` deliberately falls back to *unsigned*
+  when signing config is absent, so a missing or mistyped secret would
+  otherwise yield a bundle that looks fine until Play rejects it. The gate
+  checks for `META-INF/<ALIAS>.RSA` inside the `.aab` rather than trusting
+  `jarsigner`'s exit code, which is `0` even for an unsigned bundle.
+- [ ] `versionCode` is still hardcoded to `1` in `app/build.gradle.kts`.
+  Play rejects a re-upload of an existing `versionCode`, so bump it before
+  each submission (no scheme is imposed here — see Versioning below).
+- [ ] Add the **Play App Signing** certificate's SHA-1 to Firebase after
+  the first upload. Google re-signs the app with its own key, so the
+  certificate users actually run is not the upload key — Google sign-in
+  and App Check both fail in production if only the upload key's
+  fingerprint is registered.
+
 ## Minification (R8/ProGuard)
 
 - **Current state: `isMinifyEnabled = false`.** `app/proguard-rules.pro` is empty.
