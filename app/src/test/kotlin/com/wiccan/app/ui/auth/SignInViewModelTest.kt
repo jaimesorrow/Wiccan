@@ -13,6 +13,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -94,6 +95,18 @@ class SignInViewModelTest {
             cancelAndConsumeRemainingEvents()
         }
         assertEquals("forgot@example.com", repository.lastPasswordResetEmail)
+    }
+
+    @Test
+    fun `Google sign-in is offered when the build has a web OAuth client`() {
+        assertTrue(viewModel.state.value.isGoogleSignInAvailable)
+    }
+
+    @Test
+    fun `Google sign-in is hidden when the build has no web OAuth client`() {
+        repository.googleSignInAvailable = false
+
+        assertFalse(SignInViewModel(repository).state.value.isGoogleSignInAvailable)
     }
 
     @Test

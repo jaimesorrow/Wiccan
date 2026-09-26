@@ -9,6 +9,7 @@ fun AppError.toUserMessage(): String = when (this) {
     is AppError.Network -> "Couldn't connect. Check your connection and try again."
     is AppError.Unauthorized -> "Please sign in again."
     is AppError.NotFound -> "That couldn't be found."
+    is AppError.GoogleSignInUnavailable -> "Google sign-in isn't available in this build. Use your email and password."
     is AppError.PurchaseVerificationFailed -> "We couldn't verify that purchase. Try again or contact support."
     is AppError.Unknown -> "Something went wrong."
 }

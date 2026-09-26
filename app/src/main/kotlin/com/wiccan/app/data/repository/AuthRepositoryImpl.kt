@@ -4,8 +4,8 @@ import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
-import com.wiccan.app.R
 import com.wiccan.app.analytics.AnalyticsLogger
+import com.wiccan.app.core.error.AppError
 import com.wiccan.app.core.error.toAppError
 import com.wiccan.app.core.result.AppResult
 import com.wiccan.app.data.remote.AccountFunctionsDataSource
@@ -14,6 +14,7 @@ import com.wiccan.app.domain.model.AccountStatus
 import com.wiccan.app.domain.model.AuthState
 import com.wiccan.app.domain.model.PolicyVersions
 import com.wiccan.app.domain.repository.AuthRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -22,7 +23,17 @@ import kotlinx.coroutines.tasks.await
 
 private const val USERS_COLLECTION = "users"
 
+/**
+ * The Google Services plugin only emits this string when the Firebase
+ * project has a web OAuth client, which it only has once Google sign-in
+ * is enabled there. Referencing it as R.string would make the whole app
+ * fail to compile whenever that provider happens to be off, so it is
+ * resolved by name at runtime instead.
+ */
+private const val WEB_CLIENT_ID_RESOURCE = "default_web_client_id"
+
 class AuthRepositoryImpl @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     private val googleCredentialDataSource: GoogleCredentialDataSource,
@@ -65,8 +76,16 @@ class AuthRepositoryImpl @Inject constructor(
         AppResult.Failure(t.toAppError())
     }
 
+    override fun isGoogleSignInAvailable(): Boolean = webClientId() != null
+
+    private fun webClientId(): String? = appContext.resources
+        .getIdentifier(WEB_CLIENT_ID_RESOURCE, "string", appContext.packageName)
+        .takeIf { it != 0 }
+        ?.let(appContext::getString)
+
     override suspend fun signInWithGoogle(context: Context): AppResult<Unit> = try {
-        val webClientId = context.getString(R.string.default_web_client_id)
+        val webClientId = webClientId()
+            ?: return AppResult.Failure(AppError.GoogleSignInUnavailable)
         val idToken = googleCredentialDataSource.requestGoogleIdToken(context, webClientId)
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         val result = firebaseAuth.signInWithCredential(credential).await()

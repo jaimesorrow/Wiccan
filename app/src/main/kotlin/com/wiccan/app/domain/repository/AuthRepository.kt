@@ -37,6 +37,13 @@ interface AuthRepository {
      * its account-picker UI to it, the same requirement Billing has for
      * launching its purchase flow.
      */
+    /**
+     * False when this build has no Google web OAuth client configured, in
+     * which case [signInWithGoogle] always fails and callers should not
+     * offer it. Email/password sign-in is unaffected.
+     */
+    fun isGoogleSignInAvailable(): Boolean
+
     suspend fun signInWithGoogle(context: Context): AppResult<Unit>
 
     suspend fun signInWithEmail(email: String, password: String): AppResult<Unit>
