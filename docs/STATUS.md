@@ -24,7 +24,7 @@ file) or is named explicitly as still open, with a reason.
 | Room cache + DAO | PASS |
 | Today/Archive/Settings/Paywall screens (MVI) | PASS |
 | Auth (Credential Manager Google sign-in + Firebase email/password) | PASS |
-| Billing (Play Billing Library 7.1.1, server-verified entitlement) | PASS |
+| Billing (Play Billing Library 8.0.0, server-verified entitlement) | IN REVIEW — Android CI and live Play validation pending |
 | Content generation pipeline (Claude-backed, admin-only) | PASS |
 | Home-screen widget | PASS |
 | Shared AppResult/AppError error taxonomy | PASS |
@@ -61,34 +61,30 @@ found the following. Each is now addressed as noted:
 | Notifications fired once at a fixed UTC instant, not per-device local 9am | **FIXED** — hourly job now filters to devices whose local time currently reads 9am (`getUserLocalHour`); see the documented hourly-poll-vs-exact-dispatch limitation below |
 | No automated 16KB/ABI native-library check | **FIXED** — `scripts/check-16kb-alignment.sh`, runs in CI against the real release `.aab` on every push; currently passing |
 | No disaster recovery / incident response / maintenance docs | **FIXED** — `docs/DISASTER_RECOVERY.md`, `docs/INCIDENT_RESPONSE.md`, `docs/MAINTENANCE.md` |
-| Billing Library still 7.1.1, not a later major version | **Attempted, real blocker found** — 9.1.0 (confirmed the real latest via Google's Maven metadata) requires Kotlin ≥2.3.0, which itself surfaced a KSP/Hilt Gradle-plugin classloader conflict this sandbox couldn't resolve with confidence (needs KSP's real compatibility table). Reverted rather than guess further; exact next steps recorded in `docs/MAINTENANCE.md`. |
+| Billing Library version | **8.0.0 on main, Android CI pending** — 9.1.0 requires Kotlin ≥2.3.0 and surfaced a KSP/Hilt plugin conflict; see `docs/MAINTENANCE.md`. |
 | Device registration schema is minimal (token + time zone + updatedAt; no `notificationsEnabled`/`platform`/`createdAt`/`lastSeenAt`) | **FIXED** — added all four: `createdAt`/`platform` written on first registration, `notificationsEnabled` is a real per-device toggle with a Settings switch (DataStore-backed locally, since Firestore rules give the client no read access to its own device doc), and `sendDailyNotifications` now skips opted-out devices. |
-| Visual theme is still near-black (`#0A0810`-direction) / generic serif+sans typography, not a distinct final direction | **Still open — needs your input, not mine to decide.** I have no record in this session of a specific rejected direction or an approved replacement; redoing the visual identity on an unverified third-party claim risks guessing wrong twice. Tell me what direction you want and I'll build it. |
-| No Android product flavors for dev/staging/prod (environment separation is `.firebaserc` + `.env` only) | **FIXED** — `dev`/`staging`/`prod` product flavors added (`app/build.gradle.kts`), matching `.firebaserc`'s aliases; only `prod` (applicationId `com.jaimesorrow.wiccan`, no suffix) has a CI-usable placeholder `google-services.json` today. Confirmed `dev`/`staging` fail cleanly and specifically (missing `google-services.json` for that applicationId) rather than in some unexpected way. |
+| Visual theme is still near-black (`#0A0810`-direction) / generic serif+sans typography, not a distinct final direction | **IN REVIEW** — PR #24 adds six seasonal palettes and typography, now ported onto the current main branch. The dark/light transition contrast has been corrected, but Android build and device validation are still required before calling it fixed. |
+| No Android product flavors for dev/staging/prod (environment separation is `.firebaserc` + `.env` only) | **FIXED** — `dev`/`staging`/`prod` product flavors added (`app/build.gradle.kts`). Prod has the registered client config for `com.jaimesorrow.wiccan` at `app/src/prod/google-services.json`; CI substitutes a placeholder. Dev/staging still need their own configurations. |
 | No runtime kill switches (`dailyContentEnabled`, `notificationsEnabled`, etc.) | **FIXED** — `systemConfig/global` (Firestore, no client access) with both flags, fail-open by default. `getTodayContent` and the hourly notification job both check it before doing anything. |
-| Launch content pool is still 1 curated source, not the target pool | **Still open, unchanged** — real content curation, not fabricatable here (see `functions/src/contentSource.ts`'s own doc comment: never auto-populated). |
+| Launch content pool needs approved entries | **Still open** — four curated source records and a 150-entry draft seed are on main; drafts need human editorial/rights review and approval before delivery. |
 | Account deletion + active subscription | **FIXED** (see above) — this was the same finding as the billing-cancellation gap. |
 
 ## Known, still-flagged gaps (external infrastructure, or needing your input)
 
-- **Visual/typography redesign** — needs your direction (see table above); not attempted.
+- **Visual/typography redesign** — the six-palette implementation needs a successful Android build, palette review, and real-device visual validation before release.
 - **Billing Library major version** — real Kotlin/KSP toolchain blocker found and documented; needs KSP's official compatibility table to finish safely (`docs/MAINTENANCE.md`).
 - `PolicyUrls` (Terms, Privacy, account deletion) and `SUPPORT_EMAIL` are placeholders — no real hosted pages exist yet.
 - `WiccanDatabaseMigrationTest` compiles clean but has never run against a real SQLite engine — no emulator here.
 - `handlePlayRtdn`, `verifyPurchase`'s field shapes, and the `users/{uid}/devices` collection-group query have never been exercised against a real Play Console / Firebase project.
 - `dev`/`staging` product flavors exist but need their own real `google-services.json` (from their own real Firebase projects) before they'll build.
-- No real Firebase project, signing keystore, or Play Console listing exists — `.firebaserc`, `keystore.properties.example`, and the store-listing checklist are all scaffolding for values only the app's owner can provide.
+- The production Firebase client config identifies `wiccan-android`; live Firebase/Play flows, signing key, and Play listing still need owner-side verification and setup.
 
 ## Final status
 
-**NOT READY — BLOCKED BY:** no real Firebase project, signing keystore, or
-Play Console listing exists yet, **and** the visual/typography redesign
-needs your direction before it can be built, **and** the Billing Library
-major-version bump needs KSP's real compatibility table (a genuine
-toolchain blocker was found and documented, not guessed past).
+**NOT READY — BLOCKED BY:** Android CI and live Firebase/Play validation,
+the signing key, Play Console setup, and the unreviewed content pool.
+The later Billing 9.x migration needs a compatible Kotlin/KSP/Hilt toolchain.
 
-Every other code-level gap the external audit surfaced — CI coverage,
-subscription cancellation, App Check hardening, real per-device
-notifications, the 16KB check, ops docs, the device schema, product
-flavors, and runtime kill switches — has been fixed and verified by this
-repo's own build/test/lint/CI commands.
+The visual/typography implementation remains in review. Its theme unit
+tests, Android build/lint, and a real-device visual pass still need to run
+after this integration; previous PR test claims do not verify this merge.

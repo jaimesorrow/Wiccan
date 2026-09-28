@@ -1,42 +1,71 @@
 package com.wiccan.app.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
-
-private val WiccanDarkColorScheme = darkColorScheme(
-    background = WiccanColors.Background,
-    surface = WiccanColors.Surface,
-    surfaceVariant = WiccanColors.SurfaceElevated,
-    primary = WiccanColors.DeepPurple,
-    primaryContainer = WiccanColors.DeepPurpleContainer,
-    onPrimary = WiccanColors.OnBackground,
-    onPrimaryContainer = WiccanColors.OnBackground,
-    secondary = WiccanColors.Emerald,
-    onSecondary = WiccanColors.OnBackground,
-    tertiary = WiccanColors.Brass,
-    onTertiary = WiccanColors.Background,
-    tertiaryContainer = WiccanColors.BrassMuted,
-    onTertiaryContainer = WiccanColors.OnBackground,
-    onBackground = WiccanColors.OnBackground,
-    onSurface = WiccanColors.OnBackground,
-    onSurfaceVariant = WiccanColors.OnSurfaceMuted,
-    outline = WiccanColors.Outline,
-    // Reuse brass rather than a jarring red — safety notes stay in-palette.
-    error = WiccanColors.Brass,
-    onError = WiccanColors.Background,
-)
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.wiccan.app.domain.model.WiccanThemeMode
+import java.time.Duration
+import java.time.LocalDate
+import java.time.ZonedDateTime
+import kotlinx.coroutines.delay
 
 /**
- * The app is dark-only by design (Wiccan direction); no lightColorScheme
- * counterpart is offered. Callers should wrap all screens in this theme
- * rather than reaching for hardcoded colors.
+ * Wraps [content] in the active Wiccan palette (see [WiccanThemeMode] and
+ * [SeasonalThemeResolver]) plus the shared [WiccanTypography]. Every screen
+ * should read colors from `MaterialTheme.colorScheme.*` rather than a
+ * hardcoded value, so it automatically follows whichever of the six
+ * palettes - and whichever seasonal blend - is currently active.
  */
 @Composable
-fun WiccanTheme(content: @Composable () -> Unit) {
+fun WiccanTheme(
+    themeMode: WiccanThemeMode = WiccanThemeMode.DEFAULT,
+    content: @Composable () -> Unit,
+) {
+    val today = rememberCurrentDate()
+    val colorScheme = rememberWiccanColorScheme(
+        themeMode = themeMode,
+        isSystemInDarkTheme = isSystemInDarkTheme(),
+        today = today,
+    )
     MaterialTheme(
-        colorScheme = WiccanDarkColorScheme,
+        colorScheme = colorScheme,
         typography = WiccanTypography,
         content = content,
     )
+}
+
+@Composable
+private fun rememberCurrentDate(): LocalDate {
+    var today by remember { mutableStateOf(LocalDate.now()) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                today = LocalDate.now()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            val now = ZonedDateTime.now()
+            val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay(now.zone)
+            delay(Duration.between(now, nextMidnight).toMillis())
+            today = LocalDate.now()
+        }
+    }
+
+    return today
 }

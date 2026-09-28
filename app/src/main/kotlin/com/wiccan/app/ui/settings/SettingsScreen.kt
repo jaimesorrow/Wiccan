@@ -11,10 +11,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -25,14 +30,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wiccan.app.core.config.PolicyUrls
 import com.wiccan.app.core.error.toUserMessage
 import com.wiccan.app.domain.model.ContentTier
+import com.wiccan.app.domain.model.WiccanThemeMode
+import com.wiccan.app.ui.theme.description
+import com.wiccan.app.ui.theme.displayName
 
 /**
  * Account settings: sign out, manage the subscription (deep link to Play
@@ -84,6 +94,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .padding(insets)
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 32.dp),
             verticalArrangement = Arrangement.Top,
         ) {
@@ -128,6 +139,24 @@ fun SettingsScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(32.dp))
+            Text(
+                text = "Theme",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "The seasonal palette is the recommended default, but you can lock any of the six.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            ThemeModePicker(
+                selected = state.themeMode,
+                onSelected = { viewModel.onEvent(SettingsUiEvent.ThemeModeSelected(it)) },
+            )
+
             Spacer(modifier = Modifier.height(24.dp))
             OutlinedButton(
                 onClick = { viewModel.onEvent(SettingsUiEvent.DeleteAccountClicked) },
@@ -162,6 +191,44 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .padding(bottom = 24.dp),
             )
+        }
+    }
+}
+
+/** Kept internal (not private) so the theme package's `@Preview` functions can render it standalone. */
+@Composable
+internal fun ThemeModePicker(
+    selected: WiccanThemeMode,
+    onSelected: (WiccanThemeMode) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.selectableGroup()) {
+        WiccanThemeMode.entries.forEach { mode ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = mode == selected,
+                        onClick = { onSelected(mode) },
+                        role = Role.RadioButton,
+                    )
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(selected = mode == selected, onClick = null)
+                Column(modifier = Modifier.padding(start = 8.dp)) {
+                    Text(
+                        text = mode.displayName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    Text(
+                        text = mode.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
     }
 }

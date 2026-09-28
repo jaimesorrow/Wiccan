@@ -31,8 +31,7 @@ currently handled (automated, manual, or not yet built).
 
 ## Play Billing Library version
 
-- The production integration PR proposes 8.0.0 (`gradle/libs.versions.toml`),
-  pending an Android CI build. Google Play's version 7 deadline was August
+- Main pins 8.0.0 (`gradle/libs.versions.toml`), pending an Android CI build. Google Play's version 7 deadline was August
   31, 2026, so 7.1.1 is no longer a release target. 9.1.0 is the
   real latest release (confirmed against Google's Maven metadata) and was
   attempted directly: bumping the version and recompiling surfaced a real,
@@ -72,6 +71,52 @@ currently handled (automated, manual, or not yet built).
   exported schema JSON in `app/schemas/`, run the migration, assert the
   result) — see `docs/RELEASE_CHECKLIST.md` for why this currently
   compiles but has never executed against a real SQLite engine.
+
+## Seasonal theme mapping
+
+- `app/src/main/kotlin/com/wiccan/app/ui/theme/SeasonalThemeResolver.kt`
+  maps the eight-spoke Wheel of the Year to the six `WiccanPalette`
+  values, on one continuous mood arc starting and ending at the year's
+  darkest point (Yule) and peaking at its brightest (Litha), then
+  returning through warmer harvest/autumn tones rather than mirroring
+  the spring ascent exactly:
+
+  | Sabbat | ~Date | Palette | Why |
+  |---|---|---|---|
+  | Yule | Dec 21 | Near Black | Longest night — the year's darkest, most minimal point. |
+  | Imbolc | Feb 1 | Midnight Blue | First light returning, still cold and quiet. |
+  | Ostara | Mar 20 | Deep Forest | Spring equinox — new growth, herbs and earth waking. |
+  | Beltane | May 1 | Royal Plum | Fire festival — blossoming, vivid, mystical. |
+  | Litha | Jun 21 | Light / Ivory | Summer solstice — the year's brightest point. |
+  | Lughnasadh | Aug 1 | Warm Earth | First harvest — grain fields, candlelight. |
+  | Mabon | Sep 22 | Royal Plum | Autumn equinox — dusk, orchard/wine harvest; mirrors Beltane descending. |
+  | Samhain | Oct 31 | Midnight Blue | The veil thins; mirrors Imbolc descending. |
+
+  In the week before each sabbat the resolved color scheme blends between
+  dark palettes. A dark/light transition switches the complete color scheme
+  at the midpoint of that week: independently blending dark and light text
+  roles can reduce contrast below 4.5:1. Manual light/dark changes likewise
+  switch complete schemes without animating individual roles. The rest of
+  each ~6-7 week span shows a pure palette. The mapping is deterministic (`java.time.LocalDate`
+  in, `SeasonalResolution` out) — no clock/timezone side effects beyond
+  the caller's own `today` parameter, and no network dependency.
+- A user's explicit Settings choice (a locked palette, or Follow System)
+  always overrides this — see `WiccanThemeMode`.
+- **Typography**: `Type.kt` uses Android's downloadable Google Fonts
+  provider (`androidx.compose.ui:ui-text-google-fonts`) for Cinzel
+  (display/headings) and Manrope (everything else), rather than bundled
+  font files, since this sandbox has no way to source licensed font
+  binaries to embed. The provider's certificates
+  (`res/values-v23/font_certs.xml`) are copied verbatim from Google's own
+  Jetchat Compose sample — never fabricated. This requires Google Play
+  Services to actually download the fonts (falls back to the system font
+  otherwise); the app already depends on Play Services for Firebase/Play
+  Billing, so this adds no new class of device incompatibility.
+- **No on-device visual validation**: like `WiccanDatabaseMigrationTest`,
+  there's no Android emulator in this environment to render the six
+  palettes or capture real screenshots. `WiccanThemePreviews.kt`'s
+  `@Preview` composables are the visual-QA surface — open them in Android
+  Studio's Design view on a real machine before shipping a theme change.
 
 ## Runtime kill switches
 
