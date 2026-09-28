@@ -1,6 +1,11 @@
 import { ContentTier } from "./types";
 import { PlaySubscriptionInfo } from "./playBillingPort";
 
+export const PREMIUM_PRODUCT_IDS: ReadonlySet<string> = new Set([
+  "wiccan_premium_monthly",
+  "wiccan_premium_yearly",
+]);
+
 /**
  * The real Play subscription entitlement rule:
  *
@@ -13,6 +18,10 @@ import { PlaySubscriptionInfo } from "./playBillingPort";
  *   expiry -> free
  */
 export function tierForSubscription(info: PlaySubscriptionInfo, now: Date = new Date()): ContentTier {
+  if (!info.productIds.some((productId) => PREMIUM_PRODUCT_IDS.has(productId))) {
+    return "free";
+  }
+
   switch (info.state) {
     case "active":
     case "in_grace_period":

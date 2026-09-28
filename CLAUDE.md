@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Wiccan is a Kotlin/Jetpack Compose Android app (package `com.wiccan.app`)
+Wiccan is a Kotlin/Jetpack Compose Android app (Kotlin namespace `com.wiccan.app`, production application ID `com.jaimesorrow.wiccan`)
 backed by Firebase Cloud Functions (Node/TypeScript, `functions/`). It
 delivers one piece of witchcraft content — a spell, potion, or lesson —
 per day on a subscription. See `README.md` for the module/package
@@ -22,8 +22,8 @@ sides when changing either.
 ### Android (`./gradlew ...` from repo root)
 
 The app has three product flavors — `dev`, `staging`, `prod` — one per
-Firebase environment. **Only `prod` has a usable `google-services.json`
-checked in** (a CI-only placeholder), so generic flavor-less task names
+Firebase environment. **Only `prod` has a registered `google-services.json`
+checked in** (`app/src/prod/`; CI substitutes a placeholder), so generic flavor-less task names
 (`assembleDebug`, `testDebugUnitTest`) are ambiguous/will fail on
 `dev`/`staging`. Always use the flavor-qualified form:
 
@@ -47,8 +47,8 @@ After any native-library-affecting dependency bump, also run
 `./scripts/check-16kb-alignment.sh` (checks the release AAB for Android
 15+ 16KB page-size compliance).
 
-Requires `ANDROID_HOME`/`sdk.dir` and a real `app/google-services.json`
-for anything beyond `prod`'s CI-checked-in placeholder.
+Requires `ANDROID_HOME`/`sdk.dir`. Dev/staging need their own registered
+Firebase client configurations; prod has one at `app/src/prod/google-services.json`.
 
 ### Cloud Functions (from `functions/`)
 
@@ -148,14 +148,14 @@ own already-computed results (`firestore.rules`).
 
 ## Known standing constraints
 
-- **No real Firebase project, signing keystore, Android emulator, or
-  Play Console listing exists in a fresh sandbox.** `dev`/`staging`
+- **No authenticated Firebase project access, signing keystore, Android emulator, or
+  Play Console session exists in a fresh sandbox.** `dev`/`staging`
   flavors, `WiccanDatabaseMigrationTest`, RTDN/purchase-verification
   field shapes, and any on-device screenshot are consequently
   unverifiable here — say so rather than fabricating a result. See
   `docs/STATUS.md` for the current, honestly-tracked list of what's
   fixed vs. what's blocked on external infrastructure.
-- **Play Billing Library is pinned to 7.1.1** — bumping to 9.x requires
+- **Play Billing Library is pinned to 8.0.0** — Android CI validation is pending; bumping to 9.x requires
   Kotlin ≥2.3.0, which surfaces a KSP/Hilt Gradle-plugin classloader
   conflict; the exact blocker and next steps are recorded in
   `docs/MAINTENANCE.md` rather than guessed past.

@@ -115,6 +115,23 @@ class TodayViewModelTest {
     }
 
     @Test
+    fun `exhausted inventory takes priority over stale cached content and clears on success`() = runTest(dispatcher) {
+        repository.emitCached(sampleContent)
+        repository.nextResult = AppResult.Failure(AppError.NoNewLesson)
+        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(sampleContent, viewModel.state.value.content)
+        assertTrue(viewModel.state.value.newLessonPending)
+        assertFalse(viewModel.state.value.isLoading)
+
+        repository.nextResult = AppResult.Success(sampleContent)
+        viewModel.onEvent(TodayUiEvent.Retry)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertFalse(viewModel.state.value.newLessonPending)
+    }
+
+    @Test
     fun `missing uid emits an Unauthorized snackbar and never touches the repository`() = runTest(dispatcher) {
         val viewModel = TodayViewModel(repository, currentUser(null), analyticsLogger)
 

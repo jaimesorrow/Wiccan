@@ -13,6 +13,57 @@ it says so instead of pretending.
 - [ ] Copy `app/keystore.properties.example` to `app/keystore.properties` and fill in the upload key's real `storeFile`/`storePassword`/`keyAlias`/`keyPassword`. `app/build.gradle.kts` picks this up automatically when present; otherwise release bundles are unsigned.
 - If an upload key used with Play App Signing is lost or compromised, request an upload-key reset in Play Console. The unrecoverable-key warning applies only if you deliberately self-manage the actual app-signing key instead of using Play App Signing.
 
+### Building the signed bundle in CI (no local Android SDK needed)
+
+`.github/workflows/release.yml` produces the uploadable `.aab` on a GitHub
+runner, so cutting a release never depends on a local toolchain. The
+keystore exists only as a repository secret and in the runner's temp
+directory — never in the repo, never in the build log.
+
+No machine with `keytool`? **Google Cloud Shell**
+(<https://shell.cloud.google.com>) runs in the browser and already has
+`keytool` and `base64`, so the upload key can be created without
+installing anything and without routing it through a third party:
+
+```bash
+keytool -genkeypair -v -keystore upload.keystore.jks -alias wiccan-upload \
+  -keyalg RSA -keysize 2048 -validity 10000
+base64 -w0 upload.keystore.jks    # the value for RELEASE_KEYSTORE_BASE64
+```
+
+Download the `.jks` and back it up before closing Cloud Shell — its home
+directory is not a backup.
+
+Then add four repository secrets under **Settings → Secrets and variables
+→ Actions**:
+
+| Secret | Value |
+|---|---|
+| `RELEASE_KEYSTORE_BASE64` | the `base64 -w0` output above |
+| `RELEASE_KEYSTORE_PASSWORD` | the store password |
+| `RELEASE_KEY_ALIAS` | `wiccan-upload`, or whatever `-alias` you used |
+| `RELEASE_KEY_PASSWORD` | the key password |
+
+Run it from the **Actions** tab, or push a `v*` tag.
+
+- The workflow refuses to publish an unsigned bundle. This matters because
+  `app/build.gradle.kts` deliberately falls back to *unsigned* when no
+  signing config is present, so a missing or mistyped secret would
+  otherwise produce a bundle that looks successful and is rejected only
+  after upload. The gate looks for `META-INF/<ALIAS>.RSA` inside the
+  `.aab`: `jarsigner`'s exit code is `0` even for an unsigned bundle, so it
+  cannot be the gate on its own.
+- Unlike `ci.yml`, it does **not** substitute `google-services.ci.json` —
+  a release is built against the real prod config at
+  `app/src/prod/google-services.json`.
+- [ ] `versionCode` in `app/build.gradle.kts` must strictly increase on
+  every Play submission; bump it before each run (see Versioning below).
+- [ ] After the first upload, add the **Play App Signing** certificate's
+  SHA-1 to Firebase. Google re-signs the app with its own key, so the
+  certificate on users' devices is not the upload key — Google sign-in and
+  App Check both fail in production if only the upload key's fingerprint
+  is registered.
+
 ## Minification (R8/ProGuard)
 
 - **Current state: `isMinifyEnabled = false`.** `app/proguard-rules.pro` is empty.
@@ -26,19 +77,20 @@ it says so instead of pretending.
 
 ## 16KB page size (Android 15+)
 
-- [x] `scripts/check-16kb-alignment.sh` inspects every native library bundled in the release `.aab` and fails if a 64-bit ABI's (arm64-v8a, x86_64) ELF LOAD segments aren't 16KB-aligned. Runs in CI on every push. Currently passing — the one bundled native library (`libandroidx.graphics.path.so`, a transitive AndroidX dependency) is already 16KB-aligned on every ABI.
+- [ ] `scripts/check-16kb-alignment.sh` inspects every native library bundled in the release `.aab` and fails if a 64-bit ABI's (arm64-v8a, x86_64) ELF LOAD segments aren't 16KB-aligned. Re-run this check on the Billing 8 bundle; the prior baseline passed.
 
 ## Product flavors (dev/staging/prod)
 
-- The app builds three product flavors, one per environment (see the README's Environments section) — `dev`/`staging`/`prod`, matching `.firebaserc`'s aliases. Only `prod` (applicationId `com.jaimesorrow.wiccan`, no suffix) has a CI-usable `google-services.json` (the checked-in placeholder, `google-services.ci.json`); `dev`/`staging` need their own real one from that environment's Firebase project before they'll build (`app/src/dev/google-services.json`, `app/src/staging/google-services.json`).
+- The app builds three product flavors, one per environment (see the README's Environments section) — `dev`/`staging`/`prod`, matching `.firebaserc`'s aliases. Production uses the verified source-specific config at `app/src/prod/google-services.json` for Firebase project `wiccan-android` and application ID `com.jaimesorrow.wiccan`. CI still copies `app/google-services.ci.json` as a non-production fallback, but the prod source-set config is authoritative for the prod variant. `dev`/`staging` still need their own real Firebase projects/configs before those variants can be treated as connected environments.
 - [ ] Once real dev/staging Firebase projects exist, add their `google-services.json` files and confirm `./gradlew :app:assembleDevDebug` / `:app:assembleStagingDebug` build cleanly.
 
-## Automated checks (already verified by this repo)
+## Automated checks (rerun for this PR before release)
 
-- [x] `./gradlew clean ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug :app:compileProdDebugAndroidTestKotlin`
-- [x] `./gradlew :app:bundleProdRelease` — builds (unsigned without `keystore.properties`)
-- [x] `./scripts/check-16kb-alignment.sh` — all bundled native libraries pass
-- [x] `cd functions && npm run build && npm test && npm run lint`
+- [ ] `bash scripts/release-preflight.sh` — verifies package/Firebase identity, App Check wiring, protected writes, RTDN retry behavior, WorkManager initialization, and obvious committed server-secret patterns
+- [ ] `./gradlew ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug :app:compileProdDebugAndroidTestKotlin`
+- [ ] `./gradlew :app:bundleProdRelease :app:lintProdRelease` — release bundle and lint gate (bundle is unsigned without `keystore.properties`)
+- [ ] `./scripts/check-16kb-alignment.sh` — all bundled native libraries pass
+- [ ] `cd functions && npm run build && npm test && npm run lint`
 
 ## Needs a real device/emulator (not verified here)
 
@@ -52,4 +104,6 @@ it says so instead of pretending.
 
 - [ ] Deploy `firestore.rules`/`firestore.indexes.json` and confirm the app reads/writes correctly against them (rules are logically reviewed, never deployed).
 - [ ] Confirm the `users/{uid}/devices` collection-group read (`listDevicesWithToken`) and the `titleExists` title-projection query need no manual composite index — both should be index-free for an unfiltered `.get()`/`.select()`, but that's only confirmable against a real project.
-- [ ] Fill in `.firebaserc`'s placeholder project IDs and each environment's `functions/.env.<project-id>` (see `functions/.env.example` and the README's Environments section).
+- [x] Production Firebase CLI alias is set to `wiccan-android` in `.firebaserc`.
+- [ ] Create/assign real dev and staging Firebase project IDs; those two aliases intentionally remain placeholders so development commands cannot accidentally target production.
+- [ ] Create the production Functions runtime configuration/service-account access required for Google Play Developer API calls; do not commit service-account JSON or private keys.

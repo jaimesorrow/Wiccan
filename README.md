@@ -28,6 +28,10 @@ app/                         Android app module (Kotlin, package com.wiccan.app)
   ui/subscription/             Minimal, unstyled Upgrade CTA
 
 functions/                    Cloud Functions (Node/TypeScript)
+  ancientContentSeed.json       150 hand-reviewed ancient-source entries
+                                 (seed pool, all status=draft)
+  src/contentSeed.ts            Seed loading + validation gates
+  src/scripts/seedContentCli.ts Admin CLI: upsert the seed pool into Firestore
   src/getTodayContent.ts        Daily-selection logic (server-side, never a
                                  client-side Firestore query)
   src/verifyPurchase.ts         Google Play purchase verification
@@ -55,10 +59,16 @@ functions/                    Cloud Functions (Node/TypeScript)
   repeat calls the same day, tier-filters candidates, and falls back to
   allowing repeats (with monitoring) once a user exhausts the published
   pool for their tier.
-- **Billing** is a single subscription product verified server-side via
-  the Google Play Developer API; the client's own purchase state is never
-  trusted as the tier source of truth. A daily job re-checks active
-  subscriptions for lapses.
+- **Billing** uses two allow-listed premium subscription products
+  (`wiccan_premium_monthly` and `wiccan_premium_yearly`) verified
+  server-side via the Google Play Developer API; the client's own purchase
+  state is never trusted as the tier source of truth. The current paywall
+  launches the monthly offer; restore/server verification recognizes both,
+  and a daily job re-checks active subscriptions for lapses.
+- **Seed content** ships in `functions/ancientContentSeed.json`: 150 entries
+  written from the four curated ancient sources, 50 each at beginner,
+  intermediate and advanced reader level. `npm run seed-content` validates it;
+  `-- --commit` upserts it as drafts. See `docs/ANCIENT_LESSON_SOURCING.md`.
 - **Content generation** draws only from a hand-curated `sources.json` of
   public-domain sources, using each source as thematic inspiration only —
   never quoted or closely paraphrased. Every generated draft needs a
@@ -101,17 +111,18 @@ not physical photography.
 ```
 
 The app has three product flavors (`dev`/`staging`/`prod`, one per
-environment - see Environments below); `prod` is the one that matches the
-checked-in `google-services.ci.json` placeholder and what CI builds.
-Building `dev`/`staging` requires that environment's own real
+environment - see Environments below). Production uses the verified
+`app/src/prod/google-services.json` for Firebase project `wiccan-android`
+and application ID `com.jaimesorrow.wiccan`. Building `dev`/`staging`
+as connected environments still requires each environment's own real
 `google-services.json` under `app/src/dev/` or `app/src/staging/`.
 
 Requires the Android SDK (`compileSdk`/`targetSdk` 36) — set `sdk.dir` in
 a local `local.properties` file or the `ANDROID_HOME` environment
-variable. You'll also need a real `app/google-services.json` from your
-Firebase project (not checked in), including a configured OAuth web
-client if you want Google sign-in to work, for the Google Services
-plugin to run.
+variable. The current production Firebase file has no OAuth client, so
+Google Sign-In intentionally reports "not configured" until the real Play
+App Signing SHA certificates and Google Auth/OAuth configuration are added
+and Firebase provides a refreshed production config.
 
 ### Cloud Functions
 
@@ -132,10 +143,10 @@ one project across environments means a staging bug can touch production
 users' data.
 
 - `.firebaserc` declares three project aliases (`default`, `staging`,
-  `production`). Production is pinned to `wiccan-android`; `default`
-  (dev) and `staging` intentionally remain placeholders until separate
-  Firebase projects are created. Switch the CLI target explicitly with
-  `firebase use <alias>` before any deploy or admin operation.
+  `production`). Production is pinned to `wiccan-android`; dev and
+  staging intentionally remain placeholders until separate projects are
+  created. Switch the CLI target explicitly with `firebase use <alias>`
+  before any deploy or admin operation.
 - Each project needs its own Cloud Functions config: copy
   `functions/.env.example` to `functions/.env.<project-id>` (Firebase
   Functions v2 loads that file automatically for the matching project) and
@@ -148,10 +159,9 @@ users' data.
   so an operator never mutates the wrong environment's content pool by
   running a command against whatever project `firebase use` happened to be
   pointed at.
-- The Android app has matching `dev`/`staging`/`prod` product flavors
-  (`app/build.gradle.kts`). `prod` has no suffix and installs as
-  `com.jaimesorrow.wiccan`; dev/staging use suffixes so they can coexist.
-  CI copies the deliberately fake `app/google-services.ci.json` to
-  `app/google-services.json` for build-only validation. Real dev/staging
-  projects should use `app/src/<flavor>/google-services.json`; production
-  receives its verified source-specific config in the production-integration PR.
+- The Android app has matching `dev`/`staging`/`prod` product flavors.
+  Production installs as `com.jaimesorrow.wiccan` and uses
+  `app/src/prod/google-services.json`. Dev/staging use application-ID
+  suffixes and need their own source-specific Firebase configs once those
+  projects exist. `app/google-services.ci.json` remains a deliberately
+  fake build fallback and is not the production Firebase configuration.

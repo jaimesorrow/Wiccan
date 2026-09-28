@@ -1,5 +1,13 @@
 import { Content, ContentTier } from "./types";
 
+/** A different day's transaction reserved this content before our assignment committed. */
+export class ContentAlreadyDeliveredError extends Error {
+  constructor(contentId: string) {
+    super(`Content '${contentId}' was already delivered to this user.`);
+    this.name = "ContentAlreadyDeliveredError";
+  }
+}
+
 /**
  * Port between the daily-selection logic and Firestore. Kept as an
  * interface so `selectTodayContent` can be unit tested against an
@@ -34,12 +42,12 @@ export interface ContentRepositoryPort {
    * unless one already exists, in which case the existing contentId is
    * returned unchanged and nothing is written. Implementations must
    * guarantee that concurrent callers racing for the same (uid, today)
-   * agree on exactly one winner and produce exactly one history record -
-   * e.g. by keying the record deterministically on (uid, today) and
-   * committing the check-and-write inside a single transaction.
+   * agree on exactly one winner and produce exactly one history record.
+   * The transaction must also reserve (uid, contentId) across different
+   * dates, throwing ContentAlreadyDeliveredError if another date won.
    */
   assignDailyContent(uid: string, today: string, candidate: Content): Promise<string>;
 
-  /** Fired when a user has exhausted the published pool and repeats begin. */
+  /** Fired when no new eligible content remains. */
   logPoolExhaustion(uid: string, tier: ContentTier, today: string): Promise<void>;
 }

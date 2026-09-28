@@ -14,7 +14,7 @@ habit, and don't skip one that's actually in scope.
 ## Validation commands (use the flavor-qualified/exact forms)
 
 **Android** — the app has `dev`/`staging`/`prod` product flavors and only
-`prod` has a usable `google-services.json` checked in. Generic
+`prod` has a registered `google-services.json` checked in under `app/src/prod/`; CI substitutes a placeholder. Generic
 flavor-less task names (`assembleDebug`, `testDebugUnitTest`) are
 ambiguous and will fail on `dev`/`staging` — always qualify:
 
@@ -41,11 +41,10 @@ just the one that happens to compile first.
 
 ## Never fabricate, never guess
 
-- No real Firebase project, signing keystore, Play Console listing, or
-  Android emulator/device exists in this sandbox. Never invent a
-  project ID, API key, or credential to make something "work" — leave
-  it as documented scaffolding (`.firebaserc`, `keystore.properties.example`)
-  and say so plainly in the PR/comment instead of papering over it.
+- No authenticated Firebase project access, signing keystore, Play Console
+  session, or Android emulator/device exists in this sandbox. Never invent a
+  project ID, API key, or credential to make something "work"; check the
+  registered client config and report integration limits honestly.
 - `WiccanDatabaseMigrationTest` and any Android instrumented test compile
   here but have never executed against a real device — don't report them
   as "passing," only as "compiles clean."
@@ -77,7 +76,7 @@ just the one that happens to compile first.
   very likely solving the wrong layer; the correct fix almost always
   routes through a new or existing Cloud Function callable instead of
   loosening `firestore.rules`.
-- **Play Billing Library is pinned to 7.1.1 on purpose** — bumping to
+- **Play Billing Library is pinned to 8.0.0 pending Android CI validation** — bumping to
   9.x needs Kotlin ≥2.3.0, which hits a real KSP/Hilt Gradle-plugin
   classloader conflict. Don't re-attempt this bump without first reading
   the exact blocker and next steps in `docs/MAINTENANCE.md`.

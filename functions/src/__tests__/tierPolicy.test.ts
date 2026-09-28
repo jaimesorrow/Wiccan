@@ -4,7 +4,13 @@ import { PlaySubscriptionInfo, PlaySubscriptionState } from "../playBillingPort"
 const NOW = new Date("2026-09-11T00:00:00.000Z");
 
 function info(state: PlaySubscriptionState, expiryTimeMillis: number | null = null): PlaySubscriptionInfo {
-  return { state, productIds: ["wiccan_premium_monthly"], expiryTimeMillis, autoRenewing: false };
+  return {
+    state,
+    productIds: ["wiccan_premium_monthly"],
+    expiryTimeMillis,
+    autoRenewing: false,
+    acknowledged: true,
+  };
 }
 
 describe("tierForSubscription", () => {
@@ -18,6 +24,21 @@ describe("tierForSubscription", () => {
     ["unspecified", "free"],
   ])("maps %s to %s regardless of expiry", (state, expected) => {
     expect(tierForSubscription(info(state), NOW)).toBe(expected);
+  });
+
+  it.each(["unrelated_subscription", ""])(
+    "does not grant premium for an unapproved product %s",
+    (productId) => {
+      const subscription = info("active");
+      subscription.productIds = productId ? [productId] : [];
+      expect(tierForSubscription(subscription, NOW)).toBe("free");
+    },
+  );
+
+  it("grants premium if a recognized product is present alongside another line item", () => {
+    const subscription = info("active");
+    subscription.productIds = ["unrelated_subscription", "wiccan_premium_yearly"];
+    expect(tierForSubscription(subscription, NOW)).toBe("premium");
   });
 
   it("grants premium for a canceled subscription that hasn't reached its paid-through expiry yet", () => {

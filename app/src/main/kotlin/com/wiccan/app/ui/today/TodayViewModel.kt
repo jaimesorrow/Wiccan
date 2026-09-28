@@ -64,10 +64,14 @@ class TodayViewModel @Inject constructor(
         _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             when (val result = contentRepository.refreshTodayContent(uid)) {
-                is AppResult.Success -> _state.update { it.copy(isLoading = false) }
+                is AppResult.Success -> _state.update { it.copy(isLoading = false, newLessonPending = false) }
                 is AppResult.Failure -> {
-                    _state.update { it.copy(isLoading = false) }
-                    effectChannel.send(TodayUiEffect.ShowSnackbar(result.error))
+                    _state.update {
+                        it.copy(isLoading = false, newLessonPending = result.error is AppError.NoNewLesson)
+                    }
+                    if (result.error !is AppError.NoNewLesson) {
+                        effectChannel.send(TodayUiEffect.ShowSnackbar(result.error))
+                    }
                 }
             }
         }
