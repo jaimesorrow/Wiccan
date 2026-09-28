@@ -31,7 +31,9 @@ currently handled (automated, manual, or not yet built).
 
 ## Play Billing Library version
 
-- Currently pinned to 7.1.1 (`gradle/libs.versions.toml`). 9.1.0 is the
+- The production integration PR proposes 8.0.0 (`gradle/libs.versions.toml`),
+  pending an Android CI build. Google Play's version 7 deadline was August
+  31, 2026, so 7.1.1 is no longer a release target. 9.1.0 is the
   real latest release (confirmed against Google's Maven metadata) and was
   attempted directly: bumping the version and recompiling surfaced a real,
   verified blocker rather than a guess — `billing-ktx:9.1.0`'s Kotlin

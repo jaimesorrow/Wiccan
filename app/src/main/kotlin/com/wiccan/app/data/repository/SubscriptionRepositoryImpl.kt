@@ -2,12 +2,15 @@ package com.wiccan.app.data.repository
 
 import android.app.Activity
 import android.util.Log
+import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.Purchase
 import com.wiccan.app.analytics.AnalyticsLogger
 import com.wiccan.app.billing.PREMIUM_MONTHLY_PRODUCT_ID
+import com.wiccan.app.billing.PREMIUM_PRODUCT_IDS
 import com.wiccan.app.billing.WiccanBillingClient
 import com.wiccan.app.billing.formattedPrice
 import com.wiccan.app.core.auth.CurrentUserProvider
+import com.wiccan.app.core.error.AppError
 import com.wiccan.app.core.error.toAppError
 import com.wiccan.app.core.result.AppResult
 import com.wiccan.app.data.remote.SubscriptionFunctionsDataSource
@@ -33,14 +36,8 @@ class SubscriptionRepositoryImpl @Inject constructor(
     private val analyticsLogger: AnalyticsLogger,
 ) : SubscriptionRepository {
 
-    // Tracks the last-observed tier per user so a PREMIUM -> FREE transition
-    // can be attributed to the scheduled lapsed-subscription re-check — the
-    // only code path that ever downgrades an existing premium user's tier.
     private var lastObservedTier: ContentTier? = null
 
-    // Owned for the process lifetime: the Play purchase result can arrive
-    // from the billing UI after the screen that launched it (and its
-    // ViewModel scope) is already gone.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     init {
@@ -49,8 +46,6 @@ class SubscriptionRepositoryImpl @Inject constructor(
                 purchases.forEach { purchase -> handlePurchase(purchase) }
             }
         }
-        // Catches purchases made while the app wasn't running, or whose
-        // verification/acknowledgement was interrupted last session.
         scope.launch {
             try {
                 billingClient.queryOwnedSubscriptions().forEach { purchase -> handlePurchase(purchase) }
@@ -60,8 +55,19 @@ class SubscriptionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun launchPurchaseFlow(activity: Activity) {
-        billingClient.launchPurchaseFlow(activity, PREMIUM_MONTHLY_PRODUCT_ID)
+    override suspend fun launchPurchaseFlow(activity: Activity): AppResult<Unit> = try {
+        val result = billingClient.launchPurchaseFlow(activity, PREMIUM_MONTHLY_PRODUCT_ID)
+        if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+            AppResult.Success(Unit)
+        } else {
+            AppResult.Failure(
+                AppError.PurchaseVerificationFailed(
+                    result.debugMessage.ifBlank { "Google Play could not start the purchase flow." },
+                ),
+            )
+        }
+    } catch (t: Throwable) {
+        AppResult.Failure(t.toAppError())
     }
 
     override fun observeTier(): Flow<ContentTier> {
@@ -91,19 +97,16 @@ class SubscriptionRepositoryImpl @Inject constructor(
 
     private suspend fun handlePurchase(purchase: Purchase) {
         if (purchase.purchaseState != Purchase.PurchaseState.PURCHASED) return
-        if (!purchase.products.contains(PREMIUM_MONTHLY_PRODUCT_ID)) return
+
+        val productId = purchase.products.firstOrNull { it in PREMIUM_PRODUCT_IDS } ?: return
 
         try {
             functionsDataSource.verifyPurchase(
                 purchaseToken = purchase.purchaseToken,
-                productId = PREMIUM_MONTHLY_PRODUCT_ID,
+                productId = productId,
             )
             analyticsLogger.logSubscriptionStarted()
-            billingClient.acknowledgePurchase(purchase)
         } catch (t: Throwable) {
-            // No UI is wired to surface this yet (out of scope for this pass);
-            // an un-acknowledged purchase is safely retried on the next
-            // purchaseUpdates emission or app restart.
             Log.e(TAG, "Failed to verify/acknowledge purchase", t)
         }
     }

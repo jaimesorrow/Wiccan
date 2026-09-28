@@ -36,9 +36,12 @@ function toContent(id: string, data: FirebaseFirestore.DocumentData): Content {
     title: data.title,
     intro: data.intro,
     body: data.body,
+    reflection: data.reflection ?? null,
+    practice: data.practice ?? null,
     materials: data.materials ?? null,
     safetyNote: data.safetyNote ?? null,
     tags: data.tags ?? [],
+    difficulty: data.difficulty,
     status: data.status,
     sourceId: typeof data.sourceId === "string" ? data.sourceId : undefined,
   };

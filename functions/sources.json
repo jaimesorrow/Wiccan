@@ -16,7 +16,9 @@
       "Modern lessons must describe these beliefs historically and must not present amulets as scientifically proven protection or medical treatment."
     ],
     "eligibleTypes": [
-      "lesson"
+      "lesson",
+      "spell",
+      "potion"
     ]
   },
   {
@@ -37,7 +39,9 @@
       "Descriptions of burning, illness, or hostile magic are historical material only and must not be converted into instructions for harming people or property."
     ],
     "eligibleTypes": [
-      "lesson"
+      "lesson",
+      "spell",
+      "potion"
     ]
   },
   {
@@ -58,7 +62,9 @@
       "The papyrus belongs to a syncretic late-antique Egyptian context and must not be described as an ancient Wiccan text."
     ],
     "eligibleTypes": [
-      "lesson"
+      "lesson",
+      "spell",
+      "potion"
     ]
   },
   {
@@ -78,7 +84,9 @@
       "The manuscript must be presented as ancient Egyptian material, not as evidence of an ancient Wiccan lineage."
     ],
     "eligibleTypes": [
-      "lesson"
+      "lesson",
+      "spell",
+      "potion"
     ]
   }
 ]

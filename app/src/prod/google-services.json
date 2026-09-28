@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "773049423031",
+    "project_id": "wiccan-android",
+    "storage_bucket": "wiccan-android.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:773049423031:android:f760f7ea42183cb5fee932",
+        "android_client_info": {
+          "package_name": "com.jaimesorrow.wiccan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWXjSDP2V_Me0hqYTatqRIlX29711ul24"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

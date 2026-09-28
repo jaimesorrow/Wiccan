@@ -4,8 +4,8 @@ import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
-import com.wiccan.app.R
 import com.wiccan.app.analytics.AnalyticsLogger
+import com.wiccan.app.core.error.AppError
 import com.wiccan.app.core.error.toAppError
 import com.wiccan.app.core.result.AppResult
 import com.wiccan.app.data.remote.AccountFunctionsDataSource
@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 private const val USERS_COLLECTION = "users"
+private const val GOOGLE_WEB_CLIENT_ID_RESOURCE = "default_web_client_id"
 
 class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
@@ -65,17 +66,30 @@ class AuthRepositoryImpl @Inject constructor(
         AppResult.Failure(t.toAppError())
     }
 
-    override suspend fun signInWithGoogle(context: Context): AppResult<Unit> = try {
-        val webClientId = context.getString(R.string.default_web_client_id)
-        val idToken = googleCredentialDataSource.requestGoogleIdToken(context, webClientId)
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        val result = firebaseAuth.signInWithCredential(credential).await()
-        if (result.additionalUserInfo?.isNewUser == true) {
-            analyticsLogger.logSignUpCompleted()
+    override suspend fun signInWithGoogle(context: Context): AppResult<Unit> {
+        val resourceId = context.resources.getIdentifier(
+            GOOGLE_WEB_CLIENT_ID_RESOURCE,
+            "string",
+            context.packageName,
+        )
+        if (resourceId == 0) {
+            return AppResult.Failure(
+                AppError.Unknown("Google Sign-In is not configured for this build."),
+            )
         }
-        AppResult.Success(Unit)
-    } catch (t: Throwable) {
-        AppResult.Failure(t.toAppError())
+
+        return try {
+            val webClientId = context.getString(resourceId)
+            val idToken = googleCredentialDataSource.requestGoogleIdToken(context, webClientId)
+            val credential = GoogleAuthProvider.getCredential(idToken, null)
+            val result = firebaseAuth.signInWithCredential(credential).await()
+            if (result.additionalUserInfo?.isNewUser == true) {
+                analyticsLogger.logSignUpCompleted()
+            }
+            AppResult.Success(Unit)
+        } catch (t: Throwable) {
+            AppResult.Failure(t.toAppError())
+        }
     }
 
     override suspend fun signInWithEmail(email: String, password: String): AppResult<Unit> = try {

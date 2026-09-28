@@ -55,6 +55,20 @@ describe("handleRtdnNotification", () => {
     expect(result).toEqual({ uid: "user-1", tier: "premium" });
   });
 
+  it("downgrades an active token switched to an unrelated product", async () => {
+    const billing = new FakePlayBillingPort();
+    billing.respondWith(TOKEN, "active", ["unrelated_subscription"]);
+    const users = new FakeUserRepository();
+    await users.setTier("user-1", "premium", TOKEN);
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    const result = await handleRtdnNotification(TOKEN, billing, users, subscriptions);
+
+    expect(result).toEqual({ uid: "user-1", tier: "free" });
+    expect(users.users.get("user-1")?.tier).toBe("free");
+    expect(subscriptions.records.get("user-1")?.productId).toBe("unrelated_subscription");
+  });
+
   it("is a no-op for a purchase token that doesn't belong to any known user", async () => {
     const billing = new FakePlayBillingPort();
     const users = new FakeUserRepository();

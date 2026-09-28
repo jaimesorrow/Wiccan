@@ -10,13 +10,18 @@ export class FakePlayBillingPort implements PlayBillingPort {
     token: string,
     state: PlaySubscriptionState,
     productIds: string[],
-    options: { expiryTimeMillis?: number | null; autoRenewing?: boolean } = {},
+    options: {
+      expiryTimeMillis?: number | null;
+      autoRenewing?: boolean;
+      acknowledged?: boolean;
+    } = {},
   ): void {
     this.responses.set(token, {
       state,
       productIds,
       expiryTimeMillis: options.expiryTimeMillis ?? null,
       autoRenewing: options.autoRenewing ?? false,
+      acknowledged: options.acknowledged ?? false,
     });
   }
 

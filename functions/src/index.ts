@@ -28,8 +28,15 @@ import { FirestoreSystemConfigRepository } from "./firestoreSystemConfigReposito
 
 initializeApp();
 
-// Matches the Android app's applicationId (app/build.gradle.kts).
-const ANDROID_PACKAGE_NAME = process.env.ANDROID_PACKAGE_NAME ?? "com.jaimesorrow.wiccan";
+// Each Firebase environment must use its own registered Android application ID.
+// Missing configuration fails closed on Play Billing operations.
+function createBillingRepository(): GooglePlayBillingRepository {
+  const packageName = process.env.ANDROID_PACKAGE_NAME;
+  if (!packageName) {
+    throw new Error("ANDROID_PACKAGE_NAME must be configured for this Firebase project.");
+  }
+  return new GooglePlayBillingRepository(packageName);
+}
 
 // The Pub/Sub topic Play Console's "Real-time developer notifications"
 // setting must be pointed at (Monetization setup -> RTDN). This is an
@@ -89,7 +96,7 @@ export const verifyPurchase = onCall({ enforceAppCheck: true }, async (request) 
   }
 
   try {
-    const billing = new GooglePlayBillingRepository(ANDROID_PACKAGE_NAME);
+    const billing = createBillingRepository();
     const users = new FirestoreUserRepository(getFirestore());
     const subscriptions = new FirestoreSubscriptionRecordRepository(getFirestore());
     const tier = await verifyPurchaseAndSyncTier(uid, purchaseToken, productId, billing, users, subscriptions);
@@ -111,7 +118,7 @@ export const verifyPurchase = onCall({ enforceAppCheck: true }, async (request) 
  * setup is needed beyond `firebase deploy`.
  */
 export const recheckLapsedSubscriptionsJob = onSchedule("every day 03:00", async () => {
-  const billing = new GooglePlayBillingRepository(ANDROID_PACKAGE_NAME);
+  const billing = createBillingRepository();
   const users = new FirestoreUserRepository(getFirestore());
   const subscriptions = new FirestoreSubscriptionRecordRepository(getFirestore());
   const summary = await recheckLapsedSubscriptions(billing, users, subscriptions);
@@ -147,7 +154,7 @@ export const handlePlayRtdn = onMessagePublished({ topic: PLAY_RTDN_TOPIC, retry
   }
 
   try {
-    const billing = new GooglePlayBillingRepository(ANDROID_PACKAGE_NAME);
+    const billing = createBillingRepository();
     const users = new FirestoreUserRepository(getFirestore());
     const subscriptions = new FirestoreSubscriptionRecordRepository(getFirestore());
     const result = await handleRtdnNotification(purchaseToken, billing, users, subscriptions);
@@ -364,7 +371,7 @@ export const deleteUserData = onCall({ enforceAppCheck: true }, async (request) 
   }
 
   try {
-    const billing = new GooglePlayBillingRepository(ANDROID_PACKAGE_NAME);
+    const billing = createBillingRepository();
     const repo = new FirestoreAccountDeletionRepository(getFirestore(), getAuth(), billing);
     await deleteAccount(uid, repo);
   } catch (err) {

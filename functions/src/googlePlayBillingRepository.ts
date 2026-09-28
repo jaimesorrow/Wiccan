@@ -62,12 +62,15 @@ export class GooglePlayBillingRepository implements PlayBillingPort {
     const primaryLineItem = lineItems[0];
     const expiryTimeMillis = primaryLineItem?.expiryTime ? new Date(primaryLineItem.expiryTime).getTime() : null;
     const autoRenewing = primaryLineItem?.autoRenewingPlan?.autoRenewEnabled ?? false;
+    const acknowledged =
+      response.data.acknowledgementState === "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED";
 
     return {
       state: mapSubscriptionState(response.data.subscriptionState),
       productIds,
       expiryTimeMillis,
       autoRenewing,
+      acknowledged,
     };
   }
 
@@ -83,13 +86,15 @@ export class GooglePlayBillingRepository implements PlayBillingPort {
         requestBody: {},
       });
     } catch (err) {
-      // Acknowledging an already-acknowledged purchase returns an error
-      // from the Play API; the desired end state (acknowledged) already
-      // holds, so this is logged and swallowed rather than failing the
-      // caller's verification flow over it.
-      logger.info("acknowledgePurchaseIfNeeded: acknowledge call did not succeed (likely already acknowledged)", {
-        error: (err as Error).message,
-      });
+      // A race with another acknowledgement path is harmless only when
+      // Play confirms the desired state. Never swallow an auth/network/API
+      // failure merely because it *might* mean "already acknowledged".
+      const state = await this.getSubscriptionState(purchaseToken);
+      if (state.acknowledged) {
+        logger.info("acknowledgePurchaseIfNeeded: purchase was already acknowledged");
+        return;
+      }
+      throw err;
     }
   }
 
@@ -104,13 +109,15 @@ export class GooglePlayBillingRepository implements PlayBillingPort {
         token: purchaseToken,
       });
     } catch (err) {
-      // Canceling an already-canceled/expired subscription returns an
-      // error from the Play API; the desired end state (not auto-renewing)
-      // already holds, so this is logged and swallowed the same way
-      // acknowledgePurchaseIfNeeded treats an already-acknowledged purchase.
-      logger.info("cancelSubscription: cancel call did not succeed (likely already canceled/expired)", {
-        error: (err as Error).message,
-      });
+      // Treat a cancellation error as harmless only after Play confirms
+      // that auto-renew is already disabled; otherwise propagate the error
+      // so account deletion cannot silently leave a user being charged.
+      const state = await this.getSubscriptionState(purchaseToken);
+      if (!state.autoRenewing) {
+        logger.info("cancelSubscription: auto-renew was already disabled");
+        return;
+      }
+      throw err;
     }
   }
 }
