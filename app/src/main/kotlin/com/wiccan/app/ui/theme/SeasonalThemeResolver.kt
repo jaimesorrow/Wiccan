@@ -7,8 +7,9 @@ import java.time.temporal.ChronoUnit
 /**
  * Result of resolving the Wheel-of-the-Year palette for a given date.
  * [blendTarget]/[blendFraction] are only non-default in the week leading
- * up to the next sabbat, so a caller can cross-fade toward it instead of
- * snapping at midnight.
+ * up to the next sabbat. Dark palettes may blend gradually; transitions
+ * involving the light palette switch complete schemes at the midpoint
+ * to preserve readable text contrast.
  */
 data class SeasonalResolution(
     val dominant: WiccanPalette,
@@ -25,9 +26,9 @@ data class SeasonalResolution(
  * ## The mapping
  *
  * The eight sabbats sit on one continuous mood arc that starts and ends at
- * the year's darkest point (Yule) and peaks at its brightest (Litha),
- * mirrored on the way back down so the festival on each side of a solstice
- * shares a palette with its mirror:
+ * the year's darkest point (Yule) and peaks at its brightest (Litha), then
+ * returns through warmer harvest/autumn tones rather than mirroring the
+ * spring ascent exactly:
  *
  * | Sabbat     | ~Date  | Palette       | Why |
  * |---|---|---|---|
@@ -41,15 +42,15 @@ data class SeasonalResolution(
  * | Samhain    | Oct 31 | Midnight Blue | The veil thins and the year turns inward; mirrors Imbolc descending. |
  *
  * Royal Plum and Midnight Blue each anchor two points (rising and falling
- * sides of the year) so all six palettes are used while the arc stays
- * symmetric around the solstices.
+ * sides of the year), while Lughnasadh keeps its distinct Warm Earth
+ * harvest palette instead of mirroring Beltane exactly.
  *
  * ## Transitions
  *
  * A palette holds steady for most of its ~6-7 week span. In the final
  * [TRANSITION_WINDOW_DAYS] days before the next anchor, [resolve] reports a
  * rising [SeasonalResolution.blendFraction] toward [SeasonalResolution.blendTarget]
- * (see `rememberWiccanColorScheme`) instead of changing harshly at midnight.
+ * (see `targetColorScheme`) instead of changing only on the anchor day.
  * On the anchor day itself the new palette becomes the pure dominant.
  */
 object SeasonalThemeResolver {

@@ -1,8 +1,8 @@
 package com.wiccan.app.ui.settings
 
 import com.wiccan.app.core.error.AppError
+import com.wiccan.app.domain.model.WiccanThemeMode
 import com.wiccan.app.domain.model.ContentTier
-import com.wiccan.app.ui.theme.WiccanThemeMode
 
 data class SettingsUiState(
     val isDeleting: Boolean = false,

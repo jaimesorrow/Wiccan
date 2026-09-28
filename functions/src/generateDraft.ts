@@ -63,6 +63,11 @@ function buildEligiblePairs(
  * than repeating a single combination. Every draft is written with
  * status "draft" and a sourceId; nothing here ever auto-publishes.
  *
+ * Historical lesson generation is source-grounded: the LLM receives the
+ * source title, period, editorial reference, and a curated set of factual
+ * claims. This prevents "ancient teaching" from becoming invented lineage
+ * or generic modern occult material presented as history.
+ *
  * A generated draft whose title exactly matches an existing document
  * (draft or published) is not persisted - the LLM occasionally proposes
  * the same signature title for the same source/type pair, and silently
@@ -90,7 +95,11 @@ export async function generateDrafts(
     const generated = await generator.generateDraft({
       type: pair.type,
       tradition: pair.source.tradition,
+      period: pair.source.period,
+      sourceTitle: pair.source.title,
+      sourceReference: pair.source.sourceReference,
       summary: pair.source.summary,
+      groundedFacts: pair.source.groundedFacts,
     });
 
     if (await repo.titleExists(generated.title)) {

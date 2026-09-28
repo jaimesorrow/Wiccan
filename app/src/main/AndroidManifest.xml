@@ -16,10 +16,9 @@
         android:theme="@style/Theme.Wiccan">
 
         <!--
-          WiccanApplication implements Configuration.Provider for on-demand
-          WorkManager initialization (see WiccanWorkerFactory) - the default
-          androidx.startup-driven WorkManagerInitializer must be removed or
-          it double-initializes WorkManager.
+          WiccanApplication supplies the Hilt-aware WorkManager configuration.
+          Remove WorkManager's default App Startup initializer so initialization
+          happens exactly once with WiccanWorkerFactory.
         -->
         <provider
             android:name="androidx.startup.InitializationProvider"
@@ -31,6 +30,7 @@
                 android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -65,6 +65,15 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/wiccan_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".widget.WiccanThemeDateChangeReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
         </receiver>
     </application>
 </manifest>

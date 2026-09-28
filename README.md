@@ -132,9 +132,10 @@ one project across environments means a staging bug can touch production
 users' data.
 
 - `.firebaserc` declares three project aliases (`default`, `staging`,
-  `production`); replace the placeholder project IDs with your real ones
-  before deploying anywhere. Switch which one `firebase` commands target
-  with `firebase use <alias>`.
+  `production`). Production is pinned to `wiccan-android`; `default`
+  (dev) and `staging` intentionally remain placeholders until separate
+  Firebase projects are created. Switch the CLI target explicitly with
+  `firebase use <alias>` before any deploy or admin operation.
 - Each project needs its own Cloud Functions config: copy
   `functions/.env.example` to `functions/.env.<project-id>` (Firebase
   Functions v2 loads that file automatically for the matching project) and
@@ -147,10 +148,10 @@ users' data.
   so an operator never mutates the wrong environment's content pool by
   running a command against whatever project `firebase use` happened to be
   pointed at.
-- The Android app has a matching `dev`/`staging`/`prod` product flavor per
-  environment (`app/build.gradle.kts`), each with its own applicationId
-  suffix (`prod` has none — it's the real `com.wiccan.app`) so all three
-  can be installed side by side on one device. Each flavor needs its own
-  `google-services.json` from that environment's Firebase project, placed
-  at `app/src/<flavor>/google-services.json` — only `prod` has a
-  (CI-only, placeholder) one checked in via `google-services.ci.json`.
+- The Android app has matching `dev`/`staging`/`prod` product flavors
+  (`app/build.gradle.kts`). `prod` has no suffix and installs as
+  `com.jaimesorrow.wiccan`; dev/staging use suffixes so they can coexist.
+  CI copies the deliberately fake `app/google-services.ci.json` to
+  `app/google-services.json` for build-only validation. Real dev/staging
+  projects should use `app/src/<flavor>/google-services.json`; production
+  receives its verified source-specific config in the production-integration PR.

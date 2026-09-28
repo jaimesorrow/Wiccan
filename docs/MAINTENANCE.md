@@ -76,7 +76,9 @@ currently handled (automated, manual, or not yet built).
 - `app/src/main/kotlin/com/wiccan/app/ui/theme/SeasonalThemeResolver.kt`
   maps the eight-spoke Wheel of the Year to the six `WiccanPalette`
   values, on one continuous mood arc starting and ending at the year's
-  darkest point (Yule) and peaking at its brightest (Litha):
+  darkest point (Yule) and peaking at its brightest (Litha), then
+  returning through warmer harvest/autumn tones rather than mirroring
+  the spring ascent exactly:
 
   | Sabbat | ~Date | Palette | Why |
   |---|---|---|---|
@@ -89,10 +91,12 @@ currently handled (automated, manual, or not yet built).
   | Mabon | Sep 22 | Royal Plum | Autumn equinox — dusk, orchard/wine harvest; mirrors Beltane descending. |
   | Samhain | Oct 31 | Midnight Blue | The veil thins; mirrors Imbolc descending. |
 
-  In the week before each sabbat the resolved color scheme cross-fades
-  toward the next palette (`SeasonalResolution.blendFraction`) instead of
-  switching instantly at midnight; the rest of each ~6-7 week span shows a
-  pure palette. The mapping is pure/deterministic (`java.time.LocalDate`
+  In the week before each sabbat the resolved color scheme blends between
+  dark palettes. A dark/light transition switches the complete color scheme
+  at the midpoint of that week: independently blending dark and light text
+  roles can reduce contrast below 4.5:1. Manual light/dark changes likewise
+  switch complete schemes without animating individual roles. The rest of
+  each ~6-7 week span shows a pure palette. The mapping is deterministic (`java.time.LocalDate`
   in, `SeasonalResolution` out) — no clock/timezone side effects beyond
   the caller's own `today` parameter, and no network dependency.
 - A user's explicit Settings choice (a locked palette, or Follow System)

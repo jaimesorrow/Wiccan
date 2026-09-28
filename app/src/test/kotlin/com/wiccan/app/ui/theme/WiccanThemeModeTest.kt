@@ -1,5 +1,6 @@
 package com.wiccan.app.ui.theme
 
+import com.wiccan.app.domain.model.WiccanThemeMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -30,9 +31,6 @@ class WiccanThemeModeTest {
 
     @Test
     fun `an unrecognized - eg legacy - stored value falls back to the default`() {
-        // Simulates a value written by some hypothetical older schema that
-        // never mapped to a current enum entry, or plain data corruption -
-        // this must never crash, only fall back.
         assertEquals(WiccanThemeMode.DEFAULT, WiccanThemeMode.fromPersistedName("SYSTEM_DEFAULT"))
         assertEquals(WiccanThemeMode.DEFAULT, WiccanThemeMode.fromPersistedName("DARK"))
         assertEquals(WiccanThemeMode.DEFAULT, WiccanThemeMode.fromPersistedName("not_even_close"))
