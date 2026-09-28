@@ -8,7 +8,7 @@ import kotlinx.coroutines.tasks.await
 /**
  * Thin wrapper around the `getTodayContent` Cloud Function. The daily
  * selection logic (history lookup, published/tier filtering, random pick,
- * pool-exhaustion fallback) lives server-side and is never re-implemented
+ * pool exhaustion) lives server-side and is never re-implemented
  * here — this class only invokes it and returns the raw payload.
  */
 class ContentFunctionsDataSource @Inject constructor(

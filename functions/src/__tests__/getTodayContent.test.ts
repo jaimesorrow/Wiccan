@@ -1,4 +1,4 @@
-import { selectTodayContent } from "../getTodayContent";
+import { ContentPoolExhaustedError, selectTodayContent } from "../getTodayContent";
 import { FakeContentRepository, makeContent } from "../testUtils/fakeContentRepository";
 
 const UID = "user-123";
@@ -49,7 +49,7 @@ describe("selectTodayContent", () => {
 
     await expect(
       selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"])),
-    ).rejects.toThrow("No published content available for tier 'free'.");
+    ).rejects.toThrow("No new published content available for tier 'free'.");
   });
 
   it("is idempotent: a repeat call the same day returns the same content without a new history row", async () => {
@@ -63,7 +63,7 @@ describe("selectTodayContent", () => {
     expect(repo.history).toHaveLength(1);
   });
 
-  it("falls back to repeats and logs pool exhaustion once the published pool is used up", async () => {
+  it("never repeats delivered content when the published pool is used up", async () => {
     const repo = new FakeContentRepository();
     repo.content = [makeContent({ id: "c1" }), makeContent({ id: "c2" })];
     // Simulate the user having already seen every published item on prior days.
@@ -72,20 +72,17 @@ describe("selectTodayContent", () => {
       { userId: UID, contentId: "c2", deliveredDate: "2026-09-08", title: "Title c2", type: "spell", tradition: "European folk magic", category: "MoonAndSeasonal" },
     ];
 
-    const result = await selectTodayContent(UID, TODAY, repo);
-
-    expect(["c1", "c2"]).toContain(result.id);
+    await expect(selectTodayContent(UID, TODAY, repo)).rejects.toThrow(
+      "No new published content available for tier 'free'.",
+    );
     expect(repo.poolExhaustionEvents).toEqual([{ userId: UID, tier: "free", today: TODAY }]);
-    expect(repo.history).toHaveLength(3);
-    expect(repo.history[2]).toEqual({
-      userId: UID,
-      contentId: result.id,
-      deliveredDate: TODAY,
-      title: result.title,
-      type: result.type,
-      tradition: result.tradition,
-      category: result.category,
-    });
+    expect(repo.history).toHaveLength(2);
+  });
+
+  it("signals pool exhaustion with a distinct error for the callable and app", async () => {
+    const repo = new FakeContentRepository();
+    await expect(selectTodayContent(UID, TODAY, repo)).rejects.toBeInstanceOf(ContentPoolExhaustedError);
+    expect(repo.poolExhaustionEvents).toEqual([{ userId: UID, tier: "free", today: TODAY }]);
   });
 
   it("two concurrent first-of-the-day calls converge on exactly one committed assignment", async () => {
@@ -111,13 +108,29 @@ describe("selectTodayContent", () => {
     });
   });
 
+  it("cannot deliver the same content on two concurrently selected dates", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [makeContent({ id: "c1" }), makeContent({ id: "c2" })];
+    const random = jest.spyOn(Math, "random").mockReturnValue(0);
+    try {
+      const [first, second] = await Promise.all([
+        selectTodayContent(UID, TODAY, repo),
+        selectTodayContent(UID, "2026-09-10", repo),
+      ]);
+      expect(new Set([first.id, second.id])).toEqual(new Set(["c1", "c2"]));
+      expect(repo.history).toHaveLength(2);
+    } finally {
+      random.mockRestore();
+    }
+  });
+
   it("only offers a free user free-tier published content", async () => {
     const repo = new FakeContentRepository();
     repo.tier = "free";
     repo.content = [makeContent({ id: "premium-only", tier: "premium" })];
 
     await expect(selectTodayContent(UID, TODAY, repo)).rejects.toThrow(
-      "No published content available for tier 'free'.",
+      "No new published content available for tier 'free'.",
     );
   });
 

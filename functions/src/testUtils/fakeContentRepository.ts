@@ -1,5 +1,5 @@
 import { Content, ContentCategory, ContentTier } from "../types";
-import { ContentRepositoryPort } from "../contentRepositoryPort";
+import { ContentAlreadyDeliveredError, ContentRepositoryPort } from "../contentRepositoryPort";
 
 /** In-memory stand-in for Firestore, for testing selectTodayContent. */
 export class FakeContentRepository implements ContentRepositoryPort {
@@ -55,6 +55,9 @@ export class FakeContentRepository implements ContentRepositoryPort {
     const existing = this.history.find((h) => h.userId === userId && h.deliveredDate === deliveredDate);
     if (existing) {
       return existing.contentId;
+    }
+    if (this.history.some((entry) => entry.userId === userId && entry.contentId === candidate.id)) {
+      throw new ContentAlreadyDeliveredError(candidate.id);
     }
     this.history.push({
       userId,

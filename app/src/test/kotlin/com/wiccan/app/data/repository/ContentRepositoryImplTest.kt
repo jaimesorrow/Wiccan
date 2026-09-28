@@ -1,6 +1,7 @@
 package com.wiccan.app.data.repository
 
 import app.cash.turbine.test
+import com.google.firebase.functions.FirebaseFunctionsException
 import com.wiccan.app.core.error.AppError
 import com.wiccan.app.core.result.AppResult
 import com.wiccan.app.data.remote.ContentFunctionsDataSource
@@ -8,6 +9,7 @@ import com.wiccan.app.domain.model.ContentStatus
 import com.wiccan.app.domain.model.ContentTier
 import com.wiccan.app.domain.model.ContentType
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -78,5 +80,17 @@ class ContentRepositoryImplTest {
         repository.observeTodayContent().test {
             assertNull(awaitItem())
         }
+    }
+
+    @Test
+    fun `resource exhausted response signals that no new lesson is available`() = runTest {
+        val failure = mockk<FirebaseFunctionsException>()
+        every { failure.code } returns FirebaseFunctionsException.Code.RESOURCE_EXHAUSTED
+        coEvery { functionsDataSource.getTodayContent() } throws failure
+
+        val result = repository.refreshTodayContent(userId)
+
+        assertEquals(AppError.NoNewLesson, (result as AppResult.Failure).error)
+        repository.observeTodayContent().test { assertNull(awaitItem()) }
     }
 }

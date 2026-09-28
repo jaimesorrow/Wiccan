@@ -1,6 +1,8 @@
 export interface AccountDeletionPort {
   deleteUserProfile(uid: string): Promise<void>;
   deleteUserContentHistory(uid: string): Promise<void>;
+  /** Transactional used-content markers must be erased with the history. */
+  deleteUserContentUsage(uid: string): Promise<void>;
   /** users/{uid}/devices is a subcollection - deleting the parent profile doc does not cascade to it. */
   deleteUserDevices(uid: string): Promise<void>;
   /**
