@@ -13,6 +13,57 @@ it says so instead of pretending.
 - [ ] Copy `app/keystore.properties.example` to `app/keystore.properties` and fill in the upload key's real `storeFile`/`storePassword`/`keyAlias`/`keyPassword`. `app/build.gradle.kts` picks this up automatically when present; otherwise release bundles are unsigned.
 - If an upload key used with Play App Signing is lost or compromised, request an upload-key reset in Play Console. The unrecoverable-key warning applies only if you deliberately self-manage the actual app-signing key instead of using Play App Signing.
 
+### Building the signed bundle in CI (no local Android SDK needed)
+
+`.github/workflows/release.yml` produces the uploadable `.aab` on a GitHub
+runner, so cutting a release never depends on a local toolchain. The
+keystore exists only as a repository secret and in the runner's temp
+directory — never in the repo, never in the build log.
+
+No machine with `keytool`? **Google Cloud Shell**
+(<https://shell.cloud.google.com>) runs in the browser and already has
+`keytool` and `base64`, so the upload key can be created without
+installing anything and without routing it through a third party:
+
+```bash
+keytool -genkeypair -v -keystore upload.keystore.jks -alias wiccan-upload \
+  -keyalg RSA -keysize 2048 -validity 10000
+base64 -w0 upload.keystore.jks    # the value for RELEASE_KEYSTORE_BASE64
+```
+
+Download the `.jks` and back it up before closing Cloud Shell — its home
+directory is not a backup.
+
+Then add four repository secrets under **Settings → Secrets and variables
+→ Actions**:
+
+| Secret | Value |
+|---|---|
+| `RELEASE_KEYSTORE_BASE64` | the `base64 -w0` output above |
+| `RELEASE_KEYSTORE_PASSWORD` | the store password |
+| `RELEASE_KEY_ALIAS` | `wiccan-upload`, or whatever `-alias` you used |
+| `RELEASE_KEY_PASSWORD` | the key password |
+
+Run it from the **Actions** tab, or push a `v*` tag.
+
+- The workflow refuses to publish an unsigned bundle. This matters because
+  `app/build.gradle.kts` deliberately falls back to *unsigned* when no
+  signing config is present, so a missing or mistyped secret would
+  otherwise produce a bundle that looks successful and is rejected only
+  after upload. The gate looks for `META-INF/<ALIAS>.RSA` inside the
+  `.aab`: `jarsigner`'s exit code is `0` even for an unsigned bundle, so it
+  cannot be the gate on its own.
+- Unlike `ci.yml`, it does **not** substitute `google-services.ci.json` —
+  a release is built against the real prod config at
+  `app/src/prod/google-services.json`.
+- [ ] `versionCode` in `app/build.gradle.kts` must strictly increase on
+  every Play submission; bump it before each run (see Versioning below).
+- [ ] After the first upload, add the **Play App Signing** certificate's
+  SHA-1 to Firebase. Google re-signs the app with its own key, so the
+  certificate on users' devices is not the upload key — Google sign-in and
+  App Check both fail in production if only the upload key's fingerprint
+  is registered.
+
 ## Minification (R8/ProGuard)
 
 - **Current state: `isMinifyEnabled = false`.** `app/proguard-rules.pro` is empty.
