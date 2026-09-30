@@ -1,0 +1,159 @@
+---
+name: run-wiccan
+description: Build, run, screenshot and drive the Wiccan Android app and its Firebase Cloud Functions backend. Use when asked to run, start, build, launch, screenshot, or manually verify the app or backend — including seeing the six palettes, exercising a callable, or reproducing a UI change without a device.
+---
+
+# Running Wiccan
+
+Two deployable surfaces sharing one repo: an **Android app** (Kotlin/Compose)
+and a **Cloud Functions backend** (TypeScript). Both are drivable from a
+headless container.
+
+Everything goes through one script. Paths are relative to the repo root.
+
+```bash
+.claude/skills/run-wiccan/driver.sh          # usage
+.claude/skills/run-wiccan/driver.sh deps     # one-time: Android SDK + firebase CLI
+```
+
+| Command | What it does |
+|---|---|
+| `deps` | Installs the Android SDK (~760MB) and `firebase-tools`, writes `local.properties` |
+| `build` | `:app:assembleProdDebug` → APK |
+| `screenshots` | **Renders all six palettes to PNG. No emulator needed.** |
+| `backend` | Starts the Firebase emulators and smoke-tests a callable |
+| `test` | Full check matrix, both toolchains |
+| `all` | build + screenshots + backend |
+
+## There is no Android emulator here
+
+`/dev/kvm` does not exist in this container, so an AVD cannot run. **Do not
+try to launch one.** To see the UI, use `screenshots` — it renders Compose on
+the JVM via Robolectric + Roborazzi and writes real PNGs:
+
+```bash
+.claude/skills/run-wiccan/driver.sh screenshots
+```
+
+```
+app/build/outputs/roborazzi/wiccan-palette-near_black.png
+app/build/outputs/roborazzi/wiccan-palette-midnight_blue.png
+app/build/outputs/roborazzi/wiccan-palette-royal_plum.png
+app/build/outputs/roborazzi/wiccan-palette-deep_forest.png
+app/build/outputs/roborazzi/wiccan-palette-warm_earth.png
+app/build/outputs/roborazzi/wiccan-palette-light_ivory.png
+```
+
+**Open them.** They are 822x1782 and show display/body type, a card, a
+filled button and an outlined button against each palette's background —
+enough to judge color and contrast. The test fails if any renders flat.
+
+The harness is `app/src/test/kotlin/com/wiccan/app/ui/theme/WiccanPaletteScreenshotTest.kt`.
+To screenshot a *different* screen, copy its `PaletteSpecimen` pattern: wrap
+your composable in `MaterialTheme(colorScheme = palette.toColorScheme(),
+typography = LocallyResolvableTypography)` and call
+`composeRule.onRoot().captureRoboImage(filePath = ...)`.
+
+Run just that test directly:
+
+```bash
+./gradlew :app:testProdDebugUnitTest --tests '*WiccanPaletteScreenshotTest*'
+```
+
+## Backend
+
+```bash
+.claude/skills/run-wiccan/driver.sh backend
+```
+
+Brings up auth (9099), functions (5001), firestore (8080) and pubsub (8085),
+then asserts a callable is live. Expected output:
+
+```
+Emulators ready after 15s
+  getTodayContent (no auth) -> {"error":{"message":"Unauthenticated","status":"UNAUTHENTICATED"}}
+  OK: the callable is live and rejecting unattested calls
+```
+
+Emulator UI at <http://127.0.0.1:4000>. Stop with
+`pkill -f 'emulator[s]:start'`.
+
+Call a function by hand:
+
+```bash
+curl -s -X POST http://127.0.0.1:5001/wiccan-android/us-central1/getTodayContent \
+  -H "Content-Type: application/json" -d '{"data":{}}'
+```
+
+## Build and test
+
+```bash
+.claude/skills/run-wiccan/driver.sh build     # -> app/build/outputs/apk/prod/debug/app-prod-debug.apk
+.claude/skills/run-wiccan/driver.sh test      # both toolchains
+```
+
+`test` runs `ktlintCheck`, `:app:testProdDebugUnitTest`,
+`:app:assembleProdDebug`, `:app:compileProdDebugAndroidTestKotlin`,
+`:app:lintProdRelease`, `:app:bundleProdRelease`,
+`scripts/check-16kb-alignment.sh`, `scripts/release-preflight.sh`, then
+`npm run build && npm test && npm run lint` in `functions/`.
+
+Always use **flavor-qualified** Gradle tasks. `assembleDebug` fails, because
+`dev` and `staging` have no `google-services.json`; only `prod` does.
+
+## Gotchas
+
+These cost real time. All were hit in this container.
+
+- **`ANDROID_PACKAGE_NAME` must be exported when the emulator starts**, not
+  in your test process. `deleteUserData` cancels the Play subscription first
+  and `createBillingRepository()` throws without it, so account deletion
+  fails `INTERNAL` while everything else passes. The functions run inside the
+  emulator's process. The driver sets it; if you start emulators by hand, do
+  the same.
+- **App Check blocks every callable in the emulator.** All 8 are
+  `enforceAppCheck: true` and there is no App Check emulator to mint a token,
+  so a *valid* ID token still gets `UNAUTHENTICATED`. The emulator log shows
+  `{"verifications":{"app":"MISSING","auth":"VALID"}}`. To exercise authed
+  flows locally, patch `functions/lib/index.js` (gitignored build output —
+  **never `functions/src`**), then `npm run build` to restore.
+- **Robolectric instantiates `WiccanApplication` unless told otherwise**, and
+  its `onCreate` installs App Check → `IllegalStateException` at
+  `FirebaseApp.java:179`. Every Robolectric test here needs
+  `@Config(application = android.app.Application::class)`.
+- **The app's fonts are downloadable Google Fonts** (Cinzel, Manrope via Play
+  Services). Robolectric has no font provider, so using `WiccanTypography`
+  directly means Compose never reaches idle. Use
+  `LocallyResolvableTypography` from the screenshot test — real type scale,
+  system glyphs.
+- **`captureToImage()` from `ui-test-junit4` does not work under
+  Robolectric.** It calls `forceRedraw`, which needs a real hardware window,
+  and dies with `ComposeTimeoutException: Condition still not satisfied after
+  2000 ms`. Use Roborazzi's `captureRoboImage` instead.
+- **Roborazzi must be version-matched to Kotlin.** 1.76.0 is built against
+  Kotlin 2.3.0 and fails this project (Kotlin 2.0.21) with *"Module was
+  compiled with an incompatible version of Kotlin … metadata is 2.3.0,
+  expected 2.0.0"*. **1.32.2** works. Check before bumping.
+- **Roborazzi writes nothing unless recording is on.** The test passes and
+  produces zero files. `app/build.gradle.kts` sets
+  `systemProperty("roborazzi.test.record", "true")` for all test tasks.
+- **`javax.imageio` is not on the Android unit-test classpath** — importing
+  it fails with `Unresolved reference 'imageio'` even though tests run on the
+  JVM. Use `android.graphics.BitmapFactory`.
+- **`setContent` may only be called once per `ComposeTestRule`.** Loop by
+  swapping state, not by calling it again.
+- **GitHub Actions is billing-blocked.** Every run since 2026-09-22 ends in
+  `startup_failure` with zero jobs. CI will not verify anything; local runs
+  are the only signal.
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `SDK location not found` | `.claude/skills/run-wiccan/driver.sh deps` |
+| `Could not download kotlin-reflect-…jar` during `lintProdRelease` | Transient artifact fetch. Re-run the task; it passes. |
+| `IllegalStateException at FirebaseApp.java:179` in a unit test | Add `@Config(application = android.app.Application::class)` |
+| `ComposeTimeoutException` while capturing | Using `captureToImage()`; switch to `captureRoboImage` |
+| Screenshot test passes but no PNGs | `roborazzi.test.record` not set |
+| `deleteUserData` fails `INTERNAL` in the emulator | `ANDROID_PACKAGE_NAME` was not exported when the emulator started |
+| Emulator port already in use | `pkill -f 'emulator[s]:start'` |

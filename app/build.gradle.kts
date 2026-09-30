@@ -105,6 +105,10 @@ android {
     testOptions {
         unitTests {
             isReturnDefaultValues = true
+            // Robolectric needs merged resources/assets and a real
+            // AndroidManifest to render Compose on the JVM - see
+            // WiccanPaletteScreenshotTest.
+            isIncludeAndroidResources = true
         }
     }
 
@@ -121,6 +125,12 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+// Roborazzi only writes PNGs when recording is enabled; without this the
+// palette screenshot test passes while producing no files at all.
+tasks.withType<Test>().configureEach {
+    systemProperty("roborazzi.test.record", "true")
 }
 
 ksp {
@@ -187,6 +197,11 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    debugImplementation(libs.compose.ui.test.manifest)
 
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
