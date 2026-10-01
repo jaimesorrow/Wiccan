@@ -34,16 +34,14 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      # app/google-services.json is gitignored (holds real Firebase project
-      # credentials) so it never exists on a fresh checkout - without it the
-      # Google Services and Crashlytics Gradle plugins fail before any of
-      # the steps below run. This CI-only placeholder has no real
-      # credentials and is never used outside this workflow.
+      # Keep the fake root config as a build fallback. The checked-in
+      # app/src/prod/google-services.json takes precedence for prod variants
+      # and supplies their registered wiccan-android Firebase configuration.
       - run: cp app/google-services.ci.json app/google-services.json
       - run: bash scripts/release-preflight.sh
       - run: ./gradlew ktlintCheck
-      # "prod" is the flavor whose applicationId (com.jaimesorrow.wiccan)
-      # matches google-services.ci.json above - "dev"/"staging" are scaffolding
+      # "prod" uses com.jaimesorrow.wiccan and its source-set Firebase config.
+      # "dev"/"staging" are scaffolding
       # for real per-environment Firebase projects that don't exist yet
       # (see app/build.gradle.kts's productFlavors comment) and are not
       # built here.
