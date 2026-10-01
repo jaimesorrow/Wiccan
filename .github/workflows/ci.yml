@@ -1,6 +1,31 @@
 name: CI
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
 jobs:
+  branch-current:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Require the PR branch to contain the latest base commit
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          git fetch --no-tags origin "refs/heads/$BASE_REF:refs/remotes/origin/pr-base"
+          if ! git merge-base --is-ancestor refs/remotes/origin/pr-base HEAD; then
+            echo "::error::Update this PR branch with the latest $BASE_REF and rerun CI."
+            exit 1
+          fi
+          echo "PR branch includes $(git rev-parse refs/remotes/origin/pr-base)."
   android:
     runs-on: ubuntu-latest
     steps:
