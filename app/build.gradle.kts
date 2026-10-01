@@ -1,8 +1,8 @@
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.hilt)
@@ -25,7 +25,7 @@ val keystoreProperties = Properties().apply {
 
 android {
     namespace = "com.wiccan.app"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         // Matches the registered wiccan-android Firebase project's package
@@ -93,10 +93,6 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         compose = true
         buildConfig = true
@@ -112,13 +108,13 @@ android {
         }
     }
 
-    sourceSets["main"].kotlin.srcDirs("src/main/kotlin")
-    sourceSets["debug"].kotlin.srcDirs("src/debug/kotlin")
-    sourceSets["release"].kotlin.srcDirs("src/release/kotlin")
-    sourceSets["test"].kotlin.srcDirs("src/test/kotlin")
-    sourceSets["androidTest"].kotlin.srcDirs("src/androidTest/kotlin")
+    sourceSets["main"].kotlin.directories.add("src/main/kotlin")
+    sourceSets["debug"].kotlin.directories.add("src/debug/kotlin")
+    sourceSets["release"].kotlin.directories.add("src/release/kotlin")
+    sourceSets["test"].kotlin.directories.add("src/test/kotlin")
+    sourceSets["androidTest"].kotlin.directories.add("src/androidTest/kotlin")
     // MigrationTestHelper loads each version's exported schema JSON as a test asset.
-    sourceSets["androidTest"].assets.srcDirs("$projectDir/schemas")
+    sourceSets["androidTest"].assets.directories.add("$projectDir/schemas")
 
     packaging {
         resources {
@@ -131,6 +127,12 @@ android {
 // palette screenshot test passes while producing no files at all.
 tasks.withType<Test>().configureEach {
     systemProperty("roborazzi.test.record", "true")
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
 }
 
 ksp {
@@ -167,13 +169,13 @@ dependencies {
     implementation(libs.kotlinx.coroutines.play.services)
 
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.firestore.ktx)
-    implementation(libs.firebase.functions.ktx)
-    implementation(libs.firebase.auth.ktx)
-    implementation(libs.firebase.messaging.ktx)
-    implementation(libs.firebase.crashlytics.ktx)
-    implementation(libs.firebase.analytics.ktx)
-    implementation(libs.firebase.appcheck.ktx)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.functions)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.appcheck)
     implementation(libs.firebase.appcheck.playintegrity)
     // debugImplementation, not implementation: only src/debug's
     // DebugAppCheckProviderInstaller references this, so a release build
