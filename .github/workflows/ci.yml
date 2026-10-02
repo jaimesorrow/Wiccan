@@ -1,6 +1,31 @@
 name: CI
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
 jobs:
+  branch-current:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Require the PR branch to contain the latest base commit
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          git fetch --no-tags origin "refs/heads/$BASE_REF:refs/remotes/origin/pr-base"
+          if ! git merge-base --is-ancestor refs/remotes/origin/pr-base HEAD; then
+            echo "::error::Update this PR branch with the latest $BASE_REF and rerun CI."
+            exit 1
+          fi
+          echo "PR branch includes $(git rev-parse refs/remotes/origin/pr-base)."
   android:
     runs-on: ubuntu-latest
     steps:
@@ -9,11 +34,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      # app/google-services.json is gitignored (holds real Firebase project
-      # credentials) so it never exists on a fresh checkout - without it the
-      # Google Services and Crashlytics Gradle plugins fail before any of
-      # the steps below run. This CI-only placeholder has no real
-      # credentials and is never used outside this workflow.
+      # Keep the fake root config as a build fallback. The checked-in
+      # app/src/prod/google-services.json takes precedence for prod variants
+      # and supplies their registered wiccan-android Firebase configuration.
       - run: cp app/google-services.ci.json app/google-services.json
       # Structural checks (identity drift across config files, conflict
       # markers, committed build output/secrets, missing referenced
@@ -21,8 +44,8 @@ jobs:
       # and catches a class of problem a green build cannot.
       - run: ./scripts/validate-repo.sh --structure
       - run: ./gradlew ktlintCheck
-      # "prod" is the flavor whose applicationId (com.jaimesorrow.wiccan)
-      # matches google-services.ci.json above - "dev"/"staging" are scaffolding
+      # "prod" uses com.jaimesorrow.wiccan and its source-set Firebase config.
+      # "dev"/"staging" are scaffolding
       # for real per-environment Firebase projects that don't exist yet
       # (see app/build.gradle.kts's productFlavors comment) and are not
       # built here.

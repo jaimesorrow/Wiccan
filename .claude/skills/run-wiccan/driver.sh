@@ -20,8 +20,11 @@ cd "$ROOT"
 
 # An existing local.properties wins, so re-running `deps` never installs a
 # second copy of the ~760MB SDK next to one that already works.
-SDK_DIR="$(sed -n 's/^sdk\.dir=//p' local.properties 2>/dev/null | head -1)"
-SDK_DIR="${SDK_DIR:-${ANDROID_SDK_ROOT:-$HOME/android-sdk}}"
+SDK_DIR=""
+if [ -f local.properties ]; then
+  SDK_DIR="$(sed -n 's/^sdk\.dir=//p' local.properties | head -1)"
+fi
+SDK_DIR="${SDK_DIR:-${ANDROID_SDK_ROOT:-${ANDROID_HOME:-$HOME/android-sdk}}}"
 SHOTS="app/build/outputs/roborazzi"
 EMU_LOG="${TMPDIR:-/tmp}/wiccan-emulators.log"
 PROJECT="wiccan-android"
