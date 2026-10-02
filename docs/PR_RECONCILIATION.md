@@ -2,8 +2,11 @@
 
 Base: `eeb63a082b20be8e38fa5b6f4f29d7e351b153d6`.
 GitHub inventory: 41 PRs and 29 surviving branches, including post-PR branch updates.
-This branch combines open PRs #40 and #41 with the requested package-name reconciliation.
-Main is unchanged until this PR is merged.
+PRs #40 and #41 were open at the initial audit and merged while this branch was
+being prepared. Their exact source changes are preserved. The final branch also
+contains main commit `6e2e2b33f0a2813d4ff7dd6eb2bd9696d6764eaf`; the PR now focuses on the requested package-name
+migration and remaining toolchain consistency fixes.
+Main receives this package/toolchain reconciliation only when this PR is merged.
 
 ## Final identity and toolchain
 
@@ -95,8 +98,8 @@ duplicate theme classes, or outdated toolchain versions.
 | [#37](https://github.com/jaimesorrow/Wiccan/pull/37) | Fix fresh-checkout builds and validate current main | Merged into main |
 | [#38](https://github.com/jaimesorrow/Wiccan/pull/38) | Add a repo validation gate and wire it into CI | Merged into main |
 | [#39](https://github.com/jaimesorrow/Wiccan/pull/39) | Modernize the toolchain: Gradle 9, AGP 9, Kotlin 2.4, Billing 9.1 | Merged into main |
-| [#40](https://github.com/jaimesorrow/Wiccan/pull/40) | Modernize the Cloud Functions dependencies | Included in consolidation |
-| [#41](https://github.com/jaimesorrow/Wiccan/pull/41) | Fix AGP 9 source lint and validate latest main build | Included in consolidation |
+| [#40](https://github.com/jaimesorrow/Wiccan/pull/40) | Modernize the Cloud Functions dependencies | Merged into main during preparation; retained in this branch |
+| [#41](https://github.com/jaimesorrow/Wiccan/pull/41) | Fix AGP 9 source lint and validate latest main build | Merged into main during preparation; retained in this branch |
 
 ## Surviving branch inventory
 
@@ -145,4 +148,10 @@ logic is retained. This inventory is not a claim that every rejected proposal or
 planned feature is accepted or complete. PR #31's structured Android lesson fields,
 device validation, signing, live Firebase/Play checks, legal URLs, dev/staging
 project setup and editorial approval remain tracked follow-ups.
+
+## Publication freshness
+
+Final integration base: `6e2e2b33f0a2813d4ff7dd6eb2bd9696d6764eaf`. Compared its changes against the initial
+base: only the #40/#41 paths changed, and all are already represented here.
+The branch was updated with that main commit without reverting any main changes.
 
