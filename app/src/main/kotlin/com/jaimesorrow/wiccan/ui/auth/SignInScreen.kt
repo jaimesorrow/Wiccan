@@ -74,17 +74,19 @@ fun SignInScreen(modifier: Modifier = Modifier, viewModel: SignInViewModel = hil
             )
             Spacer(modifier = Modifier.height(40.dp))
 
-            Button(
-                onClick = { viewModel.onGoogleSignInClick(context) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isLoading,
-            ) {
-                Text("Continue with Google")
-            }
+            if (state.isGoogleSignInAvailable) {
+                Button(
+                    onClick = { viewModel.onGoogleSignInClick(context) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !state.isLoading,
+                ) {
+                    Text("Continue with Google")
+                }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            HairlineDivider(modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+                HairlineDivider(modifier = Modifier.fillMaxWidth())
+                Spacer(modifier = Modifier.height(24.dp))
+            }
 
             OutlinedTextField(
                 value = state.email,

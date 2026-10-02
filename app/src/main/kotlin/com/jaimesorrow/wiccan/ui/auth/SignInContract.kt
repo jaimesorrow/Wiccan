@@ -12,6 +12,7 @@ data class SignInUiState(
     val mode: SignInMode = SignInMode.SIGN_IN,
     val email: String = "",
     val password: String = "",
+    val isGoogleSignInAvailable: Boolean = false,
 )
 
 sealed class SignInUiEvent {

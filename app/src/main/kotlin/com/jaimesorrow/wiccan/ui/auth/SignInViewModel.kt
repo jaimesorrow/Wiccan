@@ -21,7 +21,9 @@ class SignInViewModel @Inject constructor(
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(SignInUiState())
+    private val _state = MutableStateFlow(
+        SignInUiState(isGoogleSignInAvailable = authRepository.isGoogleSignInAvailable()),
+    )
     val state: StateFlow<SignInUiState> = _state.asStateFlow()
 
     private val effectChannel = Channel<SignInUiEffect>(Channel.BUFFERED)
