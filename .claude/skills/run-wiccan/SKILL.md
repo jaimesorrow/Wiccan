@@ -92,6 +92,12 @@ curl -s -X POST http://127.0.0.1:5001/wiccan-android/us-central1/getTodayContent
 .claude/skills/run-wiccan/driver.sh test      # both toolchains
 ```
 
+Current baseline: Java 17, Gradle 9.8.0, AGP 9.4.1, Kotlin 2.4.20 and
+Play Billing 9.1.0. The Android SDK package is `platforms;android-37.0`
+(`compileSdk` 37, `targetSdk` 36); `driver.sh deps` installs that package.
+Ktlint plugin 14.2.0 registers Android source checks under AGP 9, with
+engine 1.0.1 pinned to the project's formatting rules.
+
 `test` runs `ktlintCheck`, `:app:testProdDebugUnitTest`,
 `:app:assembleProdDebug`, `:app:compileProdDebugAndroidTestKotlin`,
 `:app:lintProdRelease`, `:app:bundleProdRelease`,
@@ -130,10 +136,11 @@ These cost real time. All were hit in this container.
   Robolectric.** It calls `forceRedraw`, which needs a real hardware window,
   and dies with `ComposeTimeoutException: Condition still not satisfied after
   2000 ms`. Use Roborazzi's `captureRoboImage` instead.
-- **Roborazzi must be version-matched to Kotlin.** 1.76.0 is built against
-  Kotlin 2.3.0 and fails this project (Kotlin 2.0.21) with *"Module was
-  compiled with an incompatible version of Kotlin … metadata is 2.3.0,
-  expected 2.0.0"*. **1.32.2** works. Check before bumping.
+- **Historical Roborazzi/Kotlin mismatch.** Roborazzi 1.76.0's Kotlin 2.3.0
+  metadata failed under the project's former Kotlin 2.0.21 toolchain.
+  The current Kotlin 2.4.20 baseline passes the screenshot tests with
+  Roborazzi 1.32.2. Verify any later Roborazzi upgrade with those tests;
+  the old compiler mismatch does not establish a current upgrade blocker.
 - **Roborazzi writes nothing unless recording is on.** The test passes and
   produces zero files. `app/build.gradle.kts` sets
   `systemProperty("roborazzi.test.record", "true")` for all test tasks.
@@ -142,9 +149,11 @@ These cost real time. All were hit in this container.
   JVM. Use `android.graphics.BitmapFactory`.
 - **`setContent` may only be called once per `ComposeTestRule`.** Loop by
   swapping state, not by calling it again.
-- **GitHub Actions is billing-blocked.** Every run since 2026-09-22 ends in
-  `startup_failure` with zero jobs. CI will not verify anything; local runs
-  are the only signal.
+- **Hosted Actions startup failures.** Recent runs end in `startup_failure`
+  with zero jobs. Their API records do not identify the exact cause;
+  the earlier billing diagnosis still needs owner confirmation. Record
+  local results separately and check the run-page error and owner Actions
+  billing/budget settings before retrying.
 
 ## Troubleshooting
 

@@ -1,87 +1,98 @@
-# Main integration validation — 2026-10-01
+# Main integration validation — 2026-10-02
 
-Validated `codex/validate-main-build` against main commit
-`52877319bf63dd6b81c3b4ed8a80500f9ccc6a19`, including merged PRs #35 and #36.
-The branch contains that commit; closed, unmerged proposals are not treated
-as accepted changes. This records automated build results, not release approval.
+Validated `codex/fix-main-build-2026-10-02` against main commit
+`eeb63a082b20be8e38fa5b6f4f29d7e351b153d6`, including merged PRs #37, #38
+and #39. The branch contains that commit and retains the Gradle 9 / AGP 9 /
+Kotlin 2.4 / Billing 9 modernization. This records automated build results,
+not release approval or completion of every planned product feature.
+
+## Fixes found during validation
+
+- ktlint plugin 12.1.1 reported success under AGP 9 while checking only
+  Gradle Kotlin scripts. Plugin 14.2.0 restores checks of all five populated
+  Android source sets (133 Kotlin files). The lint engine stays at 1.0.1,
+  preserving the existing formatting rules.
+- The run driver installed API 36 although main now compiles against 37.
+  It now requests Google's `platforms;android-37.0` and `build-tools;37.0.0`,
+  reuses an installed SDK manager and preserves unrelated local properties.
+- Repository validation could use stale Functions dependencies, ignore an
+  install failure, or check an old AAB after bundle compilation failed.
+  It now requires `npm ci`, records failures and skips dependent checks.
+  Failed Git conflict/secret scans also fail validation.
 
 ## Verified locally
 
 | Check | Result |
 |---|---|
-| Release identity/security preflight | PASS — 0 failures |
-| `ktlintCheck` | PASS |
+| Full `scripts/validate-repo.sh` | PASS — structure, 31 preflight checks and both build matrices |
+| `ktlintCheck` | PASS — Kotlin source sets and Gradle scripts |
 | `:app:testProdDebugUnitTest` | PASS — 80 tests, 17 suites, no failures/errors/skips |
 | `:app:assembleProdDebug` | PASS — debug APK produced |
 | `:app:compileProdDebugAndroidTestKotlin` | PASS — compilation only |
 | `:app:bundleProdRelease` | PASS — unsigned release AAB produced |
-| `:app:lintProdRelease` | PASS — 0 errors, 93 warnings |
-| `scripts/check-16kb-alignment.sh` | PASS — all 8 bundled libraries have 16 KB LOAD alignment |
+| `:app:lintProdRelease` | PASS — 0 errors, 64 warnings |
+| `scripts/check-16kb-alignment.sh` | PASS — all 8 libraries have 16 KB LOAD alignment |
 | Functions `npm ci`, build and lint | PASS |
 | Functions Jest | PASS — 98 tests across 14 suites |
-| Isolated Firebase emulator business flows | PASS — 18 assertions, with the App Check qualification below |
-| CI workflow syntax | PASS — Actionlint 1.7.7 |
-| PR ancestry check | PASS — current accepted, stale rejected, updated accepted |
-| Run driver SDK selection | PASS — 5 isolated fresh/existing configuration checks |
+| Validator regression tests | PASS — 8 isolated tests |
+| CI/release workflow syntax | PASS — Actionlint 1.7.12 |
+| Run driver SDK setup | PASS — 6 isolated fresh/existing configuration checks |
+| Fresh SDK manager Java compatibility | PASS — official CLI revision 23.0 runs on Java 17 |
 
-Android used Java 17.0.20.1, Gradle 8.14.3 and Android SDK 36. Functions
-used Node 20.20.2. A clean Android build completed through compilation and
-APK packaging. Its screenshot test initially failed while fetching a
-Robolectric artifact with HTTP 429; the subsequent full matrix passed.
-Maven Central was rate-limited from this environment, so a temporary local
-Gradle init script routed Maven Central and Robolectric runtime downloads
-through `https://maven-central.storage-download.googleapis.com/maven2/`.
-Repository dependency versions and repositories were not changed.
+Android used Java 17.0.20.1, Gradle 9.8.0, AGP 9.4.1, Kotlin 2.4.20 and
+Android SDK 37.0 / Build Tools 37.0.0 (`compileSdk` 37, `targetSdk` 36).
+Functions used Node 20.20.2. Android validation started with `clean`.
+A temporary local Gradle init script routed Maven Central and Robolectric
+runtime downloads through
+`https://maven-central.storage-download.googleapis.com/maven2/` to avoid
+artifact rate limiting. Repository repositories were not changed. Gradle
+workers were limited to two for the shared build environment.
 
-Reproduce the normal matrix from the repository root with an installed SDK:
+Reproduce from the repository root with Java 17, Node 20 and an installed SDK:
 
 ```bash
-bash scripts/release-preflight.sh
-./gradlew clean ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug \
-  :app:compileProdDebugAndroidTestKotlin :app:bundleProdRelease :app:lintProdRelease
-./scripts/check-16kb-alignment.sh
-cd functions && npm ci && npm run build && npm test -- --runInBand && npm run lint
+./gradlew clean
+python3 scripts/test-validate-repo.py
+./scripts/validate-repo.sh
 ```
+
+The validator includes identity/security preflight, formatting, Android
+unit tests, debug packaging, instrumented-test compilation, release lint,
+release packaging, native alignment, and locked Functions installation,
+build, tests and lint. CI also runs the validator regression tests.
 
 All six 822×1782 palette PNGs were generated under
 `app/build/outputs/roborazzi/` and opened for inspection. Specimen text and
 controls render legibly. The harness uses system glyphs at the real type
-scale; actual downloadable fonts, app screens, transitions, widget and
+scale; downloadable fonts, full app screens, transitions, widgets and
 device behavior still require device review.
 
-## Emulator qualification
+## Earlier backend emulator evidence
 
-Firebase CLI 14.22.0 ran Auth, Functions, Firestore and Pub/Sub in the isolated
-`demo-wiccan-validation` project. An unchanged-output run verified App Check
-rejection. Following the run skill, only gitignored `functions/lib/index.js`
-temporarily disabled App Check for the authenticated business-flow run.
-`npm run build` restored it afterward; all eight callables enforce App Check
-in source and generated output. No Functions source changed.
-
-The 18 passing assertions cover authentication, unauthenticated rejection,
-daily selection and idempotence, free/draft filtering, history, terms,
-device registration, time zone, notification preferences, collection-group
-queries, invalid purchase arguments, the daily kill switch, and account/device
-deletion. They do not exercise live Play purchases, FCM delivery or production
-App Check attestation.
+The 2026-10-01 isolated `demo-wiccan-validation` Firebase emulator run
+passed 18 business-flow assertions. It first verified App Check rejection,
+then temporarily disabled enforcement only in gitignored generated
+`functions/lib/index.js` for authenticated business flows, following the
+run skill. A rebuild restored enforcement afterward. No Functions source
+changed in the current main modernization or this PR; this emulator run
+was not repeated on 2026-10-02. It does not verify live Play purchases,
+FCM delivery or production App Check attestation.
 
 ## Remaining limits
 
-- Hosted GitHub Actions continues to end in `startup_failure` before jobs
-  execute. These are local results, not a successful hosted CI run.
-- Release bundles are unsigned without a real upload keystore; this bundle
-  has no signature files. Signing, Play/Firebase setup and live flows remain
-  release prerequisites in `RELEASE_CHECKLIST.md`.
-- Android lint has 93 inherited nonblocking warnings: 49 dependency/toolchain
-  notices, 35 spelling notices, and 9 API/configuration/icon suggestions. AGP 8.7.3 also warns that its
-  tested compile SDK is below 36; Gradle reports deprecated features.
-  Passing checks do not mean the repository has zero warnings.
+- Hosted GitHub Actions ends in `startup_failure` before jobs execute,
+  including the current main run. The API does not establish the account
+  cause. These are local results, not successful hosted CI.
+- The release AAB has no signature files. Signing, Play/Firebase setup and
+  live flows remain release prerequisites in `RELEASE_CHECKLIST.md`.
+- Android lint reports 64 nonblocking warnings, including 35 spelling
+  notices and dependency/API/configuration suggestions. Kotlin and Gradle
+  also report deprecations. Passing checks do not mean zero warnings.
 - Device/Room migration execution, dev/staging Firebase configurations,
-  hosted legal pages and editorial/rights approval of the draft content pool
-  remain outstanding.
-- PR #31 explicitly left Android support for structured `reflection`,
-  `practice` and `difficulty` as follow-up work. The current Android model,
-  cache and detail view omit those fields. This validation does not claim
-  every planned product feature is implemented.
-- `branch-current` must be required by repository rules to block merging.
-  A later base-branch change requires another CI run.
+  hosted legal pages and editorial/rights approval of draft content remain
+  outstanding.
+- PR #31 left Android support for structured `reflection`, `practice` and
+  `difficulty` as follow-up work; the model, cache and detail view omit
+  those fields.
+- `branch-current` must be required by repository rules to block stale
+  merges. A later base-branch change requires another validation run.

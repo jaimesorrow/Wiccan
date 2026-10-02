@@ -32,20 +32,24 @@ PROJECT="wiccan-android"
 log() { printf '\n=== %s ===\n' "$*"; }
 
 cmd_deps() {
-  if [ ! -d "$SDK_DIR/platforms/android-36" ]; then
+  if [ ! -d "$SDK_DIR/platforms/android-37.0" ] || [ ! -d "$SDK_DIR/build-tools/37.0.0" ]; then
     log "Installing Android SDK into $SDK_DIR"
-    mkdir -p "$SDK_DIR/cmdline-tools"
-    local zip="$SDK_DIR/cmdtools.zip"
-    curl -sSL -o "$zip" \
-      https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-    unzip -q "$zip" -d "$SDK_DIR/cmdline-tools"
-    mv "$SDK_DIR/cmdline-tools/cmdline-tools" "$SDK_DIR/cmdline-tools/latest"
-    rm -f "$zip"
+    # Reuse an installed manager when upgrading an existing SDK, rather
+    # than nesting a second cmdline-tools directory under latest.
+    if [ ! -x "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" ]; then
+      mkdir -p "$SDK_DIR/cmdline-tools"
+      local zip="$SDK_DIR/cmdtools.zip"
+      curl -fsSL -o "$zip" \
+        https://dl.google.com/android/repository/commandlinetools-linux-16111833_latest.zip
+      unzip -q "$zip" -d "$SDK_DIR/cmdline-tools"
+      mv "$SDK_DIR/cmdline-tools/cmdline-tools" "$SDK_DIR/cmdline-tools/latest"
+      rm -f "$zip"
+    fi
     yes | "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
-    "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" \
-      "platform-tools" "platforms;android-36" "build-tools;36.0.0" >/dev/null
+    "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK_DIR" \
+      "platform-tools" "platforms;android-37.0" "build-tools;37.0.0" >/dev/null
   fi
-  grep -q '^sdk.dir=' local.properties 2>/dev/null || echo "sdk.dir=$SDK_DIR" > local.properties
+  grep -q '^sdk.dir=' local.properties 2>/dev/null || printf '\nsdk.dir=%s\n' "$SDK_DIR" >> local.properties
   command -v firebase >/dev/null || npm install -g firebase-tools >/dev/null
   [ -d functions/node_modules ] || (cd functions && npm install >/dev/null)
   log "deps ready"

@@ -77,25 +77,33 @@ Run it from the **Actions** tab, or push a `v*` tag.
 
 ## 16KB page size (Android 15+)
 
-- [x] `scripts/check-16kb-alignment.sh` passed on the 2026-10-01 Billing 8 release bundle: all eight native libraries have 16 KB LOAD alignment. Re-run for each release bundle.
+- [x] `scripts/check-16kb-alignment.sh` passed on the 2026-10-02 Billing 9.1.0 release bundle: all eight native libraries have 16 KB LOAD alignment. Re-run for each release bundle.
 
 ## Product flavors (dev/staging/prod)
 
 - The app builds three product flavors, one per environment (see the README's Environments section) — `dev`/`staging`/`prod`, matching `.firebaserc`'s aliases. Production uses the verified source-specific config at `app/src/prod/google-services.json` for Firebase project `wiccan-android` and application ID `com.jaimesorrow.wiccan`. CI still copies `app/google-services.ci.json` as a non-production fallback, but the prod source-set config is authoritative for the prod variant. `dev`/`staging` still need their own real Firebase projects/configs before those variants can be treated as connected environments.
 - [ ] Once real dev/staging Firebase projects exist, add their `google-services.json` files and confirm `./gradlew :app:assembleDevDebug` / `:app:assembleStagingDebug` build cleanly.
 
-## Automated checks (local PASS on 2026-10-01; rerun before release)
+## Automated checks (merged-main run on 2026-10-02; rerun before release)
 
 See [BUILD_VALIDATION.md](BUILD_VALIDATION.md) for exact results and limits.
-Hosted Actions remains blocked before jobs execute; these checks ran locally.
-Android tests: 80 passed. Functions tests: 98 passed. Android release lint:
-zero errors and 93 nonblocking warnings. The release bundle is unsigned.
+The baseline is Java 17, Gradle 9.8.0, AGP 9.4.1, Kotlin 2.4.20 and
+Billing 9.1.0, with `compileSdk` 37 / `targetSdk` 36; the SDK package is
+`platforms;android-37.0`. Hosted Actions reports `startup_failure` before
+jobs execute; its exact cause is unconfirmed. Local Android tests: 80
+passed across 17 suites. Functions: fresh `npm ci`, build, lint and 98
+tests across 14 suites passed. Ktlint plugin 14.2.0 restores Android source
+coverage with engine 1.0.1. Debug and release builds, instrumented-test
+compilation and 16 KB alignment pass. Release lint reports zero errors and
+64 nonblocking warnings. The release bundle is unsigned.
 
 - [x] `bash scripts/release-preflight.sh` — verifies package/Firebase identity, App Check wiring, protected writes, RTDN retry behavior, WorkManager initialization, and obvious committed server-secret patterns
-- [x] `./gradlew ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug :app:compileProdDebugAndroidTestKotlin`
+- [x] `python3 scripts/test-validate-repo.py` — eight isolated failure-path regression checks
+- [x] `./gradlew ktlintCheck :app:testProdDebugUnitTest`
+- [x] `./gradlew :app:assembleProdDebug :app:compileProdDebugAndroidTestKotlin`
 - [x] `./gradlew :app:bundleProdRelease :app:lintProdRelease` — release bundle and lint gate (bundle is unsigned without `keystore.properties`)
-- [x] `./scripts/check-16kb-alignment.sh` — all bundled native libraries pass
-- [x] `cd functions && npm run build && npm test && npm run lint`
+- [x] `./scripts/check-16kb-alignment.sh` — all eight bundled libraries pass
+- [x] `cd functions && npm ci && npm run build && npm test && npm run lint`
 
 ## Needs a real device/emulator (not verified here)
 

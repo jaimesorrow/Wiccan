@@ -24,12 +24,12 @@ file) or is named explicitly as still open, with a reason.
 | Room cache + DAO | PASS |
 | Today/Archive/Settings/Paywall screens (MVI) | PASS |
 | Auth (Credential Manager Google sign-in + Firebase email/password) | PASS |
-| Billing (Play Billing Library 8.0.0, server-verified entitlement) | IN REVIEW — local Android build/test/lint PASS on 2026-10-01; hosted CI and live Play validation pending |
+| Billing (Play Billing Library 9.1.0, server-verified entitlement) | IN REVIEW — local Android build/test/lint PASS on 2026-10-02; hosted CI and live Play validation pending |
 | Content generation pipeline (Claude-backed, admin-only) | PASS |
 | Home-screen widget | PASS |
 | Shared AppResult/AppError error taxonomy | PASS |
 | Full Nyxwell → Wiccan rebrand (including applicationId) | PASS |
-| API 36 baseline (compileSdk/targetSdk 36) | PASS |
+| compileSdk 37 / targetSdk 36 baseline | PASS — local debug and release builds |
 
 ## This pass's repair order
 
@@ -59,11 +59,11 @@ found the following. Each is now addressed as noted:
 | Account deletion didn't cancel the live Play subscription (local record deleted, but Google kept billing) | **FIXED** — `cancelActiveSubscription` calls `purchases.subscriptions.cancel` before the local record is erased |
 | App Check's debug provider shipped inside release builds | **FIXED** — split into build-variant source sets (`src/debug`, `src/release`); verified absent from the release `.aab`'s dex strings |
 | Notifications fired once at a fixed UTC instant, not per-device local 9am | **FIXED** — hourly job now filters to devices whose local time currently reads 9am (`getUserLocalHour`); see the documented hourly-poll-vs-exact-dispatch limitation below |
-| No automated 16KB/ABI native-library check | **FIXED** — `scripts/check-16kb-alignment.sh`, runs in CI against the real release `.aab` on every push; currently passing |
+| No automated 16KB/ABI native-library check | **FIXED** — `scripts/check-16kb-alignment.sh` runs in CI against the release `.aab`; all eight libraries pass on the 2026-10-02 Billing 9.1.0 bundle |
 | No disaster recovery / incident response / maintenance docs | **FIXED** — `docs/DISASTER_RECOVERY.md`, `docs/INCIDENT_RESPONSE.md`, `docs/MAINTENANCE.md` |
-| Billing Library version | **8.0.0 on main, local Android matrix PASS on 2026-10-01; hosted CI pending** — 9.1.0 requires Kotlin ≥2.3.0 and surfaced a KSP/Hilt plugin conflict; see `docs/MAINTENANCE.md`. |
+| Billing Library version | **9.1.0 on main** with Java 17, Gradle 9.8.0, AGP 9.4.1 and Kotlin 2.4.20. Local Android matrix passes; live Play validation remains pending. |
 | Device registration schema is minimal (token + time zone + updatedAt; no `notificationsEnabled`/`platform`/`createdAt`/`lastSeenAt`) | **FIXED** — added all four: `createdAt`/`platform` written on first registration, `notificationsEnabled` is a real per-device toggle with a Settings switch (DataStore-backed locally, since Firestore rules give the client no read access to its own device doc), and `sendDailyNotifications` now skips opted-out devices. |
-| Visual theme is still near-black (`#0A0810`-direction) / generic serif+sans typography, not a distinct final direction | **IN REVIEW** — PR #24 adds six seasonal palettes and typography on main. The local build, tests, lint and six JVM palette specimens pass on 2026-10-01; actual fonts, transitions and app/device visual validation remain required. |
+| Visual theme is still near-black (`#0A0810`-direction) / generic serif+sans typography, not a distinct final direction | **IN REVIEW** — PR #24 adds six seasonal palettes and typography on main. The local build, tests, lint and six JVM palette specimens pass on 2026-10-02; actual fonts, transitions and app/device visual validation remain required. |
 | No Android product flavors for dev/staging/prod (environment separation is `.firebaserc` + `.env` only) | **FIXED** — `dev`/`staging`/`prod` product flavors added (`app/build.gradle.kts`). Prod has the registered client config for `com.jaimesorrow.wiccan` at `app/src/prod/google-services.json`; that source-set config takes precedence over CI's fake root fallback. Dev/staging still need their own configurations. |
 | No runtime kill switches (`dailyContentEnabled`, `notificationsEnabled`, etc.) | **FIXED** — `systemConfig/global` (Firestore, no client access) with both flags, fail-open by default. `getTodayContent` and the hourly notification job both check it before doing anything. |
 | Launch content pool needs approved entries | **Still open** — four curated source records and a 150-entry draft seed are on main; drafts need human editorial/rights review and approval before delivery. |
@@ -72,7 +72,7 @@ found the following. Each is now addressed as noted:
 ## Known remaining gaps
 
 - **Visual/typography redesign** — local build/test/lint and six JVM palette specimens pass; real-device app screens, transitions and actual font appearance still need review before release.
-- **Billing Library major version** — 8.0.0 passes the local build matrix. The separate 9.x upgrade remains blocked by the documented Kotlin/KSP/Hilt toolchain issue (`docs/MAINTENANCE.md`).
+- **Billing runtime validation** — 9.1.0 is integrated with the modernized toolchain and local unit tests pass; live purchases, acknowledgement, restore and RTDN still need Play/Firebase verification.
 - `PolicyUrls` (Terms, Privacy, account deletion) and `SUPPORT_EMAIL` are placeholders — no real hosted pages exist yet.
 - `WiccanDatabaseMigrationTest` compiles clean but has never run against a real SQLite engine — no emulator here.
 - `handlePlayRtdn`, `verifyPurchase`'s field shapes, and the `users/{uid}/devices` collection-group query have never been exercised against a real Play Console / Firebase project.
@@ -81,26 +81,35 @@ found the following. Each is now addressed as noted:
 
 ## Latest automated validation
 
-The 2026-10-01 local matrix passed: debug APK, unsigned release AAB,
-Android formatting/lint, 80 Android tests, instrumented-test compilation,
-16 KB native alignment, Functions build/lint and 98 tests. The isolated
-backend emulator passed 18 assertions with a temporary generated-output
-App Check bypass, followed by a rebuild restoring enforcement. Hosted
-Actions still stops before jobs execute; release lint reports 93 warnings
-and zero errors. See [BUILD_VALIDATION.md](BUILD_VALIDATION.md) for the
-baseline, environment workaround, exact scope and remaining limits.
+The 2026-10-02 merged-main run uses Java 17, Gradle 9.8.0, AGP 9.4.1,
+Kotlin 2.4.20 and Billing 9.1.0, with `compileSdk` 37 / `targetSdk` 36.
+Android unit tests pass: 80 tests across 17 suites. Ktlint plugin 14.2.0
+restores Android source checks after AGP 9; the pinned 1.0.1 engine passes
+the source formatting checks. Functions pass a fresh `npm ci`, build,
+lint and 98 tests across 14 suites. Eight isolated validator regression
+tests pass. Debug APK and unsigned release AAB builds, instrumented-test
+compilation and all eight native libraries' 16 KB alignment pass. Release
+lint reports zero errors and 64 nonblocking warnings.
 
-The run driver now handles a fresh checkout without `local.properties` and
-honors `ANDROID_HOME` after `ANDROID_SDK_ROOT`; five SDK-selection checks
-pass. PR #31's structured Android lesson metadata remains follow-up work.
+The earlier 2026-10-01 isolated backend emulator passed 18 assertions
+with a temporary generated-output App Check bypass, followed by a rebuild
+restoring enforcement. That emulator run was not repeated on 2026-10-02;
+Functions source is unchanged. Recent hosted
+Actions runs stop with `startup_failure` before jobs execute; the exact
+cause is unconfirmed. See [BUILD_VALIDATION.md](BUILD_VALIDATION.md) for
+the current baseline, results and remaining limits.
+
+The run driver installs API 37.0 / Build Tools 37.0.0, reuses an existing
+SDK manager and preserves local properties. It handles fresh checkouts and
+honors `ANDROID_HOME` after `ANDROID_SDK_ROOT`; six isolated SDK setup
+checks pass. PR #31's structured Android lesson metadata remains follow-up work.
 
 ## Final status
 
 **NOT READY FOR RELEASE — BLOCKED BY:** hosted Android CI and live Firebase/Play validation,
 the signing key, Play Console setup, and the unreviewed content pool.
-The later Billing 9.x migration needs a compatible Kotlin/KSP/Hilt toolchain.
 
 The visual/typography implementation remains in review for actual fonts
-and device behavior. Its local theme tests, build/lint and JVM palette
-specimens now pass against the current integration; this does not replace
+and device behavior. Its local build/lint, theme tests and JVM palette
+specimens pass. These specimens do not replace
 a real-device visual pass or live production validation.

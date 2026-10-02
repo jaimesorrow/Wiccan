@@ -108,19 +108,21 @@ One command answers "is this repo whole, consistent, and buildable?":
 ```
 ./scripts/validate-repo.sh              # structure + both build matrices
 ./scripts/validate-repo.sh --structure  # structure only, seconds, no toolchain
+python3 scripts/test-validate-repo.py   # isolated validation failure checks
 ```
 
 It layers cheapest-first: structural invariants, then
-`scripts/release-preflight.sh`, then the same build matrix CI runs — so a
-green run locally means CI would be green too.
+`scripts/release-preflight.sh`, then the same build matrix CI runs.
+Functions dependencies are installed with `npm ci` from the lockfile.
+Hosted Actions must still execute its own run.
 
 The structural layer catches what a successful build cannot: the
 applicationId disagreeing with a `google-services.json`, a Play Billing
 package-name fallback creeping back into `functions/src` (which would let
 a dev/staging call hit the production Play listing), merge-conflict
 markers, committed build output or key material, and workflows pointing at
-scripts that don't exist. CI runs `--structure` before the expensive
-steps.
+scripts that don't exist. CI runs the isolated validation regression tests
+and `--structure` before the expensive steps.
 
 ## Building
 
@@ -138,9 +140,12 @@ and application ID `com.jaimesorrow.wiccan`. Building `dev`/`staging`
 as connected environments still requires each environment's own real
 `google-services.json` under `app/src/dev/` or `app/src/staging/`.
 
-Requires the Android SDK (`compileSdk`/`targetSdk` 36) — set `sdk.dir` in
-a local `local.properties` file or the `ANDROID_HOME` environment
-variable. The current production Firebase file has no OAuth client, so
+The current toolchain uses Java 17, Gradle 9.8.0, AGP 9.4.1 and Kotlin
+2.4.20, with Play Billing 9.1.0. Install the Android SDK platform with
+`sdkmanager "platforms;android-37.0"` (`compileSdk` 37, `targetSdk` 36).
+Set `sdk.dir` in a local `local.properties` file or the `ANDROID_HOME`
+environment variable. The current production Firebase file has no OAuth
+client, so
 Google Sign-In intentionally reports "not configured" until the real Play
 App Signing SHA certificates and Google Auth/OAuth configuration are added
 and Firebase provides a refreshed production config.
@@ -149,9 +154,10 @@ and Firebase provides a refreshed production config.
 
 ```
 cd functions
-npm install
+npm ci
 npm run build   # tsc
 npm test        # jest
+npm run lint    # eslint
 npm run deploy  # firebase deploy --only functions (requires firebase-tools + a linked project)
 ```
 

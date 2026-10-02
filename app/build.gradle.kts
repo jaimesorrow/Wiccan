@@ -11,6 +11,11 @@ plugins {
     alias(libs.plugins.ktlint)
 }
 
+// Update AGP integration without changing the existing formatting rules.
+ktlint {
+    version.set("1.0.1")
+}
+
 // app/keystore.properties is gitignored (holds a real signing key's
 // credentials) so it never exists on a fresh checkout - see
 // keystore.properties.example. Without it, release builds stay unsigned
