@@ -76,7 +76,10 @@ jobs:
             echo "keyPassword=$KEY_PASSWORD"
           } > app/keystore.properties
 
-      - run: bash scripts/release-preflight.sh
+      # Supersedes a bare release-preflight run: this also catches identity
+      # drift between app/build.gradle.kts and the google-services files,
+      # which is exactly the kind of thing that ships a broken release.
+      - run: ./scripts/validate-repo.sh --structure
 
       - run: ./gradlew :app:bundleProdRelease
 
