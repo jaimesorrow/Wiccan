@@ -146,11 +146,14 @@ The current toolchain uses Java 17, Gradle 9.8.0, AGP 9.4.1 and Kotlin
 Set `sdk.dir` in a local `local.properties` file or the `ANDROID_HOME`
 environment variable. The current production Firebase file has no OAuth
 client, so
-Google Sign-In intentionally reports "not configured" until the real Play
+the Google sign-in button stays hidden until the real Play
 App Signing SHA certificates and Google Auth/OAuth configuration are added
 and Firebase provides a refreshed production config.
 
 ### Cloud Functions
+
+Use Node 22, matching `functions/package.json` and the deployed Functions
+runtime. CI reads the Node version from that file.
 
 ```
 cd functions
@@ -192,3 +195,8 @@ users' data.
   suffixes and need their own source-specific Firebase configs once those
   projects exist. `app/google-services.ci.json` remains a deliberately
   fake build fallback and is not the production Firebase configuration.
+
+Package and runtime consistency: `python3 scripts/check-toolchain.py`; regression
+checks: `python3 scripts/test-check-toolchain.py`. See
+[the branch integration audit](docs/BRANCH_INTEGRATION_AUDIT.md) for incorporated
+changes and the retained draft package migration.

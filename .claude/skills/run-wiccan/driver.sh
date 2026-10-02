@@ -51,7 +51,7 @@ cmd_deps() {
   fi
   grep -q '^sdk.dir=' local.properties 2>/dev/null || printf '\nsdk.dir=%s\n' "$SDK_DIR" >> local.properties
   command -v firebase >/dev/null || npm install -g firebase-tools >/dev/null
-  [ -d functions/node_modules ] || (cd functions && npm install >/dev/null)
+  (cd functions && npm ci >/dev/null)
   log "deps ready"
   echo "  sdk.dir=$SDK_DIR"
   echo "  firebase $(firebase --version)"

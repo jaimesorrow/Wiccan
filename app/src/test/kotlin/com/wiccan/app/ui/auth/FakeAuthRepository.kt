@@ -13,6 +13,7 @@ class FakeAuthRepository : AuthRepository {
     private val authStateFlow = MutableStateFlow<AuthState>(AuthState.SignedOut)
     private val accountStatusFlows = mutableMapOf<String, MutableStateFlow<AccountStatus>>()
 
+    var googleSignInAvailable: Boolean = true
     var googleResult: AppResult<Unit> = AppResult.Success(Unit)
     var emailSignInResult: AppResult<Unit> = AppResult.Success(Unit)
     var createAccountResult: AppResult<Unit> = AppResult.Success(Unit)
@@ -46,6 +47,8 @@ class FakeAuthRepository : AuthRepository {
         acceptTermsCallCount++
         return acceptTermsResult
     }
+
+    override fun isGoogleSignInAvailable(): Boolean = googleSignInAvailable
 
     override suspend fun signInWithGoogle(context: Context): AppResult<Unit> = googleResult
 

@@ -97,6 +97,12 @@ Play Billing 9.1.0. The Android SDK package is `platforms;android-37.0`
 (`compileSdk` 37, `targetSdk` 36); `driver.sh deps` installs that package.
 Ktlint plugin 14.2.0 registers Android source checks under AGP 9, with
 engine 1.0.1 pinned to the project's formatting rules.
+Cloud Functions uses Node 22, matching `functions/package.json` and CI.
+For backend emulators, use Firebase CLI 15 or newer with Java 21 or newer.
+CLI 14 calls the removed `functions.config()` API under Functions SDK 7 and
+its request workers can fail at startup. Upgrade an existing CLI before
+running `backend`, and select Java 21 for that command; keep Java 17 for the
+Android checks above.
 
 `test` runs `ktlintCheck`, `:app:testProdDebugUnitTest`,
 `:app:assembleProdDebug`, `:app:compileProdDebugAndroidTestKotlin`,

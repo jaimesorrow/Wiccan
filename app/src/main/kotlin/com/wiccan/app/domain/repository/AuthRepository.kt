@@ -32,6 +32,9 @@ interface AuthRepository {
      */
     suspend fun acceptTerms(): AppResult<Unit>
 
+    /** Whether this build has the web OAuth client required for Google sign-in. */
+    fun isGoogleSignInAvailable(): Boolean
+
     /**
      * [context] must be an Activity context — Credential Manager attaches
      * its account-picker UI to it, the same requirement Billing has for

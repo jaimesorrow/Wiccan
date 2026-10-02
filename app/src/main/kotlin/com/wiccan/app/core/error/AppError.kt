@@ -10,6 +10,7 @@ sealed class AppError {
     object Unauthorized : AppError()
     object NotFound : AppError()
     object NoNewLesson : AppError()
+    object GoogleSignInUnavailable : AppError()
     data class PurchaseVerificationFailed(val reason: String? = null) : AppError()
     data class Unknown(val message: String? = null) : AppError()
 }

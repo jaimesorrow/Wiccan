@@ -35,7 +35,7 @@ val PREMIUM_PRODUCT_IDS: Set<String> = setOf(
 class PlayBillingException(message: String) : IllegalStateException(message)
 
 /**
- * Thin wrapper around Play Billing Library 8.0.0. Entitlement remains
+ * Thin wrapper around Play Billing Library 9.1.0. Entitlement remains
  * server-authoritative; this class only discovers offers, launches Play UI,
  * and reports purchases. Entitlement and acknowledgement are handled server-side.
  */
