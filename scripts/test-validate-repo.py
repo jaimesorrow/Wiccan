@@ -31,7 +31,7 @@ class ValidateRepoTest(unittest.TestCase):
             "VALIDATE_TEST_REAL_GIT": REAL_GIT,
         })
         self.write("scripts/validate-repo.sh", VALIDATOR.read_text(), executable=True)
-        self.write("app/build.gradle.kts", 'applicationId = "com.jaimesorrow.wiccan"\nnamespace = "com.wiccan.app"\n')
+        self.write("app/build.gradle.kts", 'applicationId = "com.jaimesorrow.wiccan"\nnamespace = "com.jaimesorrow.wiccan"\n')
         config = json.dumps({"client": [{"client_info": {"android_client_info": {
             "package_name": "com.jaimesorrow.wiccan",
         }}}]})

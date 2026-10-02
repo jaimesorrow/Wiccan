@@ -63,7 +63,10 @@ runtime downloads through
 artifact rate limiting. Repository repositories were not changed. Gradle
 workers were limited to two for the shared build environment.
 
-Reproduce from the repository root with Java 17, Node 22 and an installed SDK:
+Reproduce the reconciled branch with Java 17, Node 22 and an installed SDK:
+Historical results above describe PR #41 before the Functions upgrade; they
+do not establish a passing build of the combined branch. See
+[PR_RECONCILIATION.md](PR_RECONCILIATION.md) for this integration’s checks.
 
 ```bash
 ./gradlew clean

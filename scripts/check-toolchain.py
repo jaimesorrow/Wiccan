@@ -30,22 +30,22 @@ def main():
     app_id = re.search(r'applicationId\s*=\s*"([^"]+)"', app).group(1)
     namespace = re.search(r'namespace\s*=\s*"([^"]+)"', app).group(1)
     check(app_id == "com.jaimesorrow.wiccan", "production application ID matches registered identity")
-    check(namespace == "com.wiccan.app", "Kotlin namespace retains installed component identity")
+    check(namespace == app_id, "Kotlin namespace matches Firebase package name")
     kotlin_files = list((ROOT / "app/src").glob("*/kotlin/**/*.kt"))
     check(bool(kotlin_files) and all(
-        re.search(r"^package " + re.escape(namespace) + r"(?:\.|\s|$)", p.read_text(), re.MULTILINE)
+        re.search(r"^package " + re.escape(app_id) + r"(?:\.|\s|$)", p.read_text(), re.MULTILINE)
         for p in kotlin_files
-    ), "every Kotlin source and test uses the Kotlin namespace prefix")
-    check((ROOT / ("app/schemas/" + namespace + ".data.local.WiccanDatabase/1.json")).exists()
-          and (ROOT / ("app/schemas/" + namespace + ".data.local.WiccanDatabase/2.json")).exists(),
+    ), "every Kotlin source and test uses the Firebase package prefix")
+    check((ROOT / ("app/schemas/" + app_id + ".data.local.WiccanDatabase/1.json")).exists()
+          and (ROOT / ("app/schemas/" + app_id + ".data.local.WiccanDatabase/2.json")).exists(),
           "Room migration schemas follow the database class package")
     projects = config(".firebaserc")["projects"]
     configured_environments = {}
     for path, expected in [
         ("app/google-services.ci.json", app_id),
         ("app/src/prod/google-services.json", app_id),
-        ("app/src/dev/google-services.json", app_id + ".dev"),
-        ("app/src/staging/google-services.json", app_id + ".staging"),
+        ("app/src/dev/google-services.json", app_id),
+        ("app/src/staging/google-services.json", app_id),
     ]:
         if not (ROOT / path).exists() and "/prod/" not in path and "/src/" in path:
             print("SKIP  " + path + " (environment not configured)")
@@ -67,8 +67,7 @@ def main():
           == projects["production"], "production Firebase project matches alias")
     for flavor in ("dev", "staging"):
         block = re.search(r'create\("' + flavor + r'"\)\s*\{([^}]+)\}', app).group(1)
-        check(re.search(r'applicationIdSuffix\s*=\s*"\.' + flavor + '"', block) is not None,
-              flavor + " retains separate installed identity")
+        check("applicationIdSuffix" not in block, flavor + " uses registered Firebase package")
 
     package = config("functions/package.json")
     lock = config("functions/package-lock.json")["packages"][""]

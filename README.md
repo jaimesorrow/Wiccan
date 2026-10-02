@@ -8,7 +8,7 @@ grimoires.
 ## Structure
 
 ```
-app/                         Android app module (Kotlin, package com.wiccan.app)
+app/                         Android app module (Kotlin, package com.jaimesorrow.wiccan)
   domain/model/                Content, ContentType, ContentTier, ContentStatus,
                                 UserContentHistory, AuthState
   domain/repository/           ContentRepository, SubscriptionRepository,
@@ -108,6 +108,8 @@ One command answers "is this repo whole, consistent, and buildable?":
 ```
 ./scripts/validate-repo.sh              # structure + both build matrices
 ./scripts/validate-repo.sh --structure  # structure only, seconds, no toolchain
+python3 scripts/check-toolchain.py     # package IDs and toolchain consistency
+python3 scripts/test-check-toolchain.py  # isolated package/runtime drift tests
 python3 scripts/test-validate-repo.py   # isolated validation failure checks
 ```
 
@@ -157,6 +159,7 @@ runtime. CI reads the Node version from that file.
 
 ```
 cd functions
+# Use Node 22, matching Firebase deployment and CI.
 npm ci
 npm run build   # tsc
 npm test        # jest
@@ -190,10 +193,10 @@ users' data.
   running a command against whatever project `firebase use` happened to be
   pointed at.
 - The Android app has matching `dev`/`staging`/`prod` product flavors.
-  Production installs as `com.jaimesorrow.wiccan` and uses
-  `app/src/prod/google-services.json`. Dev/staging use application-ID
-  suffixes and need their own source-specific Firebase configs once those
-  projects exist. `app/google-services.ci.json` remains a deliberately
+  All flavors install as `com.jaimesorrow.wiccan`, matching the Firebase
+  package name and Kotlin namespace. Variants replace each other on a device.
+  Production uses `app/src/prod/google-services.json`; dev/staging need
+  separate project configs registering that same package. `app/google-services.ci.json` remains a deliberately
   fake build fallback and is not the production Firebase configuration.
 
 Package and runtime consistency: `python3 scripts/check-toolchain.py`; regression

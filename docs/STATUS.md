@@ -124,3 +124,12 @@ The visual/typography implementation remains in review for actual fonts
 and device behavior. Its local build/lint, theme tests and JVM palette
 specimens pass. These specimens do not replace
 a real-device visual pass or live production validation.
+
+## Package/toolchain consolidation proposal — 2026-10-02
+
+The proposed consolidation combines #40/#41 and aligns all Android flavors,
+Kotlin packages and namespace with Firebase's `com.jaimesorrow.wiccan`.
+Node 22 now agrees across deployment, CI, local selection and lock metadata.
+Configuration/preflight checks pass; compilation and upgrade-device checks
+remain blocked in this environment. See [PR_RECONCILIATION.md](PR_RECONCILIATION.md)
+for the complete PR/branch inventory and explicitly unmerged proposals.

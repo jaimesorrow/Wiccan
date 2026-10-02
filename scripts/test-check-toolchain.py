@@ -55,7 +55,7 @@ class ToolchainCheckTest(unittest.TestCase):
         content = json.loads((self.root / "app/src/prod/google-services.json").read_text())
         content["project_info"]["project_id"] = project_id
         for client in content["client"]:
-            client["client_info"]["android_client_info"]["package_name"] = "com.jaimesorrow.wiccan." + flavor
+            client["client_info"]["android_client_info"]["package_name"] = "com.jaimesorrow.wiccan"
         path.write_text(json.dumps(content))
         aliases = self.root / ".firebaserc"
         content = json.loads(aliases.read_text())
@@ -90,13 +90,14 @@ class ToolchainCheckTest(unittest.TestCase):
         self.assert_rejected("FAIL  lockfile root engines match package.json")
 
     def test_namespace_drift_is_rejected(self):
-        self.replace("app/build.gradle.kts", 'namespace = "com.wiccan.app"',
+        self.replace("app/build.gradle.kts", 'namespace = "com.jaimesorrow.wiccan"',
                      'namespace = "com.other.app"')
-        self.assert_rejected("FAIL  Kotlin namespace retains installed component identity")
+        self.assert_rejected("FAIL  Kotlin namespace matches Firebase package name")
 
-    def test_missing_development_suffix_is_rejected(self):
-        self.replace("app/build.gradle.kts", 'applicationIdSuffix = ".dev"', '')
-        self.assert_rejected("FAIL  dev retains separate installed identity")
+    def test_development_suffix_is_rejected(self):
+        self.replace("app/build.gradle.kts", 'create("dev") {',
+                     'create("dev") {\n applicationIdSuffix = ".dev"')
+        self.assert_rejected("FAIL  dev uses registered Firebase package")
 
     def test_wrong_development_firebase_package_is_rejected(self):
         path = self.root / "app/src/dev/google-services.json"
@@ -153,12 +154,12 @@ class ToolchainCheckTest(unittest.TestCase):
         self.assert_accepted()
 
     def test_old_source_package_is_rejected(self):
-        self.replace("app/src/main/kotlin/com/wiccan/app/MainActivity.kt",
-                     "package com.wiccan.app", "package com.other.app")
-        self.assert_rejected("FAIL  every Kotlin source and test uses the Kotlin namespace prefix")
+        self.replace("app/src/main/kotlin/com/jaimesorrow/wiccan/MainActivity.kt",
+                     "package com.jaimesorrow.wiccan", "package com.other.app")
+        self.assert_rejected("FAIL  every Kotlin source and test uses the Firebase package prefix")
 
     def test_missing_room_migration_schema_is_rejected(self):
-        (self.root / "app/schemas/com.wiccan.app.data.local.WiccanDatabase/1.json").unlink()
+        (self.root / "app/schemas/com.jaimesorrow.wiccan.data.local.WiccanDatabase/1.json").unlink()
         self.assert_rejected("FAIL  Room migration schemas follow the database class package")
 
     def test_legacy_kotlin_plugin_is_rejected(self):
