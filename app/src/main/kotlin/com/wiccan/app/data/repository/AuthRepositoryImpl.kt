@@ -14,6 +14,7 @@ import com.wiccan.app.domain.model.AccountStatus
 import com.wiccan.app.domain.model.AuthState
 import com.wiccan.app.domain.model.PolicyVersions
 import com.wiccan.app.domain.repository.AuthRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +25,7 @@ private const val USERS_COLLECTION = "users"
 private const val GOOGLE_WEB_CLIENT_ID_RESOURCE = "default_web_client_id"
 
 class AuthRepositoryImpl @Inject constructor(
+    @param:ApplicationContext private val appContext: Context,
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     private val googleCredentialDataSource: GoogleCredentialDataSource,
@@ -66,20 +68,24 @@ class AuthRepositoryImpl @Inject constructor(
         AppResult.Failure(t.toAppError())
     }
 
-    override suspend fun signInWithGoogle(context: Context): AppResult<Unit> {
-        val resourceId = context.resources.getIdentifier(
+    override fun isGoogleSignInAvailable(): Boolean = googleWebClientId() != null
+
+    private fun googleWebClientId(): String? {
+        // Google Services only generates this resource when OAuth is configured.
+        // Resolving it by name keeps email sign-in buildable without that provider.
+        val resourceId = appContext.resources.getIdentifier(
             GOOGLE_WEB_CLIENT_ID_RESOURCE,
             "string",
-            context.packageName,
+            appContext.packageName,
         )
-        if (resourceId == 0) {
-            return AppResult.Failure(
-                AppError.Unknown("Google Sign-In is not configured for this build."),
-            )
-        }
+        if (resourceId == 0) return null
+        return appContext.getString(resourceId).takeUnless { it.isBlank() }
+    }
 
+    override suspend fun signInWithGoogle(context: Context): AppResult<Unit> {
         return try {
-            val webClientId = context.getString(resourceId)
+            val webClientId = googleWebClientId()
+                ?: return AppResult.Failure(AppError.GoogleSignInUnavailable)
             val idToken = googleCredentialDataSource.requestGoogleIdToken(context, webClientId)
             val credential = GoogleAuthProvider.getCredential(idToken, null)
             val result = firebaseAuth.signInWithCredential(credential).await()

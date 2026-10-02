@@ -81,23 +81,34 @@ found the following. Each is now addressed as noted:
 
 ## Latest automated validation
 
-The 2026-10-02 merged-main run uses Java 17, Gradle 9.8.0, AGP 9.4.1,
+The 2026-10-02 branch integration run uses Java 17, Gradle 9.8.0, AGP 9.4.1,
 Kotlin 2.4.20 and Billing 9.1.0, with `compileSdk` 37 / `targetSdk` 36.
-Android unit tests pass: 80 tests across 17 suites. Ktlint plugin 14.2.0
+Android unit tests pass: 86 tests across 18 suites. Ktlint plugin 14.2.0
 restores Android source checks after AGP 9; the pinned 1.0.1 engine passes
-the source formatting checks. Functions pass a fresh `npm ci`, build,
+the source formatting checks. Functions on Node 22 pass a fresh `npm ci`, build,
 lint and 98 tests across 14 suites. Eight isolated validator regression
 tests pass. Debug APK and unsigned release AAB builds, instrumented-test
 compilation and all eight native libraries' 16 KB alignment pass. Release
-lint reports zero errors and 64 nonblocking warnings.
+lint reports zero errors and 62 nonblocking warnings.
 
-The earlier 2026-10-01 isolated backend emulator passed 18 assertions
-with a temporary generated-output App Check bypass, followed by a rebuild
-restoring enforcement. That emulator run was not repeated on 2026-10-02;
-Functions source is unchanged. Recent hosted
+The 2026-10-02 isolated backend emulator on Node 22, Firebase CLI 15 and
+Java 21 passed all 18 business-flow assertions, after separately verifying
+App Check rejection. A generated-output-only bypass was rebuilt afterward,
+restoring all eight enforcement settings; Functions source hashes are unchanged.
+A separate Auth-trigger diagnostic passed three assertions after an isolated
+loopback CLI proxy workaround; that tool-only change was restored. Recent hosted
 Actions runs stop with `startup_failure` before jobs execute; the exact
 cause is unconfirmed. See [BUILD_VALIDATION.md](BUILD_VALIDATION.md) for
 the current baseline, results and remaining limits.
+
+The integration audit verifies all 36 previously merged PRs and preserves
+all 28 audited branch heads. Google sign-in is hidden when OAuth is absent,
+with email authentication retained; six new tests cover availability and
+Credential Manager context. CI reads the Functions Node runtime declaration
+and cancels superseded runs. Draft PR #42's safe Node/locked-install fixes
+and adapted package/toolchain gate pass 21 regression tests; its namespace/flavor
+migration branch is retained for widget upgrade and installation-identity work. See
+[BRANCH_INTEGRATION_AUDIT.md](BRANCH_INTEGRATION_AUDIT.md).
 
 The run driver installs API 37.0 / Build Tools 37.0.0, reuses an existing
 SDK manager and preserves local properties. It handles fresh checkouts and
