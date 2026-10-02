@@ -55,7 +55,7 @@ Firebase client configurations; prod has one at `app/src/prod/google-services.js
 ```
 npm run build          # tsc
 npm test               # jest
-npm run lint           # eslint src --ext .ts
+npm run lint           # eslint src (flat config: eslint.config.mjs)
 npm run generate-draft -- --tier <free|premium> ...   # admin CLI, prints resolved project first
 npm run approve-draft -- --contentId <id>
 ```
