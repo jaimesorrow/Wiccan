@@ -155,3 +155,21 @@ Final integration base: `6e2e2b33f0a2813d4ff7dd6eb2bd9696d6764eaf`. Compared its
 base: only the #40/#41 paths changed, and all are already represented here.
 The branch was updated with that main commit without reverting any main changes.
 
+
+## Follow-up verification of PR #42
+
+The package/toolchain gate now has 11 repeatable isolated regression tests,
+including accepting a separately registered dev project with the same package
+and rejecting source-package drift, missing Room migration schemas, legacy
+Kotlin plugin use and missing configuration. CI runs these tests before the gate.
+Both Actions runs for head `b3942c1daca91259818cc52f72ee77b3e17f50fe`
+([run 36977704794](https://github.com/jaimesorrow/Wiccan/actions/runs/36977704794),
+[run 36977704832](https://github.com/jaimesorrow/Wiccan/actions/runs/36977704832))
+ended in `startup_failure`; both job lists are empty. The local proxy still
+refuses connections. These observations establish infrastructure blockers,
+not a passing or failing compile result.
+
+Compared both moved Room schemas against their original main blob hashes:
+contents are identical. Source imports, resource class references and relative
+manifest class names use the new namespace. Database and DataStore filenames
+are preserved. An installed-app upgrade and live widget pass remain necessary.

@@ -109,6 +109,7 @@ One command answers "is this repo whole, consistent, and buildable?":
 ./scripts/validate-repo.sh              # structure + both build matrices
 ./scripts/validate-repo.sh --structure  # structure only, seconds, no toolchain
 python3 scripts/check-toolchain.py     # package IDs and toolchain consistency
+python3 scripts/test-check-toolchain.py  # isolated package/runtime drift tests
 python3 scripts/test-validate-repo.py   # isolated validation failure checks
 ```
 

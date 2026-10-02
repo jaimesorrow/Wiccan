@@ -42,6 +42,7 @@ jobs:
       # markers, committed build output/secrets, missing referenced
       # scripts) plus release-preflight, which it runs internally. Cheap,
       # and catches a class of problem a green build cannot.
+      - run: python3 scripts/test-check-toolchain.py
       - run: python3 scripts/check-toolchain.py
       - run: python3 scripts/test-validate-repo.py
       - run: ./scripts/validate-repo.sh --structure
