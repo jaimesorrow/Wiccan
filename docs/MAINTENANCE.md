@@ -57,13 +57,13 @@ currently handled (automated, manual, or not yet built).
 
 ## Room schema migrations
 
-- Every migration ever shipped lives in `app/src/main/kotlin/com/wiccan/app/data/local/Migrations.kt`'s
+- Every migration ever shipped lives in `app/src/main/kotlin/com/jaimesorrow/wiccan/data/local/Migrations.kt`'s
   `WICCAN_DATABASE_MIGRATIONS` array — **never remove an entry**, even
   one that looks obsolete: a device restoring an old backup, or one that
   simply hasn't updated in a long time, can still be on any prior schema
   version and needs the full migration chain to reach the current one.
 - Each new migration should get a corresponding test in
-  `app/src/androidTest/kotlin/com/wiccan/app/data/local/WiccanDatabaseMigrationTest.kt`
+  `app/src/androidTest/kotlin/com/jaimesorrow/wiccan/data/local/WiccanDatabaseMigrationTest.kt`
   following `MIGRATION_1_2`'s pattern (build the prior version from its
   exported schema JSON in `app/schemas/`, run the migration, assert the
   result) — see `docs/RELEASE_CHECKLIST.md` for why this currently
@@ -71,7 +71,7 @@ currently handled (automated, manual, or not yet built).
 
 ## Seasonal theme mapping
 
-- `app/src/main/kotlin/com/wiccan/app/ui/theme/SeasonalThemeResolver.kt`
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/theme/SeasonalThemeResolver.kt`
   maps the eight-spoke Wheel of the Year to the six `WiccanPalette`
   values, on one continuous mood arc starting and ending at the year's
   darkest point (Yule) and peaking at its brightest (Litha), then
@@ -130,7 +130,7 @@ currently handled (automated, manual, or not yet built).
 ## Policy versions
 
 - `PolicyVersions.TERMS`/`PolicyVersions.PRIVACY`
-  (`app/src/main/kotlin/com/wiccan/app/domain/model/PolicyVersions.kt`)
+  (`app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/PolicyVersions.kt`)
   gate the `RequiresPolicyAcceptance` root state and are checked
   server-side by `acceptTerms` (`functions/src/policyVersions.ts`,
   `functions/src/acceptTerms.ts`). **Bump the relevant constant whenever

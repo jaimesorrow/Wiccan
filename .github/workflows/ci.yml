@@ -42,6 +42,8 @@ jobs:
       # markers, committed build output/secrets, missing referenced
       # scripts) plus release-preflight, which it runs internally. Cheap,
       # and catches a class of problem a green build cannot.
+      - run: python3 scripts/check-toolchain.py
+      - run: python3 scripts/test-validate-repo.py
       - run: ./scripts/validate-repo.sh --structure
       - run: ./gradlew ktlintCheck
       # "prod" uses com.jaimesorrow.wiccan and its source-set Firebase config.
@@ -71,7 +73,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: functions/package-lock.json
       - run: npm ci

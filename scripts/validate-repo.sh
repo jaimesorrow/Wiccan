@@ -12,8 +12,8 @@
 #                   secrets committed, referenced files that don't exist.
 #   2. Preflight  - delegates to scripts/release-preflight.sh (release
 #                   identity + security), rather than restating it here.
-#   3. Build      - the same matrix .github/workflows/ci.yml runs, so a
-#                   green run here means CI would be green too.
+#   3. Build      - run the same build commands as CI locally. Hosted
+#                   Actions execution must be verified separately.
 #
 # Layer 1 exists because the expensive layers cannot catch this class of
 # problem. A build is perfectly happy to compile a repo whose applicationId
@@ -37,7 +37,7 @@ section() { printf '\n%s\n%s\n' "$1" "$(printf '%.0s-' $(seq ${#1}))"; }
 # sign-in both key off the registered client, so a mismatch fails in
 # production while every local build stays green.
 APP_ID="com.jaimesorrow.wiccan"
-NAMESPACE="com.wiccan.app"
+NAMESPACE="$APP_ID"
 
 section "1. Structure"
 
@@ -72,7 +72,7 @@ else
 fi
 
 if grep -Eq "namespace = \"${NAMESPACE//./\\.}\"" app/build.gradle.kts; then
-  pass "Kotlin namespace is $NAMESPACE (intentionally != applicationId)"
+  pass "Kotlin namespace is $NAMESPACE (matches applicationId)"
 else
   fail "Kotlin namespace is not $NAMESPACE"
 fi
@@ -82,7 +82,12 @@ if git grep -nIE '^(<<<<<<< |>>>>>>> |=======$)' -- . >/dev/null 2>&1; then
   fail "merge conflict markers found in tracked files"
   git grep -nIE '^(<<<<<<< |>>>>>>> |=======$)' -- . | head -5 | sed 's/^/        /'
 else
-  pass "no merge conflict markers in tracked files"
+  scan_status=$?
+  if (( scan_status == 1 )); then
+    pass "no merge conflict markers in tracked files"
+  else
+    fail "merge conflict marker scan failed (git grep exit $scan_status)"
+  fi
 fi
 
 stray=$(git ls-files | grep -E '(^|/)(build|lib|node_modules)/|\.(apk|aab|jks|keystore)$|-debug\.log$' || true)
@@ -97,14 +102,19 @@ fi
 if git grep -lIE -- '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|sk-ant-[A-Za-z0-9_-]{20,}' -- . >/dev/null 2>&1; then
   fail "private key material or an API secret is committed"
 else
-  pass "no private key material or API secret committed"
+  scan_status=$?
+  if (( scan_status == 1 )); then
+    pass "no private key material or API secret committed"
+  else
+    fail "secret scan failed (git grep exit $scan_status)"
+  fi
 fi
 
 # --- every referenced file actually exists ------------------------------
 # A workflow or skill that names a missing script fails only when someone
 # runs it, which for the release workflow means at release time.
 missing_refs=0
-for ref in $(grep -ohE '(\./)?scripts/[a-zA-Z0-9_.-]+\.(sh|mjs)' \
+for ref in $(grep -ohE '(\./)?scripts/[a-zA-Z0-9_.-]+\.(sh|mjs|py)' \
              .github/workflows/*.yml .claude/skills/*/SKILL.md .claude/skills/*/driver.sh 2>/dev/null \
              | sed 's|^\./||' | sort -u); do
   [ -f "$ref" ] || { fail "referenced but missing: $ref"; missing_refs=1; }
@@ -157,13 +167,16 @@ section "3. Build - Android"
 # has been observed getting OOM-killed (exit 137) on a 4-core/15GB box.
 run_gradle() {
   local label="$1"; shift
+  local status=0
   if ./gradlew "$@" > /tmp/validate-gradle.$$ 2>&1; then
     pass "$label"
   else
+    status=1
     fail "$label"
     grep -E '^e: |FAILED|Error:|What went wrong' /tmp/validate-gradle.$$ | head -5 | sed 's/^/        /'
   fi
   rm -f /tmp/validate-gradle.$$
+  return "$status"
 }
 
 run_gradle "ktlintCheck"                   ktlintCheck
@@ -171,30 +184,38 @@ run_gradle "unit tests (prodDebug)"        :app:testProdDebugUnitTest
 run_gradle "assemble prodDebug"            :app:assembleProdDebug
 run_gradle "androidTest compiles"          :app:compileProdDebugAndroidTestKotlin
 run_gradle "lint prodRelease"              :app:lintProdRelease
-run_gradle "bundle prodRelease"            :app:bundleProdRelease
-
-if ./scripts/check-16kb-alignment.sh > /tmp/validate-16kb.$$ 2>&1; then
-  pass "16KB alignment on the release bundle"
+if run_gradle "bundle prodRelease" :app:bundleProdRelease; then
+  if ./scripts/check-16kb-alignment.sh > /tmp/validate-16kb.$$ 2>&1; then
+    pass "16KB alignment on the release bundle"
+  else
+    fail "16KB alignment"
+    tail -5 /tmp/validate-16kb.$$ | sed 's/^/        /'
+  fi
+  rm -f /tmp/validate-16kb.$$
 else
-  fail "16KB alignment"
-  tail -5 /tmp/validate-16kb.$$ | sed 's/^/        /'
+  echo "  SKIP  16KB alignment: release bundle build failed"
 fi
-rm -f /tmp/validate-16kb.$$
 
 section "4. Build - Cloud Functions"
-if [ ! -d functions/node_modules ]; then
-  echo "  (installing functions dependencies)"
-  (cd functions && npm install) > /dev/null 2>&1
-fi
-for step in build test lint; do
-  if (cd functions && npm run "$step") > /tmp/validate-fn.$$ 2>&1; then
-    pass "functions npm run $step"
-  else
-    fail "functions npm run $step"
-    tail -5 /tmp/validate-fn.$$ | sed 's/^/        /'
-  fi
+# Match CI's locked install even when an older node_modules directory exists.
+if (cd functions && npm ci) > /tmp/validate-fn.$$ 2>&1; then
+  pass "functions dependencies (npm ci)"
   rm -f /tmp/validate-fn.$$
-done
+  for step in build test lint; do
+    if (cd functions && npm run "$step") > /tmp/validate-fn.$$ 2>&1; then
+      pass "functions npm run $step"
+    else
+      fail "functions npm run $step"
+      tail -5 /tmp/validate-fn.$$ | sed 's/^/        /'
+    fi
+    rm -f /tmp/validate-fn.$$
+  done
+else
+  fail "functions npm ci"
+  tail -5 /tmp/validate-fn.$$ | sed 's/^/        /'
+  rm -f /tmp/validate-fn.$$
+  echo "  SKIP  functions build/test/lint: dependency installation failed"
+fi
 
 section "Result"
 if [ "$failures" -eq 0 ]; then

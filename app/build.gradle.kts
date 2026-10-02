@@ -11,6 +11,11 @@ plugins {
     alias(libs.plugins.ktlint)
 }
 
+// Update AGP integration without changing the existing formatting rules.
+ktlint {
+    version.set("1.0.1")
+}
+
 // app/keystore.properties is gitignored (holds a real signing key's
 // credentials) so it never exists on a fresh checkout - see
 // keystore.properties.example. Without it, release builds stay unsigned
@@ -24,13 +29,11 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    namespace = "com.wiccan.app"
+    namespace = "com.jaimesorrow.wiccan"
     compileSdk = 37
 
     defaultConfig {
-        // Matches the registered wiccan-android Firebase project's package
-        // name (namespace above stays com.wiccan.app - that's just the
-        // Kotlin/R class package, independent of applicationId).
+        // All flavors use the registered Firebase Android package name.
         applicationId = "com.jaimesorrow.wiccan"
         minSdk = 24
         targetSdk = 36
@@ -40,25 +43,17 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    // Mirrors the dev/staging/production Firebase project split in
-    // .firebaserc and the README's Environments section: each flavor is
-    // meant to point at its own separate Firebase project, never share
-    // one across environments. Only "prod" has no applicationId suffix -
-    // it's the real com.jaimesorrow.wiccan, matching google-services.ci.json
-    // and what CI actually builds/tests. "dev"/"staging" are scaffolding:
-    // building them requires that environment's own real
-    // google-services.json under app/src/dev/ or app/src/staging/ (not
-    // present here - no real dev/staging Firebase project exists yet).
+    // Firebase environments remain separate projects, but use the same
+    // registered Android package. Variants cannot be installed side by side.
+    // Dev/staging require their own google-services.json for this package.
     flavorDimensions += "environment"
     productFlavors {
         create("dev") {
             dimension = "environment"
-            applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
         }
         create("staging") {
             dimension = "environment"
-            applicationIdSuffix = ".staging"
             versionNameSuffix = "-staging"
         }
         create("prod") {
@@ -180,7 +175,7 @@ dependencies {
     // debugImplementation, not implementation: only src/debug's
     // DebugAppCheckProviderInstaller references this, so a release build
     // never carries the debug provider class at all - see
-    // com.wiccan.app.appcheck.AppCheckProviderInstaller.
+    // com.jaimesorrow.wiccan.appcheck.AppCheckProviderInstaller.
     debugImplementation(libs.firebase.appcheck.debug)
 
     implementation(libs.androidx.work.runtime.ktx)

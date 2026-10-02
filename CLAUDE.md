@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Wiccan is a Kotlin/Jetpack Compose Android app (Kotlin namespace `com.wiccan.app`, production application ID `com.jaimesorrow.wiccan`)
+Wiccan is a Kotlin/Jetpack Compose Android app (Kotlin namespace `com.jaimesorrow.wiccan`, production application ID `com.jaimesorrow.wiccan`)
 backed by Firebase Cloud Functions (Node/TypeScript, `functions/`). It
 delivers one piece of witchcraft content — a spell, potion, or lesson —
 per day on a subscription. See `README.md` for the module/package
@@ -39,7 +39,7 @@ checked in** (`app/src/prod/`; CI substitutes a placeholder), so generic flavor-
 Run a single test class/method with the standard Gradle test filter, e.g.:
 
 ```
-./gradlew :app:testProdDebugUnitTest --tests "com.wiccan.app.ui.theme.SeasonalThemeResolverTest"
+./gradlew :app:testProdDebugUnitTest --tests "com.jaimesorrow.wiccan.ui.theme.SeasonalThemeResolverTest"
 ./gradlew :app:testProdDebugUnitTest --tests "*.SeasonalThemeResolverTest.mid-period dates*"
 ```
 
@@ -50,12 +50,12 @@ After any native-library-affecting dependency bump, also run
 Requires `ANDROID_HOME`/`sdk.dir`. Dev/staging need their own registered
 Firebase client configurations; prod has one at `app/src/prod/google-services.json`.
 
-### Cloud Functions (from `functions/`)
+### Cloud Functions (from `functions/`, Node 22)
 
 ```
 npm run build          # tsc
 npm test               # jest
-npm run lint           # eslint src --ext .ts
+npm run lint           # eslint src (flat config: eslint.config.mjs)
 npm run generate-draft -- --tier <free|premium> ...   # admin CLI, prints resolved project first
 npm run approve-draft -- --contentId <id>
 ```
@@ -74,7 +74,7 @@ data layer too: most collections are `allow read, write: if false` except
 for the Admin SDK, with the client only ever getting read access to its
 own already-computed results (`firestore.rules`).
 
-### Android app (`app/src/main/kotlin/com/wiccan/app/`)
+### Android app (`app/src/main/kotlin/com/jaimesorrow/wiccan/`)
 
 - **MVI per screen**: each feature under `ui/<feature>/` has a
   `<Feature>Contract.kt` (`UiState` + sealed `UiEvent` + sealed

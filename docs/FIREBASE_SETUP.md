@@ -141,7 +141,8 @@ attestation — treat it as a secret and never commit it.
 
 - `ANTHROPIC_API_KEY` — required by `generateDraft` / `npm run generate-draft`.
 - `ANDROID_PACKAGE_NAME` — **required**, no default. `com.jaimesorrow.wiccan`
-  for production; dev/staging must use their own IDs.
+  for every Android flavor. Separate dev/staging Firebase projects must
+  register this same package; set the value explicitly in each project.
 - `GOOGLE_APPLICATION_CREDENTIALS` — service account JSON with Google Play
   Developer API access. Required by `verifyPurchase`,
   `recheckLapsedSubscriptionsJob`, `handlePlayRtdn`, and `deleteUserData`'s
@@ -170,7 +171,7 @@ fails rather than silently shipping to production.
 
 ## Still outstanding after all of the above
 
-- `PolicyUrls` (`app/src/main/kotlin/com/wiccan/app/core/config/PolicyUrls.kt`)
+- `PolicyUrls` (`app/src/main/kotlin/com/jaimesorrow/wiccan/core/config/PolicyUrls.kt`)
   points at unhosted `wiccan.app` URLs. Play rejects listings with
   placeholder legal URLs, and the Data Safety form needs a publicly
   reachable account-deletion page.

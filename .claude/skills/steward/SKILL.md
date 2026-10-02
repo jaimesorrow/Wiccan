@@ -76,10 +76,11 @@ just the one that happens to compile first.
   very likely solving the wrong layer; the correct fix almost always
   routes through a new or existing Cloud Function callable instead of
   loosening `firestore.rules`.
-- **Play Billing Library is pinned to 8.0.0 pending Android CI validation** — bumping to
-  9.x needs Kotlin ≥2.3.0, which hits a real KSP/Hilt Gradle-plugin
-  classloader conflict. Don't re-attempt this bump without first reading
-  the exact blocker and next steps in `docs/MAINTENANCE.md`.
+- **Use the reconciled toolchain** — Java 17, Gradle 9.8.0, AGP 9.4.1,
+  Kotlin 2.4.20, KSP 2.3.12, Hilt 2.60.1, Room 2.8.5 and Billing 9.1.0.
+  AGP 9 supplies Kotlin support: do not apply `org.jetbrains.kotlin.android`.
+  Keep JVM targeting in `kotlin.compilerOptions`. Functions uses Node 22
+  in deployment and CI; use `npm ci` with the committed lockfile.
 - **`docs/STATUS.md`** is the canonical, actively-maintained tracker of
   what's actually fixed vs. still blocked on external infrastructure. A
   PR that changes that picture (fixes a flagged gap, or introduces a new

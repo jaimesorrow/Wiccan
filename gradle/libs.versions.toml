@@ -16,7 +16,7 @@ coroutines = "1.11.0"
 firebaseBom = "34.19.0"
 googleServices = "4.5.0"
 firebaseCrashlyticsPlugin = "3.0.8"
-ktlint = "12.1.1"
+ktlint = "14.2.0"
 workManager = "2.12.0"
 desugarJdkLibs = "2.1.4"
 billing = "9.1.0"
@@ -97,7 +97,6 @@ compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-mani
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
