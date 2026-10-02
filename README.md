@@ -101,6 +101,27 @@ facts, and safety notes are required whenever meaningful material or
 health risks exist. Lesson artwork should use restrained Wiccan line-art,
 not physical photography.
 
+## Validating the repo
+
+One command answers "is this repo whole, consistent, and buildable?":
+
+```
+./scripts/validate-repo.sh              # structure + both build matrices
+./scripts/validate-repo.sh --structure  # structure only, seconds, no toolchain
+```
+
+It layers cheapest-first: structural invariants, then
+`scripts/release-preflight.sh`, then the same build matrix CI runs — so a
+green run locally means CI would be green too.
+
+The structural layer catches what a successful build cannot: the
+applicationId disagreeing with a `google-services.json`, a Play Billing
+package-name fallback creeping back into `functions/src` (which would let
+a dev/staging call hit the production Play listing), merge-conflict
+markers, committed build output or key material, and workflows pointing at
+scripts that don't exist. CI runs `--structure` before the expensive
+steps.
+
 ## Building
 
 ### Android app

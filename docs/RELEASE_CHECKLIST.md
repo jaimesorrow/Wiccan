@@ -53,9 +53,9 @@ Run it from the **Actions** tab, or push a `v*` tag.
   after upload. The gate looks for `META-INF/<ALIAS>.RSA` inside the
   `.aab`: `jarsigner`'s exit code is `0` even for an unsigned bundle, so it
   cannot be the gate on its own.
-- Unlike `ci.yml`, it does **not** substitute `google-services.ci.json` —
-  a release is built against the real prod config at
-  `app/src/prod/google-services.json`.
+- Both CI and the release workflow use the authoritative prod source-set
+  config at `app/src/prod/google-services.json`. CI additionally copies a
+  fake root fallback; that fallback does not override the prod config.
 - [ ] `versionCode` in `app/build.gradle.kts` must strictly increase on
   every Play submission; bump it before each run (see Versioning below).
 - [ ] After the first upload, add the **Play App Signing** certificate's
@@ -77,20 +77,25 @@ Run it from the **Actions** tab, or push a `v*` tag.
 
 ## 16KB page size (Android 15+)
 
-- [ ] `scripts/check-16kb-alignment.sh` inspects every native library bundled in the release `.aab` and fails if a 64-bit ABI's (arm64-v8a, x86_64) ELF LOAD segments aren't 16KB-aligned. Re-run this check on the Billing 8 bundle; the prior baseline passed.
+- [x] `scripts/check-16kb-alignment.sh` passed on the 2026-10-01 Billing 8 release bundle: all eight native libraries have 16 KB LOAD alignment. Re-run for each release bundle.
 
 ## Product flavors (dev/staging/prod)
 
 - The app builds three product flavors, one per environment (see the README's Environments section) — `dev`/`staging`/`prod`, matching `.firebaserc`'s aliases. Production uses the verified source-specific config at `app/src/prod/google-services.json` for Firebase project `wiccan-android` and application ID `com.jaimesorrow.wiccan`. CI still copies `app/google-services.ci.json` as a non-production fallback, but the prod source-set config is authoritative for the prod variant. `dev`/`staging` still need their own real Firebase projects/configs before those variants can be treated as connected environments.
 - [ ] Once real dev/staging Firebase projects exist, add their `google-services.json` files and confirm `./gradlew :app:assembleDevDebug` / `:app:assembleStagingDebug` build cleanly.
 
-## Automated checks (rerun for this PR before release)
+## Automated checks (local PASS on 2026-10-01; rerun before release)
 
-- [ ] `bash scripts/release-preflight.sh` — verifies package/Firebase identity, App Check wiring, protected writes, RTDN retry behavior, WorkManager initialization, and obvious committed server-secret patterns
-- [ ] `./gradlew ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug :app:compileProdDebugAndroidTestKotlin`
-- [ ] `./gradlew :app:bundleProdRelease :app:lintProdRelease` — release bundle and lint gate (bundle is unsigned without `keystore.properties`)
-- [ ] `./scripts/check-16kb-alignment.sh` — all bundled native libraries pass
-- [ ] `cd functions && npm run build && npm test && npm run lint`
+See [BUILD_VALIDATION.md](BUILD_VALIDATION.md) for exact results and limits.
+Hosted Actions remains blocked before jobs execute; these checks ran locally.
+Android tests: 80 passed. Functions tests: 98 passed. Android release lint:
+zero errors and 93 nonblocking warnings. The release bundle is unsigned.
+
+- [x] `bash scripts/release-preflight.sh` — verifies package/Firebase identity, App Check wiring, protected writes, RTDN retry behavior, WorkManager initialization, and obvious committed server-secret patterns
+- [x] `./gradlew ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug :app:compileProdDebugAndroidTestKotlin`
+- [x] `./gradlew :app:bundleProdRelease :app:lintProdRelease` — release bundle and lint gate (bundle is unsigned without `keystore.properties`)
+- [x] `./scripts/check-16kb-alignment.sh` — all bundled native libraries pass
+- [x] `cd functions && npm run build && npm test && npm run lint`
 
 ## Needs a real device/emulator (not verified here)
 

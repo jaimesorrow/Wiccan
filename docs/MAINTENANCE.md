@@ -25,9 +25,9 @@ currently handled (automated, manual, or not yet built).
 - `npm run approve-draft -- --contentId <id>` publishes one draft, after
   `approveDraft`'s safety/completeness gate passes.
 - **Growing `sources.json`** is a manual, deliberate curation task — see
-  the file's own doc comment: never auto-populated from a crawl. The
-  365-entry launch target referenced in code comments is still just 1
-  source; this is ongoing content work, not a code task.
+  the file's own doc comment: never auto-populated from a crawl. The pool
+  contains four curated ancient sources. Growing the content pool toward
+  the 365-entry launch target remains ongoing editorial work.
 
 ## Play Billing Library version
 
@@ -109,11 +109,15 @@ currently handled (automated, manual, or not yet built).
   Services to actually download the fonts (falls back to the system font
   otherwise); the app already depends on Play Services for Firebase/Play
   Billing, so this adds no new class of device incompatibility.
-- **No on-device visual validation**: like `WiccanDatabaseMigrationTest`,
-  there's no Android emulator in this environment to render the six
-  palettes or capture real screenshots. `WiccanThemePreviews.kt`'s
-  `@Preview` composables are the visual-QA surface — open them in Android
-  Studio's Design view on a real machine before shipping a theme change.
+- **Visual validation**: `WiccanPaletteScreenshotTest` renders all six
+  palettes on the JVM with Robolectric and Roborazzi. Run
+  `.claude/skills/run-wiccan/driver.sh screenshots` to write PNGs under
+  `app/build/outputs/roborazzi/`. These exercise colors, contrast and layout
+  using the real type scale with system font glyphs; they cannot verify
+  Cinzel/Manrope downloads or typeface appearance. `WiccanThemePreviews.kt`
+  also provides `@Preview` composables for Android Studio. A real-device
+  visual pass remains required before release, including the actual fonts
+  and app screens; the JVM specimens do not replace that review.
 
 ## Runtime kill switches
 
