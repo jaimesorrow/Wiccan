@@ -64,6 +64,29 @@ Run it from the **Actions** tab, or push a `v*` tag.
   App Check both fail in production if only the upload key's fingerprint
   is registered.
 
+### Reading the fingerprints
+
+`scripts/signing-fingerprints.sh` prints the SHA-1 and SHA-256 Firebase
+needs, from whichever signing material is to hand:
+
+```bash
+scripts/signing-fingerprints.sh                                   # the debug keystore
+scripts/signing-fingerprints.sh --keystore upload.keystore.jks    # prompts for the password
+scripts/signing-fingerprints.sh --aab app/build/outputs/bundle/prodRelease/app-prod-release.aab
+```
+
+The `--apk`/`--aab` forms read the certificate out of a built artifact, so
+they report what a bundle was *actually* signed with rather than what it was
+meant to be — on an unsigned bundle they say so and exit nonzero. The
+password is prompted for, never taken as an argument, so it stays out of the
+shell history and out of `ps`.
+
+Three separate certificates sign this app over its life and all three need
+registering: the per-machine **debug** key, the **upload** key, and the
+**Play App Signing** key Google generates at first upload. Only the first
+two are derivable locally; the third has to be copied from Play Console →
+Test and release → Setup → App signing.
+
 ## Minification (R8/ProGuard)
 
 - **Current state: `isMinifyEnabled = false`.** `app/proguard-rules.pro` is empty.
