@@ -155,10 +155,13 @@ own already-computed results (`firestore.rules`).
   unverifiable here — say so rather than fabricating a result. See
   `docs/STATUS.md` for the current, honestly-tracked list of what's
   fixed vs. what's blocked on external infrastructure.
-- **Play Billing Library is pinned to 8.0.0** — Android CI validation is pending; bumping to 9.x requires
-  Kotlin ≥2.3.0, which surfaces a KSP/Hilt Gradle-plugin classloader
-  conflict; the exact blocker and next steps are recorded in
-  `docs/MAINTENANCE.md` rather than guessed past.
+- **Play Billing Library is 9.1.0**, on Gradle 9.8 / AGP 9.4.1 / Kotlin
+  2.4.20 / KSP 2.3.12 / Hilt 2.60.1 / Room 2.8.5 / compileSdk 37. Getting
+  there required moving all of them together — each one forced the next;
+  the chain is recorded in `docs/MAINTENANCE.md`. Two AGP 9 rules follow
+  from it: the `kotlin.android` plugin must stay **removed** (AGP 9 has
+  built-in Kotlin support), and `jvmTarget` lives in the top-level
+  `kotlin { compilerOptions { } }` block, not `android.kotlinOptions`.
 - `docs/MAINTENANCE.md` also documents the seasonal theme's exact
   date-to-palette mapping and reasoning, and everything else that's a
   recurring operational task rather than a one-off.

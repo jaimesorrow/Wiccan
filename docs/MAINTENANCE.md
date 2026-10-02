@@ -31,32 +31,29 @@ currently handled (automated, manual, or not yet built).
 
 ## Play Billing Library version
 
-- Main pins 8.0.0 (`gradle/libs.versions.toml`), pending an Android CI build. Google Play's version 7 deadline was August
-  31, 2026, so 7.1.1 is no longer a release target. 9.1.0 is the
-  real latest release (confirmed against Google's Maven metadata) and was
-  attempted directly: bumping the version and recompiling surfaced a real,
-  verified blocker rather than a guess — `billing-ktx:9.1.0`'s Kotlin
-  metadata requires Kotlin compiler **2.3.0 or newer** (this project was
-  on 2.0.21), which itself requires migrating the now-removed
-  `kotlinOptions { jvmTarget = "17" }` DSL to the `compilerOptions` DSL
-  (straightforward — done and reverted along with everything else below,
-  ready to reapply). Bumping Kotlin to 2.3.0 in turn surfaced a KSP/Hilt
-  Gradle-plugin classloader conflict ("KSP plugin was detected to be
-  applied but its task class could not be found") that this sandbox could
-  not resolve with confidence — matching the exact KSP release for
-  Kotlin 2.3.0 needs the real KSP/Kotlin compatibility table, which
-  wasn't reliably obtainable here. Reverted rather than ship a toolchain
-  bump validated only by guesswork.
-- **To finish this**: on a machine with reliable access to KSP's official
-  compatibility docs (https://github.com/google/ksp/releases), bump
-  `kotlin` and `ksp` together to a verified-matching pair at or above
-  Kotlin 2.3.0, re-apply the `compilerOptions` DSL migration (see git
-  history for this attempt), bump `billing` to `9.1.0`, then run the full
-  `./gradlew clean ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug
-  :app:bundleProdRelease` suite before touching `WiccanBillingClient.kt`'s
-  API usage itself (a second, separate verification pass, since Billing
-  9.x's actual method signatures haven't been diffed against 7.1.1 yet —
-  that compile only got as far as the Kotlin/KSP toolchain blocker).
+- **Resolved.** `billing` is now 9.1.0, reached by taking the whole
+  toolchain forward together rather than bumping it alone. The chain, in
+  the order each link forced the next: Billing 9.1.0 needs Kotlin >= 2.3;
+  Kotlin 2.3+ metadata is unreadable to room-compiler 2.6.1 (it throws
+  "unexpected jvm signature V"), so Room moved to 2.8.5; newer KSP needs a
+  newer AGP than 8.7.3; Hilt 2.59+ refuses to apply below AGP 9.0.0; and
+  AGP 9 needs Gradle 9. The resulting set is Gradle 9.8.0, AGP 9.4.1,
+  Kotlin 2.4.20, KSP 2.3.12, Hilt 2.60.1, Room 2.8.5, compileSdk 37.
+- The earlier note here said the KSP/Hilt classloader conflict could not
+  be resolved without KSP's compatibility table. That diagnosis was
+  incomplete: the crash was Room's annotation processor, not KSP's or
+  Hilt's, and the stack trace named it
+  (`androidx.room.compiler.processing...typeNameFromJvmSignature`).
+  Reading the trace rather than the symptom is what unblocked it.
+- Two AGP 9 migrations came with this and are worth knowing before any
+  future build-file edit: the `org.jetbrains.kotlin.android` plugin must
+  be **removed** (AGP 9 has built-in Kotlin support and fails the build if
+  both are applied), and `android.kotlinOptions` is gone — `jvmTarget`
+  now lives in the top-level `kotlin { compilerOptions { } }` block.
+- Firebase BOM 34 dropped the `-ktx` artifacts; the Kotlin extensions are
+  in the main libraries now, so `firebase-firestore-ktx` and friends are
+  just `firebase-firestore`. There was no source change — this app never
+  imported from the `.ktx` packages.
 
 ## Room schema migrations
 

@@ -24,7 +24,10 @@ echo "==========================================="
 
 require_grep 'applicationId = "com\.jaimesorrow\.wiccan"' app/build.gradle.kts   'installed applicationId matches Firebase / Play identity'
 require_grep 'namespace = "com\.wiccan\.app"' app/build.gradle.kts   'Kotlin namespace remains com.wiccan.app'
-require_grep 'compileSdk = 36' app/build.gradle.kts 'compileSdk is API 36'
+require_grep 'compileSdk = 37' app/build.gradle.kts 'compileSdk is API 37'
+# targetSdk trails compileSdk deliberately. Raising compileSdk only lets
+# newer APIs be referenced; raising targetSdk opts the app into new runtime
+# behavior, which cannot be validated without a device. Keep them separate.
 require_grep 'targetSdk = 36' app/build.gradle.kts 'targetSdk is API 36'
 require_grep 'minSdk = 24' app/build.gradle.kts 'minSdk is API 24'
 

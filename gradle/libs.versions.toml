@@ -1,31 +1,31 @@
 [versions]
-agp = "8.7.3"
-kotlin = "2.0.21"
-ksp = "2.0.21-1.0.28"
-coreKtx = "1.15.0"
-coreSplashscreen = "1.0.1"
-lifecycle = "2.8.7"
-activityCompose = "1.9.3"
-composeBom = "2024.12.01"
-hilt = "2.52"
-hiltNavigationCompose = "1.2.0"
-navigationCompose = "2.8.5"
-hiltWork = "1.2.0"
-room = "2.6.1"
-coroutines = "1.9.0"
-firebaseBom = "33.7.0"
-googleServices = "4.4.2"
-firebaseCrashlyticsPlugin = "3.0.2"
+agp = "9.4.1"
+kotlin = "2.4.20"
+ksp = "2.3.12"
+coreKtx = "1.19.1"
+coreSplashscreen = "1.2.0"
+lifecycle = "2.11.0"
+activityCompose = "1.13.0"
+composeBom = "2026.09.00"
+hilt = "2.60.1"
+hiltNavigationCompose = "1.4.0"
+navigationCompose = "2.10.2"
+hiltWork = "1.4.0"
+room = "2.8.5"
+coroutines = "1.11.0"
+firebaseBom = "34.19.0"
+googleServices = "4.5.0"
+firebaseCrashlyticsPlugin = "3.0.8"
 ktlint = "12.1.1"
-workManager = "2.10.0"
+workManager = "2.12.0"
 desugarJdkLibs = "2.1.4"
-billing = "8.0.0"
+billing = "9.1.0"
 glance = "1.2.0"
 credentials = "1.6.0"
 googleid = "1.2.0"
 junit = "4.13.2"
-mockk = "1.13.13"
-coroutinesTest = "1.9.0"
+mockk = "1.14.11"
+coroutinesTest = "1.11.0"
 turbine = "1.2.0"
 androidxTestExtJunit = "1.2.1"
 espressoCore = "3.6.1"
@@ -65,13 +65,13 @@ kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "ko
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
-firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
-firebase-functions-ktx = { group = "com.google.firebase", name = "firebase-functions-ktx" }
-firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
-firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx" }
-firebase-crashlytics-ktx = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
-firebase-analytics-ktx = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
-firebase-appcheck-ktx = { group = "com.google.firebase", name = "firebase-appcheck-ktx" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+firebase-functions = { group = "com.google.firebase", name = "firebase-functions" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-appcheck = { group = "com.google.firebase", name = "firebase-appcheck" }
 firebase-appcheck-playintegrity = { group = "com.google.firebase", name = "firebase-appcheck-playintegrity" }
 firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug" }
 
