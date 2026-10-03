@@ -1,5 +1,9 @@
 # Main integration validation — 2026-10-02
 
+The results below belong to the pre-migration integration branch merged in PR #43.
+PR #42's requested Firebase package migration is now on main via `b13dc64b`.
+The historical successful builds do not validate the migrated package tree. See [PR_RECONCILIATION.md](PR_RECONCILIATION.md) for its separate checks.
+
 Validated `codex/integrate-branches-2026-10-02` against main commit
 `6e2e2b33f0a2813d4ff7dd6eb2bd9696d6764eaf`, including merged PRs #40
 and #41. All 36 merged PRs are present; the branch audit preserves the
@@ -15,8 +19,9 @@ not release approval or completion of every planned product feature.
 - Align CI, lockfile runtime metadata, `.nvmrc` and locked run-driver installs
   with the merged Node 22 Functions runtime. Remove the unused Kotlin Android
   plugin alias and add a package/toolchain drift gate, adapted from draft PR #42.
-  Its namespace/flavor migration remains separate because it breaks existing
-  widget components and changes installed flavor identities.
+  At that validation point the namespace/flavor migration remained separate.
+  PR #42 now carries it as requested; widget upgrade behavior and the changed
+  installed flavor identities still require device verification.
 
 - ktlint plugin 12.1.1 reported success under AGP 9 while checking only
   Gradle Kotlin scripts. Plugin 14.2.0 restores checks of all five populated
@@ -63,10 +68,7 @@ runtime downloads through
 artifact rate limiting. Repository repositories were not changed. Gradle
 workers were limited to two for the shared build environment.
 
-Reproduce the reconciled branch with Java 17, Node 22 and an installed SDK:
-Historical results above describe PR #41 before the Functions upgrade; they
-do not establish a passing build of the combined branch. See
-[PR_RECONCILIATION.md](PR_RECONCILIATION.md) for this integration’s checks.
+Reproduce from the repository root with Java 17, Node 22 and an installed SDK:
 
 ```bash
 ./gradlew clean

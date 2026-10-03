@@ -101,7 +101,7 @@ Actions runs stop with `startup_failure` before jobs execute; the exact
 cause is unconfirmed. See [BUILD_VALIDATION.md](BUILD_VALIDATION.md) for
 the current baseline, results and remaining limits.
 
-The integration audit verifies all 36 previously merged PRs and preserves
+The pre-migration integration audit verifies all 36 previously merged PRs and preserves
 all 28 audited branch heads. Google sign-in is hidden when OAuth is absent,
 with email authentication retained; six new tests cover availability and
 Credential Manager context. CI reads the Functions Node runtime declaration
@@ -133,3 +133,17 @@ Node 22 now agrees across deployment, CI, local selection and lock metadata.
 Configuration/preflight checks pass; compilation and upgrade-device checks
 remain blocked in this environment. See [PR_RECONCILIATION.md](PR_RECONCILIATION.md)
 for the complete PR/branch inventory and explicitly unmerged proposals.
+
+## PR #42 conflict reconciliation
+
+PR #42 merged the Firebase package migration and main `6a375a0e` into main
+`b13dc64b`, including Google sign-in availability handling and all six auth
+tests from PR #43.
+All source/test packages and flavor application IDs use `com.jaimesorrow.wiccan`.
+Its merged gate retains the environment project/alias separation checks, CI
+cancellation and runtime selection from package.json. Main's historical build
+evidence precedes this namespace migration; upgraded widget and app behavior
+still needs its own device verification.
+The resolved branch passes 25 package/toolchain regression tests, eight validator
+regression tests and all 31 release preflight checks. Its source migration has
+not yet received the full Android build matrix recorded above for main.

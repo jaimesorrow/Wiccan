@@ -173,3 +173,30 @@ Compared both moved Room schemas against their original main blob hashes:
 contents are identical. Source imports, resource class references and relative
 manifest class names use the new namespace. Database and DataStore filenames
 are preserved. An installed-app upgrade and live widget pass remain necessary.
+
+## Conflict resolution after PR #43
+
+Merged main `6a375a0ed89c1aa384fdc86c8788761cb718b82f` using Git's command-line
+three-way merge of the exact pinned source trees. This carries the audited branch
+histories and current sign-in availability changes into the Firebase package
+namespace. All six auth tests are preserved, including the newly added repository
+test moved into the renamed source tree. Billing's current-version comment, CI
+concurrency cancellation, package.json runtime selector, and environment
+alias/project separation checks are retained. The earlier inventories above are
+snapshots of their stated audit times; PR #43 subsequently retained the historical
+branch commits without restoring rejected source implementations.
+
+Conflict resolution checks run separately from PR #43's historical build matrix.
+Dependency download and device verification limits still apply to this migration.
+
+The resolved tree passes 25 package/toolchain regression tests, eight validator
+regression tests, the direct consistency gate, structure validation, all 31
+release preflight checks, shell syntax checks and Git whitespace checks. All 134
+Kotlin files from current main are retained under the migrated package, with only
+the intentional periodic worker policy update beyond package substitutions.
+Both Room schemas remain byte-identical. The six auth tests are retained but
+were not executed here because Android dependencies cannot be downloaded.
+
+PR #42 was subsequently merged into main as `b13dc64b97157bc08a4b2bac919b542c42971803`.
+The remaining follow-up strengthens the package gate against per-flavor ID
+overrides and build-type suffixes, and records the migration's validation scope.
