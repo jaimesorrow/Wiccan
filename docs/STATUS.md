@@ -24,7 +24,7 @@ file) or is named explicitly as still open, with a reason.
 | Room cache + DAO | PASS |
 | Today/Archive/Settings/Paywall screens (MVI) | PASS |
 | Auth (Credential Manager Google sign-in + Firebase email/password) | PASS |
-| Billing (Play Billing Library 9.1.0, server-verified entitlement) | IN REVIEW — local Android build/test/lint PASS on 2026-10-02; hosted CI and live Play validation pending |
+| Billing (Play Billing Library 9.1.0, server-verified entitlement) | IN REVIEW — local and hosted Android build/test/lint PASS on 2026-10-02; live Play validation pending |
 | Content generation pipeline (Claude-backed, admin-only) | PASS |
 | Home-screen widget | PASS |
 | Shared AppResult/AppError error taxonomy | PASS |
@@ -96,10 +96,11 @@ Java 21 passed all 18 business-flow assertions, after separately verifying
 App Check rejection. A generated-output-only bypass was rebuilt afterward,
 restoring all eight enforcement settings; Functions source hashes are unchanged.
 A separate Auth-trigger diagnostic passed three assertions after an isolated
-loopback CLI proxy workaround; that tool-only change was restored. Recent hosted
-Actions runs stop with `startup_failure` before jobs execute; the exact
-cause is unconfirmed. See [BUILD_VALIDATION.md](BUILD_VALIDATION.md) for
-the current baseline, results and remaining limits.
+loopback CLI proxy workaround; that tool-only change was restored. Hosted main
+[CI run 37000862807](https://github.com/jaimesorrow/Wiccan/actions/runs/37000862807)
+subsequently passed the full Android and Functions matrix after the Firebase
+package migration. It supersedes the earlier startup failures. See
+[BUILD_VALIDATION.md](BUILD_VALIDATION.md) for the baseline and remaining limits.
 
 The pre-migration integration audit verifies all 36 previously merged PRs and preserves
 all 28 audited branch heads. Google sign-in is hidden when OAuth is absent,
@@ -117,7 +118,7 @@ checks pass. PR #31's structured Android lesson metadata remains follow-up work.
 
 ## Final status
 
-**NOT READY FOR RELEASE — BLOCKED BY:** hosted Android CI and live Firebase/Play validation,
+**NOT READY FOR RELEASE — BLOCKED BY:** live Firebase/Play validation,
 the signing key, Play Console setup, and the unreviewed content pool.
 
 The visual/typography implementation remains in review for actual fonts
@@ -130,8 +131,8 @@ a real-device visual pass or live production validation.
 The proposed consolidation combines #40/#41 and aligns all Android flavors,
 Kotlin packages and namespace with Firebase's `com.jaimesorrow.wiccan`.
 Node 22 now agrees across deployment, CI, local selection and lock metadata.
-Configuration/preflight checks pass; compilation and upgrade-device checks
-remain blocked in this environment. See [PR_RECONCILIATION.md](PR_RECONCILIATION.md)
+Configuration/preflight checks and the hosted production build matrix pass;
+upgrade-device checks remain outstanding. See [PR_RECONCILIATION.md](PR_RECONCILIATION.md)
 for the complete PR/branch inventory and explicitly unmerged proposals.
 
 ## PR #42 conflict reconciliation
@@ -141,9 +142,17 @@ PR #42 merged the Firebase package migration and main `6a375a0e` into main
 tests from PR #43.
 All source/test packages and flavor application IDs use `com.jaimesorrow.wiccan`.
 Its merged gate retains the environment project/alias separation checks, CI
-cancellation and runtime selection from package.json. Main's historical build
-evidence precedes this namespace migration; upgraded widget and app behavior
-still needs its own device verification.
+cancellation and runtime selection from package.json. The earlier local build
+evidence preceded this namespace migration; upgraded widget and app behavior
+still need device verification.
 The resolved branch passes 25 package/toolchain regression tests, eight validator
 regression tests and all 31 release preflight checks. Its source migration has
-not yet received the full Android build matrix recorded above for main.
+received the full Android build matrix in hosted main CI after PR #42 merged.
+
+## CI/dependency follow-up — 2026-10-03
+
+PR #44's initial push matrix also passed with 25 package/toolchain regression
+tests. CI/release actions now use their supported Node 24 runtimes; app builds
+still use Java 17 and Functions use Node 22. The UUID advisory inherited through
+Gaxios is resolved with a targeted override. A fresh locked Functions install,
+build, all 98 tests and lint pass locally; `npm audit` reports zero vulnerabilities.

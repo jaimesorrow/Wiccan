@@ -6,7 +6,7 @@ PRs #40 and #41 were open at the initial audit and merged while this branch was
 being prepared. Their exact source changes are preserved. The final branch also
 contains main commit `6e2e2b33f0a2813d4ff7dd6eb2bd9696d6764eaf`; the PR now focuses on the requested package-name
 migration and remaining toolchain consistency fixes.
-Main receives this package/toolchain reconciliation only when this PR is merged.
+PR #42 merged the package/toolchain reconciliation into main as `b13dc64b`.
 
 ## Final identity and toolchain
 
@@ -32,7 +32,7 @@ so stored worker class names are replaced on upgrade. Existing home-screen widge
 may need to be removed and re-added after their provider class package changes;
 verify an upgrade installation on a device before release.
 
-## Validation in this environment
+## Initial local validation — 2026-10-02
 
 - Package/toolchain consistency check: passes, including all Kotlin package declarations.
 - Five injected faults rejected: CI Node drift, namespace drift, lockfile Node drift,
@@ -46,9 +46,9 @@ verify an upgrade installation on a device before release.
   No combined-branch compilation, Android tests, Functions tests or device tests
   are claimed as passing here.
 
-The historical build evidence in BUILD_VALIDATION.md belongs to its named source
-branch. It does not validate this combination or the Kotlin package migration.
-Keep this consolidation in draft until both toolchains and upgrade behavior pass.
+Those initial local checks did not validate the package migration's full build
+matrix. The later hosted main run below does; device upgrade behavior remains
+outstanding. The original source-branch results retain their historical scope.
 
 ## PR inventory
 
@@ -165,8 +165,8 @@ Kotlin plugin use and missing configuration. CI runs these tests before the gate
 Both Actions runs for head `b3942c1daca91259818cc52f72ee77b3e17f50fe`
 ([run 36977704794](https://github.com/jaimesorrow/Wiccan/actions/runs/36977704794),
 [run 36977704832](https://github.com/jaimesorrow/Wiccan/actions/runs/36977704832))
-ended in `startup_failure`; both job lists are empty. The local proxy still
-refuses connections. These observations establish infrastructure blockers,
+ended in `startup_failure`; both job lists are empty. At that validation point,
+the local proxy refused connections. Those observations established infrastructure blockers,
 not a passing or failing compile result.
 
 Compared both moved Room schemas against their original main blob hashes:
@@ -186,17 +186,35 @@ alias/project separation checks are retained. The earlier inventories above are
 snapshots of their stated audit times; PR #43 subsequently retained the historical
 branch commits without restoring rejected source implementations.
 
-Conflict resolution checks run separately from PR #43's historical build matrix.
-Dependency download and device verification limits still apply to this migration.
+Conflict resolution checks ran separately from PR #43's historical build matrix.
+Dependency downloads were blocked during those checks; later hosted CI resolves
+that build limitation. Device verification remains outstanding.
 
 The resolved tree passes 25 package/toolchain regression tests, eight validator
 regression tests, the direct consistency gate, structure validation, all 31
 release preflight checks, shell syntax checks and Git whitespace checks. All 134
 Kotlin files from current main are retained under the migrated package, with only
 the intentional periodic worker policy update beyond package substitutions.
-Both Room schemas remain byte-identical. The six auth tests are retained but
-were not executed here because Android dependencies cannot be downloaded.
+Both Room schemas remain byte-identical. The six auth tests were retained but
+not executed in the initial local environment; hosted CI later passed them.
 
 PR #42 was subsequently merged into main as `b13dc64b97157bc08a4b2bac919b542c42971803`.
 The remaining follow-up strengthens the package gate against per-flavor ID
 overrides and build-type suffixes, and records the migration's validation scope.
+
+## Current verification — 2026-10-03
+
+Migrated main `b13dc64b` passed the full Android and Functions matrix in
+[run 37000862807](https://github.com/jaimesorrow/Wiccan/actions/runs/37000862807).
+PR #44 head `19eb7f56` also passed its push matrix in
+[run 37117289241](https://github.com/jaimesorrow/Wiccan/actions/runs/37117289241),
+including the 25 package/toolchain tests and migrated Android source tree.
+See [BUILD_VALIDATION.md](BUILD_VALIDATION.md) for the checks and device limits.
+
+The follow-up also upgrades CI/release actions to their Node 24 runtime releases,
+while retaining Java 17 and Functions Node 22. A Gaxios-specific override moves
+its vulnerable UUID dependency to 11.1.1, resolving GHSA-w5hq-g745-h8pq without
+changing direct dependency versions. On Node 22, a fresh locked install, TypeScript
+build, all 98 Functions tests across 14 suites, ESLint and a multipart request
+compatibility check pass; `npm audit` reports zero vulnerabilities. Existing
+transitive deprecation notices are warnings, not audit findings.

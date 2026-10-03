@@ -2,7 +2,9 @@
 
 The results below belong to the pre-migration integration branch merged in PR #43.
 PR #42's requested Firebase package migration is now on main via `b13dc64b`.
-The historical successful builds do not validate the migrated package tree. See [PR_RECONCILIATION.md](PR_RECONCILIATION.md) for its separate checks.
+The historical local builds do not validate the migrated package tree. The
+later hosted validation below does verify its automated build matrix. See
+[PR_RECONCILIATION.md](PR_RECONCILIATION.md) for the package audit and device limits.
 
 Validated `codex/integrate-branches-2026-10-02` against main commit
 `6e2e2b33f0a2813d4ff7dd6eb2bd9696d6764eaf`, including merged PRs #40
@@ -89,6 +91,27 @@ controls render legibly. The harness uses system glyphs at the real type
 scale; downloadable fonts, full app screens, transitions, widgets and
 device behavior still require device review.
 
+## Hosted validation after the package migration — 2026-10-02
+
+Main `b13dc64b97157bc08a4b2bac919b542c42971803`, containing PR #42's Firebase
+package migration, passed [CI run 37000862807](https://github.com/jaimesorrow/Wiccan/actions/runs/37000862807).
+The Android job completed on 2026-10-02 at 11:32 UTC; the Functions job also passed.
+
+| Check | Hosted result |
+|---|---|
+| Package/toolchain gate and structure/preflight | PASS — 21 gate tests, 8 validator tests, 31 preflight checks |
+| `ktlintCheck` and `:app:testProdDebugUnitTest` | PASS — includes the migrated auth tests |
+| `:app:assembleProdDebug` | PASS |
+| `:app:compileProdDebugAndroidTestKotlin` | PASS — compilation only |
+| `:app:bundleProdRelease` and `:app:lintProdRelease` | PASS — unsigned bundle |
+| Native alignment | PASS — all 8 libraries checked; all 64-bit libraries aligned to 16 KB |
+| Functions locked install, build, Jest and lint | PASS — 98 tests across 14 suites |
+
+This supersedes the earlier hosted startup failures and the package migration's
+dependency-download blocker. Java 17 and Functions Node 22 remain the supported
+build runtimes. Installed-app, widget and Room upgrades still need device testing;
+compiling instrumented tests does not execute them.
+
 ## Current backend emulator evidence
 
 The 2026-10-02 isolated `demo-wiccan-integration-20261002` Firebase emulator run
@@ -116,9 +139,6 @@ were unchanged.
 
 ## Remaining limits
 
-- Hosted GitHub Actions ends in `startup_failure` before jobs execute,
-  including the current main run. The API does not establish the account
-  cause. These are local results, not successful hosted CI.
 - The release AAB has no signature files. Signing, Play/Firebase setup and
   live flows remain release prerequisites in `RELEASE_CHECKLIST.md`.
 - Android lint reports 62 nonblocking warnings, including 35 spelling
