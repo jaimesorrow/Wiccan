@@ -63,6 +63,24 @@ class PaywallViewModelTest {
     }
 
     @Test
+    fun `retrying a failed price query restores loading and recovers checkout price`() = runTest(dispatcher) {
+        repository.priceResult = AppResult.Failure(AppError.Network)
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertFalse(viewModel.state.value.isLoadingPrice)
+        assertEquals(null, viewModel.state.value.price)
+
+        repository.priceResult = AppResult.Success("$4.99/mo")
+        viewModel.onEvent(PaywallUiEvent.RetryPriceClicked)
+        assertTrue(viewModel.state.value.isLoadingPrice)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(2, repository.priceCallCount)
+        assertEquals("$4.99/mo", viewModel.state.value.price)
+        assertFalse(viewModel.state.value.isLoadingPrice)
+    }
+
+    @Test
     fun `subscribe delegates to the repository's launchPurchaseFlow`() = runTest(dispatcher) {
         val viewModel = PaywallViewModel(repository, analyticsLogger)
         val activity = mockk<Activity>()

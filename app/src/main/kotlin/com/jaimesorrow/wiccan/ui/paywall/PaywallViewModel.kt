@@ -37,6 +37,7 @@ class PaywallViewModel @Inject constructor(
     fun onEvent(event: PaywallUiEvent) {
         when (event) {
             PaywallUiEvent.RestorePurchasesClicked -> restorePurchases()
+            PaywallUiEvent.RetryPriceClicked -> loadPrice()
         }
     }
 
@@ -50,6 +51,7 @@ class PaywallViewModel @Inject constructor(
     }
 
     private fun loadPrice() {
+        _state.update { it.copy(isLoadingPrice = true) }
         viewModelScope.launch {
             when (val result = subscriptionRepository.getFormattedPrice()) {
                 is AppResult.Success -> _state.update { it.copy(isLoadingPrice = false, price = result.data) }

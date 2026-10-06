@@ -109,6 +109,12 @@ fun PaywallScreen(
                     )
                 }
 
+                if (!state.isLoadingPrice && state.price == null) {
+                    TextButton(onClick = { viewModel.onEvent(PaywallUiEvent.RetryPriceClicked) }) {
+                        Text("Retry price")
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     onClick = { context.findActivity()?.let(viewModel::subscribe) },

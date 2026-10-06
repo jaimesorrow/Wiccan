@@ -36,6 +36,7 @@ export async function handleRtdnNotification(
   if (!uid && info.linkedPurchaseToken) uid = await users.findUidByPurchaseToken(info.linkedPurchaseToken);
   if (!uid) return null;
   if (info.obfuscatedExternalAccountId && info.obfuscatedExternalAccountId !== obfuscatedAccountId(uid)) return null;
+  if (isReplacement && (info.state === "pending" || info.state === "pending_purchase_canceled")) return null;
   const tier = tierForSubscription(info);
 
   const syncedTier = await users.setTier(

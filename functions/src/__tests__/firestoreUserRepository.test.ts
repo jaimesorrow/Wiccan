@@ -9,7 +9,7 @@ import { Auth } from "firebase-admin/auth";
 
 type Data = Record<string, unknown>;
 type Reference = { path: string };
-type Query = { path: string; field: string; value: unknown; max: number };
+type Query = { path: string; field?: string; value?: unknown; max?: number };
 
 /** Minimal optimistic transaction store; retries when competing claims commit first. */
 function transactionalStore() {
@@ -20,7 +20,11 @@ function transactionalStore() {
     id: path.split("/").at(-1), exists: source.has(path), get: (field: string) => source.get(path)?.[field],
   });
   const collection = (path: string) => ({
-    doc: (id: string): Reference => ({ path: `${path}/${id}` }),
+    path,
+    doc: (id: string) => ({
+      path: `${path}/${id}`,
+      collection: (name: string) => collection(`${path}/${id}/${name}`),
+    }),
     where: (field: string, _operator: string, value: unknown) => ({
       limit: (max: number): Query => ({ path, field, value, max }),
     }),
@@ -35,9 +39,13 @@ function transactionalStore() {
         const writes: [string, Data][] = [];
         const result = await callback({
           get: async (ref: Reference | Query) => {
-            if ("field" in ref) return { docs: [...source.entries()]
-              .filter(([path, data]) => path.startsWith(`${ref.path}/`) && data[ref.field] === ref.value)
-              .slice(0, ref.max).map(([path]) => snapshot(path, source)) };
+            if ("field" in ref || ref.path.split("/").length % 2 === 1) return { docs: [...source.entries()]
+              .filter(([path, data]) => path.startsWith(`${ref.path}/`) &&
+                (ref.field === undefined || data[ref.field] === ref.value))
+              .filter(([path]) => path.split("/").length === ref.path.split("/").length + 1)
+              .slice(0, ref.max).map(([path]) => ({
+                ...snapshot(path, source), ref: { path },
+              })) };
             return snapshot(ref.path, source);
           },
           set: (ref: Reference, data: Data, options?: { merge: boolean }) => {
@@ -82,6 +90,25 @@ describe("Firestore subscription ownership transactions", () => {
     await expect(new FirestoreUserRepository(store.db).setTier("bob", "premium", "legacy-token"))
       .rejects.toBeInstanceOf(PurchaseTokenOwnershipError);
     expect(store.rows.get("users/bob")?.tier).toBe("free");
+  });
+
+  it("reserves an independent legacy token before replacing the current token", async () => {
+    const store = transactionalStore();
+    store.rows.set("users/alice", { tier: "premium", purchaseToken: "monthly-token" });
+    store.rows.set(`purchaseTokens/${purchaseTokenDocumentId("monthly-token")}`, {
+      accountId: obfuscatedAccountId("alice"), auditMarker: "preserve",
+    });
+    const users = new FirestoreUserRepository(store.db);
+
+    await users.setTier("alice", "premium", "yearly-token");
+
+    expect(store.rows.get(`purchaseTokens/${purchaseTokenDocumentId("monthly-token")}`))
+      .toMatchObject({ accountId: obfuscatedAccountId("alice"), auditMarker: "preserve" });
+    expect(store.rows.get(`purchaseTokens/${purchaseTokenDocumentId("monthly-token")}`)).not.toHaveProperty("superseded");
+    expect(store.rows.get(`userPurchaseTokens/alice/tokens/${purchaseTokenDocumentId("monthly-token")}`))
+      .toMatchObject({ purchaseToken: "monthly-token" });
+    expect(store.rows.get(`userPurchaseTokens/alice/tokens/${purchaseTokenDocumentId("yearly-token")}`))
+      .toMatchObject({ purchaseToken: "yearly-token" });
   });
 
   it("rejects a stale refresh/replacement and cannot recreate deleted users", async () => {
@@ -135,6 +162,40 @@ describe("Firestore subscription ownership transactions", () => {
     expect(store.rows.get("users/alice")?.deletionInProgress).toBe(true);
     await expect(new FirestoreUserRepository(store.db).setTier("alice", "premium", "new-token"))
       .rejects.toThrow("being deleted");
+  });
+
+  it("reserves a pre-registry token before deletion, including without an initial registry entry", async () => {
+    const store = transactionalStore();
+    store.rows.set("users/alice", { tier: "premium", purchaseToken: "legacy-token" });
+    const billing = new FakePlayBillingPort();
+    billing.respondWith("legacy-token", "active", ["wiccan_premium_monthly"], { autoRenewing: false });
+    const deletion = new FirestoreAccountDeletionRepository(store.db, {} as Auth, billing);
+
+    await deletion.cancelActiveSubscription("alice");
+
+    expect(store.rows.get(`purchaseTokens/${purchaseTokenDocumentId("legacy-token")}`))
+      .toMatchObject({ accountId: obfuscatedAccountId("alice") });
+    expect(store.rows.get("users/alice")?.deletionInProgress).toBe(true);
+  });
+
+  it("cancels every independently owned renewing token before deletion", async () => {
+    const store = transactionalStore();
+    store.rows.set("users/alice", { tier: "premium", purchaseToken: "yearly-token" });
+    const users = new FirestoreUserRepository(store.db);
+    await users.setTier("alice", "premium", "monthly-token");
+    await users.setTier("alice", "premium", "yearly-token");
+    const billing = new FakePlayBillingPort();
+    billing.respondWith("monthly-token", "active", ["wiccan_premium_monthly"], { autoRenewing: true });
+    billing.respondWith("yearly-token", "active", ["wiccan_premium_yearly"], { autoRenewing: true });
+    const deletion = new FirestoreAccountDeletionRepository(store.db, {} as Auth, billing);
+
+    await deletion.cancelActiveSubscription("alice");
+
+    expect(billing.canceledTokens).toEqual(expect.arrayContaining([
+      { purchaseToken: "monthly-token", productId: "wiccan_premium_monthly" },
+      { purchaseToken: "yearly-token", productId: "wiccan_premium_yearly" },
+    ]));
+    expect(billing.canceledTokens).toHaveLength(2);
   });
 
   it("preserves purchase details and keeps new purchases frozen when cancellation fails", async () => {

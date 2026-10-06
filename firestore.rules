@@ -49,6 +49,9 @@ service cloud.firestore {
     match /purchaseTokens/{tokenHash} {
       allow read, write: if false;
     }
+    match /userPurchaseTokens/{uid}/tokens/{tokenHash} {
+      allow read, write: if false;
+    }
 
     // Ops-only runtime kill switches (dailyContentEnabled,
     // notificationsEnabled). Read only by the Admin SDK inside

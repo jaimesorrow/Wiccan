@@ -34,8 +34,11 @@ export class FakeUserRepository implements UserRepositoryPort {
     const linkedOwner = previousPurchaseToken ? this.tokenOwners.get(previousPurchaseToken) : undefined;
     if (linkedOwner && linkedOwner !== uid) throw new PurchaseTokenOwnershipError("The previous subscription belongs to another account.");
     this.tokenOwners.set(purchaseToken, uid);
-    if (source !== "refresh" && tier === "free" && existing?.tier === "premium" &&
+    if (source !== "replacement" && source !== "refresh" && tier === "free" && existing?.tier === "premium" &&
       existing.purchaseToken && existing.purchaseToken !== purchaseToken) return "premium";
+    if (source !== "refresh" && existing.purchaseToken && existing.purchaseToken !== purchaseToken) {
+      this.tokenOwners.set(existing.purchaseToken, uid);
+    }
     if (source !== "refresh" && previousPurchaseToken && previousPurchaseToken !== purchaseToken) {
       this.supersededTokens.add(previousPurchaseToken);
     }

@@ -10,6 +10,7 @@ import { obfuscatedAccountId, purchaseTokenDocumentId } from "./billingIdentity"
 
 const USERS_COLLECTION = "users";
 const PURCHASE_TOKENS_COLLECTION = "purchaseTokens";
+const USER_PURCHASE_TOKENS_COLLECTION = "userPurchaseTokens";
 
 export class FirestoreUserRepository implements UserRepositoryPort {
   constructor(private readonly db: Firestore) {}
@@ -52,6 +53,16 @@ export class FirestoreUserRepository implements UserRepositoryPort {
           throw new PurchaseTokenOwnershipError("The previous subscription belongs to another account.");
         }
       }
+      const currentPurchaseToken = user.get("purchaseToken");
+      const outgoingToken = source !== "refresh" && typeof currentPurchaseToken === "string" &&
+        currentPurchaseToken !== purchaseToken ? currentPurchaseToken : undefined;
+      const outgoingRef = outgoingToken
+        ? this.db.collection(PURCHASE_TOKENS_COLLECTION).doc(purchaseTokenDocumentId(outgoingToken)) : null;
+      const outgoingOwnership = outgoingRef ? await transaction.get(outgoingRef) : null;
+      const outgoingOwner = outgoingOwnership?.get("accountId");
+      if (outgoingOwner && outgoingOwner !== obfuscatedAccountId(uid)) {
+        throw new PurchaseTokenOwnershipError("The current subscription belongs to another account.");
+      }
       if (!owner) {
         // Protect purchases recorded before the ownership registry existed.
         const legacyOwners = await transaction.get(
@@ -61,9 +72,13 @@ export class FirestoreUserRepository implements UserRepositoryPort {
           throw new PurchaseTokenOwnershipError("This purchase is already linked to another account.");
         }
       }
-      if (source !== "refresh" && tier === "free" && user.get("tier") === "premium" &&
+      if (source !== "replacement" && source !== "refresh" && tier === "free" && user.get("tier") === "premium" &&
         user.get("purchaseToken") && user.get("purchaseToken") !== purchaseToken) {
         transaction.set(tokenRef, { accountId: obfuscatedAccountId(uid), updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+        transaction.set(this.userPurchaseTokenRef(uid, purchaseToken), {
+          purchaseToken,
+          updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
         return "premium";
       }
       const previousRef = source !== "refresh" && previousPurchaseToken && previousPurchaseToken !== purchaseToken
@@ -72,11 +87,24 @@ export class FirestoreUserRepository implements UserRepositoryPort {
       // Only Play's linked predecessor is superseded. An independently
       // purchased subscription can still be restored on this same account.
       transaction.set(tokenRef, { accountId: obfuscatedAccountId(uid), updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      if (outgoingRef) {
+        transaction.set(outgoingRef, {
+          accountId: obfuscatedAccountId(uid), updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
+        transaction.set(this.userPurchaseTokenRef(uid, outgoingToken!), {
+          purchaseToken: outgoingToken,
+          updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
+      }
       if (previousRef && (!previousOwner || previousOwner === obfuscatedAccountId(uid))) {
         transaction.set(previousRef, {
           accountId: obfuscatedAccountId(uid), superseded: true, updatedAt: FieldValue.serverTimestamp(),
         }, { merge: true });
       }
+      transaction.set(this.userPurchaseTokenRef(uid, purchaseToken), {
+        purchaseToken,
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
       transaction.set(userRef, { tier, purchaseToken, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
       return tier;
     });
@@ -96,5 +124,10 @@ export class FirestoreUserRepository implements UserRepositoryPort {
       .limit(1)
       .get();
     return snap.empty ? null : snap.docs[0].id;
+  }
+
+  private userPurchaseTokenRef(uid: string, purchaseToken: string) {
+    return this.db.collection(USER_PURCHASE_TOKENS_COLLECTION).doc(uid)
+      .collection("tokens").doc(purchaseTokenDocumentId(purchaseToken));
   }
 }

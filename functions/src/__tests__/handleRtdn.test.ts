@@ -135,4 +135,32 @@ describe("handleRtdnNotification", () => {
     expect(users.users.get("user-1")?.purchaseToken).toBe("replacement-token");
     expect(billing.acknowledgedTokens).toEqual([{ purchaseToken: "replacement-token", productId: PRODUCT_ID }]);
   });
+
+  it.each(["on_hold", "expired"] as const)(
+    "applies a non-entitled %s replacement linked to the current token",
+    async (state) => {
+      const billing = new FakePlayBillingPort();
+      billing.respondWith("replacement-token", state, [PRODUCT_ID], { linkedPurchaseToken: TOKEN });
+      const users = new FakeUserRepository(["user-1"]);
+      await users.setTier("user-1", "premium", TOKEN);
+      const subscriptions = new FakeSubscriptionRecordRepository();
+
+      expect(await handleRtdnNotification("replacement-token", billing, users, subscriptions))
+        .toEqual({ uid: "user-1", tier: "free" });
+      expect(users.users.get("user-1")).toMatchObject({ tier: "free", purchaseToken: "replacement-token" });
+      expect(subscriptions.records.get("user-1")?.subscriptionState).toBe(state);
+    },
+  );
+
+  it("does not apply a pending replacement before Play makes it current", async () => {
+    const billing = new FakePlayBillingPort();
+    billing.respondWith("replacement-token", "pending", [PRODUCT_ID], { linkedPurchaseToken: TOKEN });
+    const users = new FakeUserRepository(["user-1"]);
+    await users.setTier("user-1", "premium", TOKEN);
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    expect(await handleRtdnNotification("replacement-token", billing, users, subscriptions)).toBeNull();
+    expect(users.users.get("user-1")).toMatchObject({ tier: "premium", purchaseToken: TOKEN });
+    expect(subscriptions.records.size).toBe(0);
+  });
 });
