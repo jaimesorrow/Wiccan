@@ -12,7 +12,12 @@
           "package_name": "com.jaimesorrow.wiccan"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "773049423031-bnqituel5et419th771ef5sbccdjjpat.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAWXjSDP2V_Me0hqYTatqRIlX29711ul24"

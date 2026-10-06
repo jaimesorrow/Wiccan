@@ -146,11 +146,12 @@ The current toolchain uses Java 17, Gradle 9.8.0, AGP 9.4.1 and Kotlin
 2.4.20, with Play Billing 9.1.0. Install the Android SDK platform with
 `sdkmanager "platforms;android-37.0"` (`compileSdk` 37, `targetSdk` 36).
 Set `sdk.dir` in a local `local.properties` file or the `ANDROID_HOME`
-environment variable. The current production Firebase file has no OAuth
-client, so
-the Google sign-in button stays hidden until the real Play
-App Signing SHA certificates and Google Auth/OAuth configuration are added
-and Firebase provides a refreshed production config.
+environment variable. The production Firebase file includes the registered
+web OAuth client ID verified in Firebase on 2026-10-06 UTC, allowing the
+Google Services plugin to generate `default_web_client_id`. Google and
+Email/Password providers are enabled. Confirm that the installed build's
+signing certificate is registered with Firebase, and verify Google sign-in
+on a device before treating authentication as release-ready.
 
 ### Cloud Functions
 
