@@ -97,7 +97,27 @@ class ToolchainCheckTest(unittest.TestCase):
     def test_development_suffix_is_rejected(self):
         self.replace("app/build.gradle.kts", 'create("dev") {',
                      'create("dev") {\n applicationIdSuffix = ".dev"')
-        self.assert_rejected("FAIL  dev uses registered Firebase package")
+        self.assert_rejected("FAIL  dev inherits registered Firebase package")
+
+    def test_staging_suffix_is_rejected(self):
+        self.replace("app/build.gradle.kts", 'create("staging") {',
+                     'create("staging") {\n applicationIdSuffix = ".staging"')
+        self.assert_rejected("FAIL  staging inherits registered Firebase package")
+
+    def test_development_application_id_override_is_rejected(self):
+        self.replace("app/build.gradle.kts", 'create("dev") {',
+                     'create("dev") {\n applicationId = "com.other.app"')
+        self.assert_rejected("FAIL  dev inherits registered Firebase package")
+
+    def test_production_application_id_override_is_rejected(self):
+        self.replace("app/build.gradle.kts", 'create("prod") {',
+                     'create("prod") {\n applicationId = "com.other.app"')
+        self.assert_rejected("FAIL  prod inherits registered Firebase package")
+
+    def test_build_type_suffix_is_rejected(self):
+        self.replace("app/build.gradle.kts", 'buildTypes {',
+                     'buildTypes {\n debug { applicationIdSuffix = ".debug" }')
+        self.assert_rejected("FAIL  all Android variants inherit the registered Firebase package")
 
     def test_wrong_development_firebase_package_is_rejected(self):
         path = self.root / "app/src/dev/google-services.json"
@@ -155,7 +175,7 @@ class ToolchainCheckTest(unittest.TestCase):
 
     def test_old_source_package_is_rejected(self):
         self.replace("app/src/main/kotlin/com/jaimesorrow/wiccan/MainActivity.kt",
-                     "package com.jaimesorrow.wiccan", "package com.other.app")
+                     "package com.jaimesorrow.wiccan", "package com.wiccan.app")
         self.assert_rejected("FAIL  every Kotlin source and test uses the Firebase package prefix")
 
     def test_missing_room_migration_schema_is_rejected(self):

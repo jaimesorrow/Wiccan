@@ -1,5 +1,8 @@
 # Branch integration audit — 2026-10-02
 
+This records PR #43's pre-migration inventory and integration decisions. The
+later PR #42 reconciliation at the end documents the current package migration.
+
 The refreshed baseline is main `6e2e2b33f0a2813d4ff7dd6eb2bd9696d6764eaf`,
 including PRs #40 and #41. All 41 PRs were examined. The 36 merged PRs have
 their recorded merge commits reachable from this baseline; none is missing.
@@ -99,3 +102,13 @@ publishing this integration. The original 28 audited heads are eligible for
 cleanup after the integration merge. PR #42 remains an active draft with unique
 migration work and its branch must be retained. Its complete head is not claimed
 as merged by the selective ports.
+
+## Later PR #42 reconciliation
+
+The historical audit above describes the pre-migration main tree. PR #42 now
+includes the audited main commit `6a375a0e` and the explicitly requested package
+migration. All flavors and the Kotlin namespace now use the registered Firebase
+package `com.jaimesorrow.wiccan`; variants replace each other on a device. The
+widget-component upgrade limitation remains documented in PR_RECONCILIATION.md.
+PR #42 was subsequently merged into main as `b13dc64b`; the earlier draft
+references describe its state at the audit time.
