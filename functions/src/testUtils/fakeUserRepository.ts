@@ -5,6 +5,7 @@ export class FakeUserRepository implements UserRepositoryPort {
   users = new Map<string, { tier: ContentTier; purchaseToken?: string; deletionInProgress?: boolean }>();
   tokenOwners = new Map<string, string>();
   supersededTokens = new Set<string>();
+  tokenTiers = new Map<string, ContentTier>();
 
   constructor(initialUids: string[] = []) {
     initialUids.forEach((uid) => this.users.set(uid, { tier: "free" }));
@@ -34,6 +35,16 @@ export class FakeUserRepository implements UserRepositoryPort {
     const linkedOwner = previousPurchaseToken ? this.tokenOwners.get(previousPurchaseToken) : undefined;
     if (linkedOwner && linkedOwner !== uid) throw new PurchaseTokenOwnershipError("The previous subscription belongs to another account.");
     this.tokenOwners.set(purchaseToken, uid);
+    this.tokenTiers.set(purchaseToken, tier);
+    const hasOtherActivePremiumSubscription = source === "refresh" && tier === "free" &&
+      existing?.tier === "premium" &&
+      [...this.tokenTiers.entries()].some(([token, tokenTier]) =>
+        token !== purchaseToken && tokenTier === "premium" && !this.supersededTokens.has(token)
+      );
+    if (hasOtherActivePremiumSubscription) {
+      this.tokenTiers.set(purchaseToken, tier);
+      return "premium";
+    }
     if (source !== "replacement" && source !== "refresh" && tier === "free" && existing?.tier === "premium" &&
       existing.purchaseToken && existing.purchaseToken !== purchaseToken) return "premium";
     if (source !== "refresh" && existing.purchaseToken && existing.purchaseToken !== purchaseToken) {
