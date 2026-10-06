@@ -56,7 +56,7 @@ class ToolchainCheckTest(unittest.TestCase):
         content = json.loads((self.root / "app/src/prod/google-services.json").read_text())
         content["project_info"]["project_id"] = project_id
         for client in content["client"]:
-            client["client_info"]["android_client_info"]["package_name"] = "com.jaimesorrow.wiccan." + flavor
+            client["client_info"]["android_client_info"]["package_name"] = "com.jaimesorrow.wiccan"
         path.write_text(json.dumps(content))
         aliases = self.root / ".firebaserc"
         content = json.loads(aliases.read_text())
@@ -91,13 +91,34 @@ class ToolchainCheckTest(unittest.TestCase):
         self.assert_rejected("FAIL  lockfile root engines match package.json")
 
     def test_namespace_drift_is_rejected(self):
-        self.replace("app/build.gradle.kts", 'namespace = "com.wiccan.app"',
+        self.replace("app/build.gradle.kts", 'namespace = "com.jaimesorrow.wiccan"',
                      'namespace = "com.other.app"')
-        self.assert_rejected("FAIL  Kotlin namespace retains installed component identity")
+        self.assert_rejected("FAIL  Kotlin namespace matches Firebase package name")
 
-    def test_missing_development_suffix_is_rejected(self):
-        self.replace("app/build.gradle.kts", 'applicationIdSuffix = ".dev"', '')
-        self.assert_rejected("FAIL  dev retains separate installed identity")
+    def test_development_suffix_is_rejected(self):
+        self.replace("app/build.gradle.kts", 'create("dev") {',
+                     'create("dev") {\n applicationIdSuffix = ".dev"')
+        self.assert_rejected("FAIL  dev inherits registered Firebase package")
+
+    def test_staging_suffix_is_rejected(self):
+        self.replace("app/build.gradle.kts", 'create("staging") {',
+                     'create("staging") {\n applicationIdSuffix = ".staging"')
+        self.assert_rejected("FAIL  staging inherits registered Firebase package")
+
+    def test_development_application_id_override_is_rejected(self):
+        self.replace("app/build.gradle.kts", 'create("dev") {',
+                     'create("dev") {\n applicationId = "com.other.app"')
+        self.assert_rejected("FAIL  dev inherits registered Firebase package")
+
+    def test_production_application_id_override_is_rejected(self):
+        self.replace("app/build.gradle.kts", 'create("prod") {',
+                     'create("prod") {\n applicationId = "com.other.app"')
+        self.assert_rejected("FAIL  prod inherits registered Firebase package")
+
+    def test_build_type_suffix_is_rejected(self):
+        self.replace("app/build.gradle.kts", 'buildTypes {',
+                     'buildTypes {\n debug { applicationIdSuffix = ".debug" }')
+        self.assert_rejected("FAIL  all Android variants inherit the registered Firebase package")
 
     def test_wrong_development_firebase_package_is_rejected(self):
         path = self.root / "app/src/dev/google-services.json"
@@ -154,16 +175,16 @@ class ToolchainCheckTest(unittest.TestCase):
         self.assert_accepted()
 
     def test_old_source_package_is_rejected(self):
-        self.replace("app/src/main/kotlin/com/wiccan/app/MainActivity.kt",
-                     "package com.wiccan.app", "package com.other.app")
+        self.replace("app/src/main/kotlin/com/jaimesorrow/wiccan/MainActivity.kt",
+                     "package com.jaimesorrow.wiccan", "package com.wiccan.app")
         self.assert_rejected("FAIL  every Kotlin source and test uses the Kotlin namespace prefix")
 
     def test_missing_room_migration_schema_is_rejected(self):
-        (self.root / "app/schemas/com.wiccan.app.data.local.WiccanDatabase/1.json").unlink()
+        (self.root / "app/schemas/com.jaimesorrow.wiccan.data.local.WiccanDatabase/1.json").unlink()
         self.assert_rejected("FAIL  Room migration schemas follow the database class package")
 
     def test_new_room_version_without_exported_schema_is_rejected(self):
-        database = self.root / "app/src/main/kotlin/com/wiccan/app/data/local/WiccanDatabase.kt"
+        database = self.root / "app/src/main/kotlin/com/jaimesorrow/wiccan/data/local/WiccanDatabase.kt"
         content = database.read_text()
         content = re.sub(r"\bversion\s*=\s*\d+", "version = 999", content, count=1)
         database.write_text(content)

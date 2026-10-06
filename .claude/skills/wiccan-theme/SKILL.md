@@ -1,6 +1,6 @@
 ---
 name: wiccan-theme
-description: Guardrails for any change to Android UI/Compose code in this app — the six-palette design-token system, the MVI Contract/ViewModel/Screen split, and the Cinzel/Manrope typography roles. Use before adding or editing a screen, component, or color under app/src/main/kotlin/com/wiccan/app/ui/, or before touching the theme/widget packages. Not for Cloud Functions or non-UI backend work.
+description: Guardrails for any change to Android UI/Compose code in this app — the six-palette design-token system, the MVI Contract/ViewModel/Screen split, and the Cinzel/Manrope typography roles. Use before adding or editing a screen, component, or color under app/src/main/kotlin/com/jaimesorrow/wiccan/ui/, or before touching the theme/widget packages. Not for Cloud Functions or non-UI backend work.
 ---
 
 # Wiccan visual identity & screen conventions

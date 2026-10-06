@@ -23,7 +23,7 @@ echo "Wiccan release identity / security preflight"
 echo "==========================================="
 
 require_grep 'applicationId = "com\.jaimesorrow\.wiccan"' app/build.gradle.kts   'installed applicationId matches Firebase / Play identity'
-require_grep 'namespace = "com\.wiccan\.app"' app/build.gradle.kts   'Kotlin namespace remains com.wiccan.app'
+require_grep 'namespace = "com\.jaimesorrow\.wiccan"' app/build.gradle.kts   'Kotlin namespace matches the Firebase package'
 require_grep 'compileSdk = 37' app/build.gradle.kts 'compileSdk is API 37'
 # targetSdk trails compileSdk deliberately. Raising compileSdk only lets
 # newer APIs be referenced; raising targetSdk opts the app into new runtime
@@ -40,7 +40,7 @@ forbid_grep 'process\.env\.ANDROID_PACKAGE_NAME \?\? ' functions/src/index.ts   
 
 require_grep 'debugImplementation\(libs\.firebase\.appcheck\.debug\)' app/build.gradle.kts   'App Check debug provider is debug-only'
 forbid_grep '^\s*implementation\(libs\.firebase\.appcheck\.debug\)' app/build.gradle.kts   'release classpath excludes App Check debug provider'
-require_grep 'PlayIntegrityAppCheckProviderFactory'   app/src/release/kotlin/com/wiccan/app/appcheck/ReleaseAppCheckModule.kt   'release builds use Play Integrity App Check'
+require_grep 'PlayIntegrityAppCheckProviderFactory'   app/src/release/kotlin/com/jaimesorrow/wiccan/appcheck/ReleaseAppCheckModule.kt   'release builds use Play Integrity App Check'
 
 for fn in getTodayContent verifyPurchase registerDeviceToken unregisterDeviceToken updateTimeZone setNotificationsEnabled acceptTerms deleteUserData; do
   if grep -Eq "export const ${fn} = onCall\\(\\{ enforceAppCheck: true \\}" functions/src/index.ts; then
@@ -71,7 +71,7 @@ require_grep 'onMessagePublished\(\{ topic: PLAY_RTDN_TOPIC, retry: true \}' fun
 require_grep '^\s*throw err;' functions/src/index.ts   'Play RTDN rethrows failures for retry'
 
 require_grep 'tools:node="remove"' app/src/main/AndroidManifest.xml   'default WorkManager initializer is removed'
-require_grep 'WorkManager\.initialize\(this, workManagerConfiguration\)'   app/src/main/kotlin/com/wiccan/app/WiccanApplication.kt   'WorkManager uses the Hilt-aware configuration'
+require_grep 'WorkManager\.initialize\(this, workManagerConfiguration\)'   app/src/main/kotlin/com/jaimesorrow/wiccan/WiccanApplication.kt   'WorkManager uses the Hilt-aware configuration'
 
 if git grep --cached -I -l -E -- '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|sk-proj-[A-Za-z0-9_-]{20,}|sk-ant-[A-Za-z0-9_-]{20,}' -- . >/dev/null; then
   fail 'no private key material or obvious server API secret is committed'

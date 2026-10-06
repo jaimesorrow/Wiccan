@@ -48,7 +48,7 @@ app/build/outputs/roborazzi/wiccan-palette-light_ivory.png
 filled button and an outlined button against each palette's background —
 enough to judge color and contrast. The test fails if any renders flat.
 
-The harness is `app/src/test/kotlin/com/wiccan/app/ui/theme/WiccanPaletteScreenshotTest.kt`.
+The harness is `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/theme/WiccanPaletteScreenshotTest.kt`.
 To screenshot a *different* screen, copy its `PaletteSpecimen` pattern: wrap
 your composable in `MaterialTheme(colorScheme = palette.toColorScheme(),
 typography = LocallyResolvableTypography)` and call

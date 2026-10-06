@@ -182,7 +182,7 @@ fails rather than silently shipping to production.
 
 ## Still outstanding after all of the above
 
-- `PolicyUrls` (`app/src/main/kotlin/com/wiccan/app/core/config/PolicyUrls.kt`)
+- `PolicyUrls` (`app/src/main/kotlin/com/jaimesorrow/wiccan/core/config/PolicyUrls.kt`)
   points at unhosted `wiccan.app` URLs. Play rejects listings with
   placeholder legal URLs, and the Data Safety form needs a publicly
   reachable account-deletion page.
