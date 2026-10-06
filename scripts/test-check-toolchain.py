@@ -70,6 +70,13 @@ class ToolchainCheckTest(unittest.TestCase):
         result = self.run_check()
         self.assertEqual(result.returncode, 0, result.stdout)
 
+    def test_production_web_oauth_client_is_required(self):
+        path = self.root / "app/src/prod/google-services.json"
+        content = json.loads(path.read_text())
+        content["client"][0]["oauth_client"] = []
+        path.write_text(json.dumps(content))
+        self.assert_rejected("FAIL  production Firebase client has a nonblank web OAuth client")
+
     def test_ci_node_drift_is_rejected(self):
         self.replace(".github/workflows/ci.yml", "node-version-file: functions/package.json", "node-version: '20'")
         self.assert_rejected("FAIL  CI uses Functions runtime Node 22")
