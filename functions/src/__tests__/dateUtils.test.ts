@@ -1,4 +1,4 @@
-import { getUserLocalDate, getUserLocalHour } from "../dateUtils";
+import { getUserLocalDate, getUserLocalHour, isValidTimeZone, resolveTimeZone } from "../dateUtils";
 
 describe("getUserLocalDate", () => {
   it("falls back to UTC when time zone is null", () => {
@@ -32,6 +32,13 @@ describe("getUserLocalDate", () => {
     expect(getUserLocalDate("America/New_York", beforeTransition)).toBe("2026-03-07");
     expect(getUserLocalDate("America/New_York", afterTransition)).toBe("2026-03-08");
   });
+
+  it("preserves Android fixed-offset calendar dates including fractional offsets", () => {
+    expect(getUserLocalDate("GMT+05:30", new Date("2026-10-06T19:00:00Z"))).toBe("2026-10-07");
+    expect(getUserLocalDate("GMT-03:30", new Date("2026-10-06T02:00:00Z"))).toBe("2026-10-05");
+    expect(resolveTimeZone("GMT+05:30")).toBe("+05:30");
+    expect(isValidTimeZone("GMT+25:30")).toBe(false);
+  });
 });
 
 describe("getUserLocalHour", () => {
@@ -56,5 +63,9 @@ describe("getUserLocalHour", () => {
   it("normalizes midnight to 0 rather than 24", () => {
     const now = new Date("2026-01-01T00:00:00.000Z");
     expect(getUserLocalHour("UTC", now)).toBe(0);
+  });
+
+  it("uses the same normalized Android offset as daily assignment", () => {
+    expect(getUserLocalHour("GMT+05:30", new Date("2026-10-06T03:30:00Z"))).toBe(9);
   });
 });

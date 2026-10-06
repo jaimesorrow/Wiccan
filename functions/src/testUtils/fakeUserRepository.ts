@@ -39,7 +39,8 @@ export class FakeUserRepository implements UserRepositoryPort {
     const hasOtherActivePremiumSubscription = source === "refresh" && tier === "free" &&
       existing?.tier === "premium" &&
       [...this.tokenTiers.entries()].some(([token, tokenTier]) =>
-        token !== purchaseToken && tokenTier === "premium" && !this.supersededTokens.has(token)
+        token !== purchaseToken && tokenTier === "premium" && !this.supersededTokens.has(token) &&
+        this.tokenOwners.get(token) === uid
       );
     if (hasOtherActivePremiumSubscription) {
       this.tokenTiers.set(purchaseToken, tier);

@@ -15,11 +15,11 @@ class ContentFunctionsDataSource @Inject constructor(
     private val functions: FirebaseFunctions,
     private val crashlytics: FirebaseCrashlytics,
 ) {
-    suspend fun getTodayContent(): Map<String, Any?> {
+    suspend fun getTodayContent(timezone: String): Map<String, Any?> {
         try {
             val result = functions
                 .getHttpsCallable(FUNCTION_NAME)
-                .call()
+                .call(mapOf("timezone" to timezone))
                 .await()
 
             @Suppress("UNCHECKED_CAST")

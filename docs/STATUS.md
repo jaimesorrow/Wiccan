@@ -44,7 +44,7 @@ file) or is named explicitly as still open, with a reason.
 | Server-controlled profile mutations (device token, time zone, terms) | PASS |
 | Versioned Terms/Privacy acceptance gate | PASS |
 | Subscription lifecycle hardening (entitlement fix, RTDN, acknowledgement) | PASS |
-| Category-organized Library | PASS |
+| Category-organized Grimoire (automatically delivered history) | PASS |
 | Multi-device FCM (per-device registration, no cross-device clobbering) | FIXED |
 | Content safety gate + duplicate-title prevention | FIXED |
 | Account deletion completeness (devices subcollection + subscription record were orphaned) | FIXED |

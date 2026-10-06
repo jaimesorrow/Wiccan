@@ -19,12 +19,22 @@ val MIGRATION_1_2: Migration = object : Migration(1, 2) {
     }
 }
 
-/** Preserve existing cached content while adding the structured lesson sections. */
+/** Adds optional lesson sections and assignment provenance without rewriting existing rows. */
 val MIGRATION_2_3: Migration = object : Migration(2, 3) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        db.execSQL("ALTER TABLE cached_daily_content ADD COLUMN reflection TEXT")
-        db.execSQL("ALTER TABLE cached_daily_content ADD COLUMN practice TEXT")
-        db.execSQL("ALTER TABLE cached_daily_content ADD COLUMN difficulty TEXT")
+        listOf(
+            "userId",
+            "timezone",
+            "reflection",
+            "practice",
+            "sourceId",
+            "sourceCitation",
+            "sourceUrl",
+            "rightsNotes",
+        ).forEach { column ->
+            db.execSQL("ALTER TABLE cached_daily_content ADD COLUMN $column TEXT")
+        }
+        db.execSQL("ALTER TABLE cached_daily_content ADD COLUMN rightsReviewRequired INTEGER")
     }
 }
 

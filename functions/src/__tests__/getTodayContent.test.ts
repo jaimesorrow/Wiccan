@@ -1,4 +1,4 @@
-import { ContentPoolExhaustedError, selectTodayContent } from "../getTodayContent";
+import { ContentPoolExhaustedError, DailyAssignmentUnavailableError, selectTodayContent } from "../getTodayContent";
 import { FakeContentRepository, makeContent } from "../testUtils/fakeContentRepository";
 
 const UID = "user-123";
@@ -145,5 +145,39 @@ describe("selectTodayContent", () => {
     const result = await selectTodayContent(UID, TODAY, repo);
 
     expect(["free-1", "premium-1"]).toContain(result.id);
+  });
+
+  it("excludes an editorial rewording of a historically delivered lesson", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "original", similarityGroupId: "water-and-ritual" }),
+      makeContent({ id: "reworded", similarityGroupId: "water-and-ritual" }),
+      makeContent({ id: "unseen", similarityGroupId: "seasonal-calendar" }),
+    ];
+    repo.history = [{ userId: UID, contentId: "original", deliveredDate: "2026-09-08", title: "Original", type: "spell", tradition: "European folk magic", category: "MoonAndSeasonal" }];
+
+    expect((await selectTodayContent(UID, TODAY, repo)).id).toBe("unseen");
+    expect(repo.history).toHaveLength(2);
+  });
+
+  it("does not overwrite today's historical assignment if its content was removed", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [makeContent({ id: "unseen" })];
+    repo.history = [{ userId: UID, contentId: "removed", deliveredDate: TODAY, title: "Removed", type: "spell", tradition: "European folk magic", category: "MoonAndSeasonal" }];
+
+    await expect(selectTodayContent(UID, TODAY, repo)).rejects.toBeInstanceOf(DailyAssignmentUnavailableError);
+    expect(repo.history).toHaveLength(1);
+    expect(repo.history[0].contentId).toBe("removed");
+  });
+
+  it("a later local date receives a different unseen item", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [makeContent({ id: "c1" }), makeContent({ id: "c2" })];
+
+    const first = await selectTodayContent(UID, TODAY, repo);
+    const second = await selectTodayContent(UID, "2026-09-10", repo);
+
+    expect(second.id).not.toBe(first.id);
+    expect(repo.history.map((entry) => entry.deliveredDate)).toEqual([TODAY, "2026-09-10"]);
   });
 });

@@ -5,13 +5,13 @@ export interface GeneratedDraftFields {
   title: string;
   intro: string;
   body: string;
-  /** Structured lesson sections; optional only for older drafts and non-lesson content. */
+  /** Separate structured fields on new drafts; optional for older stored drafts. */
   reflection?: string | null;
   practice?: string | null;
   materials: string[] | null;
   safetyNote: string | null;
   tags: string[];
-  /** The single Library category this piece best fits, chosen by the generator. */
+  /** The single Grimoire category this piece best fits, chosen by the generator. */
   category: ContentCategory;
 }
 

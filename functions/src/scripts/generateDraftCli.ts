@@ -13,6 +13,7 @@ import { ContentTier, ContentType } from "../types";
  * Session 17's lockdown of content generation/approval.
  *
  * Usage: npm run generate-draft -- --tier free [--sourceId <id>] [--type spell] [--count 3]
+ *        [--similarityGroupId <existing-lesson-group>] [--sourceCitation <passage>]
  */
 
 const VALID_TIERS: ReadonlySet<string> = new Set(["free", "premium"]);
@@ -36,7 +37,7 @@ async function main(): Promise<void> {
 
   const tier = args.tier;
   if (!tier || !VALID_TIERS.has(tier)) {
-    throw new Error("Usage: --tier <free|premium> [--sourceId <id>] [--type <spell|potion|lesson>] [--count <n>]");
+    throw new Error("Usage: --tier <free|premium> [--sourceId <id>] [--type <spell|potion|lesson>] [--count <n>] [--similarityGroupId <group>] [--sourceCitation <passage>]");
   }
   if (args.type !== undefined && !VALID_TYPES.has(args.type)) {
     throw new Error("--type must be 'spell', 'potion', or 'lesson' when provided.");
@@ -62,6 +63,8 @@ async function main(): Promise<void> {
       sourceId: args.sourceId,
       type: args.type as ContentType | undefined,
       count,
+      similarityGroupId: args.similarityGroupId,
+      sourceCitation: args.sourceCitation,
     },
     sources,
     generator,

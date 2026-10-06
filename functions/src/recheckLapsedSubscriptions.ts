@@ -41,9 +41,9 @@ export async function recheckLapsedSubscriptions(
         expiryTimeMillis: info.expiryTimeMillis,
         autoRenewing: info.autoRenewing,
       });
-      if (tier === "free") downgraded++;
+      if (syncedTier === "free") downgraded++;
       const premiumProduct = info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id));
-      if (tier === "premium" && !info.acknowledged && premiumProduct) {
+      if (syncedTier === "premium" && !info.acknowledged && premiumProduct) {
         await billing.acknowledgePurchaseIfNeeded(user.purchaseToken, premiumProduct);
       }
     } catch (error) {

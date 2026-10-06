@@ -29,7 +29,9 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    namespace = "com.jaimesorrow.wiccan"
+    // Generated Android resources use the product namespace; installed
+    // Firebase/Play identity and existing component class names stay stable.
+    namespace = "com.wiccan.app"
     compileSdk = 37
 
     defaultConfig {
@@ -108,7 +110,7 @@ android {
     sourceSets["release"].kotlin.directories.add("src/release/kotlin")
     sourceSets["test"].kotlin.directories.add("src/test/kotlin")
     sourceSets["androidTest"].kotlin.directories.add("src/androidTest/kotlin")
-    // MigrationTestHelper loads each version's exported schema JSON as a test asset.
+    // Instrumented upgrade tests build historical databases from these exported schemas.
     sourceSets["androidTest"].assets.directories.add("$projectDir/schemas")
 
     packaging {

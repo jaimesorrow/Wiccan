@@ -37,7 +37,7 @@ section() { printf '\n%s\n%s\n' "$1" "$(printf '%.0s-' $(seq ${#1}))"; }
 # sign-in both key off the registered client, so a mismatch fails in
 # production while every local build stays green.
 APP_ID="com.jaimesorrow.wiccan"
-NAMESPACE="$APP_ID"
+NAMESPACE="com.wiccan.app"
 
 section "1. Structure"
 
@@ -72,7 +72,7 @@ else
 fi
 
 if grep -Eq "namespace = \"${NAMESPACE//./\\.}\"" app/build.gradle.kts; then
-  pass "Kotlin namespace is $NAMESPACE (matches applicationId)"
+  pass "Kotlin namespace is $NAMESPACE"
 else
   fail "Kotlin namespace is not $NAMESPACE"
 fi

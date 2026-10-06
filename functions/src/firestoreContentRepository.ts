@@ -1,6 +1,7 @@
 import { Firestore, Timestamp } from "firebase-admin/firestore";
 import { Content, ContentCategory, ContentTier, isContentCategory } from "./types";
-import { ContentAlreadyDeliveredError, ContentRepositoryPort } from "./contentRepositoryPort";
+import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort } from "./contentRepositoryPort";
+import { contentSimilarityKey, isEligibleForDailyDelivery, sharesContentSimilarity, similarityReservationId } from "./contentEligibility";
 import { assertAccountWriteAllowed } from "./accountWriteGuard";
 
 /** Defensive fallback for any legacy content document written before category existed. */
@@ -42,9 +43,13 @@ function toContent(id: string, data: FirebaseFirestore.DocumentData): Content {
     materials: data.materials ?? null,
     safetyNote: data.safetyNote ?? null,
     tags: data.tags ?? [],
-    difficulty: data.difficulty,
     status: data.status,
     sourceId: typeof data.sourceId === "string" ? data.sourceId : undefined,
+    sourceCitation: typeof data.sourceCitation === "string" ? data.sourceCitation : undefined,
+    sourceUrl: typeof data.sourceUrl === "string" ? data.sourceUrl : undefined,
+    rightsReviewRequired: typeof data.rightsReviewRequired === "boolean" ? data.rightsReviewRequired : undefined,
+    rightsNotes: typeof data.rightsNotes === "string" ? data.rightsNotes : null,
+    similarityGroupId: typeof data.similarityGroupId === "string" ? data.similarityGroupId : undefined,
   };
 }
 
@@ -87,12 +92,11 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
     return snap.docs.map((doc) => toContent(doc.id, doc.data()));
   }
 
-  async assignDailyContent(uid: string, today: string, candidate: Content): Promise<string> {
+  async assignDailyContent(uid: string, today: string, candidate: Content, ancientLessonSourceIds: ReadonlySet<string>): Promise<string> {
     const docRef = this.db.collection(HISTORY_COLLECTION).doc(historyDocId(uid, today));
-    const usedRef = this.db.collection(CONTENT_USAGE_COLLECTION).doc(uid).collection("content").doc(candidate.id);
+    const usageRef = this.db.collection(CONTENT_USAGE_COLLECTION).doc(uid);
+    const usedRef = usageRef.collection("content").doc(candidate.id);
     return this.db.runTransaction(async (txn) => {
-      const user = await txn.get(this.db.collection(USERS_COLLECTION).doc(uid));
-      assertAccountWriteAllowed(user);
       const snap = await txn.get(docRef);
       if (snap.exists) {
         return snap.get("contentId") as string;
@@ -101,16 +105,80 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
       if (used.exists) {
         throw new ContentAlreadyDeliveredError(candidate.id);
       }
+      // Every new assignment also reads/writes one per-user document.
+      // This serializes cross-date delivery even when old passage-based
+      // metadata and newer explicit groups have different reservation keys,
+      // without relying on a history query to detect phantom insertions.
+      await txn.get(usageRef);
+      // Revalidate authoritative entitlement and publication in the same
+      // transaction as delivery, never trusting the earlier pool snapshot.
+      const [user, currentDocument, history] = await Promise.all([
+        txn.get(this.db.collection(USERS_COLLECTION).doc(uid)),
+        txn.get(this.db.collection(CONTENT_COLLECTION).doc(candidate.id)),
+        txn.get(this.db.collection(HISTORY_COLLECTION).where("userId", "==", uid)),
+      ]);
+      assertAccountWriteAllowed(user);
+      if (!currentDocument.exists) throw new ContentNoLongerEligibleError(candidate.id);
+      const current = toContent(currentDocument.id, currentDocument.data()!);
+      const tier = user.get("tier") === "premium" ? "premium" : "free";
+      if (current.status !== "published" || !eligibleTiers(tier).includes(current.tier) ||
+          !isEligibleForDailyDelivery(current, ancientLessonSourceIds)) {
+        throw new ContentNoLongerEligibleError(candidate.id);
+      }
+      if (history.docs.some((entry) => entry.get("contentId") === candidate.id)) {
+        // Upgrades retain old history rows, including those written before
+        // per-content reservations existed. They must still prevent repeats.
+        throw new ContentAlreadyDeliveredError(candidate.id);
+      }
+
+      const similarityKey = contentSimilarityKey(current);
+      const groupRef = similarityKey ? usageRef.collection("similarityGroups").doc(similarityReservationId(similarityKey)) : null;
+      if (groupRef) {
+        if ((await txn.get(groupRef)).exists) throw new ContentAlreadyDeliveredError(candidate.id);
+        if (history.docs.some((entry) => entry.get("similarityGroupId") &&
+            contentSimilarityKey({ similarityGroupId: entry.get("similarityGroupId") }) === similarityKey)) {
+          throw new ContentAlreadyDeliveredError(candidate.id);
+        }
+        // Legacy history has no grouping fields. Resolve its existing
+        // content documents so newly added editorial metadata also protects
+        // users who received lessons before this change.
+        const historicalIds = [...new Set(history.docs.map((entry) => entry.get("contentId")))]
+          .filter((id): id is string => typeof id === "string" && id.length > 0);
+        if (historicalIds.length > 0) {
+          const historicalContent = await txn.getAll(...historicalIds.map((id) =>
+            this.db.collection(CONTENT_COLLECTION).doc(id)));
+          const historicalById = new Map(historicalContent.map((entry) => [entry.id, entry]));
+          if (history.docs.some((entry) => {
+            const content = historicalById.get(entry.get("contentId"));
+            if (content?.exists) {
+              return sharesContentSimilarity(toContent(content.id, content.data()!), current);
+            }
+            // A deleted historical document cannot resolve newer editorial
+            // groups. Keep its recorded passage as a conservative fallback.
+            return sharesContentSimilarity({
+              similarityGroupId: entry.get("similarityGroupId"),
+              sourceId: entry.get("sourceId"), sourceCitation: entry.get("sourceCitation"),
+            }, current);
+          })) {
+            throw new ContentAlreadyDeliveredError(candidate.id);
+          }
+        }
+      }
       txn.set(docRef, {
         userId: uid,
         contentId: candidate.id,
         deliveredDate: today,
-        title: candidate.title,
-        type: candidate.type,
-        tradition: candidate.tradition,
-        category: candidate.category,
+        title: current.title,
+        type: current.type,
+        tradition: current.tradition,
+        category: current.category,
+        ...(current.similarityGroupId ? { similarityGroupId: current.similarityGroupId } : {}),
+        ...(current.sourceId ? { sourceId: current.sourceId } : {}),
+        ...(current.sourceCitation ? { sourceCitation: current.sourceCitation } : {}),
       });
       txn.set(usedRef, { deliveredDate: today });
+      if (groupRef) txn.set(groupRef, { deliveredDate: today, contentId: candidate.id });
+      txn.set(usageRef, { lastDeliveredDate: today }, { merge: true });
       return candidate.id;
     });
   }

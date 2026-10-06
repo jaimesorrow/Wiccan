@@ -11,6 +11,10 @@ export interface GenerateDraftRequest {
   type?: ContentType;
   /** Number of drafts to generate in this call. Defaults to 1. */
   count?: number;
+  /** Stable editorial lesson identity, reused for revisions and near-duplicates. */
+  similarityGroupId?: string;
+  /** Optional precise passage citation; defaults to the curated source reference. */
+  sourceCitation?: string;
 }
 
 export interface GeneratedDraftSummary {
@@ -86,6 +90,12 @@ export async function generateDrafts(
   if (count < 1) {
     throw new InvalidGenerationRequestError("count must be at least 1.");
   }
+  if (request.similarityGroupId !== undefined && request.similarityGroupId.trim().length === 0) {
+    throw new InvalidGenerationRequestError("similarityGroupId must be non-empty when provided.");
+  }
+  if (request.sourceCitation !== undefined && request.sourceCitation.trim().length === 0) {
+    throw new InvalidGenerationRequestError("sourceCitation must be non-empty when provided.");
+  }
 
   const pairs = buildEligiblePairs(sources, request.sourceId, request.type);
   const results: GeneratedDraftSummary[] = [];
@@ -106,12 +116,18 @@ export async function generateDrafts(
       continue;
     }
 
+    const sourceUrl = pair.source.sourceReference.match(/https?:\/\/\S+/)?.[0];
     const contentId = await repo.createDraft({
       ...generated,
       type: pair.type,
       tier: request.tier,
       tradition: pair.source.tradition,
       sourceId: pair.source.id,
+      sourceCitation: request.sourceCitation ?? pair.source.sourceReference,
+      rightsNotes: pair.source.publicDomainBasis,
+      ...(sourceUrl === undefined ? {} : { sourceUrl }),
+      similarityGroupId: request.similarityGroupId?.trim() ??
+        `generated:${pair.source.id}:${generated.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
     });
 
     results.push({ contentId, sourceId: pair.source.id, type: pair.type, title: generated.title });

@@ -10,8 +10,8 @@ const GeneratedDraftSchema = z.object({
   title: z.string().min(1),
   intro: z.string().min(1),
   body: z.string().min(1),
-  reflection: z.string().trim().min(1).nullable(),
-  practice: z.string().trim().min(1).nullable(),
+  reflection: z.string().min(1),
+  practice: z.string().nullable(),
   materials: z.array(z.string()).nullable(),
   safetyNote: z.string().nullable(),
   tags: z.array(z.string()),
@@ -81,20 +81,17 @@ LESSON FORMAT
 If type=lesson, structure the content so it reads naturally as:
 1. Introduction — concise factual/contextual opening in intro.
 2. Lesson — substantial explanation in body.
-3. Reflection — one thoughtful question in the separate reflection field, ending with a question mark.
-4. Practice — a separate practice field; optional, only when a safe simple modern reflection genuinely adds value.
+3. Reflection — put one thoughtful question in the separate reflection field.
+4. Practice — optional, in the separate practice field, only when a safe simple modern reflection genuinely adds value.
 5. Safety Note — use safetyNote whenever risk warrants it.
-
-Never bury reflection or practice inside body. For lessons reflection must be
-non-null. For spells and potions reflection may be null; practice may be null
-for any type.
 
 For a lesson, prioritize historical understanding over spell instructions.
 A lesson may describe an attested ritual historically without instructing the
 reader to reproduce hazardous, coercive, medical, funerary, or culturally
 restricted practices.
 
-Reflection must be specific to the lesson, not generic filler.
+Keep reflection and practice separate from body. Reflection must be specific
+to the lesson, not generic filler; set practice to null when it adds no value.
 Do not claim the moon, herbs, symbols, salt, ritual, or other practices
 objectively cause supernatural outcomes. You may explain that practitioners
 used or use them symbolically, devotionally, ritually, historically, or as a
@@ -124,7 +121,7 @@ safetyNote. Set safetyNote to null only when no meaningful safety note is needed
 OUTPUT
 Return strict JSON matching:
 { "title": string, "intro": string, "body": string,
-  "reflection": string | null, "practice": string | null,
+  "reflection": string, "practice": string | null,
   "materials": string[] | null, "safetyNote": string | null,
   "tags": string[], "category": string }`;
 }

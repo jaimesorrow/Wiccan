@@ -15,9 +15,9 @@ fun Map<String, Any?>.toContent(): Content = Content(
     type = ContentType.valueOf((this["type"] as? String ?: error("Missing 'type' in content payload")).uppercase()),
     tier = ContentTier.valueOf((this["tier"] as? String ?: error("Missing 'tier' in content payload")).uppercase()),
     tradition = (this["tradition"] as? String).orEmpty(),
-    category = ContentCategory.fromWireValue(
-        this["category"] as? String ?: error("Missing 'category' in content payload"),
-    ),
+    category = (this["category"] as? String)?.let {
+        runCatching { ContentCategory.fromWireValue(it) }.getOrDefault(ContentCategory.MOON_AND_SEASONAL)
+    } ?: ContentCategory.MOON_AND_SEASONAL,
     title = (this["title"] as? String).orEmpty(),
     intro = (this["intro"] as? String).orEmpty(),
     body = (this["body"] as? String).orEmpty(),
@@ -28,9 +28,16 @@ fun Map<String, Any?>.toContent(): Content = Content(
     safetyNote = this["safetyNote"] as? String,
     tags = (this["tags"] as? List<String>).orEmpty(),
     status = ContentStatus.valueOf((this["status"] as? String ?: "published").uppercase()),
+    reflection = this["reflection"] as? String,
+    practice = this["practice"] as? String,
+    sourceId = this["sourceId"] as? String,
+    sourceCitation = this["sourceCitation"] as? String,
+    sourceUrl = this["sourceUrl"] as? String,
+    rightsReviewRequired = this["rightsReviewRequired"] as? Boolean,
+    rightsNotes = this["rightsNotes"] as? String,
 )
 
-fun Content.toCachedEntity(deliveredDate: String): CachedDailyContentEntity = CachedDailyContentEntity(
+fun Content.toCachedEntity(deliveredDate: String, userId: String, timezone: String): CachedDailyContentEntity = CachedDailyContentEntity(
     contentId = id,
     type = type.name,
     tier = tier.name,
@@ -47,6 +54,15 @@ fun Content.toCachedEntity(deliveredDate: String): CachedDailyContentEntity = Ca
     tags = tags,
     status = status.name,
     deliveredDate = deliveredDate,
+    userId = userId,
+    timezone = timezone,
+    reflection = reflection,
+    practice = practice,
+    sourceId = sourceId,
+    sourceCitation = sourceCitation,
+    sourceUrl = sourceUrl,
+    rightsReviewRequired = rightsReviewRequired,
+    rightsNotes = rightsNotes,
 )
 
 fun CachedDailyContentEntity.toDomain(): Content = Content(
@@ -65,4 +81,11 @@ fun CachedDailyContentEntity.toDomain(): Content = Content(
     safetyNote = safetyNote,
     tags = tags,
     status = ContentStatus.valueOf(status),
+    reflection = reflection,
+    practice = practice,
+    sourceId = sourceId,
+    sourceCitation = sourceCitation,
+    sourceUrl = sourceUrl,
+    rightsReviewRequired = rightsReviewRequired,
+    rightsNotes = rightsNotes,
 )

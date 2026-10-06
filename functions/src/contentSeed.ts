@@ -19,7 +19,6 @@ const SeedContentSchema = z.object({
   id: z.string().min(1),
   type: z.enum(["spell", "potion", "lesson"]),
   tier: z.enum(["free", "premium"]),
-  difficulty: z.enum(["beginner", "intermediate", "advanced"]),
   tradition: z.string().min(1),
   category: z.enum(CONTENT_CATEGORIES),
   title: z.string().min(1),
@@ -34,6 +33,8 @@ const SeedContentSchema = z.object({
   sourceId: z.string().min(1),
   sourceCitation: z.string().min(1),
   sourceUrl: z.string().url(),
+  similarityGroupId: z.string().trim().min(1).optional(),
+  rightsNotes: z.string().nullable().optional(),
   /**
    * True when the entry still contains a phrase taken from a modern
    * translation, or is drawn from museum prose whose reuse terms have not

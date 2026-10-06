@@ -23,7 +23,7 @@ echo "Wiccan release identity / security preflight"
 echo "==========================================="
 
 require_grep 'applicationId = "com\.jaimesorrow\.wiccan"' app/build.gradle.kts   'installed applicationId matches Firebase / Play identity'
-require_grep 'namespace = "com\.jaimesorrow\.wiccan"' app/build.gradle.kts   'Kotlin namespace matches the Firebase package'
+require_grep 'namespace = "com\.wiccan\.app"' app/build.gradle.kts   'Android namespace matches the product namespace'
 require_grep 'compileSdk = 37' app/build.gradle.kts 'compileSdk is API 37'
 # targetSdk trails compileSdk deliberately. Raising compileSdk only lets
 # newer APIs be referenced; raising targetSdk opts the app into new runtime

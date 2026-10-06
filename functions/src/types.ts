@@ -1,13 +1,6 @@
 export type ContentType = "spell" | "potion" | "lesson";
 export type ContentTier = "free" | "premium";
 export type ContentStatus = "draft" | "published";
-/**
- * Reader experience level an entry is written for. Independent of `tier`
- * (which is a billing gate): a beginner entry can be premium and an
- * advanced one free. Assigned once per entry in the curated seed pool and
- * never recomputed from safety flags or type.
- */
-export type ContentDifficulty = "beginner" | "intermediate" | "advanced";
 
 export const CONTENT_CATEGORIES = [
   "Protection",
@@ -43,10 +36,20 @@ export interface Content {
   materials?: string[] | null;
   safetyNote?: string | null;
   tags: string[];
-  difficulty?: ContentDifficulty;
   status: ContentStatus;
   /** Provenance: the sources.json entry this piece was generated from. Only set on generated drafts. */
   sourceId?: string;
+  /** Work and passage/reference retained with the delivered lesson. */
+  sourceCitation?: string;
+  sourceUrl?: string;
+  rightsReviewRequired?: boolean;
+  rightsNotes?: string | null;
+  /**
+   * Stable, editor-assigned identity for one lesson/concept. Rewordings and
+   * near-duplicates share it, even across content types or tiers. Different
+   * lessons from the same broad source must have different group IDs.
+   */
+  similarityGroupId?: string;
 }
 
 /** Mirrors the Firestore `userContentHistory` collection. */
@@ -55,11 +58,16 @@ export interface UserContentHistory {
   contentId: string;
   /** ISO date string (yyyy-MM-dd), server-set. */
   deliveredDate: string;
-  /** Denormalized from the delivered Content so Archive can list without extra reads. */
+  /** Denormalized from the delivered Content so Grimoire can list without extra reads. */
   title: string;
   type: ContentType;
   tradition: string;
   category: ContentCategory;
+  /** Snapshot of the delivered lesson's editorial identity, when available. */
+  similarityGroupId?: string;
+  /** Fallback provenance retained even if the original content document is later removed. */
+  sourceId?: string;
+  sourceCitation?: string;
 }
 
 /**
@@ -69,7 +77,6 @@ export interface UserContentHistory {
  * is reviewed against. Validated by `contentSeed.ts`.
  */
 export interface SeedContent extends Content {
-  difficulty: ContentDifficulty;
   reflection: string;
   practice: string | null;
   safetyNote: string | null;

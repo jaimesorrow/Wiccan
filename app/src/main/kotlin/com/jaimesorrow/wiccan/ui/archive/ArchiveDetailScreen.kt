@@ -49,7 +49,7 @@ fun ArchiveDetailScreen(
     ) { insets ->
         Column(modifier = Modifier.padding(insets).fillMaxSize(), verticalArrangement = Arrangement.Top) {
             TextButton(onClick = onBack, modifier = Modifier.padding(start = 16.dp, top = 8.dp)) {
-                Text("← Back")
+                Text("← Back to Grimoire")
             }
             when {
                 state.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

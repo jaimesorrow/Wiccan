@@ -147,8 +147,8 @@ were unchanged.
 - Device/Room migration execution, dev/staging Firebase configurations,
   hosted legal pages and editorial/rights approval of draft content remain
   outstanding.
-- PR #31 left Android support for structured `reflection`, `practice` and
-  `difficulty` as follow-up work; the model, cache and detail view omit
-  those fields.
+- The daily shuffle/Grimoire update adds Android support for structured
+  reflection, practice and source/rights metadata, with an additive Room upgrade.
+  Difficulty labels are removed from the editorial model and seed pool.
 - `branch-current` must be required by repository rules to block stale
   merges. A later base-branch change requires another validation run.

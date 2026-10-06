@@ -1,14 +1,14 @@
 package com.jaimesorrow.wiccan.worker
 
 import android.content.Context
-import androidx.glance.appwidget.updateAll
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.jaimesorrow.wiccan.core.auth.CurrentUserProvider
+import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.repository.ContentRepository
-import com.jaimesorrow.wiccan.widget.WiccanWidget
+import com.jaimesorrow.wiccan.widget.WidgetUpdater
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -25,19 +25,25 @@ class DailyContentWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val contentRepository: ContentRepository,
     private val currentUserProvider: CurrentUserProvider,
+    private val widgetUpdater: WidgetUpdater,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        // No signed-in user yet (auth isn't wired up until a later pass) —
-        // nothing to refresh, and that's not a worker failure.
+        // No signed-in user means there is no assignment to refresh.
         val userId = currentUserProvider.currentUserId ?: return Result.success()
 
-        return when (contentRepository.refreshTodayContent(userId)) {
+        return when (val result = contentRepository.refreshTodayContent(userId)) {
             is AppResult.Success -> {
-                WiccanWidget().updateAll(applicationContext)
+                widgetUpdater.updateAll(applicationContext)
                 Result.success()
             }
-            is AppResult.Failure -> Result.retry()
+            is AppResult.Failure -> if (result.error == AppError.NoNewLesson) {
+                // Exhaustion is a valid server result; render the cleared cache and wait for the next scheduled day.
+                widgetUpdater.updateAll(applicationContext)
+                Result.success()
+            } else {
+                Result.retry()
+            }
         }
     }
 

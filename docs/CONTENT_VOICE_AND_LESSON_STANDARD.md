@@ -53,10 +53,21 @@ materials?      // nullable
 safetyNote?     // nullable
 tags
 sourceId
+sourceCitation?
+sourceUrl?
+rightsReviewRequired?
+rightsNotes?
+similarityGroupId?  // stable across rewordings of the same lesson
 status = draft | published | withdrawn
 ```
 
-If adding `reflection` and `practice` requires a schema migration, implement it deliberately across Kotlin domain models, Firestore mapping, Room, Cloud Functions types, generation, validation, Archive/detail rendering, and tests. Do not bury structured metadata inside `body` merely to avoid a migration.
+If adding `reflection` and `practice` requires a schema migration, implement it deliberately across Kotlin domain models, Firestore mapping, Room, Cloud Functions types, generation, validation, Grimoire/detail rendering, and tests. Do not bury structured metadata inside `body` merely to avoid a migration.
+
+Lessons have no experience-level field or label. Keep source and rights
+metadata alongside the historical lesson, and use the same editorial
+`similarityGroupId` when revising or substantially rewording it. Distinct
+lessons from one broad source need distinct identities. See
+`docs/ANCIENT_LESSON_SOURCING.md` for the seed's reviewed overlap groups.
 
 ## Quality anchors
 
@@ -167,6 +178,6 @@ No physical photography is used for lesson artwork. Use restrained line-art matc
 - Symbolic claims are not presented as objective supernatural facts.
 - Safety notes appear when risk warrants them.
 - UI renders all lesson sections cleanly.
-- Archive preserves the same content structure.
+- Grimoire preserves the same content structure.
 - Tests cover serialization/migration for new structured fields.
 - Generator validation rejects unsafe or sensational content.

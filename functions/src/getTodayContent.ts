@@ -1,6 +1,7 @@
 import { Content } from "./types";
-import { ContentAlreadyDeliveredError, ContentRepositoryPort } from "./contentRepositoryPort";
+import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort } from "./contentRepositoryPort";
 import { loadContentSources } from "./contentSource";
+import { contentSimilarityKey, isEligibleForDailyDelivery } from "./contentEligibility";
 
 const DEFAULT_ANCIENT_LESSON_SOURCE_IDS = new Set(
   loadContentSources()
@@ -19,9 +20,18 @@ function pickRandom(items: Content[]): Content {
   return items[Math.floor(Math.random() * items.length)];
 }
 
-function isEligibleForDailyDelivery(content: Content, ancientLessonSourceIds: ReadonlySet<string>): boolean {
-  if (content.type !== "lesson") return true;
-  return typeof content.sourceId === "string" && ancientLessonSourceIds.has(content.sourceId);
+/** Preserve the committed assignment if its underlying document was removed. */
+export class DailyAssignmentUnavailableError extends Error {
+  constructor(contentId: string) {
+    super(`Assigned content '${contentId}' could not be found.`);
+    this.name = "DailyAssignmentUnavailableError";
+  }
+}
+
+async function readAssignedContent(contentId: string, repo: ContentRepositoryPort): Promise<Content> {
+  const content = await repo.getContentById(contentId);
+  if (!content) throw new DailyAssignmentUnavailableError(contentId);
+  return content;
 }
 
 /**
@@ -54,12 +64,7 @@ export async function selectTodayContent(
 ): Promise<Content> {
   const existingContentId = await repo.findTodayDeliveredContentId(uid, today);
   if (existingContentId) {
-    const existing = await repo.getContentById(existingContentId);
-    if (existing) {
-      return existing;
-    }
-    // History points at a content doc that no longer exists; fall through
-    // and select fresh rather than fail the whole call.
+    return readAssignedContent(existingContentId, repo);
   }
 
   const tier = await repo.getUserTier(uid);
@@ -72,29 +77,33 @@ export async function selectTodayContent(
     isEligibleForDailyDelivery(content, ancientLessonSourceIds),
   );
   const deliveredSet = new Set(deliveredIds);
-  let candidates = eligiblePublished.filter((content) => !deliveredSet.has(content.id));
+  const deliveredGroups = new Set(published.filter((content) => deliveredSet.has(content.id))
+    .map(contentSimilarityKey).filter((key): key is string => key !== null));
+  let candidates = eligiblePublished.filter((content) => {
+    const group = contentSimilarityKey(content);
+    return !deliveredSet.has(content.id) && (!group || !deliveredGroups.has(group));
+  });
 
   while (candidates.length > 0) {
     const candidate = pickRandom(candidates);
     let assignedId: string;
     try {
-      assignedId = await repo.assignDailyContent(uid, today, candidate);
+      assignedId = await repo.assignDailyContent(uid, today, candidate, ancientLessonSourceIds);
     } catch (err) {
-      if (!(err instanceof ContentAlreadyDeliveredError)) throw err;
+      if (!(err instanceof ContentAlreadyDeliveredError) && !(err instanceof ContentNoLongerEligibleError)) throw err;
       candidates = candidates.filter((content) => content.id !== candidate.id);
       continue;
     }
 
-    if (assignedId === candidate.id) return candidate;
-
-    // Another call won today's assignment. Return its committed content.
-    const winner = await repo.getContentById(assignedId);
-    if (!winner) {
-      throw new Error(`Assigned content '${assignedId}' could not be found.`);
-    }
-    return winner;
+    // Read the authoritative document again: publication, entitlement,
+    // title, and editorial grouping may have changed since pool lookup.
+    return readAssignedContent(assignedId, repo);
   }
 
+  // A concurrent caller may have committed today while we ran out of
+  // candidates. Honor that assignment rather than report false exhaustion.
+  const committedId = await repo.findTodayDeliveredContentId(uid, today);
+  if (committedId) return readAssignedContent(committedId, repo);
   await repo.logPoolExhaustion(uid, tier, today);
   throw new ContentPoolExhaustedError(tier);
 }

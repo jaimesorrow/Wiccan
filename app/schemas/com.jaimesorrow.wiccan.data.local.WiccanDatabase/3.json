@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "e4373aaf040cb38ff16170b64c240260",
+    "identityHash": "91069ad0137c07cc7e9ca66a4b6184a5",
     "entities": [
       {
         "tableName": "cached_daily_content",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`contentId` TEXT NOT NULL, `type` TEXT NOT NULL, `tier` TEXT NOT NULL, `tradition` TEXT NOT NULL, `category` TEXT NOT NULL, `title` TEXT NOT NULL, `intro` TEXT NOT NULL, `body` TEXT NOT NULL, `materials` TEXT, `safetyNote` TEXT, `tags` TEXT NOT NULL, `status` TEXT NOT NULL, `deliveredDate` TEXT NOT NULL, `reflection` TEXT, `practice` TEXT, `difficulty` TEXT, PRIMARY KEY(`contentId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`contentId` TEXT NOT NULL, `type` TEXT NOT NULL, `tier` TEXT NOT NULL, `tradition` TEXT NOT NULL, `category` TEXT NOT NULL, `title` TEXT NOT NULL, `intro` TEXT NOT NULL, `body` TEXT NOT NULL, `materials` TEXT, `safetyNote` TEXT, `tags` TEXT NOT NULL, `status` TEXT NOT NULL, `deliveredDate` TEXT NOT NULL, `userId` TEXT, `timezone` TEXT, `reflection` TEXT, `practice` TEXT, `sourceId` TEXT, `sourceCitation` TEXT, `sourceUrl` TEXT, `rightsReviewRequired` INTEGER, `rightsNotes` TEXT, PRIMARY KEY(`contentId`))",
         "fields": [
           {
             "fieldPath": "contentId",
@@ -85,6 +85,16 @@
             "notNull": true
           },
           {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "timezone",
+            "columnName": "timezone",
+            "affinity": "TEXT"
+          },
+          {
             "fieldPath": "reflection",
             "columnName": "reflection",
             "affinity": "TEXT"
@@ -95,8 +105,28 @@
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "difficulty",
-            "columnName": "difficulty",
+            "fieldPath": "sourceId",
+            "columnName": "sourceId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sourceCitation",
+            "columnName": "sourceCitation",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sourceUrl",
+            "columnName": "sourceUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rightsReviewRequired",
+            "columnName": "rightsReviewRequired",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "rightsNotes",
+            "columnName": "rightsNotes",
             "affinity": "TEXT"
           }
         ],
@@ -110,7 +140,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e4373aaf040cb38ff16170b64c240260')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '91069ad0137c07cc7e9ca66a4b6184a5')"
     ]
   }
 }
