@@ -14,14 +14,18 @@ export class FakePlayBillingPort implements PlayBillingPort {
       expiryTimeMillis?: number | null;
       autoRenewing?: boolean;
       acknowledged?: boolean;
+      obfuscatedExternalAccountId?: string | null;
+      linkedPurchaseToken?: string | null;
     } = {},
   ): void {
     this.responses.set(token, {
       state,
       productIds,
-      expiryTimeMillis: options.expiryTimeMillis ?? null,
+      expiryTimeMillis: options.expiryTimeMillis === undefined ? Date.now() + 86400000 : options.expiryTimeMillis,
       autoRenewing: options.autoRenewing ?? false,
       acknowledged: options.acknowledged ?? false,
+      obfuscatedExternalAccountId: options.obfuscatedExternalAccountId ?? null,
+      linkedPurchaseToken: options.linkedPurchaseToken ?? null,
     });
   }
 

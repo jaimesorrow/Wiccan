@@ -106,6 +106,7 @@ describe("approveDraft", () => {
       tags: ["lesson"],
       tradition: ANCIENT_LESSON_SOURCE.tradition,
       sourceId: ANCIENT_LESSON_SOURCE.id,
+      reflection: "What does this source teach us about its historical setting?",
     });
 
     await approveDraft(contentId, repo, [ANCIENT_LESSON_SOURCE]);
@@ -136,6 +137,29 @@ describe("approveDraft", () => {
     });
 
     await expect(approveDraft(contentId, repo, [ANCIENT_LESSON_SOURCE])).rejects.toThrow(UnsafeContentError);
+    expect(await repo.getStatus(contentId)).toBe("draft");
+  });
+
+  it("blocks publication until outstanding rights are cleared", async () => {
+    const repo = new FakeContentAdminRepository();
+    const contentId = await repo.createDraft({ ...BASE_DRAFT, rightsReviewRequired: true });
+    await expect(approveDraft(contentId, repo)).rejects.toThrow("rights review is outstanding");
+    expect(await repo.getStatus(contentId)).toBe("draft");
+
+    repo.docs.get(contentId)!.rightsReviewRequired = false;
+    await approveDraft(contentId, repo);
+    expect(await repo.getStatus(contentId)).toBe("published");
+  });
+
+  it.each([undefined, null, " ", "A statement"])("blocks a sourced lesson with an invalid structured reflection: %s", async (reflection) => {
+    const repo = new FakeContentAdminRepository();
+    const contentId = await repo.createDraft({
+      ...BASE_DRAFT,
+      type: "lesson",
+      sourceId: ANCIENT_LESSON_SOURCE.id,
+      reflection,
+    });
+    await expect(approveDraft(contentId, repo, [ANCIENT_LESSON_SOURCE])).rejects.toThrow("structured reflection question");
     expect(await repo.getStatus(contentId)).toBe("draft");
   });
 });

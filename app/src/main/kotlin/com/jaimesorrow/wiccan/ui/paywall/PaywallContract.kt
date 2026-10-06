@@ -10,6 +10,7 @@ data class PaywallUiState(
 
 sealed class PaywallUiEvent {
     data object RestorePurchasesClicked : PaywallUiEvent()
+    data object RetryPriceClicked : PaywallUiEvent()
 }
 
 sealed class PaywallUiEffect {

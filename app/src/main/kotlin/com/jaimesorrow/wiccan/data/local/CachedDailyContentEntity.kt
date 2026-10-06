@@ -23,4 +23,7 @@ data class CachedDailyContentEntity(
     val tags: List<String>,
     val status: String,
     val deliveredDate: String,
+    val reflection: String? = null,
+    val practice: String? = null,
+    val difficulty: String? = null,
 )

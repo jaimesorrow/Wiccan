@@ -95,6 +95,13 @@ a cross-region hop on every call.
 
 **REPO.** Rules and indexes are written and ready:
 
+Existing installations may have delivery histories created before
+`userContentUsage` markers were introduced. Before deploying the restricted
+content-read rules, backfill those markers with the authenticated admin tool
+described in [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md). Without that migration,
+legacy Archive entries cannot be read by their owners. Content collection listing
+is denied to clients; only server-delivered content IDs are readable.
+
 ```bash
 firebase deploy --only firestore:rules,firestore:indexes --project production
 ```
@@ -150,12 +157,16 @@ attestation — treat it as a secret and never commit it.
 
 - `ANTHROPIC_API_KEY` — required by `generateDraft` / `npm run generate-draft`.
 - `ANDROID_PACKAGE_NAME` — **required**, no default. `com.jaimesorrow.wiccan`
-  for every Android flavor. Separate dev/staging Firebase projects must
-  register this same package; set the value explicitly in each project.
-- `GOOGLE_APPLICATION_CREDENTIALS` — service account JSON with Google Play
-  Developer API access. Required by `verifyPurchase`,
-  `recheckLapsedSubscriptionsJob`, `handlePlayRtdn`, and `deleteUserData`'s
-  subscription cancellation.
+  for production; dev/staging must use their own IDs.
+- For deployed Functions, grant the **runtime service account** access to this
+  app through Play Console and enable the Android Publisher API. The repository
+  uses Application Default Credentials, so a deployed function receives its
+  runtime identity automatically. A local service-account file path in `.env`
+  does not upload that key or configure a deployed runtime.
+- For local admin scripts, connect an authorized Google Cloud identity or set
+  `GOOGLE_APPLICATION_CREDENTIALS` to a service-account file outside this repo.
+  Firestore seeding needs Firestore access; local Play API calls additionally
+  need Play Console access. Never commit the key or print its contents.
 
 ## 6. Play RTDN (Pub/Sub)
 

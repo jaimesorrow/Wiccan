@@ -26,13 +26,25 @@ describe("parseRtdnPurchaseToken", () => {
   it("returns null for malformed data instead of throwing", () => {
     expect(parseRtdnPurchaseToken("not-valid-base64-json")).toBeNull();
   });
+
+  it.each([null, 123, {}, "", "   ", "a".repeat(4097)])("rejects a malformed token %p", (purchaseToken) => {
+    expect(parseRtdnPurchaseToken(encodeRtdnPayload({ subscriptionNotification: { purchaseToken } }))).toBeNull();
+  });
+
+  it("only accepts notifications for the configured Android package", () => {
+    const payload = { packageName: "com.jaimesorrow.wiccan", subscriptionNotification: { purchaseToken: TOKEN } };
+    expect(parseRtdnPurchaseToken(encodeRtdnPayload(payload), "com.jaimesorrow.wiccan")).toBe(TOKEN);
+    expect(parseRtdnPurchaseToken(encodeRtdnPayload(payload), "com.other.app")).toBeNull();
+    expect(parseRtdnPurchaseToken(encodeRtdnPayload({ subscriptionNotification: { purchaseToken: TOKEN } }),
+      "com.jaimesorrow.wiccan")).toBeNull();
+  });
 });
 
 describe("handleRtdnNotification", () => {
   it("re-verifies and updates the tier for a known purchase token", async () => {
     const billing = new FakePlayBillingPort();
     billing.respondWith(TOKEN, "expired", [PRODUCT_ID]);
-    const users = new FakeUserRepository();
+    const users = new FakeUserRepository(["user-1"]);
     await users.setTier("user-1", "premium", TOKEN);
     const subscriptions = new FakeSubscriptionRecordRepository();
 
@@ -46,7 +58,7 @@ describe("handleRtdnNotification", () => {
   it("keeps a renewed subscription at premium", async () => {
     const billing = new FakePlayBillingPort();
     billing.respondWith(TOKEN, "active", [PRODUCT_ID]);
-    const users = new FakeUserRepository();
+    const users = new FakeUserRepository(["user-1"]);
     await users.setTier("user-1", "premium", TOKEN);
     const subscriptions = new FakeSubscriptionRecordRepository();
 
@@ -58,7 +70,7 @@ describe("handleRtdnNotification", () => {
   it("downgrades an active token switched to an unrelated product", async () => {
     const billing = new FakePlayBillingPort();
     billing.respondWith(TOKEN, "active", ["unrelated_subscription"]);
-    const users = new FakeUserRepository();
+    const users = new FakeUserRepository(["user-1"]);
     await users.setTier("user-1", "premium", TOKEN);
     const subscriptions = new FakeSubscriptionRecordRepository();
 
@@ -71,7 +83,8 @@ describe("handleRtdnNotification", () => {
 
   it("is a no-op for a purchase token that doesn't belong to any known user", async () => {
     const billing = new FakePlayBillingPort();
-    const users = new FakeUserRepository();
+    billing.respondWith("unknown-token", "active", [PRODUCT_ID]);
+    const users = new FakeUserRepository(["user-1"]);
     const subscriptions = new FakeSubscriptionRecordRepository();
 
     const result = await handleRtdnNotification("unknown-token", billing, users, subscriptions);
@@ -79,4 +92,104 @@ describe("handleRtdnNotification", () => {
     expect(result).toBeNull();
     expect(subscriptions.records.size).toBe(0);
   });
+
+  it("does not apply a delayed expiry while an upgrade becomes current during verification", async () => {
+    const billing = new FakePlayBillingPort();
+    const users = new FakeUserRepository(["user-1"]);
+    await users.setTier("user-1", "premium", TOKEN);
+    billing.respondWith(TOKEN, "expired", [PRODUCT_ID]);
+    const getState = billing.getSubscriptionState.bind(billing);
+    billing.getSubscriptionState = async (token) => {
+      await users.setTier("user-1", "premium", "new-token");
+      return getState(token);
+    };
+    const subscriptions = new FakeSubscriptionRecordRepository();
+    expect(await handleRtdnNotification(TOKEN, billing, users, subscriptions)).toBeNull();
+    expect(users.users.get("user-1")).toEqual({ tier: "premium", purchaseToken: "new-token" });
+    expect(subscriptions.records.size).toBe(0);
+  });
+
+  it("does not recreate a deleted account after a Play API request completes", async () => {
+    const billing = new FakePlayBillingPort();
+    const users = new FakeUserRepository(["user-1"]);
+    await users.setTier("user-1", "premium", TOKEN);
+    billing.respondWith(TOKEN, "active", [PRODUCT_ID]);
+    const getState = billing.getSubscriptionState.bind(billing);
+    billing.getSubscriptionState = async (token) => {
+      users.users.delete("user-1");
+      return getState(token);
+    };
+    expect(await handleRtdnNotification(TOKEN, billing, users,
+      new FakeSubscriptionRecordRepository())).toBeNull();
+    expect(users.users.size).toBe(0);
+  });
+
+  it("binds and acknowledges a verified replacement linked to the current token", async () => {
+    const billing = new FakePlayBillingPort();
+    billing.respondWith("replacement-token", "active", [PRODUCT_ID], { linkedPurchaseToken: TOKEN });
+    const users = new FakeUserRepository(["user-1"]);
+    await users.setTier("user-1", "premium", TOKEN);
+    const subscriptions = new FakeSubscriptionRecordRepository();
+    expect(await handleRtdnNotification("replacement-token", billing, users, subscriptions))
+      .toEqual({ uid: "user-1", tier: "premium" });
+    expect(users.users.get("user-1")?.purchaseToken).toBe("replacement-token");
+    expect(billing.acknowledgedTokens).toEqual([{ purchaseToken: "replacement-token", productId: PRODUCT_ID }]);
+  });
+
+  it.each(["on_hold", "expired"] as const)(
+    "applies a non-entitled %s replacement linked to the current token",
+    async (state) => {
+      const billing = new FakePlayBillingPort();
+      billing.respondWith("replacement-token", state, [PRODUCT_ID], { linkedPurchaseToken: TOKEN });
+      const users = new FakeUserRepository(["user-1"]);
+      await users.setTier("user-1", "premium", TOKEN);
+      const subscriptions = new FakeSubscriptionRecordRepository();
+
+      expect(await handleRtdnNotification("replacement-token", billing, users, subscriptions))
+        .toEqual({ uid: "user-1", tier: "free" });
+      expect(users.users.get("user-1")).toMatchObject({ tier: "free", purchaseToken: "replacement-token" });
+      expect(subscriptions.records.get("user-1")?.subscriptionState).toBe(state);
+    },
+  );
+
+  it("does not apply a pending replacement before Play makes it current", async () => {
+    const billing = new FakePlayBillingPort();
+    billing.respondWith("replacement-token", "pending", [PRODUCT_ID], { linkedPurchaseToken: TOKEN });
+    const users = new FakeUserRepository(["user-1"]);
+    await users.setTier("user-1", "premium", TOKEN);
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    expect(await handleRtdnNotification("replacement-token", billing, users, subscriptions)).toBeNull();
+    expect(users.users.get("user-1")).toMatchObject({ tier: "premium", purchaseToken: TOKEN });
+    expect(subscriptions.records.size).toBe(0);
+  });
+  it("preserves premium access when another independent subscription remains active", async () => {
+    const billing = new FakePlayBillingPort();
+    const users = new FakeUserRepository(["user-1"]);
+    await users.setTier("user-1", "premium", "monthly-token");
+    await users.setTier("user-1", "premium", "yearly-token");
+    billing.respondWith("yearly-token", "expired", ["wiccan_premium_yearly"]);
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    expect(await handleRtdnNotification("yearly-token", billing, users, subscriptions))
+      .toEqual({ uid: "user-1", tier: "premium" });
+    expect(users.users.get("user-1")).toMatchObject({ tier: "premium", purchaseToken: "yearly-token" });
+  });
+
+  it("resolves an out-of-order replacement chain to the current predecessor", async () => {
+    const billing = new FakePlayBillingPort();
+    const users = new FakeUserRepository(["user-1"]);
+    await users.setTier("user-1", "premium", "token-a");
+    billing.respondWith("token-b", "active", [PRODUCT_ID], { linkedPurchaseToken: "token-a" });
+    billing.respondWith("token-c", "active", [PRODUCT_ID], { linkedPurchaseToken: "token-b" });
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    expect(await handleRtdnNotification("token-c", billing, users, subscriptions))
+      .toEqual({ uid: "user-1", tier: "premium" });
+    expect(users.users.get("user-1")).toMatchObject({ tier: "premium", purchaseToken: "token-c" });
+
+    expect(await handleRtdnNotification("token-b", billing, users, subscriptions)).toBeNull();
+    expect(users.users.get("user-1")?.purchaseToken).toBe("token-c");
+  });
+
 });

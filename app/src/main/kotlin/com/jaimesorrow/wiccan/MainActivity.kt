@@ -27,6 +27,7 @@ import com.jaimesorrow.wiccan.ui.auth.SignInScreen
 import com.jaimesorrow.wiccan.ui.navigation.WiccanAppShell
 import com.jaimesorrow.wiccan.ui.navigation.WiccanDeepLinks
 import com.jaimesorrow.wiccan.ui.notification.NotificationSetupEffect
+import com.jaimesorrow.wiccan.ui.paywall.SubscriptionSetupEffect
 import com.jaimesorrow.wiccan.ui.policy.PolicyAcceptanceScreen
 import com.jaimesorrow.wiccan.ui.theme.ThemeViewModel
 import com.jaimesorrow.wiccan.ui.theme.WiccanTheme
@@ -61,6 +62,7 @@ class MainActivity : ComponentActivity() {
                 when (rootState) {
                     RootState.SignedIn -> {
                         NotificationSetupEffect()
+                        SubscriptionSetupEffect()
                         WiccanAppShell(startOnPaywall = startOnPaywall)
                     }
                     RootState.SignedOut -> SignInScreen()

@@ -74,52 +74,105 @@ When evidence is fragmentary or uncertain, say so rather than filling gaps.
 
 ## The checked-in seed pool
 
-`functions/ancientContentSeed.json` holds 150 hand-reviewed entries written
-against the four ancient sources above: 54 lessons, 59 spells, 37 potions,
-split 50/50/50 across `difficulty` beginner, intermediate and advanced.
+`functions/ancientContentSeed.json` contains **296 draft entries: 200 actual
+lessons, 59 spells, and 37 potions**. The original 150 entries contained only
+54 lessons; total content count must never be used as the lesson count.
+Those original entries and IDs are preserved. An additional 146 newly authored,
+**unreviewed lesson drafts** provide original historical-reading commentary
+against the cited records already documented in that pool. These additions
+need human historical, cultural, safety, and rights review before publication;
+structural validation is not editorial approval.
 
 Every entry follows the canonical structure in
 `docs/CONTENT_VOICE_AND_LESSON_STANDARD.md` (`intro`, `body`, `reflection`,
 optional `practice`, optional `safetyNote`) and carries `sourceCitation` and
-`sourceUrl` so the citation block can be rendered with the entry. Spells and
-potions are written as historical records with a safety note, never as
-instructions to perform; the four ancient sources' `eligibleTypes` were
-widened to `lesson`, `spell` and `potion` to reflect that.
+`sourceUrl`. The additional lessons discuss interpretation and evidence rather
+than providing procedures for the historical spells or hazardous preparations.
+The existing spells and potions remain historical records with safety notes.
+The four ancient sources remain manually curated; no new source or invented
+citation was introduced to meet the count.
 
-`functions/src/contentSeed.ts` validates the file and applies the same
-structural gates as `approveDraft`. `functions/src/__tests__/contentSeed.test.ts`
-runs those gates against the real checked-in file in CI, so an edit that breaks
-the pool fails the build.
+`functions/src/contentSeed.ts` validates the file, rejects duplicate IDs,
+titles and bodies, and applies structural and source gates. Tests check the
+actual `type == "lesson"` count and substantive bodies for the additions.
+The generator also supplies `reflection` and `practice` as separate fields,
+so new generated lessons use the same representation as the checked-in pool.
 
-### Seeding
+### Validate, import, and verify production content
 
 ```
 cd functions
-npm run seed-content              # validate only, writes nothing
-npm run seed-content -- --commit  # upsert into the selected project
+npm run seed-content
+npm run seed-content -- --project wiccan-android --commit
+npm run verify-lessons -- --project wiccan-android
 ```
 
-Document IDs are deterministic, so a re-run updates the same 150 documents
-rather than creating duplicates. Every entry is seeded as `status: "draft"`,
-and an already-published document keeps its status - seeding fills the pool
-and never publishes. Publication stays a per-document `approve-draft` action.
-Confirm the printed project ID before committing a write.
+The first command validates the local file without accessing Firebase. The
+other two require Application Default Credentials with permission to read
+production Firestore; importing also requires permission to create documents.
+Authenticate in your own trusted environment, for example using
+`gcloud auth application-default login`, or point
+`GOOGLE_APPLICATION_CREDENTIALS` at an existing authorized credential file.
+Never put credential files in this repository or paste private keys into chat.
 
-### Rights review
+These tools explicitly target **`wiccan-android`**, require that exact
+`--project` argument for remote actions, and refuse to use
+`FIRESTORE_EMULATOR_HOST` as production verification. They do not rely on
+`.firebaserc` aliases or an implicit default project.
 
-54 entries carry `rightsReviewRequired: true`: they either retain a short
-phrase from a modern translation or derive from museum prose whose reuse terms
-have not been confirmed (the two Metropolitan Museum amulet entries). Under the
-copyright policy above, clear those rights or rewrite the phrasing before any
-of those entries is approved for publication.
+Document IDs are deterministic. The importer creates missing draft documents
+inside Firestore transactions and **preserves every field of every existing
+document**, including edited drafts and published bodies. It reports preserved
+entries whose text differs from the checked-in copy. A seed ID attached to an
+existing document with a different type or source aborts its transaction;
+read-only preflight also refuses a missing seed ID that would duplicate an
+existing title or body under another ID. Resolve a collision rather than
+overwriting production data. No import
+publishes or deletes anything.
+
+Remote verification reports the actual lesson count, total content count,
+lesson counts by status and tier, outstanding rights review, missing manifest
+lesson IDs, additional lesson IDs, duplicate titles/bodies, and structural/source problems. It requires
+all 200 manifest lesson IDs and at least 200 actual lessons. Additional
+production lessons are retained and reported; the tool never shrinks a
+production collection to fit a target. A collection of 200 mixed spells,
+potions, and lessons fails the lesson-count check.
+
+**Draft count is separate from published content available to subscribers.**
+After reviewing an individual draft and clearing any outstanding rights issue,
+publication remains an explicit per-document action:
+
+```
+npm run approve-draft -- --project wiccan-android --contentId <id>
+```
+
+Approval refuses a lesson without a structured reflection question or curated
+ancient source, and refuses any draft with `rightsReviewRequired: true`.
+Clearing that flag is an editorial decision after confirming rights or
+rewriting the affected content; the importer does not clear it.
+
+### Rights and editorial review
+
+106 entries carry `rightsReviewRequired: true`: the original 54 rights flags
+and 52 conservatively inherited flags on new commentaries. Retained source
+citations do not independently establish reuse permission. New commentary is
+original prose, but all 146 additions still require manual editorial review.
 
 ### Reader levels
 
-`difficulty` is assigned once, in the file, and must be read as-is rather than
-derived from `safetyNote`, `type` or material hazard. It is independent of
-`tier`: the current seed maps beginner to `free` and intermediate/advanced to
-`premium`, which is a product decision that can change without touching the
-editorial fields.
+`difficulty` is assigned in the file and must be read as-is rather than
+derived from `safetyNote`, `type`, or material hazard. It is independent of
+`tier`. The full pool contains 100 beginner, 100 intermediate, and 96 advanced
+entries, with 100 free and 196 premium entries. Among the **200 lessons**,
+79 are beginner/free, 67 intermediate/premium, and 54 advanced/premium.
+The historical original 150 entries retain their 50/50/50 reader-level split.
+
+### Verification limits
+
+The checked-in count and tests describe local content. No live count for
+`wiccan-android` is asserted until the authenticated read-only verification
+command succeeds. Importing drafts cannot by itself establish that 200 lessons
+are published or ready for daily delivery.
 
 ## Existing published lessons
 

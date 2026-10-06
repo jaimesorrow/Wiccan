@@ -1,14 +1,17 @@
-import { Firestore } from "firebase-admin/firestore";
+import { FieldValue, Firestore } from "firebase-admin/firestore";
 import { Auth } from "firebase-admin/auth";
-import * as logger from "firebase-functions/logger";
 import { AccountDeletionPort } from "./accountDeletionPort";
 import { PlayBillingPort } from "./playBillingPort";
+import { PREMIUM_PRODUCT_IDS } from "./tierPolicy";
+import { obfuscatedAccountId, purchaseTokenDocumentId } from "./billingIdentity";
 
 const USERS_COLLECTION = "users";
 const HISTORY_COLLECTION = "userContentHistory";
 const CONTENT_USAGE_COLLECTION = "userContentUsage";
 const DEVICES_SUBCOLLECTION = "devices";
 const SUBSCRIPTIONS_COLLECTION = "subscriptions";
+const PURCHASE_TOKENS_COLLECTION = "purchaseTokens";
+const USER_PURCHASE_TOKENS_COLLECTION = "userPurchaseTokens";
 
 export class FirestoreAccountDeletionRepository implements AccountDeletionPort {
   constructor(
@@ -37,25 +40,43 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionPort {
   }
 
   async cancelActiveSubscription(uid: string): Promise<void> {
-    const doc = await this.db.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
-    if (!doc.exists) {
-      return;
-    }
-
-    const purchaseToken = doc.get("purchaseToken") as string | undefined;
-    const productId = doc.get("productId") as string | undefined;
-    const subscriptionState = doc.get("subscriptionState") as string | undefined;
-    if (!purchaseToken || !productId || subscriptionState === "canceled" || subscriptionState === "expired") {
-      return;
-    }
-
-    try {
+    const userRef = this.db.collection(USERS_COLLECTION).doc(uid);
+    const tokens = await this.db.runTransaction(async (transaction) => {
+      const [user, subscription, ownedTokens] = await Promise.all([
+        transaction.get(userRef),
+        transaction.get(this.db.collection(SUBSCRIPTIONS_COLLECTION).doc(uid)),
+        transaction.get(this.db.collection(USER_PURCHASE_TOKENS_COLLECTION).doc(uid).collection("tokens")),
+      ]);
+      const knownTokens = [...new Set([
+        user.get("purchaseToken"),
+        subscription.get("purchaseToken"),
+        ...ownedTokens.docs.map((doc) => doc.get("purchaseToken")),
+      ].filter((token): token is string => typeof token === "string" && token.length > 0))];
+      const ownershipRefs = knownTokens.map((token) =>
+        this.db.collection(PURCHASE_TOKENS_COLLECTION).doc(purchaseTokenDocumentId(token)));
+      const bindings = await Promise.all(ownershipRefs.map((ref) => transaction.get(ref)));
+      const accountId = obfuscatedAccountId(uid);
+      if (bindings.some((binding) => binding.get("accountId") && binding.get("accountId") !== accountId)) {
+        throw new Error("A subscription token is linked to another account.");
+      }
+      // Freeze purchase verification before reading/canceling its token. This
+      // marker stays set on failure so retry cannot race with another purchase.
+      if (user.exists) transaction.set(userRef, { deletionInProgress: true }, { merge: true });
+      for (let index = 0; index < knownTokens.length; index++) {
+        transaction.set(ownershipRefs[index], {
+          accountId, updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
+      }
+      return knownTokens;
+    });
+    for (const purchaseToken of tokens) {
+      const info = await this.billing.getSubscriptionState(purchaseToken);
+      if (!info.autoRenewing) continue;
+      const productId = info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id));
+      if (!productId) throw new Error("The subscription product could not be verified for cancellation.");
+      // The user's current token remains authoritative even if the audit
+      // record is missing, stale, or its last verification failed halfway.
       await this.billing.cancelSubscription(purchaseToken, productId);
-    } catch (err) {
-      // Never let a Play API hiccup block the rest of account deletion -
-      // the user's data still needs to be erased even if this one call
-      // fails. Logged so a stuck subscription is visible, not silent.
-      logger.error("cancelActiveSubscription failed", { uid, error: (err as Error).message });
     }
   }
 
@@ -63,6 +84,9 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionPort {
     // A plain delete on a doc that never existed (a user who never
     // subscribed) is a no-op, not an error.
     await this.db.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).delete();
+    const tokenRecords = await this.db.collection(USER_PURCHASE_TOKENS_COLLECTION)
+      .doc(uid).collection("tokens").get();
+    await this.deleteAll(tokenRecords.docs.map((doc) => doc.ref));
   }
 
   async deleteAuthAccount(uid: string): Promise<void> {

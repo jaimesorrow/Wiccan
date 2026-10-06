@@ -17,6 +17,9 @@ function findSafetyViolations(content: StoredContent, sources: ContentSource[]):
   if (content.intro.trim().length === 0) violations.push("intro is empty.");
   if (content.body.trim().length === 0) violations.push("body is empty.");
   if (content.tags.length === 0) violations.push("tags is empty.");
+  if (content.rightsReviewRequired === true) {
+    violations.push("rights review is outstanding; clear rights or rewrite the content before publishing.");
+  }
 
   // A potion mixes materials for the user to prepare or use directly, so
   // it always needs an explicit safety disclaimer - never left to the
@@ -30,6 +33,9 @@ function findSafetyViolations(content: StoredContent, sources: ContentSource[]):
   // presented as ancient history. This is enforced again at publish time so
   // a manually created or tampered draft cannot bypass the source registry.
   if (content.type === "lesson") {
+    if (!content.reflection?.trim().endsWith("?")) {
+      violations.push("lesson requires a non-empty structured reflection question.");
+    }
     const source = sources.find((candidate) => candidate.id === content.sourceId);
     if (!source) {
       violations.push(`lesson sourceId '${content.sourceId}' is not present in the curated source registry.`);

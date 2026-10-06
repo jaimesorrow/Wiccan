@@ -13,6 +13,7 @@ class FakeSubscriptionRepository : SubscriptionRepository {
     var launchCalls: MutableList<Activity> = mutableListOf()
     var launchResult: AppResult<Unit> = AppResult.Success(Unit)
     var priceResult: AppResult<String> = AppResult.Success("$4.99/mo")
+    var priceCallCount: Int = 0
     var restoreResult: AppResult<Unit> = AppResult.Success(Unit)
     var restoreCallCount: Int = 0
 
@@ -23,7 +24,10 @@ class FakeSubscriptionRepository : SubscriptionRepository {
 
     override fun observeTier(): Flow<ContentTier> = tierFlow
 
-    override suspend fun getFormattedPrice(): AppResult<String> = priceResult
+    override suspend fun getFormattedPrice(): AppResult<String> {
+        priceCallCount++
+        return priceResult
+    }
 
     override suspend fun restorePurchases(): AppResult<Unit> {
         restoreCallCount++

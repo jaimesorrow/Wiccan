@@ -54,7 +54,7 @@ describe("generateDrafts", () => {
     const generator = new FakeDraftGenerationPort();
     const repo = new FakeContentAdminRepository();
 
-    await generateDrafts(
+    const results = await generateDrafts(
       { tier: "free", sourceId: "source-a", type: "lesson" },
       [SOURCE_A],
       generator,
@@ -70,6 +70,11 @@ describe("generateDrafts", () => {
       sourceReference: SOURCE_A.sourceReference,
       summary: SOURCE_A.summary,
       groundedFacts: SOURCE_A.groundedFacts,
+    });
+    expect(repo.docs.get(results[0].contentId)).toMatchObject({
+      reflection: "What does this source reveal about its historical setting?",
+      practice: null,
+      status: "draft",
     });
   });
 

@@ -49,6 +49,7 @@ jobs:
       - run: python3 scripts/test-check-toolchain.py
       - run: python3 scripts/check-toolchain.py
       - run: python3 scripts/test-validate-repo.py
+      - run: python3 scripts/test-check-16kb-alignment.py
       - run: ./scripts/validate-repo.sh --structure
       - run: ./gradlew ktlintCheck
       # "prod" uses com.jaimesorrow.wiccan and its source-set Firebase config.

@@ -1,6 +1,7 @@
 import { androidpublisher, auth } from "@googleapis/androidpublisher";
 import * as logger from "firebase-functions/logger";
 import { PlayBillingPort, PlaySubscriptionInfo, PlaySubscriptionState } from "./playBillingPort";
+import { PREMIUM_PRODUCT_IDS } from "./tierPolicy";
 
 const ANDROID_PUBLISHER_SCOPE = "https://www.googleapis.com/auth/androidpublisher";
 
@@ -18,6 +19,8 @@ function mapSubscriptionState(raw: string | null | undefined): PlaySubscriptionS
       return "paused";
     case "SUBSCRIPTION_STATE_PENDING":
       return "pending";
+    case "SUBSCRIPTION_STATE_PENDING_PURCHASE_CANCELED":
+      return "pending_purchase_canceled";
     case "SUBSCRIPTION_STATE_EXPIRED":
       return "expired";
     default:
@@ -55,13 +58,25 @@ export class GooglePlayBillingRepository implements PlayBillingPort {
     const response = await client.purchases.subscriptionsv2.get({
       packageName: this.packageName,
       token: purchaseToken,
+    }).catch((error: unknown) => {
+      // Play stops serving tokens 60 days after expiration. HTTP 410 is
+      // terminal expiry, unlike auth failures, 404s, or transient outages.
+      if ((error as { response?: { status?: number } }).response?.status === 410) return null;
+      throw error;
     });
+    if (!response) return {
+      state: "expired", productIds: [], expiryTimeMillis: null, autoRenewing: false, acknowledged: true,
+    };
 
     const lineItems = response.data.lineItems ?? [];
     const productIds = lineItems.map((item) => item.productId).filter((id): id is string => Boolean(id));
-    const primaryLineItem = lineItems[0];
-    const expiryTimeMillis = primaryLineItem?.expiryTime ? new Date(primaryLineItem.expiryTime).getTime() : null;
-    const autoRenewing = primaryLineItem?.autoRenewingPlan?.autoRenewEnabled ?? false;
+    // An unrelated/expired first line item must not decide Wiccan access.
+    const premiumExpiryTimes = lineItems
+      .filter((item) => item.productId && PREMIUM_PRODUCT_IDS.has(item.productId))
+      .map((item) => item.expiryTime ? Date.parse(item.expiryTime) : NaN)
+      .filter(Number.isFinite);
+    const expiryTimeMillis = premiumExpiryTimes.length ? Math.max(...premiumExpiryTimes) : null;
+    const autoRenewing = lineItems.some((item) => item.autoRenewingPlan?.autoRenewEnabled === true);
     const acknowledged =
       response.data.acknowledgementState === "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED";
 
@@ -71,6 +86,8 @@ export class GooglePlayBillingRepository implements PlayBillingPort {
       expiryTimeMillis,
       autoRenewing,
       acknowledged,
+      obfuscatedExternalAccountId: response.data.externalAccountIdentifiers?.obfuscatedExternalAccountId ?? null,
+      linkedPurchaseToken: response.data.linkedPurchaseToken ?? null,
     };
   }
 
@@ -99,6 +116,7 @@ export class GooglePlayBillingRepository implements PlayBillingPort {
   }
 
   async cancelSubscription(purchaseToken: string, productId: string): Promise<void> {
+    if (!(await this.getSubscriptionState(purchaseToken)).autoRenewing) return;
     const authClient = await auth.getClient({ scopes: [ANDROID_PUBLISHER_SCOPE] });
     const client = androidpublisher({ version: "v3", auth: authClient });
 

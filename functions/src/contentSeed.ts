@@ -5,11 +5,11 @@ import { CONTENT_CATEGORIES, SeedContent } from "./types";
 import { ContentSource, loadContentSources } from "./contentSource";
 
 /**
- * The checked-in, hand-reviewed ancient-source content seed
+ * The checked-in ancient-source content seed
  * (`functions/ancientContentSeed.json`).
  *
  * Unlike `generateDraft`, this pool is not produced by the LLM pipeline at
- * run time: it was researched and written once, reviewed as a file diff,
+ * run time: it is written as a file diff for editorial review,
  * and is loaded here so the same structural gates that protect generated
  * drafts also protect seeded ones. Everything in the file is
  * `status: "draft"` by design - seeding never publishes. Publication stays
@@ -46,6 +46,15 @@ const SeedContentSchema = z.object({
 
 const SeedContentsSchema = z.array(SeedContentSchema).min(1);
 
+/** Counts actual lessons, independently of the spells and potions in the pool. */
+export const EXPECTED_LESSON_COUNT = 200;
+
+export function countSeedTypes(entries: SeedContent[]): Record<SeedContent["type"], number> {
+  const counts = { lesson: 0, spell: 0, potion: 0 };
+  for (const entry of entries) counts[entry.type] += 1;
+  return counts;
+}
+
 export const SEED_PATH_CANDIDATES = [
   // Running from src/ (ts-jest) or from lib/scripts/ (compiled CLI).
   path.join(__dirname, "..", "ancientContentSeed.json"),
@@ -80,16 +89,28 @@ export function findSeedViolations(
   const violations: string[] = [];
   const seen = new Set<string>();
   const titles = new Set<string>();
+  const bodies = new Set<string>();
 
   for (const entry of entries) {
     if (seen.has(entry.id)) violations.push(`duplicate id '${entry.id}'.`);
     seen.add(entry.id);
 
     const normalizedTitle = entry.title.trim().toLowerCase();
+    if (!normalizedTitle) violations.push(`'${entry.id}': title must not be blank.`);
     if (titles.has(normalizedTitle)) violations.push(`duplicate title '${entry.title}'.`);
     titles.add(normalizedTitle);
 
-    if (entry.type === "potion" && !entry.safetyNote) {
+    const normalizedBody = entry.body.trim().replace(/\s+/g, " ").toLowerCase();
+    if (bodies.has(normalizedBody)) violations.push(`duplicate body '${entry.id}'.`);
+    bodies.add(normalizedBody);
+    if (!entry.intro.trim() || !normalizedBody || !entry.reflection.trim()) {
+      violations.push(`'${entry.id}': introduction, body and reflection must not be blank.`);
+    }
+    if (!entry.reflection.trim().endsWith("?")) {
+      violations.push(`'${entry.id}': reflection must be a question.`);
+    }
+
+    if (entry.type === "potion" && !entry.safetyNote?.trim()) {
       violations.push(`'${entry.id}': type 'potion' requires a safetyNote.`);
     }
 

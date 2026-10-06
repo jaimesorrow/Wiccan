@@ -2,7 +2,8 @@ import { ContentTier } from "./types";
 import { PlayBillingPort } from "./playBillingPort";
 import { UserRepositoryPort } from "./userRepositoryPort";
 import { SubscriptionRecordPort } from "./subscriptionRecordPort";
-import { tierForSubscription } from "./tierPolicy";
+import { PREMIUM_PRODUCT_IDS, tierForSubscription } from "./tierPolicy";
+import { obfuscatedAccountId } from "./billingIdentity";
 
 export interface RtdnResult {
   uid: string;
@@ -29,22 +30,36 @@ export async function handleRtdnNotification(
   users: UserRepositoryPort,
   subscriptions: SubscriptionRecordPort,
 ): Promise<RtdnResult | null> {
-  const uid = await users.findUidByPurchaseToken(purchaseToken);
-  if (!uid) {
-    return null;
-  }
-
+  let uid = await users.findUidByPurchaseToken(purchaseToken);
   const info = await billing.getSubscriptionState(purchaseToken);
+  const isReplacement = !uid && Boolean(info.linkedPurchaseToken);
+  let predecessorForSync = info.linkedPurchaseToken;
+  for (let attempts = 0; !uid && predecessorForSync && attempts < 5; attempts++) {
+    uid = await users.findUidByPurchaseToken(predecessorForSync);
+    if (uid) break;
+    const predecessor = await billing.getSubscriptionState(predecessorForSync);
+    predecessorForSync = predecessor.linkedPurchaseToken;
+  }
+  if (!uid) return null;
+  if (info.obfuscatedExternalAccountId && info.obfuscatedExternalAccountId !== obfuscatedAccountId(uid)) return null;
+  if (isReplacement && (info.state === "pending" || info.state === "pending_purchase_canceled")) return null;
   const tier = tierForSubscription(info);
 
-  await users.setTier(uid, tier, purchaseToken);
+  const syncedTier = await users.setTier(
+    uid, tier, purchaseToken, isReplacement ? "replacement" : "refresh", predecessorForSync ?? undefined,
+  );
+  if (syncedTier === null || syncedTier !== tier) return null;
   await subscriptions.save(uid, {
-    productId: info.productIds[0] ?? "unknown",
+    productId: info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id)) ?? info.productIds[0] ?? "unknown",
     purchaseToken,
     subscriptionState: info.state,
     expiryTimeMillis: info.expiryTimeMillis,
     autoRenewing: info.autoRenewing,
   });
+  const premiumProduct = info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id));
+  if (tier === "premium" && !info.acknowledged && premiumProduct) {
+    await billing.acknowledgePurchaseIfNeeded(purchaseToken, premiumProduct);
+  }
 
   return { uid, tier };
 }
@@ -55,12 +70,15 @@ export async function handleRtdnNotification(
  * notification (Play also sends one-time-product and test notifications
  * through the same topic) or that fails to parse.
  */
-export function parseRtdnPurchaseToken(base64Data: string): string | null {
+export function parseRtdnPurchaseToken(base64Data: string, expectedPackageName?: string): string | null {
   try {
     const payload = JSON.parse(Buffer.from(base64Data, "base64").toString("utf-8")) as {
-      subscriptionNotification?: { purchaseToken?: string };
+      packageName?: unknown;
+      subscriptionNotification?: { purchaseToken?: unknown };
     };
-    return payload.subscriptionNotification?.purchaseToken ?? null;
+    if (expectedPackageName && payload.packageName !== expectedPackageName) return null;
+    const token = payload.subscriptionNotification?.purchaseToken;
+    return typeof token === "string" && token.trim().length > 0 && token.length <= 4096 ? token : null;
   } catch {
     return null;
   }

@@ -14,6 +14,8 @@ export class FakeDraftGenerationPort implements DraftGenerationPort {
       title: this.titleOverride ?? `Generated ${request.type} #${this.counter}`,
       intro: `Inspired by ${request.tradition}.`,
       body: "A wholly original body of text, never lifted from the source.",
+      reflection: request.type === "lesson" ? "What does this source reveal about its historical setting?" : null,
+      practice: null,
       materials: request.type === "potion" ? ["a bowl of water", "a white candle"] : null,
       safetyNote: request.type === "potion" ? "Keep away from open flame." : null,
       tags: [request.type],

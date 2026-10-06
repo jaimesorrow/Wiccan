@@ -24,6 +24,13 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   bundle:
     runs-on: ubuntu-latest
@@ -80,8 +87,11 @@ jobs:
       # drift between app/build.gradle.kts and the google-services files,
       # which is exactly the kind of thing that ships a broken release.
       - run: ./scripts/validate-repo.sh --structure
+      - run: python3 scripts/test-check-16kb-alignment.py
 
-      - run: ./gradlew :app:bundleProdRelease
+      # Every downloadable release must pass the app checks as well as
+      # compile successfully; a manual/tag release cannot bypass CI.
+      - run: ./gradlew ktlintCheck :app:testProdDebugUnitTest :app:compileProdDebugAndroidTestKotlin :app:lintProdRelease :app:bundleProdRelease
 
       # A signed .aab carries META-INF/<ALIAS>.SF and .RSA; an unsigned one
       # has neither. jarsigner is not the gate on its own: it exits 0 on an

@@ -25,7 +25,10 @@ export function tierForSubscription(info: PlaySubscriptionInfo, now: Date = new 
   switch (info.state) {
     case "active":
     case "in_grace_period":
-      return "premium";
+      // Missing/invalid or elapsed expiry must fail closed; API state alone
+      // cannot identify which of several line items grants Wiccan access.
+      return info.expiryTimeMillis !== null && Number.isFinite(info.expiryTimeMillis) &&
+        info.expiryTimeMillis > now.getTime() ? "premium" : "free";
     case "canceled":
       return info.expiryTimeMillis !== null && info.expiryTimeMillis > now.getTime() ? "premium" : "free";
     default:
