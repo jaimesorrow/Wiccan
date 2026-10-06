@@ -33,14 +33,20 @@ export async function handleRtdnNotification(
   let uid = await users.findUidByPurchaseToken(purchaseToken);
   const info = await billing.getSubscriptionState(purchaseToken);
   const isReplacement = !uid && Boolean(info.linkedPurchaseToken);
-  if (!uid && info.linkedPurchaseToken) uid = await users.findUidByPurchaseToken(info.linkedPurchaseToken);
+  let predecessorForSync = info.linkedPurchaseToken;
+  for (let attempts = 0; !uid && predecessorForSync && attempts < 5; attempts++) {
+    uid = await users.findUidByPurchaseToken(predecessorForSync);
+    if (uid) break;
+    const predecessor = await billing.getSubscriptionState(predecessorForSync);
+    predecessorForSync = predecessor.linkedPurchaseToken;
+  }
   if (!uid) return null;
   if (info.obfuscatedExternalAccountId && info.obfuscatedExternalAccountId !== obfuscatedAccountId(uid)) return null;
   if (isReplacement && (info.state === "pending" || info.state === "pending_purchase_canceled")) return null;
   const tier = tierForSubscription(info);
 
   const syncedTier = await users.setTier(
-    uid, tier, purchaseToken, isReplacement ? "replacement" : "refresh", info.linkedPurchaseToken ?? undefined,
+    uid, tier, purchaseToken, isReplacement ? "replacement" : "refresh", predecessorForSync ?? undefined,
   );
   if (syncedTier === null || syncedTier !== tier) return null;
   await subscriptions.save(uid, {
