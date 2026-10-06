@@ -19,6 +19,8 @@ Data types this app actually collects or transmits, per the real code:
 | App activity (content viewed) | Yes | `userContentHistory` — which spell/potion/lesson was delivered to which user on which day |
 | App activity (analytics) | Yes | Firebase Analytics is included; confirm its automatic events and the app's explicit events when completing the form |
 | Diagnostics (crash logs and device/app information) | Yes | Firebase Crashlytics records errors and crashes; confirm the current SDK's data disclosures |
+| App activity (analytics) | Yes | Firebase Analytics is included; confirm its automatic events and the app's explicit events when completing the form |
+| Diagnostics (crash logs and device/app information) | Yes | Firebase Crashlytics records errors and crashes; confirm the current SDK's data disclosures |
 | Precise or approximate location | No | Not requested, not read; only a device's own IANA time zone string (`America/Denver`, etc.) is stored, which is not a location data type |
 | Contacts, photos, videos, audio, financial info (beyond purchase), health/fitness | No | Never requested or read |
 
