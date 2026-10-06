@@ -1,6 +1,6 @@
 package com.jaimesorrow.wiccan.domain.model
 
-/** The Library grouping for a piece of content, chosen at generation time. */
+/** The Grimoire grouping for a piece of content, chosen at generation time. */
 enum class ContentCategory {
     PROTECTION,
     LOVE_AND_RELATIONSHIPS,

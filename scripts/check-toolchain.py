@@ -30,16 +30,19 @@ def main():
     app_id = re.search(r'applicationId\s*=\s*"([^"]+)"', app).group(1)
     namespace = re.search(r'namespace\s*=\s*"([^"]+)"', app).group(1)
     check(app_id == "com.jaimesorrow.wiccan", "production application ID matches registered identity")
-    check(namespace == "com.jaimesorrow.wiccan", "Kotlin namespace matches Firebase package name")
+    check(namespace == "com.wiccan.app", "Android namespace matches the product namespace")
     kotlin_files = list((ROOT / "app/src").glob("*/kotlin/**/*.kt"))
     check(bool(kotlin_files) and all(
-        re.search(r"^package " + re.escape(namespace) + r"(?:\.|\s|$)", p.read_text(), re.MULTILINE)
+        re.search(r"^package " + re.escape(app_id) + r"(?:\.|\s|$)", p.read_text(), re.MULTILINE)
         for p in kotlin_files
-    ), "every Kotlin source and test uses the Kotlin namespace prefix")
-    database = text("app/src/main/kotlin/com/jaimesorrow/wiccan/data/local/WiccanDatabase.kt")
-    schema_version = int(re.search(r"\bversion\s*=\s*(\d+)", database).group(1))
-    check(all((ROOT / ("app/schemas/" + namespace + ".data.local.WiccanDatabase/" + str(version) + ".json")).exists()
-              for version in range(1, schema_version + 1)),
+    ), "existing Kotlin class packages remain stable for upgrades")
+    manifest = text("app/src/main/AndroidManifest.xml")
+    for component in ("WiccanApplication", "MainActivity", "notification.WiccanMessagingService",
+                      "widget.WiccanWidgetReceiver", "widget.WiccanThemeDateChangeReceiver"):
+        check('android:name="' + app_id + '.' + component + '"' in manifest,
+              "manifest preserves " + component + " component identity")
+    check((ROOT / ("app/schemas/" + app_id + ".data.local.WiccanDatabase/1.json")).exists()
+          and (ROOT / ("app/schemas/" + app_id + ".data.local.WiccanDatabase/2.json")).exists(),
           "Room migration schemas follow the database class package")
     projects = config(".firebaserc")["projects"]
     configured_environments = {}
@@ -96,8 +99,9 @@ def main():
     workflow = text(".github/workflows/ci.yml")
     node_versions = re.findall(r"node-version:\s*['\"]?(\d+)", workflow)
     node_files = re.findall(r"node-version-file:\s*['\"]?([^\s'\"]+)", workflow)
-    check((node_versions == [node] and not node_files)
-          or (not node_versions and node_files == ["functions/package.json"]),
+    check(bool(node_versions or node_files)
+          and all(version == node for version in node_versions)
+          and all(path == "functions/package.json" for path in node_files),
           "CI uses Functions runtime Node " + node)
     for function in config("firebase.json")["functions"]:
         check(function.get("runtime", "nodejs" + node) == "nodejs" + node, "Firebase runtime agrees with package engines")
@@ -115,7 +119,9 @@ def main():
           and "kotlinOptions" not in app, "Gradle avoids conflicting legacy Kotlin plugin and DSL")
     check("JvmTarget.JVM_17" in app and app.count("JavaVersion.VERSION_17") == 2,
           "Java and Kotlin compilation target JVM 17")
-    java_versions = re.findall(r"java-version:\s*['\"]?(\d+)", workflow + text(".github/workflows/release.yml"))
+    android_job = re.search(r"^  android:\n(.*?)(?=^  [a-zA-Z0-9_-]+:|\Z)", workflow,
+                            re.MULTILINE | re.DOTALL).group(1)
+    java_versions = re.findall(r"java-version:\s*['\"]?(\d+)", android_job + text(".github/workflows/release.yml"))
     check(java_versions == ["17", "17"], "CI and release use Java 17")
     check('version.set("1.0.1")' in app and int(versions["ktlint"].split(".")[0]) >= 14,
           "ktlint checks AGP 9 source sets with existing engine rules")

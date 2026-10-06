@@ -68,7 +68,7 @@ Run it from the **Actions** tab, or push a `v*` tag.
 
 - **Current state: `isMinifyEnabled = false`.** `app/proguard-rules.pro` is empty.
 - This is a deliberate decision to leave in place for this pass: turning on R8 shrinking/obfuscation can break reflection-heavy code paths (Firebase, Hilt-generated code, Room) in ways that only surface at runtime on a real device — something this sandbox has no emulator to catch. Flipping it on blindly and shipping wrong keep rules would be worse than leaving it off.
-- [ ] Before enabling: set `isMinifyEnabled = true`, run a full manual smoke test on a real device/emulator (sign-in, Today content load, Archive/Library, Paywall, widget, notifications, sign-out, delete account), and add keep rules for anything that breaks. Most AndroidX/Firebase libraries ship their own consumer ProGuard rules, so a clean run is plausible but not guaranteed — that's exactly what the smoke test is for.
+- [ ] Before enabling: set `isMinifyEnabled = true`, run a full manual smoke test on a real device/emulator (sign-in, Today content load, Grimoire, Paywall, widget, notifications, sign-out, delete account), and add keep rules for anything that breaks. Most AndroidX/Firebase libraries ship their own consumer ProGuard rules, so a clean run is plausible but not guaranteed — that's exactly what the smoke test is for.
 
 ## Versioning
 

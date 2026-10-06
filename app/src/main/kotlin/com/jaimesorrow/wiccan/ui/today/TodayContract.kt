@@ -11,7 +11,7 @@ import com.jaimesorrow.wiccan.domain.model.Content
 data class TodayUiState(
     val isLoading: Boolean = true,
     val content: Content? = null,
-    val newLessonPending: Boolean = false,
+    val poolExhausted: Boolean = false,
 )
 
 sealed class TodayUiEvent {

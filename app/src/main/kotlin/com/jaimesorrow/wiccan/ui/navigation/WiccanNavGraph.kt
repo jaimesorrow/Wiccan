@@ -28,13 +28,13 @@ private data class BottomNavItem(val route: String, val label: String)
 
 private val bottomNavItems = listOf(
     BottomNavItem(WiccanDestinations.TODAY, "Today"),
-    BottomNavItem(WiccanDestinations.ARCHIVE, "Book of Shadows"),
+    BottomNavItem(WiccanDestinations.ARCHIVE, "Grimoire"),
     BottomNavItem(WiccanDestinations.SETTINGS, "Settings"),
 )
 
 /**
  * The signed-in app shell: bottom navigation across the three primary
- * destinations (Today, Book of Shadows, Settings), with Paywall and
+ * destinations (Today, Grimoire, Settings), with Paywall and
  * Archive detail as secondary routes reached by navigating in, not by
  * tab. [startOnPaywall] lets an external entry point (the locked widget's
  * `wiccan://premium` deep link) open straight onto Paywall.
@@ -50,14 +50,14 @@ fun WiccanAppShell(modifier: Modifier = Modifier, startOnPaywall: Boolean = fals
     ) { insets ->
         NavHost(
             navController = navController,
-            startDestination = if (startOnPaywall) WiccanDestinations.PAYWALL else WiccanDestinations.TODAY,
+            startDestination = WiccanDestinations.startDestination(startOnPaywall),
             modifier = Modifier.padding(insets),
         ) {
             composable(
                 WiccanDestinations.TODAY,
                 deepLinks = listOf(navDeepLink { uriPattern = WiccanDeepLinks.TODAY_URI }),
             ) {
-                TodayScreen()
+                TodayScreen(onOpenGrimoire = { navController.navigate(WiccanDestinations.ARCHIVE) })
             }
             composable(WiccanDestinations.ARCHIVE) {
                 ArchiveScreen(
@@ -101,17 +101,27 @@ private fun WiccanBottomBar(navController: NavHostController) {
     }
     if (!isOnTopLevelDestination) return
 
+    WiccanBottomBarContent(
+        currentRoute = currentRoute?.route,
+        onNavigate = { route ->
+            navController.navigate(route) {
+                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+        },
+    )
+}
+
+@Composable
+internal fun WiccanBottomBarContent(currentRoute: String?, onNavigate: (String) -> Unit) {
     NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
         bottomNavItems.forEach { item ->
-            val selected = currentRoute?.hierarchy?.any { it.route == item.route } == true
+            val selected = currentRoute == item.route
             NavigationBarItem(
                 selected = selected,
                 onClick = {
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+                    onNavigate(item.route)
                 },
                 icon = {},
                 label = { Text(item.label) },

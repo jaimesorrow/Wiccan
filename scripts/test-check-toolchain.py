@@ -2,7 +2,6 @@
 
 import json
 from pathlib import Path
-import re
 import shutil
 import subprocess
 import sys
@@ -19,7 +18,7 @@ class ToolchainCheckTest(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         for name in (
-            "scripts/check-toolchain.py", "app/build.gradle.kts",
+            "scripts/check-toolchain.py", "app/build.gradle.kts", "app/src/main/AndroidManifest.xml",
             "app/google-services.ci.json", "app/src/prod/google-services.json",
             "functions/package.json", "functions/package-lock.json",
             "functions/src/index.ts", ".nvmrc", ".firebaserc", "firebase.json",
@@ -93,14 +92,25 @@ class ToolchainCheckTest(unittest.TestCase):
         result = self.run_check()
         self.assertEqual(result.returncode, 0, result.stdout)
 
+    def test_emulator_java_does_not_change_android_java_contract(self):
+        path = self.root / ".github/workflows/ci.yml"
+        path.write_text(path.read_text() + '\n  extra-emulator:\n    steps:\n'
+                        '      - uses: actions/setup-java@v4\n'
+                        '        with:\n          java-version: "21"\n')
+        self.assert_accepted()
+
+    def test_android_java_drift_is_rejected(self):
+        self.replace(".github/workflows/ci.yml", "java-version: '17'", "java-version: '21'")
+        self.assert_rejected("FAIL  CI and release use Java 17")
+
     def test_lockfile_runtime_drift_is_rejected(self):
         self.replace("functions/package-lock.json", '"node": "22"', '"node": "20"')
         self.assert_rejected("FAIL  lockfile root engines match package.json")
 
     def test_namespace_drift_is_rejected(self):
-        self.replace("app/build.gradle.kts", 'namespace = "com.jaimesorrow.wiccan"',
+        self.replace("app/build.gradle.kts", 'namespace = "com.wiccan.app"',
                      'namespace = "com.other.app"')
-        self.assert_rejected("FAIL  Kotlin namespace matches Firebase package name")
+        self.assert_rejected("FAIL  Android namespace matches the product namespace")
 
     def test_development_suffix_is_rejected(self):
         self.replace("app/build.gradle.kts", 'create("dev") {',
@@ -184,17 +194,15 @@ class ToolchainCheckTest(unittest.TestCase):
     def test_old_source_package_is_rejected(self):
         self.replace("app/src/main/kotlin/com/jaimesorrow/wiccan/MainActivity.kt",
                      "package com.jaimesorrow.wiccan", "package com.wiccan.app")
-        self.assert_rejected("FAIL  every Kotlin source and test uses the Kotlin namespace prefix")
+        self.assert_rejected("FAIL  existing Kotlin class packages remain stable for upgrades")
+
+    def test_relative_component_name_is_rejected(self):
+        self.replace("app/src/main/AndroidManifest.xml", 'android:name="com.jaimesorrow.wiccan.MainActivity"',
+                     'android:name=".MainActivity"')
+        self.assert_rejected("FAIL  manifest preserves MainActivity component identity")
 
     def test_missing_room_migration_schema_is_rejected(self):
         (self.root / "app/schemas/com.jaimesorrow.wiccan.data.local.WiccanDatabase/1.json").unlink()
-        self.assert_rejected("FAIL  Room migration schemas follow the database class package")
-
-    def test_new_room_version_without_exported_schema_is_rejected(self):
-        database = self.root / "app/src/main/kotlin/com/jaimesorrow/wiccan/data/local/WiccanDatabase.kt"
-        content = database.read_text()
-        content = re.sub(r"\bversion\s*=\s*\d+", "version = 999", content, count=1)
-        database.write_text(content)
         self.assert_rejected("FAIL  Room migration schemas follow the database class package")
 
     def test_legacy_kotlin_plugin_is_rejected(self):

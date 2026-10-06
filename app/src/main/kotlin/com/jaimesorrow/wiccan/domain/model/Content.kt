@@ -19,5 +19,9 @@ data class Content(
     val status: ContentStatus,
     val reflection: String? = null,
     val practice: String? = null,
-    val difficulty: ContentDifficulty? = null,
+    val sourceId: String? = null,
+    val sourceCitation: String? = null,
+    val sourceUrl: String? = null,
+    val rightsReviewRequired: Boolean? = null,
+    val rightsNotes: String? = null,
 )

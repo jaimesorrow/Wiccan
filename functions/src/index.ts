@@ -6,9 +6,9 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { onMessagePublished } from "firebase-functions/v2/pubsub";
 import { auth as authV1 } from "firebase-functions/v1";
 import * as logger from "firebase-functions/logger";
-import { ContentPoolExhaustedError, selectTodayContent } from "./getTodayContent";
+import { ContentPoolExhaustedError, DailyAssignmentUnavailableError, selectTodayContent } from "./getTodayContent";
 import { FirestoreContentRepository } from "./firestoreContentRepository";
-import { getUserLocalDate } from "./dateUtils";
+import { getUserLocalDate, isValidTimeZone, resolveTimeZone } from "./dateUtils";
 import { GooglePlayBillingRepository } from "./googlePlayBillingRepository";
 import { FirestoreUserRepository } from "./firestoreUserRepository";
 import { verifyPurchaseAndSyncTier, PurchaseVerificationError } from "./verifyPurchase";
@@ -51,9 +51,19 @@ const PLAY_RTDN_TOPIC = process.env.PLAY_RTDN_TOPIC ?? "play-rtdn";
  * App Check-enforced: only the real, attested Android client may call this.
  */
 export const getTodayContent = onCall({ enforceAppCheck: true }, async (request) => {
+  const now = new Date();
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to fetch today's content.");
+  }
+
+  // Devices provide their IANA time zone, never a date, user ID, or tier.
+  // This also makes a new user's first request local-date correct before
+  // asynchronous notification registration has stored a profile zone.
+  const requestedTimeZone = request.data?.timezone;
+  if (requestedTimeZone !== undefined &&
+      (typeof requestedTimeZone !== "string" || !isValidTimeZone(requestedTimeZone))) {
+    throw new HttpsError("invalid-argument", "timezone must be a valid IANA time zone or UTC offset.");
   }
 
   try {
@@ -63,14 +73,23 @@ export const getTodayContent = onCall({ enforceAppCheck: true }, async (request)
     }
 
     const repo = new FirestoreContentRepository(getFirestore());
-    const timeZone = await repo.getUserTimeZone(uid);
-    return await selectTodayContent(uid, getUserLocalDate(timeZone), repo);
+    const timezone = resolveTimeZone(requestedTimeZone ?? await repo.getUserTimeZone(uid));
+    const deliveredDate = getUserLocalDate(timezone, now);
+    const content = await selectTodayContent(uid, deliveredDate, repo);
+    return { ...content, deliveredDate, timezone };
   } catch (err) {
     if (err instanceof HttpsError) {
       throw err;
     }
     if (err instanceof ContentPoolExhaustedError) {
-      throw new HttpsError("resource-exhausted", "Today's new lesson is being prepared.");
+      throw new HttpsError("resource-exhausted", "No new lessons remain. Your previous lessons are available in Grimoire.", {
+        reason: "NO_NEW_CONTENT",
+      });
+    }
+    if (err instanceof DailyAssignmentUnavailableError) {
+      throw new HttpsError("failed-precondition", "Today's assigned lesson is unavailable. Your Grimoire history has been preserved.", {
+        reason: "ASSIGNED_CONTENT_UNAVAILABLE",
+      });
     }
     logger.error("getTodayContent failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not select today's content.");

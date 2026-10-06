@@ -10,6 +10,8 @@ object WiccanDestinations {
     const val PAYWALL = "paywall"
     const val ARCHIVE_DETAIL_ROUTE = "archive_detail/{$ARCHIVE_DETAIL_CONTENT_ID_ARG}"
 
+    fun startDestination(startOnPaywall: Boolean): String = if (startOnPaywall) PAYWALL else TODAY
+
     fun archiveDetail(contentId: String): String = "archive_detail/$contentId"
 }
 

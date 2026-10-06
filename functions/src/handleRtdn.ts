@@ -48,7 +48,7 @@ export async function handleRtdnNotification(
   const syncedTier = await users.setTier(
     uid, tier, purchaseToken, isReplacement ? "replacement" : "refresh", predecessorForSync ?? undefined,
   );
-  if (syncedTier === null || syncedTier !== tier) return null;
+  if (syncedTier === null) return null;
   await subscriptions.save(uid, {
     productId: info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id)) ?? info.productIds[0] ?? "unknown",
     purchaseToken,
@@ -57,11 +57,11 @@ export async function handleRtdnNotification(
     autoRenewing: info.autoRenewing,
   });
   const premiumProduct = info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id));
-  if (tier === "premium" && !info.acknowledged && premiumProduct) {
+  if (syncedTier === "premium" && !info.acknowledged && premiumProduct) {
     await billing.acknowledgePurchaseIfNeeded(purchaseToken, premiumProduct);
   }
 
-  return { uid, tier };
+  return { uid, tier: syncedTier };
 }
 
 /**

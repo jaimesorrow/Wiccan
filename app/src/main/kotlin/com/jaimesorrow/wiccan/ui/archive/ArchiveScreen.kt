@@ -29,7 +29,7 @@ import com.jaimesorrow.wiccan.domain.model.HistoryEntry
 
 /**
  * The user's delivered content, either as a chronological Timeline or grouped
- * into a collapsible category Library. Tapping an entry navigates to the
+ * into collapsible categories in Grimoire. Tapping an entry navigates to the
  * `archive_detail/{contentId}` route.
  */
 @Composable
@@ -48,11 +48,25 @@ fun ArchiveScreen(
         }
     }
 
+    ArchiveScreenContent(state = state, onEvent = viewModel::onEvent, modifier = modifier)
+}
+
+@Composable
+internal fun ArchiveScreenContent(
+    state: ArchiveUiState,
+    onEvent: (ArchiveUiEvent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
     ) { insets ->
-        Box(modifier = Modifier.padding(insets).fillMaxSize()) {
+        Column(modifier = Modifier.padding(insets).fillMaxSize()) {
+            Text(
+                text = "Grimoire",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+            )
             when {
                 state.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
@@ -62,18 +76,18 @@ fun ArchiveScreen(
                     Column(Modifier.fillMaxSize()) {
                         ArchiveTabRow(
                             selectedTab = state.selectedTab,
-                            onTabSelected = { viewModel.onEvent(ArchiveUiEvent.TabSelected(it)) },
+                            onTabSelected = { onEvent(ArchiveUiEvent.TabSelected(it)) },
                         )
                         when (state.selectedTab) {
                             ArchiveTab.TIMELINE -> TimelineList(
                                 entries = state.entries,
-                                onEntryClicked = { viewModel.onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
                             )
                             ArchiveTab.LIBRARY -> LibraryList(
                                 entries = state.entries,
                                 collapsedCategories = state.collapsedCategories,
-                                onEntryClicked = { viewModel.onEvent(ArchiveUiEvent.EntryClicked(it)) },
-                                onCategoryToggled = { viewModel.onEvent(ArchiveUiEvent.CategoryToggled(it)) },
+                                onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                onCategoryToggled = { onEvent(ArchiveUiEvent.CategoryToggled(it)) },
                             )
                         }
                     }
@@ -94,7 +108,7 @@ private fun ArchiveTabRow(selectedTab: ArchiveTab, onTabSelected: (ArchiveTab) -
         Tab(
             selected = selectedTab == ArchiveTab.LIBRARY,
             onClick = { onTabSelected(ArchiveTab.LIBRARY) },
-            text = { Text("Library") },
+            text = { Text("Categories") },
         )
     }
 }
@@ -162,8 +176,8 @@ private fun CategoryHeader(category: ContentCategory, count: Int, isCollapsed: B
     }
 }
 
-/** Human-readable label for a [ContentCategory], for the Library grouping headers. */
-private fun ContentCategory.displayName(): String = when (this) {
+/** Human-readable label for a [ContentCategory], for the Grimoire grouping headers. */
+internal fun ContentCategory.displayName(): String = when (this) {
     ContentCategory.PROTECTION -> "Protection"
     ContentCategory.LOVE_AND_RELATIONSHIPS -> "Love & Relationships"
     ContentCategory.PROSPERITY_AND_ABUNDANCE -> "Prosperity & Abundance"
@@ -178,7 +192,7 @@ private fun ContentCategory.displayName(): String = when (this) {
 private fun EmptyArchive() {
     Box(modifier = Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
         Text(
-            text = "Your Book of Shadows is empty — your first entry unlocks today",
+            text = "Your Grimoire is empty. Open Today to receive your first lesson.",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

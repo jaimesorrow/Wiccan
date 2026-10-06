@@ -140,7 +140,7 @@ private fun PremiumTeaser(content: Content, colorScheme: ColorScheme) {
 @Composable
 private fun EmptyContent(colorScheme: ColorScheme) {
     Text(
-        text = "Today's content isn't ready yet",
+        text = "Today's content is unavailable. Open Wiccan to refresh or revisit Grimoire.",
         style = TextStyle(fontSize = 13.sp, color = ColorProvider(colorScheme.onSurfaceVariant)),
     )
 }

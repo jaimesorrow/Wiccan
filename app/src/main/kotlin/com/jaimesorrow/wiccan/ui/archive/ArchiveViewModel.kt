@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * Drives the Archive list ("Book of Shadows" Timeline) only. Tapping an
+ * Drives the Archive list ("Grimoire" Timeline) only. Tapping an
  * entry is a navigation event - the detail screen is its own route
  * (`archive_detail/{contentId}`) with its own ViewModel, not internal
  * state here.

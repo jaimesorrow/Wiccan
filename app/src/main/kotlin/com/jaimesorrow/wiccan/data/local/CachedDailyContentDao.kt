@@ -21,6 +21,9 @@ interface CachedDailyContentDao {
     @Query("DELETE FROM cached_daily_content")
     suspend fun clear()
 
+    @Query("DELETE FROM cached_daily_content WHERE userId = :userId")
+    suspend fun clearForUser(userId: String)
+
     /** Replaces the single cached row atomically. */
     @Transaction
     suspend fun replace(entity: CachedDailyContentEntity) {

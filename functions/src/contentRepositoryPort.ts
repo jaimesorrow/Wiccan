@@ -8,6 +8,14 @@ export class ContentAlreadyDeliveredError extends Error {
   }
 }
 
+/** The pool snapshot became stale before the assignment transaction committed. */
+export class ContentNoLongerEligibleError extends Error {
+  constructor(contentId: string) {
+    super(`Content '${contentId}' is no longer published or eligible for this user.`);
+    this.name = "ContentNoLongerEligibleError";
+  }
+}
+
 /**
  * Port between the daily-selection logic and Firestore. Kept as an
  * interface so `selectTodayContent` can be unit tested against an
@@ -43,10 +51,11 @@ export interface ContentRepositoryPort {
    * returned unchanged and nothing is written. Implementations must
    * guarantee that concurrent callers racing for the same (uid, today)
    * agree on exactly one winner and produce exactly one history record.
-   * The transaction must also reserve (uid, contentId) across different
-   * dates, throwing ContentAlreadyDeliveredError if another date won.
+   * The transaction also reserves (uid, contentId) and any editorial
+   * similarity group across dates, including legacy history lacking
+   * reservations. It must recheck current published status and user tier.
    */
-  assignDailyContent(uid: string, today: string, candidate: Content): Promise<string>;
+  assignDailyContent(uid: string, today: string, candidate: Content, ancientLessonSourceIds: ReadonlySet<string>): Promise<string>;
 
   /** Fired when no new eligible content remains. */
   logPoolExhaustion(uid: string, tier: ContentTier, today: string): Promise<void>;

@@ -9,6 +9,14 @@
       ]
     },
     {
+      "collectionGroup": "userContentHistory",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "deliveredDate", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "content",
       "queryScope": "COLLECTION",
       "fields": [

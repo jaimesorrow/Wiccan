@@ -1,5 +1,6 @@
 import { Content, ContentCategory, ContentTier } from "../types";
-import { ContentAlreadyDeliveredError, ContentRepositoryPort } from "../contentRepositoryPort";
+import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort } from "../contentRepositoryPort";
+import { contentSimilarityKey, isEligibleForDailyDelivery, sharesContentSimilarity } from "../contentEligibility";
 
 /** In-memory stand-in for Firestore, for testing selectTodayContent. */
 export class FakeContentRepository implements ContentRepositoryPort {
@@ -14,6 +15,9 @@ export class FakeContentRepository implements ContentRepositoryPort {
     type: string;
     tradition: string;
     category: ContentCategory;
+    similarityGroupId?: string;
+    sourceId?: string;
+    sourceCitation?: string;
   }[] = [];
   poolExhaustionEvents: { userId: string; tier: ContentTier; today: string }[] = [];
 
@@ -51,7 +55,7 @@ export class FakeContentRepository implements ContentRepositoryPort {
    * via `Promise.all` - two calls racing for the same (uid, today) can
    * never interleave inside this function, only around it.
    */
-  async assignDailyContent(userId: string, deliveredDate: string, candidate: Content): Promise<string> {
+  async assignDailyContent(userId: string, deliveredDate: string, candidate: Content, ancientLessonSourceIds: ReadonlySet<string>): Promise<string> {
     const existing = this.history.find((h) => h.userId === userId && h.deliveredDate === deliveredDate);
     if (existing) {
       return existing.contentId;
@@ -59,14 +63,31 @@ export class FakeContentRepository implements ContentRepositoryPort {
     if (this.history.some((entry) => entry.userId === userId && entry.contentId === candidate.id)) {
       throw new ContentAlreadyDeliveredError(candidate.id);
     }
+    const current = this.content.find((content) => content.id === candidate.id);
+    if (!current || current.status !== "published" || (current.tier === "premium" && this.tier !== "premium") ||
+        !isEligibleForDailyDelivery(current, ancientLessonSourceIds)) {
+      throw new ContentNoLongerEligibleError(candidate.id);
+    }
+    const key = contentSimilarityKey(current);
+    if (key && this.history.some((entry) => {
+      if (entry.userId !== userId) return false;
+      if (entry.similarityGroupId && contentSimilarityKey(entry) === key) return true;
+      const historical = this.content.find((content) => content.id === entry.contentId) ?? entry;
+      return sharesContentSimilarity(historical, current);
+    })) {
+      throw new ContentAlreadyDeliveredError(candidate.id);
+    }
     this.history.push({
       userId,
       contentId: candidate.id,
       deliveredDate,
-      title: candidate.title,
-      type: candidate.type,
-      tradition: candidate.tradition,
-      category: candidate.category,
+      title: current.title,
+      type: current.type,
+      tradition: current.tradition,
+      category: current.category,
+      ...(current.similarityGroupId ? { similarityGroupId: current.similarityGroupId } : {}),
+      ...(current.sourceId ? { sourceId: current.sourceId } : {}),
+      ...(current.sourceCitation ? { sourceCitation: current.sourceCitation } : {}),
     });
     return candidate.id;
   }

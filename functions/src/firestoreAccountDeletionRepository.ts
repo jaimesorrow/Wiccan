@@ -30,8 +30,13 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionPort {
   }
 
   async deleteUserContentUsage(uid: string): Promise<void> {
-    const snap = await this.db.collection(CONTENT_USAGE_COLLECTION).doc(uid).collection("content").get();
-    await this.deleteAll(snap.docs.map((doc) => doc.ref));
+    const usage = this.db.collection(CONTENT_USAGE_COLLECTION).doc(uid);
+    const [content, similarityGroups] = await Promise.all([
+      usage.collection("content").get(),
+      usage.collection("similarityGroups").get(),
+    ]);
+    await this.deleteAll([...content.docs, ...similarityGroups.docs].map((doc) => doc.ref));
+    await usage.delete();
   }
 
   async deleteUserDevices(uid: string): Promise<void> {

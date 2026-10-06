@@ -17,6 +17,10 @@ class FakeCachedDailyContentDao : CachedDailyContentDao {
         state.value = entity
     }
 
+    override suspend fun clearForUser(userId: String) {
+        if (state.value?.userId == userId) state.value = null
+    }
+
     override suspend fun clear() {
         state.value = null
     }

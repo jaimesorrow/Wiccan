@@ -59,7 +59,7 @@ class TodayViewModelTest {
     }
 
     @Test
-    fun `successful init refresh flips isLoading false and surfaces content`() = runTest(dispatcher) {
+    fun `new signed in user receives content immediately without lesson preference questions`() = runTest(dispatcher) {
         repository.nextResult = AppResult.Success(sampleContent)
         val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger)
 
@@ -122,13 +122,13 @@ class TodayViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(sampleContent, viewModel.state.value.content)
-        assertTrue(viewModel.state.value.newLessonPending)
+        assertTrue(viewModel.state.value.poolExhausted)
         assertFalse(viewModel.state.value.isLoading)
 
         repository.nextResult = AppResult.Success(sampleContent)
         viewModel.onEvent(TodayUiEvent.Retry)
         dispatcher.scheduler.advanceUntilIdle()
-        assertFalse(viewModel.state.value.newLessonPending)
+        assertFalse(viewModel.state.value.poolExhausted)
     }
 
     @Test

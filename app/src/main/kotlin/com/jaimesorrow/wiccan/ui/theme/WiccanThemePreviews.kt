@@ -44,7 +44,7 @@ private val SamplePreviewContent = Content(
         "and settled home.",
     materials = listOf("White candle", "Rosemary", "A small dish of salt"),
     safetyNote = "Never leave a burning candle unattended.",
-    tags = listOf("protection", "home", "beginner"),
+    tags = listOf("protection", "home"),
     status = ContentStatus.PUBLISHED,
 )
 

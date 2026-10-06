@@ -20,9 +20,21 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // A per-user transaction revision serializes assignments on different
+    // dates; clients cannot inspect or reset this server-owned reservation.
+    match /userContentUsage/{uid} {
+      allow read, write: if false;
+    }
+
     // A per-user, per-content marker reserves each delivered ID across
     // different dates; only the server may inspect or write these markers.
     match /userContentUsage/{uid}/content/{contentId} {
+      allow read, write: if false;
+    }
+
+    // Editorial similarity markers reserve related lessons together;
+    // clients cannot inspect or reset them to obtain a repeated lesson.
+    match /userContentUsage/{uid}/similarityGroups/{groupId} {
       allow read, write: if false;
     }
 

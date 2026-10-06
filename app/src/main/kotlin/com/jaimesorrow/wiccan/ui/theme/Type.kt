@@ -7,7 +7,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.Font
 import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.sp
-import com.jaimesorrow.wiccan.R
+import com.wiccan.app.R
 
 /**
  * Google Play Services' downloadable-fonts provider. Certificates come

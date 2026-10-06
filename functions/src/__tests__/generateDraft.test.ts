@@ -48,6 +48,52 @@ describe("generateDrafts", () => {
     expect(doc?.type).toBe("spell");
     expect(doc?.tier).toBe("free");
     expect(doc?.tradition).toBe("Ancient ritual tradition");
+    expect(doc?.reflection).toBe("What does this historical evidence help you notice?");
+    expect(doc?.practice).toBeNull();
+    expect(doc?.sourceCitation).toBe(SOURCE_A.sourceReference);
+    expect(doc?.rightsNotes).toBe(SOURCE_A.publicDomainBasis);
+  });
+
+  it("retains the editor's identity and precise citation when drafting a reworded lesson", async () => {
+    const generator = new FakeDraftGenerationPort();
+    const repo = new FakeContentAdminRepository();
+    const source = { ...SOURCE_A, sourceReference: "Catalogue A https://example.org/ancient-text" };
+
+    const [result] = await generateDrafts(
+      {
+        tier: "premium",
+        sourceId: source.id,
+        type: "lesson",
+        similarityGroupId: "protective-symbol-lesson",
+        sourceCitation: "Catalogue A, tablet II, lines 4–8",
+      },
+      [source],
+      generator,
+      repo,
+    );
+
+    expect(repo.docs.get(result.contentId)).toMatchObject({
+      similarityGroupId: "protective-symbol-lesson",
+      sourceCitation: "Catalogue A, tablet II, lines 4–8",
+      sourceUrl: "https://example.org/ancient-text",
+      rightsNotes: source.publicDomainBasis,
+      reflection: "What does this historical evidence help you notice?",
+      practice: null,
+    });
+  });
+
+  it("rejects an empty editorial identity or citation before generating anything", async () => {
+    const generator = new FakeDraftGenerationPort();
+    const repo = new FakeContentAdminRepository();
+
+    await expect(generateDrafts(
+      { tier: "free", similarityGroupId: "  " }, [SOURCE_A], generator, repo,
+    )).rejects.toThrow(InvalidGenerationRequestError);
+    await expect(generateDrafts(
+      { tier: "free", sourceCitation: "  " }, [SOURCE_A], generator, repo,
+    )).rejects.toThrow(InvalidGenerationRequestError);
+    expect(generator.calls).toHaveLength(0);
+    expect(repo.docs.size).toBe(0);
   });
 
   it("passes source provenance and grounded facts into lesson generation", async () => {
@@ -72,7 +118,7 @@ describe("generateDrafts", () => {
       groundedFacts: SOURCE_A.groundedFacts,
     });
     expect(repo.docs.get(results[0].contentId)).toMatchObject({
-      reflection: "What does this source reveal about its historical setting?",
+      reflection: "What does this historical evidence help you notice?",
       practice: null,
       status: "draft",
     });
