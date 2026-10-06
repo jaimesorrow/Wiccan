@@ -163,4 +163,33 @@ describe("handleRtdnNotification", () => {
     expect(users.users.get("user-1")).toMatchObject({ tier: "premium", purchaseToken: TOKEN });
     expect(subscriptions.records.size).toBe(0);
   });
+  it("preserves premium access when another independent subscription remains active", async () => {
+    const billing = new FakePlayBillingPort();
+    const users = new FakeUserRepository(["user-1"]);
+    await users.setTier("user-1", "premium", "monthly-token");
+    await users.setTier("user-1", "premium", "yearly-token");
+    billing.respondWith("yearly-token", "expired", ["wiccan_premium_yearly"]);
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    expect(await handleRtdnNotification("yearly-token", billing, users, subscriptions))
+      .toEqual({ uid: "user-1", tier: "premium" });
+    expect(users.users.get("user-1")).toMatchObject({ tier: "premium", purchaseToken: "yearly-token" });
+  });
+
+  it("resolves an out-of-order replacement chain to the current predecessor", async () => {
+    const billing = new FakePlayBillingPort();
+    const users = new FakeUserRepository(["user-1"]);
+    await users.setTier("user-1", "premium", "token-a");
+    billing.respondWith("token-b", "active", [PRODUCT_ID], { linkedPurchaseToken: "token-a" });
+    billing.respondWith("token-c", "active", [PRODUCT_ID], { linkedPurchaseToken: "token-b" });
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    expect(await handleRtdnNotification("token-c", billing, users, subscriptions))
+      .toEqual({ uid: "user-1", tier: "premium" });
+    expect(users.users.get("user-1")).toMatchObject({ tier: "premium", purchaseToken: "token-c" });
+
+    expect(await handleRtdnNotification("token-b", billing, users, subscriptions)).toBeNull();
+    expect(users.users.get("user-1")?.purchaseToken).toBe("token-c");
+  });
+
 });
