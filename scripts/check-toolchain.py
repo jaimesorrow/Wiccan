@@ -30,14 +30,14 @@ def main():
     app_id = re.search(r'applicationId\s*=\s*"([^"]+)"', app).group(1)
     namespace = re.search(r'namespace\s*=\s*"([^"]+)"', app).group(1)
     check(app_id == "com.jaimesorrow.wiccan", "production application ID matches registered identity")
-    check(namespace == app_id, "Kotlin namespace matches Firebase package name")
+    check(namespace == "com.jaimesorrow.wiccan", "Kotlin namespace matches Firebase package name")
     kotlin_files = list((ROOT / "app/src").glob("*/kotlin/**/*.kt"))
     check(bool(kotlin_files) and all(
-        re.search(r"^package " + re.escape(app_id) + r"(?:\.|\s|$)", p.read_text(), re.MULTILINE)
+        re.search(r"^package " + re.escape(namespace) + r"(?:\.|\s|$)", p.read_text(), re.MULTILINE)
         for p in kotlin_files
     ), "every Kotlin source and test uses the Firebase package prefix")
-    check((ROOT / ("app/schemas/" + app_id + ".data.local.WiccanDatabase/1.json")).exists()
-          and (ROOT / ("app/schemas/" + app_id + ".data.local.WiccanDatabase/2.json")).exists(),
+    check((ROOT / ("app/schemas/" + namespace + ".data.local.WiccanDatabase/1.json")).exists()
+          and (ROOT / ("app/schemas/" + namespace + ".data.local.WiccanDatabase/2.json")).exists(),
           "Room migration schemas follow the database class package")
     projects = config(".firebaserc")["projects"]
     configured_environments = {}
@@ -65,9 +65,13 @@ def main():
               "dev and staging use separate Firebase projects")
     check(config("app/src/prod/google-services.json")["project_info"]["project_id"]
           == projects["production"], "production Firebase project matches alias")
-    for flavor in ("dev", "staging"):
+    for flavor in ("dev", "staging", "prod"):
         block = re.search(r'create\("' + flavor + r'"\)\s*\{([^}]+)\}', app).group(1)
-        check("applicationIdSuffix" not in block, flavor + " uses registered Firebase package")
+        check(re.search(r"\bapplicationId(?:Suffix)?\s*=", block) is None,
+              flavor + " inherits registered Firebase package")
+    check(len(re.findall(r"\bapplicationId\s*=", app)) == 1
+          and re.search(r"\bapplicationIdSuffix\s*=", app) is None,
+          "all Android variants inherit the registered Firebase package")
 
     package = config("functions/package.json")
     lock = config("functions/package-lock.json")["packages"][""]
