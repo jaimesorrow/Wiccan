@@ -25,7 +25,11 @@ export class FirestoreUserRepository implements UserRepositoryPort {
     const userRef = this.db.collection(USERS_COLLECTION).doc(uid);
     const tokenRef = this.db.collection(PURCHASE_TOKENS_COLLECTION).doc(purchaseTokenDocumentId(purchaseToken));
     return this.db.runTransaction(async (transaction) => {
-      const [user, token] = await Promise.all([transaction.get(userRef), transaction.get(tokenRef)]);
+      const [user, token, userTokens] = await Promise.all([
+        transaction.get(userRef),
+        transaction.get(tokenRef),
+        transaction.get(this.db.collection(USER_PURCHASE_TOKENS_COLLECTION).doc(uid).collection("tokens")),
+      ]);
       if (!user.exists || user.get("deletionInProgress") === true) {
         if (source !== "purchase") return null;
         throw new PurchaseTokenOwnershipError("This account is unavailable or being deleted. Sign in again before purchasing.");
@@ -72,11 +76,29 @@ export class FirestoreUserRepository implements UserRepositoryPort {
           throw new PurchaseTokenOwnershipError("This purchase is already linked to another account.");
         }
       }
+      const hasOtherActivePremiumSubscription = source === "refresh" && tier === "free" &&
+        user.get("tier") === "premium" &&
+        userTokens.docs.some((doc) =>
+          doc.get("purchaseToken") !== purchaseToken &&
+          doc.get("tier") === "premium" &&
+          doc.get("superseded") !== true
+        );
+      if (hasOtherActivePremiumSubscription) {
+        transaction.set(this.userPurchaseTokenRef(uid, purchaseToken), {
+          purchaseToken,
+          tier,
+          superseded: false,
+          updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
+        return "premium";
+      }
       if (source !== "replacement" && source !== "refresh" && tier === "free" && user.get("tier") === "premium" &&
         user.get("purchaseToken") && user.get("purchaseToken") !== purchaseToken) {
         transaction.set(tokenRef, { accountId: obfuscatedAccountId(uid), updatedAt: FieldValue.serverTimestamp() }, { merge: true });
         transaction.set(this.userPurchaseTokenRef(uid, purchaseToken), {
           purchaseToken,
+          tier,
+          superseded: false,
           updatedAt: FieldValue.serverTimestamp(),
         }, { merge: true });
         return "premium";
@@ -93,6 +115,8 @@ export class FirestoreUserRepository implements UserRepositoryPort {
         }, { merge: true });
         transaction.set(this.userPurchaseTokenRef(uid, outgoingToken!), {
           purchaseToken: outgoingToken,
+          tier: user.get("tier"),
+          superseded: false,
           updatedAt: FieldValue.serverTimestamp(),
         }, { merge: true });
       }
@@ -103,6 +127,8 @@ export class FirestoreUserRepository implements UserRepositoryPort {
       }
       transaction.set(this.userPurchaseTokenRef(uid, purchaseToken), {
         purchaseToken,
+        tier,
+        superseded: false,
         updatedAt: FieldValue.serverTimestamp(),
       }, { merge: true });
       transaction.set(userRef, { tier, purchaseToken, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
