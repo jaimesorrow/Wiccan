@@ -77,7 +77,24 @@ found the following. Each is now addressed as noted:
 - `WiccanDatabaseMigrationTest` compiles clean but has never run against a real SQLite engine — no emulator here.
 - `handlePlayRtdn`, `verifyPurchase`'s field shapes, and the `users/{uid}/devices` collection-group query have never been exercised against a real Play Console / Firebase project.
 - `dev`/`staging` product flavors exist but need their own real `google-services.json` (from their own real Firebase projects) before they'll build.
-- The production Firebase client config identifies `wiccan-android`; live Firebase/Play flows, signing key, and Play listing still need owner-side verification and setup.
+- The production Firebase client config identifies `wiccan-android` and includes its verified web OAuth client ID. Build/signing-certificate matching, device sign-in, live Firebase/Play flows and release setup remain unverified.
+
+## Firebase and Google Play console verification — 2026-10-06 UTC
+
+- Firebase's Android registration matches `com.jaimesorrow.wiccan`; SHA-1
+  and SHA-256 certificates are registered. The build and Play App Signing
+  certificates still need to be matched to those registrations.
+- Google and Email/Password authentication are enabled. The registered
+  public web OAuth client ID is included in the production config.
+  Android resource generation and device sign-in have not been run for
+  this configuration update.
+- Google Play is linked to Firebase for App Distribution, Crashlytics and
+  Google Analytics. The Wiccan Play app remains **Draft**.
+- Cloud Firestore has not been created: the console shows **Create database**.
+  The repository's seed has 150 draft entries: **54 lessons, 59 spells and
+  37 potions**. These are not an uploaded or published 200-lesson collection.
+- The Firebase project is on **Spark**. Cloud Functions deployment still
+  requires the billing-plan setup in [FIREBASE_SETUP.md](FIREBASE_SETUP.md).
 
 ## Latest automated validation
 

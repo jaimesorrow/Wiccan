@@ -63,9 +63,8 @@ See `docs/RELEASE_CHECKLIST.md` for the technical (signing, minification,
 versioning) side of preflight, and the README's Environments section for
 the dev/staging/production project separation this all assumes.
 
-
 ## Production Firebase config
 
 - The production Android identity is `com.jaimesorrow.wiccan` in Firebase project `wiccan-android`.
 - `app/src/prod/google-services.json` contains that production project's base Android config.
-- The supplied Firebase config currently has no OAuth client entries. Google Sign-In therefore remains unavailable until the Play App Signing SHA certificates are added in Firebase/Google Cloud, Google Authentication is enabled, and a refreshed config contains the web OAuth client. Email/password auth and the other Firebase services do not require that generated web client resource.
+- The production config now contains a nonblank web OAuth client (`client_type: 3`) and the web client/provider are configured. Certificate matching to the Play App Signing certificate and device sign-in verification remain pending. Email/password auth and the other Firebase services do not require that generated web client resource.

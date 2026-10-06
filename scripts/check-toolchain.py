@@ -65,6 +65,17 @@ def main():
               "dev and staging use separate Firebase projects")
     check(config("app/src/prod/google-services.json")["project_info"]["project_id"]
           == projects["production"], "production Firebase project matches alias")
+    production_clients = [
+        client for client in config("app/src/prod/google-services.json")["client"]
+        if client["client_info"]["android_client_info"]["package_name"] == app_id
+    ]
+    check(any(
+        oauth.get("client_type") == 3
+        and isinstance(oauth.get("client_id"), str)
+        and oauth["client_id"].strip()
+        for client in production_clients
+        for oauth in client.get("oauth_client", [])
+    ), "production Firebase client has a nonblank web OAuth client")
     for flavor in ("dev", "staging", "prod"):
         block = re.search(r'create\("' + flavor + r'"\)\s*\{([^}]+)\}', app).group(1)
         check(re.search(r"\bapplicationId(?:Suffix)?\s*=", block) is None,
