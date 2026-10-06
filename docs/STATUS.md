@@ -1,5 +1,10 @@
 # Wiccan — repair-order status
 
+For the latest Play Billing hardening, structured Android lessons, 200-lesson
+manifest and measured validation, see [PRODUCTION_VALIDATION.md](PRODUCTION_VALIDATION.md)
+and [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md). The notes below record earlier
+repair work and do not establish live production account setup.
+
 Honest status against the repair order this branch worked through. PASS
 means built and verified by this repo's own automated checks. FIXED means
 a real gap was found and closed in this pass. BLOCKED means it needs

@@ -57,7 +57,7 @@ npm run build          # tsc
 npm test               # jest
 npm run lint           # eslint src (flat config: eslint.config.mjs)
 npm run generate-draft -- --tier <free|premium> ...   # admin CLI, prints resolved project first
-npm run approve-draft -- --contentId <id>
+npm run approve-draft -- --project wiccan-android --contentId <id>
 ```
 
 Run a single Jest test file/case: `npx jest src/__tests__/sendDailyNotifications.test.ts -t "skips a device"`.

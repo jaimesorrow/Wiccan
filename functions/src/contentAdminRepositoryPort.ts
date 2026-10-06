@@ -6,6 +6,8 @@ export interface NewDraftContent extends GeneratedDraftFields {
   tier: ContentTier;
   tradition: string;
   sourceId: string;
+  /** A seeded/editorial draft cannot be published until its rights review is cleared. */
+  rightsReviewRequired?: boolean;
 }
 
 export interface StoredContent extends NewDraftContent {

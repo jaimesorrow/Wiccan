@@ -17,6 +17,8 @@ Data types this app actually collects or transmits, per the real code:
 | Purchase history | Yes | Google Play Billing subscription state, verified server-side (`verifyPurchase`) and stored in `subscriptions/{uid}` for entitlement/audit |
 | Device or other IDs | Yes | FCM registration token, stored per-device in `users/{uid}/devices` for push delivery |
 | App activity (content viewed) | Yes | `userContentHistory` — which spell/potion/lesson was delivered to which user on which day |
+| App activity (analytics) | Yes | Firebase Analytics is included; confirm its automatic events and the app's explicit events when completing the form |
+| Diagnostics (crash logs and device/app information) | Yes | Firebase Crashlytics records errors and crashes; confirm the current SDK's data disclosures |
 | Precise or approximate location | No | Not requested, not read; only a device's own IANA time zone string (`America/Denver`, etc.) is stored, which is not a location data type |
 | Contacts, photos, videos, audio, financial info (beyond purchase), health/fitness | No | Never requested or read |
 
@@ -58,6 +60,9 @@ based on your answers. Two things worth confirming before you fill it out:
 - [ ] Link a Google Play Developer API service account with access to this app's listing, and put its key path in `GOOGLE_APPLICATION_CREDENTIALS` for whichever environment needs to call `verifyPurchase`/`recheckLapsedSubscriptions` (see `functions/.env.example`).
 
 ## Cross-reference
+
+See [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md) for step-by-step Google Play Billing
+setup and the safe 200-lesson import/verification workflow.
 
 See `docs/RELEASE_CHECKLIST.md` for the technical (signing, minification,
 versioning) side of preflight, and the README's Environments section for

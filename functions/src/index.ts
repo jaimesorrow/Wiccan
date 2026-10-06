@@ -91,7 +91,8 @@ export const verifyPurchase = onCall({ enforceAppCheck: true }, async (request) 
 
   const purchaseToken = request.data?.purchaseToken;
   const productId = request.data?.productId;
-  if (typeof purchaseToken !== "string" || typeof productId !== "string") {
+  if (typeof purchaseToken !== "string" || !purchaseToken.trim() || purchaseToken.length > 4096 ||
+    typeof productId !== "string" || !productId.trim() || productId.length > 256) {
     throw new HttpsError("invalid-argument", "purchaseToken and productId are required.");
   }
 
@@ -146,7 +147,9 @@ export const handlePlayRtdn = onMessagePublished({ topic: PLAY_RTDN_TOPIC, retry
     return;
   }
 
-  const purchaseToken = parseRtdnPurchaseToken(messageData);
+  const packageName = process.env.ANDROID_PACKAGE_NAME;
+  if (!packageName) throw new Error("ANDROID_PACKAGE_NAME must be configured for RTDN processing.");
+  const purchaseToken = parseRtdnPurchaseToken(messageData, packageName);
   if (!purchaseToken) {
     // Not a subscription notification (e.g. a one-time-product or test
     // notification also delivered through this topic) - nothing to do.

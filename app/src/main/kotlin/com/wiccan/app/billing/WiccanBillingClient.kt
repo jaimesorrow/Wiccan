@@ -15,11 +15,13 @@ import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.security.MessageDigest
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -43,14 +45,16 @@ class PlayBillingException(message: String) : IllegalStateException(message)
 class WiccanBillingClient @Inject constructor(
     @ApplicationContext context: Context,
 ) {
-    private val _purchaseUpdates = MutableSharedFlow<List<Purchase>>(extraBufferCapacity = 1)
-    val purchaseUpdates: Flow<List<Purchase>> = _purchaseUpdates
+    // A purchase callback can arrive before the repository starts collecting.
+    // Keep it queued until server verification runs instead of dropping it.
+    private val purchaseUpdateChannel = Channel<List<Purchase>>(Channel.UNLIMITED)
+    val purchaseUpdates: Flow<List<Purchase>> = purchaseUpdateChannel.receiveAsFlow()
 
     private val connectionMutex = Mutex()
 
     private val listener = PurchasesUpdatedListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
-            _purchaseUpdates.tryEmit(purchases)
+            purchaseUpdateChannel.trySend(purchases)
         }
     }
 
@@ -118,13 +122,15 @@ class WiccanBillingClient @Inject constructor(
      */
     suspend fun launchPurchaseFlow(
         activity: Activity,
+        userId: String,
         productId: String = PREMIUM_MONTHLY_PRODUCT_ID,
     ): BillingResult {
         val productDetails = queryProductDetails(productId)
-        val offerToken = productDetails.subscriptionOfferDetails?.firstOrNull()?.offerToken
-            ?: throw PlayBillingException("No subscription offer available for '$productId'.")
+        val offerToken = productDetails.recurringBasePlan()?.offerToken
+            ?: throw PlayBillingException("No recurring base plan available for '$productId'.")
 
         val flowParams = BillingFlowParams.newBuilder()
+            .setObfuscatedAccountId(obfuscatedAccountId(userId))
             .setProductDetailsParamsList(
                 listOf(
                     BillingFlowParams.ProductDetailsParams.newBuilder()
@@ -157,5 +163,22 @@ class WiccanBillingClient @Inject constructor(
     }
 }
 
-fun ProductDetails.formattedPrice(): String? =
-    subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice
+/** Choose the same regular base plan for the displayed price and Play UI. */
+internal fun ProductDetails.recurringBasePlan(): ProductDetails.SubscriptionOfferDetails? {
+    val period = if (productId == PREMIUM_YEARLY_PRODUCT_ID) "P1Y" else "P1M"
+    return subscriptionOfferDetails?.firstOrNull { offer ->
+        offer.offerId == null && offer.pricingPhases.pricingPhaseList.any { phase ->
+            phase.recurrenceMode == ProductDetails.RecurrenceMode.INFINITE_RECURRING &&
+                phase.billingPeriod == period
+        }
+    }
+}
+
+fun ProductDetails.formattedPrice(): String? = recurringBasePlan()?.pricingPhases?.pricingPhaseList
+    ?.lastOrNull { it.recurrenceMode == ProductDetails.RecurrenceMode.INFINITE_RECURRING }
+    ?.formattedPrice
+
+/** Bind Play purchases to the Firebase account without sending the raw UID. */
+internal fun obfuscatedAccountId(userId: String): String = MessageDigest.getInstance("SHA-256")
+    .digest(userId.toByteArray(Charsets.UTF_8))
+    .joinToString("") { "%02x".format(it) }

@@ -6,6 +6,7 @@ export type PlaySubscriptionState =
   | "on_hold"
   | "paused"
   | "pending"
+  | "pending_purchase_canceled"
   | "expired"
   | "unspecified";
 
@@ -18,6 +19,10 @@ export interface PlaySubscriptionInfo {
   autoRenewing: boolean;
   /** Whether Google Play reports this purchase as already acknowledged. */
   acknowledged: boolean;
+  /** SHA-256 Firebase uid supplied by the app when launching the purchase. */
+  obfuscatedExternalAccountId?: string | null;
+  /** Previous token when Play replaces a subscription during an upgrade/resubscription. */
+  linkedPurchaseToken?: string | null;
 }
 
 /**

@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Wiccan</string>
+    <string name="content_introduction">Introduction</string>
+    <string name="content_lesson">Lesson</string>
+    <string name="content_reflection">Reflection</string>
+    <string name="content_practice">Practice</string>
+    <string name="content_difficulty_beginner">Beginner</string>
+    <string name="content_difficulty_intermediate">Intermediate</string>
+    <string name="content_difficulty_advanced">Advanced</string>
+    <string name="content_category_protection">Protection</string>
+    <string name="content_category_relationships">Love &amp; Relationships</string>
+    <string name="content_category_prosperity">Prosperity &amp; Abundance</string>
+    <string name="content_category_wellness">Healing &amp; Wellness</string>
+    <string name="content_category_divination">Divination &amp; Clarity</string>
+    <string name="content_category_release">Banishing &amp; Release</string>
+    <string name="content_category_home">Home &amp; Hearth</string>
+    <string name="content_category_seasonal">Moon &amp; Seasonal</string>
 </resources>

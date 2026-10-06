@@ -3,6 +3,7 @@ package com.wiccan.app.data.remote
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.functions.FirebaseFunctions
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
 
 /**
@@ -19,6 +20,8 @@ class SubscriptionFunctionsDataSource @Inject constructor(
             functions.getHttpsCallable(FUNCTION_NAME)
                 .call(mapOf("purchaseToken" to purchaseToken, "productId" to productId))
                 .await()
+        } catch (t: CancellationException) {
+            throw t
         } catch (t: Throwable) {
             crashlytics.recordException(t)
             throw t

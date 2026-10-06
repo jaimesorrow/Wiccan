@@ -19,5 +19,14 @@ val MIGRATION_1_2: Migration = object : Migration(1, 2) {
     }
 }
 
+/** Preserve existing cached content while adding the structured lesson sections. */
+val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE cached_daily_content ADD COLUMN reflection TEXT")
+        db.execSQL("ALTER TABLE cached_daily_content ADD COLUMN practice TEXT")
+        db.execSQL("ALTER TABLE cached_daily_content ADD COLUMN difficulty TEXT")
+    }
+}
+
 /** Every migration WiccanDatabase has ever needed, in order. Never remove an entry - a device restoring an old backup may still be on any prior version. */
-val WICCAN_DATABASE_MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2)
+val WICCAN_DATABASE_MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3)

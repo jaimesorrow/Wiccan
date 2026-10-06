@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { Firestore, FieldValue } from "firebase-admin/firestore";
 import { NotificationDeviceRecord, NotificationUserRepositoryPort } from "./notificationUserRepositoryPort";
+import { assertAccountWriteAllowed } from "./accountWriteGuard";
 
 const USERS_COLLECTION = "users";
 const DEVICES_SUBCOLLECTION = "devices";
@@ -40,34 +41,40 @@ export class FirestoreNotificationUserRepository implements NotificationUserRepo
 
   async setToken(uid: string, token: string, timeZone?: string | null): Promise<void> {
     const ref = this.deviceDoc(uid, token);
-    // A benign extra read on what is at most a once-per-app-launch call:
-    // createdAt/notificationsEnabled should only ever be set once, on the
-    // device's actual first registration, never reset on every later
-    // token refresh.
-    const existing = await ref.get();
-
-    const data: Record<string, unknown> = {
-      token,
-      platform: "android",
-      updatedAt: FieldValue.serverTimestamp(),
-    };
-    if (timeZone) {
-      data.timeZone = timeZone;
-    }
-    if (!existing.exists) {
-      data.createdAt = FieldValue.serverTimestamp();
-      data.notificationsEnabled = true;
-    }
-
-    await ref.set(data, { merge: true });
+    await this.db.runTransaction(async (transaction) => {
+      const [user, existing] = await Promise.all([
+        transaction.get(this.db.collection(USERS_COLLECTION).doc(uid)), transaction.get(ref),
+      ]);
+      assertAccountWriteAllowed(user);
+      const data: Record<string, unknown> = {
+        token,
+        platform: "android",
+        updatedAt: FieldValue.serverTimestamp(),
+      };
+      if (timeZone) data.timeZone = timeZone;
+      // Preserve first registration metadata and the saved notification choice.
+      if (!existing.exists) {
+        data.createdAt = FieldValue.serverTimestamp();
+        data.notificationsEnabled = true;
+      }
+      transaction.set(ref, data, { merge: true });
+    });
   }
 
   async setTimeZone(uid: string, token: string, timeZone: string): Promise<void> {
-    await this.deviceDoc(uid, token).set({ timeZone }, { merge: true });
+    await this.updateDevice(uid, token, { timeZone });
   }
 
   async setNotificationsEnabled(uid: string, token: string, enabled: boolean): Promise<void> {
-    await this.deviceDoc(uid, token).set({ notificationsEnabled: enabled }, { merge: true });
+    await this.updateDevice(uid, token, { notificationsEnabled: enabled });
+  }
+
+  private async updateDevice(uid: string, token: string, fields: Record<string, unknown>): Promise<void> {
+    await this.db.runTransaction(async (transaction) => {
+      const user = await transaction.get(this.db.collection(USERS_COLLECTION).doc(uid));
+      assertAccountWriteAllowed(user);
+      transaction.set(this.deviceDoc(uid, token), fields, { merge: true });
+    });
   }
 
   private deviceDoc(uid: string, token: string) {

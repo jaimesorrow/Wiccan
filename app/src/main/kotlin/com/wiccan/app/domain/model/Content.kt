@@ -17,4 +17,7 @@ data class Content(
     val safetyNote: String?,
     val tags: List<String>,
     val status: ContentStatus,
+    val reflection: String? = null,
+    val practice: String? = null,
+    val difficulty: ContentDifficulty? = null,
 )

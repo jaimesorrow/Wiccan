@@ -1,0 +1,30 @@
+{
+  "name": "Wiccan Android",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "ANDROID_SDK_ROOT": "/opt/android-sdk"
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    }
+  },
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "ANDROID_HOME": "/opt/android-sdk",
+    "ANDROID_SDK_ROOT": "/opt/android-sdk",
+    "GRADLE_USER_HOME": "/home/vscode/.gradle"
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "fwcd.kotlin",
+        "vscjava.vscode-gradle",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}

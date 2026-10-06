@@ -17,7 +17,7 @@ REQUIRED_ALIGNMENT="0x4000"
 SIXTY_FOUR_BIT_ABIS="arm64-v8a x86_64"
 
 if [ ! -f "$AAB_PATH" ]; then
-  echo "error: $AAB_PATH not found. Run ./gradlew :app:bundleRelease first." >&2
+  echo "error: $AAB_PATH not found. Run ./gradlew :app:bundleProdRelease first." >&2
   exit 1
 fi
 
@@ -29,7 +29,7 @@ fi
 WORKDIR=$(mktemp -d)
 trap 'rm -rf "$WORKDIR"' EXIT
 
-SO_FILES=$(unzip -Z1 "$AAB_PATH" 'base/lib/*.so')
+SO_FILES=$(unzip -Z1 "$AAB_PATH" | awk '/^base\/lib\/.*\.so$/')
 if [ -z "$SO_FILES" ]; then
   echo "No native libraries (.so) found in $AAB_PATH - nothing to check."
   exit 0
@@ -44,8 +44,26 @@ while IFS= read -r entry; do
   extracted="$WORKDIR/$name"
   unzip -p "$AAB_PATH" "$entry" > "$extracted"
 
-  min_align=$(readelf -lW "$extracted" 2>/dev/null | awk '/LOAD/ {print $NF}' | sort -u | sort -n | head -1)
   CHECKED=$((CHECKED + 1))
+  min_align=-1
+  if headers=$(readelf -lW "$extracted" 2>/dev/null); then
+    while IFS= read -r alignment; do
+      if [[ ! "$alignment" =~ ^0x[0-9a-fA-F]+$ ]]; then
+        min_align=0
+        break
+      fi
+      value=$((alignment))
+      if (( value == 0 || (value & (value - 1)) != 0 )); then
+        min_align=0
+        break
+      fi
+      if (( min_align < 0 || value < min_align )); then
+        min_align=$value
+      fi
+    done < <(awk '/^[[:space:]]*LOAD[[:space:]]/ {print $NF}' <<< "$headers")
+  fi
+  if (( min_align < 0 )); then min_align=0; fi
+  printf -v min_align_hex '0x%x' "$min_align"
 
   is_64bit=false
   for abi64 in $SIXTY_FOUR_BIT_ABIS; do
@@ -54,15 +72,15 @@ while IFS= read -r entry; do
     fi
   done
 
-  if [ "$min_align" != "$REQUIRED_ALIGNMENT" ]; then
+  if (( min_align < REQUIRED_ALIGNMENT )); then
     if [ "$is_64bit" = true ]; then
-      echo "FAIL  $abi/$name: minimum LOAD alignment $min_align (need $REQUIRED_ALIGNMENT)"
+      echo "FAIL  $abi/$name: minimum LOAD alignment $min_align_hex (need at least $REQUIRED_ALIGNMENT)"
       FAILED=$((FAILED + 1))
     else
-      echo "warn  $abi/$name: minimum LOAD alignment $min_align (16KB not required on 32-bit ABIs)"
+      echo "warn  $abi/$name: minimum LOAD alignment $min_align_hex (16KB not required on 32-bit ABIs)"
     fi
   else
-    echo "ok    $abi/$name: $min_align"
+    echo "ok    $abi/$name: $min_align_hex"
   fi
 done <<< "$SO_FILES"
 

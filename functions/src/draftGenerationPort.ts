@@ -5,6 +5,9 @@ export interface GeneratedDraftFields {
   title: string;
   intro: string;
   body: string;
+  /** Structured lesson sections; optional only for older drafts and non-lesson content. */
+  reflection?: string | null;
+  practice?: string | null;
   materials: string[] | null;
   safetyNote: string | null;
   tags: string[];

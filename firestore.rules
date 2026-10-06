@@ -5,11 +5,13 @@ service cloud.firestore {
     // Daily selection must run server-side (Cloud Function) so users can't
     // reset or game their delivery history. Clients get read-only access
     // to published content and to their own history rows; all writes go
-    // through the Admin SDK inside getTodayContent. Rules do not tier-gate
-    // published content reads — that's enforced by the getTodayContent
-    // selection itself, a known limitation of this pass.
+    // through the Admin SDK inside getTodayContent. A delivery marker is
+    // required for Archive reads, so published content cannot be scraped
+    // to bypass either subscription tiers or the one-entry-per-day selection.
     match /content/{contentId} {
-      allow read: if request.auth != null && resource.data.status == 'published';
+      allow get: if request.auth != null && resource.data.status == 'published'
+        && exists(/databases/$(database)/documents/userContentUsage/$(request.auth.uid)/content/$(contentId));
+      allow list: if false;
       allow write: if false;
     }
 
@@ -37,6 +39,14 @@ service cloud.firestore {
     // callables via the Admin SDK. No client ever needs to read another
     // device's token, including its own on a different device.
     match /users/{uid}/devices/{deviceId} {
+      allow read, write: if false;
+    }
+
+    // Server-only subscription audit and hashed-token ownership registry.
+    match /subscriptions/{uid} {
+      allow read, write: if false;
+    }
+    match /purchaseTokens/{tokenHash} {
       allow read, write: if false;
     }
 

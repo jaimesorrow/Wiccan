@@ -1,8 +1,8 @@
 import { Firestore } from "firebase-admin/firestore";
 import { Auth } from "firebase-admin/auth";
-import * as logger from "firebase-functions/logger";
 import { AccountDeletionPort } from "./accountDeletionPort";
 import { PlayBillingPort } from "./playBillingPort";
+import { PREMIUM_PRODUCT_IDS } from "./tierPolicy";
 
 const USERS_COLLECTION = "users";
 const HISTORY_COLLECTION = "userContentHistory";
@@ -37,25 +37,25 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionPort {
   }
 
   async cancelActiveSubscription(uid: string): Promise<void> {
-    const doc = await this.db.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
-    if (!doc.exists) {
-      return;
-    }
-
-    const purchaseToken = doc.get("purchaseToken") as string | undefined;
-    const productId = doc.get("productId") as string | undefined;
-    const subscriptionState = doc.get("subscriptionState") as string | undefined;
-    if (!purchaseToken || !productId || subscriptionState === "canceled" || subscriptionState === "expired") {
-      return;
-    }
-
-    try {
+    const userRef = this.db.collection(USERS_COLLECTION).doc(uid);
+    const tokens = await this.db.runTransaction(async (transaction) => {
+      const [user, subscription] = await Promise.all([
+        transaction.get(userRef), transaction.get(this.db.collection(SUBSCRIPTIONS_COLLECTION).doc(uid)),
+      ]);
+      // Freeze purchase verification before reading/canceling its token. This
+      // marker stays set on failure so retry cannot race with another purchase.
+      if (user.exists) transaction.set(userRef, { deletionInProgress: true }, { merge: true });
+      return [...new Set([user.get("purchaseToken"), subscription.get("purchaseToken")]
+        .filter((token): token is string => typeof token === "string" && token.length > 0))];
+    });
+    for (const purchaseToken of tokens) {
+      const info = await this.billing.getSubscriptionState(purchaseToken);
+      if (!info.autoRenewing) continue;
+      const productId = info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id));
+      if (!productId) throw new Error("The subscription product could not be verified for cancellation.");
+      // The user's current token remains authoritative even if the audit
+      // record is missing, stale, or its last verification failed halfway.
       await this.billing.cancelSubscription(purchaseToken, productId);
-    } catch (err) {
-      // Never let a Play API hiccup block the rest of account deletion -
-      // the user's data still needs to be erased even if this one call
-      // fails. Logged so a stuck subscription is visible, not silent.
-      logger.error("cancelActiveSubscription failed", { uid, error: (err as Error).message });
     }
   }
 

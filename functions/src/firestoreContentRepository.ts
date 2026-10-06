@@ -1,6 +1,7 @@
 import { Firestore, Timestamp } from "firebase-admin/firestore";
 import { Content, ContentCategory, ContentTier, isContentCategory } from "./types";
 import { ContentAlreadyDeliveredError, ContentRepositoryPort } from "./contentRepositoryPort";
+import { assertAccountWriteAllowed } from "./accountWriteGuard";
 
 /** Defensive fallback for any legacy content document written before category existed. */
 const DEFAULT_CATEGORY: ContentCategory = "MoonAndSeasonal";
@@ -90,6 +91,8 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
     const docRef = this.db.collection(HISTORY_COLLECTION).doc(historyDocId(uid, today));
     const usedRef = this.db.collection(CONTENT_USAGE_COLLECTION).doc(uid).collection("content").doc(candidate.id);
     return this.db.runTransaction(async (txn) => {
+      const user = await txn.get(this.db.collection(USERS_COLLECTION).doc(uid));
+      assertAccountWriteAllowed(user);
       const snap = await txn.get(docRef);
       if (snap.exists) {
         return snap.get("contentId") as string;

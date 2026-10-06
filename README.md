@@ -25,13 +25,13 @@ app/                         Android app module (Kotlin, package com.wiccan.app)
   ui/today/                    Today screen (MVI)
   ui/auth/                     Sign-in screen (MVI) — sign in, create account,
                                 password reset, all in one screen
-  ui/subscription/             Minimal, unstyled Upgrade CTA
+  ui/paywall/                  Play subscription purchase and restore flow
 
 functions/                    Cloud Functions (Node/TypeScript)
-  ancientContentSeed.json       150 hand-reviewed ancient-source entries
+  ancientContentSeed.json       296 ancient-source content drafts (200 lessons)
                                  (seed pool, all status=draft)
   src/contentSeed.ts            Seed loading + validation gates
-  src/scripts/seedContentCli.ts Admin CLI: upsert the seed pool into Firestore
+  src/scripts/seedContentCli.ts Admin CLI: create missing seed IDs in Firestore
   src/getTodayContent.ts        Daily-selection logic (server-side, never a
                                  client-side Firestore query)
   src/verifyPurchase.ts         Google Play purchase verification
@@ -65,10 +65,13 @@ functions/                    Cloud Functions (Node/TypeScript)
   state is never trusted as the tier source of truth. The current paywall
   launches the monthly offer; restore/server verification recognizes both,
   and a daily job re-checks active subscriptions for lapses.
-- **Seed content** ships in `functions/ancientContentSeed.json`: 150 entries
-  written from the four curated ancient sources, 50 each at beginner,
-  intermediate and advanced reader level. `npm run seed-content` validates it;
-  `-- --commit` upserts it as drafts. See `docs/ANCIENT_LESSON_SOURCING.md`.
+- **Seed content** ships in `functions/ancientContentSeed.json`: 200 lessons,
+  59 spells and 37 potions from four curated ancient sources. The 146 new
+  companion lessons require editorial/source review; all 296 entries are
+  drafts. `npm run seed-content` validates it;
+  `-- --commit --project wiccan-android` creates missing IDs while preserving
+  existing documents. `npm run verify-lessons -- --project wiccan-android`
+  verifies the live lesson pool. See `docs/ANCIENT_LESSON_SOURCING.md`.
 - **Content generation** draws only from a hand-curated `sources.json` of
   public-domain sources, using each source as thematic inspiration only —
   never quoted or closely paraphrased. Every generated draft needs a
@@ -125,6 +128,26 @@ scripts that don't exist. CI runs the isolated validation regression tests
 and `--structure` before the expensive steps.
 
 ## Building
+
+### GitHub Codespaces
+
+Open the repository in GitHub Codespaces and select the checked-in
+`.devcontainer` configuration. It installs Java 17, Node 22, Android SDK 37 and
+the required build tools, then creates a local `local.properties` pointing at
+the Codespace SDK. The first build downloads Gradle and Maven dependencies:
+
+```bash
+./gradlew :app:assembleProdDebug
+./gradlew :app:testProdDebugUnitTest
+```
+
+The production release bundle can be built for inspection with
+`./gradlew :app:bundleProdRelease`; it remains unsigned until you provide the
+upload keystore through the release workflow secrets. Never put Firebase service
+account keys or signing keystores in the Codespace repository.
+
+For Google Play Billing setup, Firebase lesson verification and outstanding Play
+release setup, see [the production setup guide](docs/PRODUCTION_SETUP.md).
 
 ### Android app
 
@@ -184,11 +207,13 @@ users' data.
   account credentials. Never reuse one environment's secrets in another —
   a leaked or misbehaving key should be revocable without taking every
   environment down.
-- The admin CLI scripts (`npm run generate-draft`, `npm run approve-draft`)
-  print the resolved Firebase project ID before doing anything, specifically
+- The admin CLI scripts print the resolved Firebase project ID before doing anything, specifically
   so an operator never mutates the wrong environment's content pool by
   running a command against whatever project `firebase use` happened to be
   pointed at.
+- Production content imports, verification and approval require an explicit
+  `--project wiccan-android`. Approve one reviewed draft with
+  `npm run approve-draft -- --project wiccan-android --contentId <id>`.
 - The Android app has matching `dev`/`staging`/`prod` product flavors.
   Production installs as `com.jaimesorrow.wiccan` and uses
   `app/src/prod/google-services.json`. Dev/staging use application-ID

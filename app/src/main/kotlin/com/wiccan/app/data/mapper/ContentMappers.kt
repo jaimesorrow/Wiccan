@@ -3,6 +3,7 @@ package com.wiccan.app.data.mapper
 import com.wiccan.app.data.local.CachedDailyContentEntity
 import com.wiccan.app.domain.model.Content
 import com.wiccan.app.domain.model.ContentCategory
+import com.wiccan.app.domain.model.ContentDifficulty
 import com.wiccan.app.domain.model.ContentStatus
 import com.wiccan.app.domain.model.ContentTier
 import com.wiccan.app.domain.model.ContentType
@@ -20,6 +21,9 @@ fun Map<String, Any?>.toContent(): Content = Content(
     title = (this["title"] as? String).orEmpty(),
     intro = (this["intro"] as? String).orEmpty(),
     body = (this["body"] as? String).orEmpty(),
+    reflection = this["reflection"] as? String,
+    practice = this["practice"] as? String,
+    difficulty = ContentDifficulty.fromWireValue(this["difficulty"] as? String),
     materials = this["materials"] as? List<String>,
     safetyNote = this["safetyNote"] as? String,
     tags = (this["tags"] as? List<String>).orEmpty(),
@@ -35,6 +39,9 @@ fun Content.toCachedEntity(deliveredDate: String): CachedDailyContentEntity = Ca
     title = title,
     intro = intro,
     body = body,
+    reflection = reflection,
+    practice = practice,
+    difficulty = difficulty?.name,
     materials = materials,
     safetyNote = safetyNote,
     tags = tags,
@@ -51,6 +58,9 @@ fun CachedDailyContentEntity.toDomain(): Content = Content(
     title = title,
     intro = intro,
     body = body,
+    reflection = reflection,
+    practice = practice,
+    difficulty = ContentDifficulty.fromWireValue(difficulty),
     materials = materials,
     safetyNote = safetyNote,
     tags = tags,

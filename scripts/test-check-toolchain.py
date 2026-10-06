@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -159,6 +160,13 @@ class ToolchainCheckTest(unittest.TestCase):
 
     def test_missing_room_migration_schema_is_rejected(self):
         (self.root / "app/schemas/com.wiccan.app.data.local.WiccanDatabase/1.json").unlink()
+        self.assert_rejected("FAIL  Room migration schemas follow the database class package")
+
+    def test_new_room_version_without_exported_schema_is_rejected(self):
+        database = self.root / "app/src/main/kotlin/com/wiccan/app/data/local/WiccanDatabase.kt"
+        content = database.read_text()
+        content = re.sub(r"\bversion\s*=\s*\d+", "version = 999", content, count=1)
+        database.write_text(content)
         self.assert_rejected("FAIL  Room migration schemas follow the database class package")
 
     def test_legacy_kotlin_plugin_is_rejected(self):

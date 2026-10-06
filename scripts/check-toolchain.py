@@ -36,8 +36,10 @@ def main():
         re.search(r"^package " + re.escape(namespace) + r"(?:\.|\s|$)", p.read_text(), re.MULTILINE)
         for p in kotlin_files
     ), "every Kotlin source and test uses the Kotlin namespace prefix")
-    check((ROOT / ("app/schemas/" + namespace + ".data.local.WiccanDatabase/1.json")).exists()
-          and (ROOT / ("app/schemas/" + namespace + ".data.local.WiccanDatabase/2.json")).exists(),
+    database = text("app/src/main/kotlin/com/wiccan/app/data/local/WiccanDatabase.kt")
+    schema_version = int(re.search(r"\bversion\s*=\s*(\d+)", database).group(1))
+    check(all((ROOT / ("app/schemas/" + namespace + ".data.local.WiccanDatabase/" + str(version) + ".json")).exists()
+              for version in range(1, schema_version + 1)),
           "Room migration schemas follow the database class package")
     projects = config(".firebaserc")["projects"]
     configured_environments = {}

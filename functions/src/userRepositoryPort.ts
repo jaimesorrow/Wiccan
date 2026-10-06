@@ -5,6 +5,10 @@ export interface PremiumUserRecord {
   purchaseToken: string;
 }
 
+export class PurchaseTokenOwnershipError extends Error {}
+
+export type TierSyncSource = "purchase" | "refresh" | "replacement";
+
 /**
  * Port between the billing logic and the `users` collection. `tier` is
  * only ever written here — verifyPurchase, the daily lapse re-check, and
@@ -13,7 +17,18 @@ export interface PremiumUserRecord {
  * tier reads.
  */
 export interface UserRepositoryPort {
-  setTier(uid: string, tier: ContentTier, purchaseToken?: string): Promise<void>;
+  /**
+   * Atomically reserves a token to one uid and updates its entitlement.
+   * Refreshes only apply while this is the user's current token (null means stale).
+   * Restoring an old, non-entitled purchase must not downgrade a newer premium purchase.
+   */
+  setTier(
+    uid: string,
+    tier: ContentTier,
+    purchaseToken: string,
+    source?: TierSyncSource,
+    previousPurchaseToken?: string,
+  ): Promise<ContentTier | null>;
 
   /** Every user currently marked premium, with the token needed to re-verify them. */
   listPremiumUsers(): Promise<PremiumUserRecord[]>;

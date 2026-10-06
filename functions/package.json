@@ -11,12 +11,15 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "test": "jest",
+    "test:firebase": "npm run build && npx --yes firebase-tools@15.32.1 emulators:exec --config ../firebase.json --only firestore --project demo-wiccan \"node --test tests/firebaseSecurity.test.mjs\"",
     "lint": "eslint src",
     "serve": "npm run build && firebase emulators:start --only functions",
     "deploy": "npm run build && firebase deploy --only functions",
     "generate-draft": "npm run build && node lib/scripts/generateDraftCli.js",
     "approve-draft": "npm run build && node lib/scripts/approveDraftCli.js",
-    "seed-content": "npm run build && node lib/scripts/seedContentCli.js"
+    "seed-content": "npm run build && node lib/scripts/seedContentCli.js",
+    "verify-lessons": "npm run build && node lib/scripts/verifyLessonsCli.js",
+    "backfill-content-usage": "npm run build && node lib/scripts/backfillContentUsageCli.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",
@@ -27,9 +30,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@firebase/rules-unit-testing": "^5.0.2",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.20.5",
     "eslint": "^10.11.0",
+    "firebase": "^12.19.0",
     "globals": "^17.13.0",
     "jest": "^30.5.2",
     "ts-jest": "^29.4.14",

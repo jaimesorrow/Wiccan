@@ -3,7 +3,7 @@ import { PlaySubscriptionInfo, PlaySubscriptionState } from "../playBillingPort"
 
 const NOW = new Date("2026-09-11T00:00:00.000Z");
 
-function info(state: PlaySubscriptionState, expiryTimeMillis: number | null = null): PlaySubscriptionInfo {
+function info(state: PlaySubscriptionState, expiryTimeMillis: number | null = NOW.getTime() + 86400000): PlaySubscriptionInfo {
   return {
     state,
     productIds: ["wiccan_premium_monthly"],
@@ -20,9 +20,10 @@ describe("tierForSubscription", () => {
     ["on_hold", "free"],
     ["paused", "free"],
     ["pending", "free"],
+    ["pending_purchase_canceled", "free"],
     ["expired", "free"],
     ["unspecified", "free"],
-  ])("maps %s to %s regardless of expiry", (state, expected) => {
+  ])("maps %s to %s with an unexpired premium product", (state, expected) => {
     expect(tierForSubscription(info(state), NOW)).toBe(expected);
   });
 
@@ -54,4 +55,13 @@ describe("tierForSubscription", () => {
   it("treats a canceled subscription with no known expiry as free", () => {
     expect(tierForSubscription(info("canceled", null), NOW)).toBe("free");
   });
+
+  it.each(["active", "in_grace_period", "canceled"] as const)(
+    "requires a valid future expiry even when Play reports %s",
+    (state) => {
+      for (const expiry of [null, NaN, NOW.getTime(), NOW.getTime() - 1]) {
+        expect(tierForSubscription(info(state, expiry), NOW)).toBe("free");
+      }
+    },
+  );
 });
