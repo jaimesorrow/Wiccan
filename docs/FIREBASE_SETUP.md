@@ -108,15 +108,19 @@ firebase deploy --only firestore:rules,firestore:indexes --project production
 
 ## 3. Authentication
 
-**CONSOLE.** Enable **Google** and **Email/Password** under Authentication
-→ Sign-in method. Enabling Google requires selecting a project support
-email; without it the save does not complete.
+**CONSOLE — verified 2026-10-06 UTC.** **Google** and **Email/Password**
+are enabled in `wiccan-android`. For another project, enable them under
+Authentication → Sign-in method; Google also requires a project support email.
 
-The app no longer fails to build when this is off — `AuthRepositoryImpl`
-resolves `default_web_client_id` by name at runtime and hides the Google
-button when absent. But until the provider is enabled, `oauth_client` in
-`app/src/prod/google-services.json` stays `[]` and Google sign-in is
-simply unavailable. Verify with:
+**REPO.** `app/src/prod/google-services.json` includes the public web OAuth
+client ID read from Firebase's Google provider configuration as a
+`client_type: 3` entry. The existing project, Android app and API key fields
+are retained; this change is not a complete replacement SDK download.
+
+`AuthRepositoryImpl` resolves `default_web_client_id` by name at runtime
+and hides the Google button when that resource is absent. The Google
+Services plugin generates it from the web OAuth entry. Verify resource
+generation with:
 
 ```bash
 ./gradlew :app:processProdDebugGoogleServices
@@ -124,8 +128,13 @@ grep default_web_client_id \
   app/build/generated/res/processProdDebugGoogleServices/values/values.xml
 ```
 
-A match means a web OAuth client exists. Re-download
-`google-services.json` after enabling the provider or adding a SHA-1.
+A match confirms that the build contains the web client ID; it does not
+verify a successful sign-in. Check that the installed build's SHA-1 matches
+a registered Firebase Android certificate, including the Play App Signing
+certificate for builds distributed by Play, then test Google sign-in on a
+device. SHA-1 and SHA-256 certificates are present in Firebase, but their
+relationship to the distributed build has not been verified. Re-download
+`google-services.json` when changing provider or certificate registrations.
 
 `onUserCreated` is a v1 Auth trigger (`authV1.user().onCreate`) and
 deploys as a 1st-gen function; no extra console setup.
