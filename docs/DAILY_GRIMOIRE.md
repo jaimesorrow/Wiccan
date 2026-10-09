@@ -76,9 +76,11 @@ ignore them. The explicit admin seed upsert removes that key from seeded content
 without changing publication status. No live seeding, migration, deployment,
 history deletion or PR merge is performed by this change.
 
-The existing rule allowing authenticated reads of all published content is
-unchanged. Free/premium assignment eligibility is checked server-side and inside
-the transaction; direct published-document reads were already not tier-gated.
+Published content is readable only when the server-created per-user delivery
+reservation exists. Free/premium assignment eligibility is checked server-side
+and inside the transaction; once assigned, an entry remains in Grimoire even if
+the user's current tier later changes. Listing or scraping the content pool is
+denied.
 
 ## Verification
 
