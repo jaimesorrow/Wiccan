@@ -30,10 +30,12 @@ assignment error and leaves its history intact.
 
 Editorial `similarityGroupId` identifies rewordings of the same lesson. Explicit
 groups take priority; source ID plus normalized citation is a legacy fallback.
-The seed keeps all 150 IDs and all existing text, safety, provenance, rights and
-tier fields, and groups eight reviewed overlapping pairs. Editors must reuse a
-group for substantially reworded versions. This is metadata-based exclusion,
-not semantic similarity detection for content with no identifying metadata.
+The seed keeps the original 150 IDs and adds 146 companion lessons, for 296
+drafts total. Companion lessons share their source entry's identity, and eight
+reviewed overlapping pairs share identities across their clusters. Editors
+must reuse a group for substantially reworded versions. This is metadata-based
+exclusion, not semantic similarity detection for content with no identifying
+metadata.
 
 The transaction writes history and the existing
 `userContentUsage/{uid}/content/{contentId}` reservation, plus an additive

@@ -29,10 +29,10 @@ app/                         Android app module (Kotlin, package com.jaimesorrow
   ui/subscription/             Minimal, unstyled Upgrade CTA
 
 functions/                    Cloud Functions (Node/TypeScript)
-  ancientContentSeed.json       150 hand-reviewed ancient-source entries
-                                 (seed pool, all status=draft)
+  ancientContentSeed.json       296 ancient-source drafts: 200 lessons,
+                                 59 spells and 37 potions
   src/contentSeed.ts            Seed loading + validation gates
-  src/scripts/seedContentCli.ts Admin CLI: upsert the seed pool into Firestore
+  src/scripts/seedContentCli.ts Guarded admin import + inventory verification
   src/getTodayContent.ts        Daily-selection logic (server-side, never a
                                  client-side Firestore query)
   src/verifyPurchase.ts         Google Play purchase verification
@@ -71,10 +71,13 @@ functions/                    Cloud Functions (Node/TypeScript)
   state is never trusted as the tier source of truth. The current paywall
   launches the monthly offer; restore/server verification recognizes both,
   and a daily job re-checks active subscriptions for lapses.
-- **Seed content** ships in `functions/ancientContentSeed.json`: 150 entries
-  written from the four curated ancient sources, without difficulty labels.
-  Existing free/premium tiers remain unchanged. `npm run seed-content` validates it;
-  `-- --commit` upserts it as drafts. See `docs/ANCIENT_LESSON_SOURCING.md`.
+- **Seed content** ships in `functions/ancientContentSeed.json`: 296 entries
+  written from four curated ancient sources — 200 lessons, 59 spells and
+  37 potions — without difficulty labels. Existing free/premium tiers remain
+  independent. `npm run seed-content` validates locally; an authenticated
+  `-- --project wiccan-android --commit` creates missing drafts, preserves
+  existing edited/published content, retires old difficulty metadata, and
+  verifies the live lesson inventory. See `docs/ANCIENT_LESSON_SOURCING.md`.
 - **Content generation** draws only from a hand-curated `sources.json` of
   public-domain sources, using each source as thematic inspiration only —
   never quoted or closely paraphrased. Every generated draft needs a
@@ -152,11 +155,12 @@ The current toolchain uses Java 17, Gradle 9.8.0, AGP 9.4.1 and Kotlin
 2.4.20, with Play Billing 9.1.0. Install the Android SDK platform with
 `sdkmanager "platforms;android-37.0"` (`compileSdk` 37, `targetSdk` 36).
 Set `sdk.dir` in a local `local.properties` file or the `ANDROID_HOME`
-environment variable. The current production Firebase file has no OAuth
-client, so
-the Google sign-in button stays hidden until the real Play
-App Signing SHA certificates and Google Auth/OAuth configuration are added
-and Firebase provides a refreshed production config.
+environment variable. The production Firebase file includes the registered
+web OAuth client ID verified in Firebase on 2026-10-06 UTC, allowing the
+Google Services plugin to generate `default_web_client_id`. Google and
+Email/Password providers are enabled. Confirm that the installed build's
+signing certificate is registered with Firebase, and verify Google sign-in
+on a device before treating authentication as release-ready.
 
 ### Cloud Functions
 

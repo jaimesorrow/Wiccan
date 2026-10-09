@@ -1,4 +1,4 @@
-import { Firestore } from "firebase-admin/firestore";
+import { FieldValue, Firestore } from "firebase-admin/firestore";
 import { SeedContent } from "./types";
 import { InventoryDocument } from "./contentInventory";
 
@@ -8,6 +8,7 @@ export interface SeedImportResult {
   createdIds: string[];
   preservedIds: string[];
   preservedModifiedIds: string[];
+  metadataSyncedIds: string[];
 }
 
 /** Read-only preflight; a different document ID is never used to create a duplicate twin. */
@@ -32,12 +33,18 @@ export function findSeedImportConflicts(documents: InventoryDocument[], entries:
 }
 
 /**
- * Create missing documents only. Existing drafts and published bodies are
- * preserved in full. Transaction retries protect a concurrent publication or
- * import; no status is copied out of an earlier, unprotected read.
+ * Create missing documents while preserving existing draft/published content.
+ * Existing documents receive only the current editorial similarity identity
+ * and removal of the retired difficulty field; their status and authored
+ * fields are left untouched. Transaction retries protect concurrent edits.
  */
 export async function createMissingSeedContent(db: Firestore, entries: SeedContent[]): Promise<SeedImportResult> {
-  const result: SeedImportResult = { createdIds: [], preservedIds: [], preservedModifiedIds: [] };
+  const result: SeedImportResult = {
+    createdIds: [],
+    preservedIds: [],
+    preservedModifiedIds: [],
+    metadataSyncedIds: [],
+  };
   for (let i = 0; i < entries.length; i += TRANSACTION_LIMIT) {
     const chunk = entries.slice(i, i + TRANSACTION_LIMIT);
     const refs = chunk.map((entry) => db.collection("content").doc(entry.id));
@@ -46,6 +53,7 @@ export async function createMissingSeedContent(db: Firestore, entries: SeedConte
       const createdIds: string[] = [];
       const preservedIds: string[] = [];
       const preservedModifiedIds: string[] = [];
+      const metadataSyncedIds: string[] = [];
       chunk.forEach((entry, index) => {
         const existing = snapshots[index];
         if (existing.exists) {
@@ -56,17 +64,23 @@ export async function createMissingSeedContent(db: Firestore, entries: SeedConte
           if (["title", "intro", "body", "reflection"].some((field) => existing.get(field) !== entry[field as keyof SeedContent])) {
             preservedModifiedIds.push(entry.id);
           }
+          transaction.set(refs[index], {
+            difficulty: FieldValue.delete(),
+            similarityGroupId: entry.similarityGroupId,
+          }, { merge: true });
+          metadataSyncedIds.push(entry.id);
           return;
         }
         const { id, ...fields } = entry;
         transaction.create(refs[index], { ...fields, status: "draft" });
         createdIds.push(id);
       });
-      return { createdIds, preservedIds, preservedModifiedIds };
+      return { createdIds, preservedIds, preservedModifiedIds, metadataSyncedIds };
     });
     result.createdIds.push(...completed.createdIds);
     result.preservedIds.push(...completed.preservedIds);
     result.preservedModifiedIds.push(...completed.preservedModifiedIds);
+    result.metadataSyncedIds.push(...completed.metadataSyncedIds);
   }
   return result;
 }

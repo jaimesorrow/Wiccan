@@ -14,17 +14,20 @@ function fakeFirestore(initial: Record<string, Fields> = {}, retryWith?: () => R
     runTransaction: async <T>(callback: (transaction: {
       getAll: (...refs: Ref[]) => Promise<{ exists: boolean; get: (field: string) => unknown }[]>;
       create: (ref: Ref, fields: Fields) => void;
+      set: (ref: Ref, fields: Fields, options: { merge: true }) => void;
     }) => Promise<T>): Promise<T> => {
       const execute = async () => {
         const queued = new Map<string, Fields>();
+        const merged = new Map<string, Fields>();
         const result = await callback({
           getAll: async (...refs) => refs.map(({ id }) => ({
             exists: stored.has(id),
             get: (field) => stored.get(id)?.[field],
           })),
           create: ({ id }, fields) => queued.set(id, fields),
+          set: ({ id }, fields) => merged.set(id, fields),
         });
-        return { result, queued };
+        return { result, queued, merged };
       };
       let completed = await execute();
       if (retryPending && retryWith) {
@@ -35,6 +38,12 @@ function fakeFirestore(initial: Record<string, Fields> = {}, retryWith?: () => R
       for (const [id, fields] of completed.queued) {
         if (stored.has(id)) throw new Error("create precondition failed");
         stored.set(id, fields);
+      }
+      for (const [id, fields] of completed.merged) {
+        const current = { ...stored.get(id) };
+        // FieldValue.delete() is deliberately interpreted by this focused fake.
+        if (Object.hasOwn(fields, "difficulty")) delete current.difficulty;
+        stored.set(id, { ...current, similarityGroupId: fields.similarityGroupId });
       }
       return completed.result;
     },
@@ -53,17 +62,29 @@ describe("safe content seed import", () => {
     const second = await createMissingSeedContent(db, entries);
     expect(second.createdIds).toEqual([]);
     expect(second.preservedIds).toHaveLength(3);
+    expect(second.metadataSyncedIds).toHaveLength(3);
     expect(stored.size).toBe(3);
   });
 
   it("preserves every field of an existing published document and an edited draft", async () => {
-    const published = { ...entries[0], status: "published", body: "Editor-approved production body", editorialRevision: 17 };
+    const published = {
+      ...entries[0],
+      status: "published",
+      body: "Editor-approved production body",
+      editorialRevision: 17,
+      difficulty: "advanced",
+      similarityGroupId: "stale-group",
+    };
     const draft = { ...entries[1], body: "Draft under review", customMetadata: true };
     const { db, stored } = fakeFirestore({ [entries[0].id]: published, [entries[1].id]: draft });
     const result = await createMissingSeedContent(db, entries);
     expect(result.createdIds).toEqual([entries[2].id]);
     expect(result.preservedModifiedIds).toEqual([entries[0].id, entries[1].id]);
-    expect(stored.get(entries[0].id)).toEqual(published);
+    expect(stored.get(entries[0].id)).toEqual({
+      ...published,
+      difficulty: undefined,
+      similarityGroupId: entries[0].similarityGroupId,
+    });
     expect(stored.get(entries[1].id)).toEqual(draft);
   });
 
