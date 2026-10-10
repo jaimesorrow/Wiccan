@@ -18,15 +18,17 @@ Billing is the subscription provider selected by the owner.
 - Restrict direct Firestore reads to previously delivered, published content;
   deny listing the content pool. A create-only admin backfill supports legacy
   delivery history before deploying the new rules.
-- Map, cache and render structured reflection, practice and difficulty fields
-  in Android Today/Archive. Room schema version 3 preserves older cached rows
-  through migrations from versions 1 and 2.
+- Map, cache and render structured reflection, practice, provenance and rights
+  fields in Android Today/Grimoire. Difficulty is retired. Room schema version
+  3 preserves older cached rows through migrations from versions 1 and 2.
 - Preserve the original 150 content drafts and add 146 original companion lesson
   drafts, yielding 200 actual lessons and 296 content documents total. New drafts
   require source/editorial review. Publication rejects outstanding rights flags;
   generation emits lesson sections as separate fields.
-- Add create-only Firebase seeding and a read-only live lesson inventory, requiring
-  an explicit production project and refusing emulator redirection.
+- Add guarded Firebase seeding and a read-only live lesson inventory, requiring
+  an explicit production project and refusing emulator redirection. Missing
+  drafts are created while existing content is preserved; similarity identity
+  is synchronized and obsolete difficulty metadata is removed.
 - Pin the official Gradle distribution checksum and strengthen release validation
   and native page-alignment checks.
 

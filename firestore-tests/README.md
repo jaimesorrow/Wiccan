@@ -17,7 +17,7 @@ only the security suite.
 
 The suite verifies that existing delivery history remains readable only by its
 owner, clients cannot fabricate or reset daily history, tier changes require the
-server, and user revision/content/similarity reservations stay server-only. It also preserves
-the existing published-content read policy: authenticated clients may read
-published content; free/premium selection is enforced by the callable's verified
-server tier. Direct published-content reads were already not gated by tier.
+server, and user revision/content/similarity reservations stay server-only. A
+client may read a published document only after the server has created that
+user's delivery reservation. Once delivered, an entry remains readable even if
+the user's tier later changes; unreserved pool entries cannot be scraped.

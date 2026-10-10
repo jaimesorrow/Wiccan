@@ -34,6 +34,7 @@ class TodayViewModel @Inject constructor(
 
     init {
         observeCache()
+        refresh()
     }
 
     fun onEvent(event: TodayUiEvent) {

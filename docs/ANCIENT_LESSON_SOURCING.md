@@ -74,10 +74,11 @@ When evidence is fragmentary or uncertain, say so rather than filling gaps.
 
 ## The checked-in seed pool
 
-`functions/ancientContentSeed.json` holds 150 hand-reviewed entries written
-against the four ancient sources above: 54 lessons, 59 spells, 37 potions.
-Entries have no reader experience label; their existing `tier` access remains
-50 free entries and 100 premium entries.
+`functions/ancientContentSeed.json` holds 296 entries written against the four
+ancient sources above: 200 lessons, 59 spells and 37 potions. This preserves
+the original 150-entry pool and adds 146 companion lesson drafts. Entries have
+no reader-experience label; `tier` remains a separate access property with
+100 free entries and 196 premium entries.
 
 Every entry follows the canonical structure in
 `docs/CONTENT_VOICE_AND_LESSON_STANDARD.md` (`intro`, `body`, `reflection`,
@@ -97,24 +98,24 @@ the pool fails the build.
 ```
 cd functions
 npm run seed-content              # validate only, writes nothing
-npm run seed-content -- --commit  # upsert into the selected project
+npm run seed-content -- --project wiccan-android --commit
 ```
 
-Document IDs are deterministic, so a re-run updates the same 150 documents
-rather than creating duplicates. Every entry is seeded as `status: "draft"`,
-and an already-published document keeps its status - seeding fills the pool
-and never publishes. Publication stays a per-document `approve-draft` action.
-The upsert removes the retired `difficulty` field on those same seed documents;
-it preserves their other fields and every user's delivered-content history.
-Confirm the printed project ID before committing a write.
+Document IDs are deterministic. The guarded importer preflights duplicate
+titles/bodies, creates missing entries as `status: "draft"`, and preserves the
+status and authored fields of existing drafts or published documents. For
+existing seed IDs it only synchronizes `similarityGroupId` and removes the
+retired `difficulty` field. It then performs a read-only inventory check for
+all 200 lesson IDs. Publication stays a per-document `approve-draft` action,
+and no delivered-content history is changed. The remote path refuses any
+project other than the explicit `wiccan-android` target.
 
 ### Rights review
 
-54 entries carry `rightsReviewRequired: true`: they either retain a short
-phrase from a modern translation or derive from museum prose whose reuse terms
-have not been confirmed (the two Metropolitan Museum amulet entries). Under the
-copyright policy above, clear those rights or rewrite the phrasing before any
-of those entries is approved for publication.
+106 entries carry `rightsReviewRequired: true`: the original 54 rights flags
+plus 52 conservatively inherited flags on companion lessons. Retained source
+citations do not establish reuse permission. Clear each flag through an
+editorial rights review or rewrite before approving the entry for publication.
 
 ### Editorial similarity groups
 
@@ -123,15 +124,16 @@ concept. Rewordings, alternate titles, and substantially overlapping entries
 share that identity, including entries with different types or tiers. A new
 title or billing tier must not create a new identity for the same lesson.
 
-All seed entries have an explicit identity. The reviewed overlapping pairs
-share one: water transferred over cippi (1/4), nightmare preparations (13/49),
-dawn handwashing (22/34), divination dismissal (56/130), foreign-language
-healing formulas (59/71), personal traces (65/127), white-wool knot release
-(80/86), and the aromatic torch bundle (115/145). Other entries retain
-individual identities. These groups identify substantial overlap, not an
-entire tradition, category, manuscript, or museum article. For example, the
-wedjat/heart-scarab lesson and the lesson on an amulet's sources of power use
-the same article but have different identities.
+All seed entries have an explicit identity. Each companion lesson shares its
+source entry's identity. The reviewed overlapping pairs also share one across
+their complete companion clusters: water transferred over cippi (1/4),
+nightmare preparations (13/49), dawn handwashing (22/34), divination dismissal
+(56/130), foreign-language healing formulas (59/71), personal traces (65/127),
+white-wool knot release (80/86), and the aromatic torch bundle (115/145).
+Other entries retain individual identities. These groups identify substantial
+overlap, not an entire tradition, category, manuscript, or museum article. For
+example, the wedjat/heart-scarab lesson and the lesson on an amulet's sources
+of power use the same article but have different identities.
 
 When generating a revision, the admin CLI accepts
 `--similarityGroupId <existing-group>` and `--sourceCitation <precise-passage>`.

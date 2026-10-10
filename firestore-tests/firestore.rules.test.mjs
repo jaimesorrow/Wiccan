@@ -63,10 +63,17 @@ beforeEach(async () => {
       setDoc(doc(db, `users/${OTHER}`), { tier: "premium" }),
       setDoc(doc(db, "content/published-free"), { status: "published", tier: "free" }),
       setDoc(doc(db, "content/published-premium"), { status: "published", tier: "premium" }),
+      setDoc(doc(db, "content/unreserved-published"), { status: "published", tier: "free" }),
       setDoc(doc(db, "content/draft"), { status: "draft", tier: "free" }),
       setDoc(doc(db, `userContentUsage/${OWNER}`), { revision: 1 }),
       setDoc(doc(db, `userContentUsage/${OWNER}/content/historical-lesson`), {
         deliveredDate: "2026-10-06",
+      }),
+      setDoc(doc(db, `userContentUsage/${OWNER}/content/published-free`), {
+        deliveredDate: "2026-10-05",
+      }),
+      setDoc(doc(db, `userContentUsage/${OWNER}/content/published-premium`), {
+        deliveredDate: "2026-10-04",
       }),
       setDoc(doc(db, `userContentUsage/${OWNER}/similarityGroups/group-hash`), {
         deliveredDate: "2026-10-06",
@@ -171,13 +178,14 @@ describe("server-authoritative usage reservations", () => {
   });
 });
 
-describe("existing published-content read policy", () => {
-  it("allows authenticated published reads without changing free/premium assignment eligibility", async () => {
+describe("delivered published-content read policy", () => {
+  it("allows delivered free and premium reads after assignment, independent of the user's current tier", async () => {
     await assertSucceeds(getDoc(doc(ownerDb(), "content/published-free")));
     await assertSucceeds(getDoc(doc(ownerDb(), "content/published-premium")));
   });
 
-  it("rejects anonymous reads, draft reads and client content writes", async () => {
+  it("rejects unreserved, anonymous and draft reads plus all client content writes", async () => {
+    await assertFails(getDoc(doc(ownerDb(), "content/unreserved-published")));
     await assertFails(getDoc(doc(environment.unauthenticatedContext().firestore(), "content/published-free")));
     await assertFails(getDoc(doc(ownerDb(), "content/draft")));
     await assertFails(updateDoc(doc(ownerDb(), "content/published-free"), { status: "draft" }));

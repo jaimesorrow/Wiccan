@@ -116,6 +116,7 @@ class ContentRepositoryImplTest {
     fun `resource exhausted response signals that no new lesson is available`() = runTest {
         val failure = mockk<FirebaseFunctionsException>()
         every { failure.code } returns FirebaseFunctionsException.Code.RESOURCE_EXHAUSTED
+        every { failure.details } returns mapOf("reason" to "NO_NEW_CONTENT")
         coEvery { functionsDataSource.getTodayContent(timezone) } throws failure
 
         val result = repository.refreshTodayContent(userId)
@@ -152,9 +153,28 @@ class ContentRepositoryImplTest {
         dao.upsert(payload.toContent().toCachedEntity(today, userId, timezone))
         val failure = mockk<FirebaseFunctionsException>()
         every { failure.code } returns FirebaseFunctionsException.Code.RESOURCE_EXHAUSTED
+        every { failure.details } returns mapOf("reason" to "NO_NEW_CONTENT")
         coEvery { functionsDataSource.getTodayContent(timezone) } throws failure
         assertEquals(AppError.NoNewLesson, (repository.refreshTodayContent(userId) as AppResult.Failure).error)
         assertNull(dao.get())
+    }
+
+    @Test
+    fun `temporarily unavailable assignment keeps today's cached lesson`() = runTest {
+        val cached = payload.toContent().toCachedEntity(today, userId, timezone)
+        dao.upsert(cached)
+        val failure = mockk<FirebaseFunctionsException>()
+        every { failure.code } returns FirebaseFunctionsException.Code.FAILED_PRECONDITION
+        every { failure.details } returns mapOf("reason" to "ASSIGNED_CONTENT_UNAVAILABLE")
+        coEvery { functionsDataSource.getTodayContent(timezone) } throws failure
+
+        val result = repository.refreshTodayContent(userId)
+
+        assertEquals(
+            AppError.Unknown("Today's assigned content is temporarily unavailable."),
+            (result as AppResult.Failure).error,
+        )
+        assertEquals(cached, dao.get())
     }
 
     @Test

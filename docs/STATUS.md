@@ -71,7 +71,7 @@ found the following. Each is now addressed as noted:
 | Visual theme is still near-black (`#0A0810`-direction) / generic serif+sans typography, not a distinct final direction | **IN REVIEW** — PR #24 adds six seasonal palettes and typography on main. The local build, tests, lint and six JVM palette specimens pass on 2026-10-02; actual fonts, transitions and app/device visual validation remain required. |
 | No Android product flavors for dev/staging/prod (environment separation is `.firebaserc` + `.env` only) | **FIXED** — `dev`/`staging`/`prod` product flavors added (`app/build.gradle.kts`). Prod has the registered client config for `com.jaimesorrow.wiccan` at `app/src/prod/google-services.json`; that source-set config takes precedence over CI's fake root fallback. Dev/staging still need their own configurations. |
 | No runtime kill switches (`dailyContentEnabled`, `notificationsEnabled`, etc.) | **FIXED** — `systemConfig/global` (Firestore, no client access) with both flags, fail-open by default. `getTodayContent` and the hourly notification job both check it before doing anything. |
-| Launch content pool needs approved entries | **Still open** — four curated source records and a 150-entry draft seed are on main; drafts need human editorial/rights review and approval before delivery. |
+| Launch content pool needs approved entries | **Still open** — four curated source records and a 296-entry draft seed (200 lessons, 59 spells, 37 potions) are on main; drafts need human editorial/rights review and approval before delivery. |
 | Account deletion + active subscription | **FIXED** (see above) — this was the same finding as the billing-cancellation gap. |
 
 ## Known remaining gaps
@@ -96,8 +96,9 @@ found the following. Each is now addressed as noted:
 - Google Play is linked to Firebase for App Distribution, Crashlytics and
   Google Analytics. The Wiccan Play app remains **Draft**.
 - Cloud Firestore has not been created: the console shows **Create database**.
-  The repository's seed has 150 draft entries: **54 lessons, 59 spells and
-  37 potions**. These are not an uploaded or published 200-lesson collection.
+  The repository's seed has 296 draft entries: **200 lessons, 59 spells and
+  37 potions**. They are not uploaded, approved or published merely because
+  they are checked into the repository.
 - The Firebase project is on **Spark**. Cloud Functions deployment still
   requires the billing-plan setup in [FIREBASE_SETUP.md](FIREBASE_SETUP.md).
 
