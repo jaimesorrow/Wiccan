@@ -51,18 +51,14 @@ class ContentRepositoryImpl @Inject constructor(
         } catch (t: Throwable) {
             val functionsError = t as? FirebaseFunctionsException
             val reason = (functionsError?.details as? Map<*, *>)?.get("reason") as? String
-            val error = if (functionsError?.code == FirebaseFunctionsException.Code.RESOURCE_EXHAUSTED) {
-                when (reason) {
-                    "NO_NEW_CONTENT" -> {
-                        dao.clearForUser(userId)
-                        AppError.NoNewLesson
-                    }
-                    "ASSIGNED_CONTENT_UNAVAILABLE" ->
-                        AppError.Unknown("Today's assigned content is temporarily unavailable.")
-                    else -> t.toAppError()
+            val error = when (reason) {
+                "NO_NEW_CONTENT" -> {
+                    dao.clearForUser(userId)
+                    AppError.NoNewLesson
                 }
-            } else {
-                t.toAppError()
+                "ASSIGNED_CONTENT_UNAVAILABLE" ->
+                    AppError.Unknown("Today's assigned content is temporarily unavailable.")
+                else -> t.toAppError()
             }
             AppResult.Failure(error)
         }
