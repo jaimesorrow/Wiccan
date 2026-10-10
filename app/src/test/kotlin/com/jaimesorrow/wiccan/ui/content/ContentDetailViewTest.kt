@@ -7,7 +7,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
-import com.jaimesorrow.wiccan.domain.model.ContentDifficulty
 import com.jaimesorrow.wiccan.domain.model.ContentStatus
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.ContentType
@@ -40,10 +39,9 @@ class ContentDetailViewTest {
             status = ContentStatus.PUBLISHED,
             reflection = "What should your home feel like?",
             practice = "Pause and choose one quality to bring inside.",
-            difficulty = ContentDifficulty.BEGINNER,
         )
         composeRule.setContent { MaterialTheme { ContentDetailView(content) } }
-        for (text in listOf("Home & Hearth", "Beginner", "Introduction", "Lesson", "Reflection", "Practice")) {
+        for (text in listOf("Home & Hearth", "The Threshold", "Lesson", "Reflection", "Practice")) {
             composeRule.onNodeWithText(text).assertExists()
         }
         composeRule.onNodeWithText(content.reflection!!).performScrollTo().assertIsDisplayed()

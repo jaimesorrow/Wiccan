@@ -3,7 +3,6 @@ package com.jaimesorrow.wiccan.data.mapper
 import com.jaimesorrow.wiccan.data.local.CachedDailyContentEntity
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
-import com.jaimesorrow.wiccan.domain.model.ContentDifficulty
 import com.jaimesorrow.wiccan.domain.model.ContentStatus
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.ContentType
@@ -23,13 +22,10 @@ fun Map<String, Any?>.toContent(): Content = Content(
     body = (this["body"] as? String).orEmpty(),
     reflection = this["reflection"] as? String,
     practice = this["practice"] as? String,
-    difficulty = ContentDifficulty.fromWireValue(this["difficulty"] as? String),
     materials = this["materials"] as? List<String>,
     safetyNote = this["safetyNote"] as? String,
     tags = (this["tags"] as? List<String>).orEmpty(),
     status = ContentStatus.valueOf((this["status"] as? String ?: "published").uppercase()),
-    reflection = this["reflection"] as? String,
-    practice = this["practice"] as? String,
     sourceId = this["sourceId"] as? String,
     sourceCitation = this["sourceCitation"] as? String,
     sourceUrl = this["sourceUrl"] as? String,
@@ -48,7 +44,6 @@ fun Content.toCachedEntity(deliveredDate: String, userId: String, timezone: Stri
     body = body,
     reflection = reflection,
     practice = practice,
-    difficulty = difficulty?.name,
     materials = materials,
     safetyNote = safetyNote,
     tags = tags,
@@ -56,8 +51,6 @@ fun Content.toCachedEntity(deliveredDate: String, userId: String, timezone: Stri
     deliveredDate = deliveredDate,
     userId = userId,
     timezone = timezone,
-    reflection = reflection,
-    practice = practice,
     sourceId = sourceId,
     sourceCitation = sourceCitation,
     sourceUrl = sourceUrl,
@@ -76,13 +69,10 @@ fun CachedDailyContentEntity.toDomain(): Content = Content(
     body = body,
     reflection = reflection,
     practice = practice,
-    difficulty = ContentDifficulty.fromWireValue(difficulty),
     materials = materials,
     safetyNote = safetyNote,
     tags = tags,
     status = ContentStatus.valueOf(status),
-    reflection = reflection,
-    practice = practice,
     sourceId = sourceId,
     sourceCitation = sourceCitation,
     sourceUrl = sourceUrl,
