@@ -10,12 +10,22 @@ describe("loadContentSources", () => {
     for (const source of sources) {
       expect(source.id).toBeTruthy();
       expect(source.era).toBeTruthy();
+      expect(source.sourceKind).toBeTruthy();
       expect(source.period).toBeTruthy();
       expect(source.sourceReference).toBeTruthy();
       expect(source.summary).toBeTruthy();
       expect(source.groundedFacts.length).toBeGreaterThan(0);
       expect(source.eligibleTypes.length).toBeGreaterThan(0);
     }
+  });
+
+  it("identifies a non-empty generation pool made only of ancient grimoires", () => {
+    const generationSources = loadContentSources().filter(
+      (source) => source.era === "ancient" && source.sourceKind === "ancient-grimoire",
+    );
+
+    expect(generationSources.length).toBeGreaterThan(0);
+    expect(generationSources.every((source) => source.sourceKind === "ancient-grimoire")).toBe(true);
   });
 
   it("keeps every lesson-eligible source explicitly ancient", () => {
@@ -36,6 +46,7 @@ describe("loadContentSources", () => {
       title: "Early Modern Source",
       tradition: "European folk practice",
       era: "early-modern",
+      sourceKind: "ancient-historical-context",
       period: "17th century CE",
       publicDomainBasis: "Historical subject matter.",
       sourceReference: "Example catalogue",

@@ -1,5 +1,5 @@
 import { ContentSource } from "./contentSource";
-import { ContentTier, ContentType } from "./types";
+import { ContentTier, ContentType, isContentCategory } from "./types";
 import { DraftGenerationPort } from "./draftGenerationPort";
 import { ContentAdminRepositoryPort } from "./contentAdminRepositoryPort";
 
@@ -25,6 +25,7 @@ export interface GeneratedDraftSummary {
 }
 
 export class InvalidGenerationRequestError extends Error {}
+export class InvalidGeneratedDraftError extends Error {}
 
 interface SourceTypePair {
   source: ContentSource;
@@ -41,8 +42,17 @@ function buildEligiblePairs(
     throw new InvalidGenerationRequestError(`Unknown sourceId '${sourceId}'.`);
   }
 
+  const grimoireSources = candidateSources.filter(
+    (source) => source.era === "ancient" && source.sourceKind === "ancient-grimoire",
+  );
+  if (sourceId && grimoireSources.length === 0) {
+    throw new InvalidGenerationRequestError(
+      `Source '${sourceId}' is not an approved ancient grimoire and cannot be used for generation.`,
+    );
+  }
+
   const pairs: SourceTypePair[] = [];
-  for (const source of candidateSources) {
+  for (const source of grimoireSources) {
     const eligibleTypes = type ? source.eligibleTypes.filter((t) => t === type) : source.eligibleTypes;
     if (type && sourceId && eligibleTypes.length === 0) {
       throw new InvalidGenerationRequestError(
@@ -58,6 +68,36 @@ function buildEligiblePairs(
     throw new InvalidGenerationRequestError("No eligible source/type combinations available.");
   }
   return pairs;
+}
+
+function validateGeneratedDraft(
+  generated: Awaited<ReturnType<DraftGenerationPort["generateDraft"]>>,
+  type: ContentType,
+): void {
+  const violations: string[] = [];
+  if (generated.title.trim().length === 0) violations.push("title is empty");
+  if (generated.intro.trim().length === 0) violations.push("intro is empty");
+  if (generated.body.trim().length === 0) violations.push("body is empty");
+  if (!generated.reflection?.trim().endsWith("?")) {
+    violations.push("reflection must be a non-empty question");
+  }
+  if (generated.practice !== null && generated.practice !== undefined && generated.practice.trim().length === 0) {
+    violations.push("practice must be non-empty or null");
+  }
+  if (generated.materials !== null && generated.materials.some((material) => material.trim().length === 0)) {
+    violations.push("materials cannot contain blank entries");
+  }
+  if (generated.tags.length === 0 || generated.tags.some((tag) => tag.trim().length === 0)) {
+    violations.push("tags must contain at least one non-empty tag");
+  }
+  if (!isContentCategory(generated.category)) violations.push("category is invalid");
+  if (type === "potion" && !generated.safetyNote?.trim()) {
+    violations.push("potion requires a non-empty safetyNote");
+  }
+
+  if (violations.length > 0) {
+    throw new InvalidGeneratedDraftError(`Generated ${type} failed validation: ${violations.join("; ")}.`);
+  }
 }
 
 /**
@@ -111,6 +151,7 @@ export async function generateDrafts(
       summary: pair.source.summary,
       groundedFacts: pair.source.groundedFacts,
     });
+    validateGeneratedDraft(generated, pair.type);
 
     if (await repo.titleExists(generated.title)) {
       continue;
@@ -125,6 +166,9 @@ export async function generateDrafts(
       sourceId: pair.source.id,
       sourceCitation: request.sourceCitation ?? pair.source.sourceReference,
       rightsNotes: pair.source.publicDomainBasis,
+      // AI output always requires explicit editorial/source-rights review.
+      // approveDraft refuses publication while this remains true.
+      rightsReviewRequired: true,
       ...(sourceUrl === undefined ? {} : { sourceUrl }),
       similarityGroupId: request.similarityGroupId?.trim() ??
         `generated:${pair.source.id}:${generated.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,

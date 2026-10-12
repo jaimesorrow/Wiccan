@@ -4,12 +4,13 @@ import { z } from "zod";
 import { ContentType } from "./types";
 
 export type HistoricalEra = "ancient" | "medieval" | "early-modern" | "modern";
+export type ContentSourceKind = "ancient-grimoire" | "ancient-historical-context";
 
 /**
  * A hand-curated, manually vetted historical source.
  *
- * Sources are never auto-populated from a crawl. For lesson generation,
- * groundedFacts is the factual boundary: the generator may explain and
+ * Sources are never auto-populated from a crawl. For every generated content
+ * type, groundedFacts is the factual boundary: the generator may explain and
  * contextualize those facts, but must not invent additional ancient claims,
  * quotations, lineages, dates, or ritual details.
  *
@@ -23,6 +24,8 @@ export interface ContentSource {
   title: string;
   tradition: string;
   era: HistoricalEra;
+  /** Only ancient-grimoire sources are eligible for AI content generation. */
+  sourceKind: ContentSourceKind;
   period: string;
   publicDomainBasis: string;
   /** Human-readable provenance for editorial review (work, corpus, museum/catalogue, or scholarly database). */
@@ -39,6 +42,7 @@ const ContentSourceSchema = z.object({
   title: z.string().min(1),
   tradition: z.string().min(1),
   era: z.enum(["ancient", "medieval", "early-modern", "modern"]),
+  sourceKind: z.enum(["ancient-grimoire", "ancient-historical-context"]),
   period: z.string().min(1),
   publicDomainBasis: z.string().min(1),
   sourceReference: z.string().min(1),
@@ -46,6 +50,13 @@ const ContentSourceSchema = z.object({
   groundedFacts: z.array(z.string().min(1)).min(1),
   eligibleTypes: z.array(z.enum(["spell", "potion", "lesson"])).min(1),
 }).superRefine((source, ctx) => {
+  if (source.sourceKind === "ancient-grimoire" && source.era !== "ancient") {
+    ctx.addIssue({
+      code: "custom",
+      path: ["sourceKind"],
+      message: "Sources classified as ancient grimoires must have era 'ancient'.",
+    });
+  }
   if (source.eligibleTypes.includes("lesson") && source.era !== "ancient") {
     ctx.addIssue({
       code: "custom",

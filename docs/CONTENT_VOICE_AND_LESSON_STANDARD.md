@@ -152,9 +152,15 @@ Use the same editorial philosophy for spells and potions:
 
 ## Generation rule
 
-The draft-generation system prompt must explicitly require this standard. Generated content that violates it must fail validation rather than being silently published.
+The draft-generation system may use only an editor-approved source classified
+as an ancient grimoire or ancient magical manuscript. All generated content
+types must remain traceable to that source's curated facts; modern occult
+books, generic model knowledge, and unlisted sources are outside the factual
+boundary. Generated content that violates this standard must fail validation
+before it is written.
 
-Every generated item remains `status = draft` until manually reviewed and approved.
+Every generated item is written with `status = draft` and
+`rightsReviewRequired = true` until manually reviewed and approved.
 
 ## UI rule
 

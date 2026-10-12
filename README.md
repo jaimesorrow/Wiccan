@@ -78,10 +78,12 @@ functions/                    Cloud Functions (Node/TypeScript)
   `-- --project wiccan-android --commit` creates missing drafts, preserves
   existing edited/published content, retires old difficulty metadata, and
   verifies the live lesson inventory. See `docs/ANCIENT_LESSON_SOURCING.md`.
-- **Content generation** draws only from a hand-curated `sources.json` of
-  public-domain sources, using each source as thematic inspiration only —
-  never quoted or closely paraphrased. Every generated draft needs a
-  separate `approveDraft` action before it's eligible for delivery.
+- **Content generation** draws only from the hand-curated `sources.json`
+  entries classified as ancient grimoires or ancient magical manuscripts,
+  using each source's vetted facts as the boundary — never quoted or closely
+  paraphrased. Preview mode performs no write; production requires explicit
+  `--project wiccan-android --commit`. Every generated draft is marked for
+  rights review and needs a separate approval before delivery.
 - **Auth** uses Android Credential Manager for Google sign-in and
   Firebase Auth for email/password. `users/{uid}` creation is a 1st-gen
   Auth trigger, never a client-side write.
@@ -197,11 +199,10 @@ users' data.
   account credentials. Never reuse one environment's secrets in another —
   a leaked or misbehaving key should be revocable without taking every
   environment down.
-- The admin CLI scripts (`npm run generate-draft`, `npm run approve-draft`)
-  print the resolved Firebase project ID before doing anything, specifically
-  so an operator never mutates the wrong environment's content pool by
-  running a command against whatever project `firebase use` happened to be
-  pointed at.
+- Mutating admin CLI commands require the explicit `--project wiccan-android`
+  target instead of inheriting whichever project `firebase use` happens to
+  select. Content generation additionally requires `--commit`; without it,
+  `npm run content-agent` only validates and previews the request.
 - The Android app has matching `dev`/`staging`/`prod` product flavors.
   All flavors install as `com.jaimesorrow.wiccan`, matching the Firebase
   package name. The generated Android namespace is `com.wiccan.app`; existing

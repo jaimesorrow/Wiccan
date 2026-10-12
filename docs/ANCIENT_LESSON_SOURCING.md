@@ -1,6 +1,8 @@
 # Ancient Lesson Sourcing
 
-`Lesson of the Day` content is historical-source-grounded. It must teach from curated ancient material rather than generic modern occult prose presented as ancient tradition.
+AI-authored content is ancient-grimoire-grounded. Every generated lesson,
+spell, and potion must start from an editor-approved ancient grimoire or
+ancient magical manuscript rather than generic modern occult prose.
 
 ## Historical framing
 
@@ -10,17 +12,29 @@ A modern reflection may be inspired by ancient material, but it must be labeled 
 
 ## Enforcement
 
-The content pipeline enforces this in three places:
+The content pipeline enforces this in four places:
 
-1. `functions/sources.json` contains manually curated source metadata, provenance, and `groundedFacts`.
-2. `functions/src/contentSource.ts` rejects any `lesson`-eligible source whose `era` is not `ancient`.
-3. `functions/src/approveDraft.ts` refuses to publish a lesson unless its `sourceId` resolves to a curated, ancient, lesson-eligible source with grounded historical facts.
+1. `functions/sources.json` contains manually curated source metadata,
+   provenance, `groundedFacts`, and a `sourceKind` classification.
+2. `functions/src/generateDraft.ts` permits every generated content type only
+   when `era == ancient` and `sourceKind == ancient-grimoire`.
+3. Model output is structurally validated before a Firestore write and is
+   always saved with `status = draft` and `rightsReviewRequired = true`.
+4. `functions/src/approveDraft.ts` refuses publication while rights review is
+   outstanding and applies its safety/completeness/source checks.
 
-The generation prompt treats `groundedFacts` as the boundary for historical claims. It may explain them in original language, but it must not invent ancient quotations, dates, deities, ritual steps, lineages, or unsupported claims.
+The generation prompt treats `groundedFacts` as the boundary for historical
+claims. It may explain them in original language, but it must not introduce
+material from modern occult books or unlisted sources, or invent ancient
+quotations, dates, deities, ritual steps, lineages, or unsupported claims.
 
 ## Initial ancient source set
 
 ### Ancient Egyptian heka and amulets
+
+This record is classified as `ancient-historical-context`, not an ancient
+grimoire. It remains provenance for existing seed drafts but the AI content
+agent cannot generate from it.
 
 Editorial references:
 
@@ -75,8 +89,11 @@ When evidence is fragmentary or uncertain, say so rather than filling gaps.
 ## The checked-in seed pool
 
 `functions/ancientContentSeed.json` holds 296 entries written against the four
-ancient sources above: 200 lessons, 59 spells and 37 potions. This preserves
-the original 150-entry pool and adds 146 companion lesson drafts. Entries have
+ancient sources above: 200 lessons, 59 spells and 37 potions. Of these, 84 are
+grounded in the historical-context heka/amulet record and therefore predate the
+stricter grimoire-only generation boundary; they are not silently relabeled as
+grimoire-derived. The seed preserves the original 150-entry pool and adds 146
+companion lesson drafts. Entries have
 no reader-experience label; `tier` remains a separate access property with
 100 free entries and 196 premium entries.
 
@@ -140,6 +157,14 @@ When generating a revision, the admin CLI accepts
 Editors should review every new draft for overlap and retain or assign its
 identity before publication. Source citations, links, rights notes, safety
 notes, reflection, and optional practice remain part of the stored lesson.
+
+Previewing is the default and performs no paid API call or database write:
+
+```
+cd functions
+npm run content-agent -- --tier free --type lesson --count 3
+npm run content-agent -- --project wiccan-android --commit --tier free --type lesson --count 3
+```
 
 ## Existing published lessons
 

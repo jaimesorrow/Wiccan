@@ -1,4 +1,4 @@
-import { generateDrafts, InvalidGenerationRequestError } from "../generateDraft";
+import { generateDrafts, InvalidGeneratedDraftError, InvalidGenerationRequestError } from "../generateDraft";
 import { ContentSource } from "../contentSource";
 import { FakeDraftGenerationPort } from "../testUtils/fakeDraftGenerationPort";
 import { FakeContentAdminRepository } from "../testUtils/fakeContentAdminRepository";
@@ -8,6 +8,7 @@ const SOURCE_A: ContentSource = {
   title: "Ancient Source A",
   tradition: "Ancient ritual tradition",
   era: "ancient",
+  sourceKind: "ancient-grimoire",
   period: "Ancient period",
   publicDomainBasis: "Ancient source; independently written summary.",
   sourceReference: "Catalogue A",
@@ -18,15 +19,23 @@ const SOURCE_A: ContentSource = {
 
 const SOURCE_B: ContentSource = {
   id: "source-b",
-  title: "Source B",
-  tradition: "Mediterranean folk magic",
-  era: "early-modern",
-  period: "Early modern period",
-  publicDomainBasis: "pre-1930",
+  title: "Ancient Source B",
+  tradition: "Ancient Mediterranean magical practice",
+  era: "ancient",
+  sourceKind: "ancient-grimoire",
+  period: "Ancient period",
+  publicDomainBasis: "Ancient source; independently written summary.",
   sourceReference: "Catalogue B",
   summary: "Household potions for prosperity.",
   groundedFacts: ["The curated source record describes a household preparation."],
   eligibleTypes: ["potion"],
+};
+
+const CONTEXT_SOURCE: ContentSource = {
+  ...SOURCE_A,
+  id: "context-source",
+  title: "Museum overview of ancient amulets",
+  sourceKind: "ancient-historical-context",
 };
 
 describe("generateDrafts", () => {
@@ -52,6 +61,7 @@ describe("generateDrafts", () => {
     expect(doc?.practice).toBeNull();
     expect(doc?.sourceCitation).toBe(SOURCE_A.sourceReference);
     expect(doc?.rightsNotes).toBe(SOURCE_A.publicDomainBasis);
+    expect(doc?.rightsReviewRequired).toBe(true);
   });
 
   it("retains the editor's identity and precise citation when drafting a reworded lesson", async () => {
@@ -148,6 +158,35 @@ describe("generateDrafts", () => {
     await generateDrafts({ tier: "free", count: 5 }, [SOURCE_A, SOURCE_B], generator, repo);
 
     expect([...repo.docs.values()].every((d) => d.status === "draft")).toBe(true);
+    expect([...repo.docs.values()].every((d) => d.rightsReviewRequired === true)).toBe(true);
+  });
+
+  it("rejects ancient historical context that is not itself a grimoire", async () => {
+    const generator = new FakeDraftGenerationPort();
+    const repo = new FakeContentAdminRepository();
+
+    await expect(generateDrafts(
+      { tier: "free", sourceId: CONTEXT_SOURCE.id },
+      [SOURCE_A, CONTEXT_SOURCE],
+      generator,
+      repo,
+    )).rejects.toThrow(/not an approved ancient grimoire/);
+    expect(generator.calls).toHaveLength(0);
+    expect(repo.docs.size).toBe(0);
+  });
+
+  it("rejects malformed model output before writing a draft", async () => {
+    const generator = new FakeDraftGenerationPort();
+    generator.reflectionOverride = "This is not a question";
+    const repo = new FakeContentAdminRepository();
+
+    await expect(generateDrafts(
+      { tier: "free", sourceId: SOURCE_A.id, type: "lesson" },
+      [SOURCE_A],
+      generator,
+      repo,
+    )).rejects.toThrow(InvalidGeneratedDraftError);
+    expect(repo.docs.size).toBe(0);
   });
 
   it("rejects an unknown sourceId", async () => {
