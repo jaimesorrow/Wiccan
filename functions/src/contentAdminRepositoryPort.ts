@@ -16,6 +16,10 @@ export interface NewDraftContent extends GeneratedDraftFields {
 
 export interface StoredContent extends NewDraftContent {
   status: ContentStatus;
+  /** Server-written audit metadata. Older hand-authored drafts may not carry it. */
+  generatedBy?: string;
+  generationSourceKind?: "ancient-grimoire";
+  generatedAt?: unknown;
 }
 
 /**
@@ -24,7 +28,10 @@ export interface StoredContent extends NewDraftContent {
  * the read-side selection logic — that stays in ContentRepositoryPort.
  */
 export interface ContentAdminRepositoryPort {
-  /** Always written with status "draft". Returns the new document's id. */
+  /**
+   * Always written as a rights-review-required draft with immutable generator,
+   * source-kind, and server-timestamp audit metadata. Returns the new document's id.
+   */
   createDraft(draft: NewDraftContent): Promise<string>;
 
   getStatus(contentId: string): Promise<ContentStatus | null>;
