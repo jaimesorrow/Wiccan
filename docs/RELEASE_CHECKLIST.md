@@ -87,13 +87,13 @@ Run it from the **Actions** tab, or push a `v*` tag.
 ## Automated checks (branch integration run on 2026-10-02; rerun before release)
 
 See [BUILD_VALIDATION.md](BUILD_VALIDATION.md) for exact results and limits.
-The baseline is Java 17, Gradle 9.8.0, AGP 9.4.1, Kotlin 2.4.20 and
+The baseline is Java 17, Gradle 9.8.1, AGP 9.4.1, Kotlin 2.4.21 and
 Billing 9.1.0, with `compileSdk` 37 / `targetSdk` 36; the SDK package is
 `platforms;android-37.0`. Hosted Actions reports `startup_failure` before
 jobs execute; its exact cause is unconfirmed. Local Android tests: 86
 passed across 18 suites. Functions on Node 22: fresh `npm ci`, build, lint and 98
 tests across 14 suites passed. Ktlint plugin 14.2.0 restores Android source
-coverage with engine 1.0.1. Debug and release builds, instrumented-test
+coverage with engine 1.8.0. Debug and release builds, instrumented-test
 compilation and 16 KB alignment pass. Release lint reports zero errors and
 62 nonblocking warnings. The release bundle is unsigned.
 

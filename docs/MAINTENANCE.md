@@ -14,6 +14,20 @@ currently handled (automated, manual, or not yet built).
   runs the full test suite against it, but a passing CI run doesn't mean
   "safe to auto-merge" for a major version bump (see Billing Library
   below for why).
+- **Compatibility audit (2026-10-12)**: Android, npm, Gradle, Firebase CLI,
+  and GitHub Actions versions were compared with their current stable release
+  channels. Compatible updates were applied together and both npm workspaces
+  audit with zero known vulnerabilities. Three newer majors are deliberately
+  held: Firebase Rules Unit Testing 6/Firebase JS 13 require Node 24.12 while
+  the deployed Cloud Functions runtime remains on Firebase-supported Node 22;
+  TypeScript 7 is outside the supported ranges of `ts-jest` and
+  `typescript-eslint`; and `@types/node` remains on major 22 to model the
+  deployed runtime. Revisit those together when their runtime/tooling chain is
+  supported rather than overriding peer requirements.
+- The Firestore emulator scripts invoke the pinned current Firebase CLI with
+  `npx --yes firebase-tools@15.33.0`. Keeping the CLI out of the committed
+  dependency graph avoids shipping its large, unrelated command-line
+  dependency tree while preserving reproducible CI behavior.
 
 ## Content pool
 
@@ -45,8 +59,8 @@ currently handled (automated, manual, or not yet built).
   Kotlin 2.3+ metadata is unreadable to room-compiler 2.6.1 (it throws
   "unexpected jvm signature V"), so Room moved to 2.8.5; newer KSP needs a
   newer AGP than 8.7.3; Hilt 2.59+ refuses to apply below AGP 9.0.0; and
-  AGP 9 needs Gradle 9. The resulting set is Gradle 9.8.0, AGP 9.4.1,
-  Kotlin 2.4.20, KSP 2.3.12, Hilt 2.60.1, Room 2.8.5, compileSdk 37.
+  AGP 9 needs Gradle 9. The current set is Gradle 9.8.1, AGP 9.4.1,
+  Kotlin 2.4.21, KSP 2.3.12, Hilt 2.60.1, Room 2.8.5, compileSdk 37.
 - The earlier note here said the KSP/Hilt classloader conflict could not
   be resolved without KSP's compatibility table. That diagnosis was
   incomplete: the crash was Room's annotation processor, not KSP's or
