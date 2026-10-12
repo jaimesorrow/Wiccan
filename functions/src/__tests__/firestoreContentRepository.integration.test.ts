@@ -2,6 +2,11 @@ import { App, deleteApp, initializeApp } from "firebase-admin/app";
 import { Firestore, getFirestore } from "firebase-admin/firestore";
 import type { Auth } from "firebase-admin/auth";
 import { FirestoreContentRepository } from "../firestoreContentRepository";
+import {
+  CONTENT_GENERATION_SOURCE_KIND,
+  CONTENT_GENERATOR_ID,
+  FirestoreContentAdminRepository,
+} from "../firestoreContentAdminRepository";
 import { FirestoreAccountDeletionRepository } from "../firestoreAccountDeletionRepository";
 import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError } from "../contentRepositoryPort";
 import { ContentPoolExhaustedError, DailyAssignmentUnavailableError, selectTodayContent } from "../getTodayContent";
@@ -240,6 +245,38 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
     const loaded = await repo.getContentById(item.id);
     expect(loaded).toMatchObject(item);
     expect(loaded).not.toHaveProperty("difficulty");
+  });
+
+  it("stores generated content as a review-locked draft with server audit metadata", async () => {
+    const adminRepo = new FirestoreContentAdminRepository(db);
+    const contentId = await adminRepo.createDraft({
+      type: "lesson",
+      tier: "free",
+      tradition: "Ancient Egyptian religion",
+      category: "Protection",
+      title: "A reviewed ancient lesson",
+      intro: "Historical context",
+      body: "A source-grounded interpretation.",
+      reflection: "What stands out?",
+      practice: null,
+      materials: null,
+      safetyNote: null,
+      tags: ["historical"],
+      sourceId: "ancient-source",
+      sourceCitation: "Tablet 1",
+      sourceUrl: "https://example.org/source",
+      rightsReviewRequired: false,
+    });
+
+    const saved = (await db.collection("content").doc(contentId).get()).data();
+    expect(saved).toMatchObject({
+      status: "draft",
+      rightsReviewRequired: true,
+      generatedBy: CONTENT_GENERATOR_ID,
+      generationSourceKind: CONTENT_GENERATION_SOURCE_KIND,
+    });
+    expect(saved?.generatedAt).toBeDefined();
+    expect(typeof saved?.generatedAt?.toDate).toBe("function");
   });
 
   it("authorized account deletion cleans both content and similarity reservations", async () => {

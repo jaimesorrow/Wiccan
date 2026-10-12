@@ -42,6 +42,12 @@ currently handled (automated, manual, or not yet built).
   auto-published. `npm run generate-draft` remains an alias. The recommended
   operating cadence is one manually initiated batch of 30–60 drafts per
   month, followed by source, duplication, safety, and rights review.
+- Every committed agent draft is server-stamped with
+  `generatedBy = ancient-grimoire-content-agent`,
+  `generationSourceKind = ancient-grimoire`, and `generatedAt`. The repository
+  also forces `status = draft` and `rightsReviewRequired = true`, even if a
+  caller supplies weaker values. These fields provide an audit trail; they do
+  not replace the manual source, safety, duplication, and rights review.
 - `npm run approve-draft -- --project wiccan-android --contentId <id>` publishes one draft, after
   `approveDraft`'s safety/completeness gate passes.
 - **Growing `sources.json`** is a manual, deliberate curation task — see

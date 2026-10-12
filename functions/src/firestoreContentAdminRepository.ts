@@ -1,8 +1,10 @@
-import { Firestore } from "firebase-admin/firestore";
+import { FieldValue, Firestore } from "firebase-admin/firestore";
 import { ContentStatus } from "./types";
 import { ContentAdminRepositoryPort, NewDraftContent, StoredContent } from "./contentAdminRepositoryPort";
 
 const CONTENT_COLLECTION = "content";
+export const CONTENT_GENERATOR_ID = "ancient-grimoire-content-agent";
+export const CONTENT_GENERATION_SOURCE_KIND = "ancient-grimoire";
 
 export class FirestoreContentAdminRepository implements ContentAdminRepositoryPort {
   constructor(private readonly db: Firestore) {}
@@ -10,7 +12,11 @@ export class FirestoreContentAdminRepository implements ContentAdminRepositoryPo
   async createDraft(draft: NewDraftContent): Promise<string> {
     const doc = await this.db.collection(CONTENT_COLLECTION).add({
       ...draft,
+      rightsReviewRequired: true,
       status: "draft" satisfies ContentStatus,
+      generatedBy: CONTENT_GENERATOR_ID,
+      generationSourceKind: CONTENT_GENERATION_SOURCE_KIND,
+      generatedAt: FieldValue.serverTimestamp(),
     });
     return doc.id;
   }
