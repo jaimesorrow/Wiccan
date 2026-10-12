@@ -76,8 +76,8 @@ just the one that happens to compile first.
   very likely solving the wrong layer; the correct fix almost always
   routes through a new or existing Cloud Function callable instead of
   loosening `firestore.rules`.
-- **Use the reconciled toolchain** — Java 17, Gradle 9.8.0, AGP 9.4.1,
-  Kotlin 2.4.20, KSP 2.3.12, Hilt 2.60.1, Room 2.8.5 and Billing 9.1.0.
+- **Use the reconciled toolchain** — Java 17, Gradle 9.8.1, AGP 9.4.1,
+  Kotlin 2.4.21, KSP 2.3.12, Hilt 2.60.1, Room 2.8.5 and Billing 9.1.0.
   AGP 9 supplies Kotlin support: do not apply `org.jetbrains.kotlin.android`.
   Keep JVM targeting in `kotlin.compilerOptions`. Functions uses Node 22
   in deployment and CI; use `npm ci` with the committed lockfile.

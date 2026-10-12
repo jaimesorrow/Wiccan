@@ -12,6 +12,12 @@ updates:
           - "@google-cloud/*"
           - "@googleapis/*"
 
+  - package-ecosystem: "npm"
+    directory: "/firestore-tests"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:

@@ -156,7 +156,7 @@ own already-computed results (`firestore.rules`).
   `docs/STATUS.md` for the current, honestly-tracked list of what's
   fixed vs. what's blocked on external infrastructure.
 - **Play Billing Library is 9.1.0**, on Gradle 9.8 / AGP 9.4.1 / Kotlin
-  2.4.20 / KSP 2.3.12 / Hilt 2.60.1 / Room 2.8.5 / compileSdk 37. Getting
+  2.4.21 / KSP 2.3.12 / Hilt 2.60.1 / Room 2.8.5 / compileSdk 37. Getting
   there required moving all of them together — each one forced the next;
   the chain is recorded in `docs/MAINTENANCE.md`. Two AGP 9 rules follow
   from it: the `kotlin.android` plugin must stay **removed** (AGP 9 has

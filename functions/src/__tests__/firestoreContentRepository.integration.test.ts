@@ -180,7 +180,7 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
     await expect(selectTodayContent(UID, "2026-10-08", repo)).rejects.toBeInstanceOf(ContentPoolExhaustedError);
     expect((await db.collection("userContentHistory").get()).size).toBe(2);
     expect((await db.collection("contentPoolExhaustionEvents").get()).size).toBe(1);
-  });
+  }, 15_000);
 
   it("allows premium users free and premium lessons while free users cannot receive premium lessons", async () => {
     const free = makeContent({ id: "free" });

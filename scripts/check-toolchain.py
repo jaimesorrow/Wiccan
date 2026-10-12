@@ -123,7 +123,7 @@ def main():
                             re.MULTILINE | re.DOTALL).group(1)
     java_versions = re.findall(r"java-version:\s*['\"]?(\d+)", android_job + text(".github/workflows/release.yml"))
     check(java_versions == ["17", "17"], "CI and release use Java 17")
-    check('version.set("1.0.1")' in app and int(versions["ktlint"].split(".")[0]) >= 14,
+    check('version.set("1.8.0")' in app and int(versions["ktlint"].split(".")[0]) >= 14,
           "ktlint checks AGP 9 source sets with existing engine rules")
     print(str(len(failures)) + " failure(s)")
     return int(bool(failures))

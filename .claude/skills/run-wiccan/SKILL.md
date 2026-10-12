@@ -92,11 +92,11 @@ curl -s -X POST http://127.0.0.1:5001/wiccan-android/us-central1/getTodayContent
 .claude/skills/run-wiccan/driver.sh test      # both toolchains
 ```
 
-Current baseline: Java 17, Gradle 9.8.0, AGP 9.4.1, Kotlin 2.4.20 and
+Current baseline: Java 17, Gradle 9.8.1, AGP 9.4.1, Kotlin 2.4.21 and
 Play Billing 9.1.0. The Android SDK package is `platforms;android-37.0`
 (`compileSdk` 37, `targetSdk` 36); `driver.sh deps` installs that package.
 Ktlint plugin 14.2.0 registers Android source checks under AGP 9, with
-engine 1.0.1 pinned to the project's formatting rules.
+engine 1.8.0 pinned to the project's formatting rules.
 Cloud Functions uses Node 22, matching `functions/package.json` and CI.
 For backend emulators, use Firebase CLI 15 or newer with Java 21 or newer.
 CLI 14 calls the removed `functions.config()` API under Functions SDK 7 and
@@ -143,10 +143,9 @@ These cost real time. All were hit in this container.
   and dies with `ComposeTimeoutException: Condition still not satisfied after
   2000 ms`. Use Roborazzi's `captureRoboImage` instead.
 - **Historical Roborazzi/Kotlin mismatch.** Roborazzi 1.76.0's Kotlin 2.3.0
-  metadata failed under the project's former Kotlin 2.0.21 toolchain.
-  The current Kotlin 2.4.20 baseline passes the screenshot tests with
-  Roborazzi 1.32.2. Verify any later Roborazzi upgrade with those tests;
-  the old compiler mismatch does not establish a current upgrade blocker.
+  metadata failed under the project's former Kotlin 2.0.21 toolchain. The
+  current Kotlin 2.4.21 baseline uses Roborazzi 1.76.0; verify later upgrades
+  with the screenshot tests rather than relying on the old compiler mismatch.
 - **Roborazzi writes nothing unless recording is on.** The test passes and
   produces zero files. `app/build.gradle.kts` sets
   `systemProperty("roborazzi.test.record", "true")` for all test tasks.

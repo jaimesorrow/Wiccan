@@ -13,7 +13,7 @@ plugins {
 
 // Update AGP integration without changing the existing formatting rules.
 ktlint {
-    version.set("1.0.1")
+    version.set("1.8.0")
 }
 
 // app/keystore.properties is gitignored (holds a real signing key's
