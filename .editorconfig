@@ -14,7 +14,11 @@ ktlint_standard_trailing-comma-on-declaration-site = disabled
 # Composable functions are conventionally PascalCase, matching their use as
 # call-site "widgets" rather than functions.
 ktlint_function_naming_ignore_when_annotated_with = Composable
-# The codebase consistently puts a single-expression function's body on its
-# own line when the right-hand side is a chained/qualified call, even where
-# it would technically fit on one line - a readability choice, not a bug.
+# The codebase intentionally keeps readable multiline class/function headers,
+# and compact adjacent `when` branches. ktlint 1.8 would otherwise collapse
+# 28 constructor declarations and insert blank lines in 20 unrelated files.
+# Preserve the established Android Studio formatting while retaining every
+# other current ktlint rule.
 ktlint_standard_function-signature = disabled
+ktlint_standard_class-signature = disabled
+ktlint_standard_blank-line-between-when-conditions = disabled
