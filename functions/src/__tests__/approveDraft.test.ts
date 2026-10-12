@@ -22,6 +22,7 @@ const ANCIENT_LESSON_SOURCE: ContentSource = {
   title: "Ancient Source",
   tradition: "Ancient ritual tradition",
   era: "ancient",
+  sourceKind: "ancient-grimoire",
   period: "Ancient period",
   publicDomainBasis: "Ancient historical subject matter.",
   sourceReference: "Catalogue reference",

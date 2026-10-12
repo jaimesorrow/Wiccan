@@ -17,17 +17,25 @@ currently handled (automated, manual, or not yet built).
 
 ## Content pool
 
-- `npm run generate-draft -- --tier <free|premium> [--sourceId <id>] [--type <spell|potion|lesson>] [--count <n>]`
-  generates drafts via Claude from `functions/sources.json`'s curated
-  sources. Prints the resolved Firebase project before running (see
-  `functions/.env.example`'s Environments guidance) so an operator always
-  knows which environment they're about to write into.
-- `npm run approve-draft -- --contentId <id>` publishes one draft, after
+- `npm run content-agent -- --tier <free|premium> [--sourceId <id>] [--type <spell|potion|lesson>] [--count <n>]`
+  previews a generation request without calling Claude or writing to
+  Firestore. The eligible pool contains only sources classified as an
+  `ancient-grimoire`; museum overviews and other historical context are
+  excluded even when they discuss ancient material.
+- `npm run content-agent -- --project wiccan-android --commit --tier <free|premium> [...]`
+  calls Claude and writes review-required drafts. The exact production
+  project and `--commit` are both mandatory; generated content is never
+  auto-published. `npm run generate-draft` remains an alias. The recommended
+  operating cadence is one manually initiated batch of 30–60 drafts per
+  month, followed by source, duplication, safety, and rights review.
+- `npm run approve-draft -- --project wiccan-android --contentId <id>` publishes one draft, after
   `approveDraft`'s safety/completeness gate passes.
 - **Growing `sources.json`** is a manual, deliberate curation task — see
   the file's own doc comment: never auto-populated from a crawl. The pool
-  contains four curated ancient sources. Growing the content pool toward
-  the 365-entry launch target remains ongoing editorial work.
+  contains three generation-eligible ancient grimoires/manuscripts and one
+  historical-context record retained for the checked-in seed. Growing the
+  content pool toward the 365-entry launch target remains ongoing editorial
+  work.
 
 ## Play Billing Library version
 

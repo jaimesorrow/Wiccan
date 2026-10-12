@@ -15,6 +15,7 @@
     "lint": "eslint src",
     "serve": "npm run build && firebase emulators:start --only functions",
     "deploy": "npm run build && firebase deploy --only functions",
+    "content-agent": "npm run build && node lib/scripts/generateDraftCli.js",
     "generate-draft": "npm run build && node lib/scripts/generateDraftCli.js",
     "approve-draft": "npm run build && node lib/scripts/approveDraftCli.js",
     "seed-content": "npm run build && node lib/scripts/seedContentCli.js",

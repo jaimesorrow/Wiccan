@@ -7,24 +7,24 @@ import { CONTENT_CATEGORIES } from "./types";
 const MODEL = "claude-opus-5";
 
 const GeneratedDraftSchema = z.object({
-  title: z.string().min(1),
-  intro: z.string().min(1),
-  body: z.string().min(1),
-  reflection: z.string().min(1),
-  practice: z.string().nullable(),
-  materials: z.array(z.string()).nullable(),
-  safetyNote: z.string().nullable(),
-  tags: z.array(z.string()),
+  title: z.string().trim().min(1),
+  intro: z.string().trim().min(1),
+  body: z.string().trim().min(1),
+  reflection: z.string().trim().min(1).regex(/\?$/, "reflection must end with a question mark"),
+  practice: z.string().trim().min(1).nullable(),
+  materials: z.array(z.string().trim().min(1)).min(1).nullable(),
+  safetyNote: z.string().trim().min(1).nullable(),
+  tags: z.array(z.string().trim().min(1)).min(1),
   category: z.enum(CONTENT_CATEGORIES),
 });
 
 /**
  * Builds Wiccan's editorial prompt.
  *
- * Lessons are historical-source-grounded: factual claims about an ancient
- * tradition must stay within the curated groundedFacts supplied by an
- * editor. Spells and potions may use the source as inspiration, but must
- * not pretend to reproduce an ancient rite or quotation.
+ * Every draft is grounded in an editor-approved ancient grimoire or magical
+ * manuscript. Factual claims about antiquity must stay within the curated
+ * groundedFacts supplied by an editor. Modern adaptations must never pretend
+ * to reproduce an ancient rite or quotation.
  *
  * The voice and safety rules are production requirements, not suggestions.
  * See docs/CONTENT_VOICE_AND_LESSON_STANDARD.md.
@@ -41,6 +41,7 @@ not theatrical or cheesy. Use clear modern English. Do not use fake archaic
 English, sensational occult language, horror imagery, or fantasy narration.
 
 SOURCE
+This is an editor-approved ancient grimoire or ancient magical manuscript.
 Title: ${request.sourceTitle}
 Tradition: ${request.tradition}
 Period: ${request.period}
@@ -51,12 +52,17 @@ CURATED HISTORICAL FACTS
 ${groundedFacts}
 
 HISTORICAL INTEGRITY
+The draft's subject and historical basis must come from the approved ancient
+source above. Treat the CURATED HISTORICAL FACTS as the boundary for every
+claim about antiquity. Do not add material from modern occult books, general
+model knowledge, or an unlisted historical source. You may explain the facts'
+significance in your own words, but you must not invent quotations,
+translations, dates, ritual steps, deities, objects, lineages, or historical
+claims that are not supported by those facts. Never fabricate a primary-source
+quotation.
+
 If type=lesson, the lesson must teach real historical information grounded
-in the CURATED HISTORICAL FACTS above. Treat those facts as the boundary for
-claims about antiquity. You may explain their significance in your own words,
-but you must not invent quotations, translations, dates, ritual steps,
-deities, objects, lineages, or historical claims that are not supported by
-those facts. Never fabricate a primary-source quotation.
+in those facts.
 
 Do not describe ancient Egyptian, Mesopotamian, Greek, Roman, or other
 pre-modern traditions as "ancient Wicca" or imply that modern Wicca is an
@@ -69,9 +75,10 @@ If the evidence is partial, contested, fragmentary, or culturally specific,
 state that limitation rather than filling the gap. Distinguish historical
 practice, scholarly interpretation, symbolism, and modern personal reflection.
 
-If type=spell or type=potion, use the source only as thematic inspiration.
-Do not claim that the generated instructions are an authentic ancient rite,
-translation, or reconstruction. Do not quote or closely paraphrase a source.
+If type=spell or type=potion, create a clearly labeled modern, safe adaptation
+whose theme is traceable to the CURATED HISTORICAL FACTS. Do not claim that
+the generated instructions are an authentic ancient rite, translation, or
+reconstruction. Do not quote or closely paraphrase a source.
 
 CATEGORY
 Choose exactly one category from:
