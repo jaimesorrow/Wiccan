@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@firebase/rules-unit-testing": "^5.0.2",
+    "@firebase/rules-unit-testing": "^6.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.20.5",
     "eslint": "^10.12.0",
