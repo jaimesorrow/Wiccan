@@ -106,6 +106,14 @@ is denied to clients; only server-delivered content IDs are readable.
 firebase deploy --only firestore:rules,firestore:indexes --project production
 ```
 
+The ancient-grimoire content agent writes through the Admin SDK, not the
+client rules. Every generated document is stored in `content` with
+`status = draft`, `rightsReviewRequired = true`, `generatedBy`,
+`generationSourceKind`, and a server-generated `generatedAt` timestamp.
+The Firestore emulator suite verifies that storage contract. No extra index is
+needed for draft creation or the agent's case-insensitive duplicate-title scan.
+Deploying rules and indexes does not generate, import, or publish content.
+
 ## 3. Authentication
 
 **CONSOLE — verified 2026-10-06 UTC.** **Google** and **Email/Password**
