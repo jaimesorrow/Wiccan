@@ -11,7 +11,7 @@
     "test:rules": "npx --yes firebase-tools@15.33.0 emulators:exec --project demo-wiccan --config ../firebase.json --only firestore \"node --test firestore.rules.test.mjs\""
   },
   "devDependencies": {
-    "@firebase/rules-unit-testing": "5.0.2",
+    "@firebase/rules-unit-testing": "6.0.0",
     "firebase": "12.19.0"
   },
   "overrides": {
