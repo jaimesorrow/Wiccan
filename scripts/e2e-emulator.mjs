@@ -149,7 +149,7 @@ async function main() {
   ok("history document is written", hist.exists);
 
   console.log("\n== acceptTerms ==");
-  const terms = await call("acceptTerms", token, { termsVersion: 1, privacyVersion: 1 });
+  const terms = await call("acceptTerms", token, { termsVersion: 2, privacyVersion: 2 });
   ok("acceptTerms succeeds", !terms?.error, JSON.stringify(terms).slice(0, 200));
   ok("users/{uid} exists afterwards", (await db.collection("users").doc(uid).get()).exists);
 

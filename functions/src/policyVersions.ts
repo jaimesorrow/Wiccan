@@ -7,5 +7,5 @@
  * rejects `acceptTerms` calls quoting anything other than these current
  * values.
  */
-export const CURRENT_TERMS_VERSION = 1;
-export const CURRENT_PRIVACY_VERSION = 1;
+export const CURRENT_TERMS_VERSION = 2;
+export const CURRENT_PRIVACY_VERSION = 2;

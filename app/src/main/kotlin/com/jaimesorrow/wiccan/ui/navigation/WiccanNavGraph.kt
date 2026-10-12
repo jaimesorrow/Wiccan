@@ -20,6 +20,9 @@ import androidx.navigation.navDeepLink
 import com.jaimesorrow.wiccan.ui.archive.ARCHIVE_DETAIL_CONTENT_ID_ARG
 import com.jaimesorrow.wiccan.ui.archive.ArchiveDetailScreen
 import com.jaimesorrow.wiccan.ui.archive.ArchiveScreen
+import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
+import com.jaimesorrow.wiccan.ui.legal.LegalDocumentScreen
+import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
 import com.jaimesorrow.wiccan.ui.paywall.PaywallScreen
 import com.jaimesorrow.wiccan.ui.settings.SettingsScreen
 import com.jaimesorrow.wiccan.ui.today.TodayScreen
@@ -67,13 +70,22 @@ fun WiccanAppShell(modifier: Modifier = Modifier, startOnPaywall: Boolean = fals
                 )
             }
             composable(WiccanDestinations.SETTINGS) {
-                SettingsScreen(onGoPremiumClick = { navController.navigate(WiccanDestinations.PAYWALL) })
+                SettingsScreen(
+                    onGoPremiumClick = { navController.navigate(WiccanDestinations.PAYWALL) },
+                    onTermsClick = { navController.navigate(WiccanDestinations.TERMS) },
+                    onPrivacyClick = { navController.navigate(WiccanDestinations.PRIVACY) },
+                    onContentSafetyClick = { navController.navigate(WiccanDestinations.CONTENT_SAFETY) },
+                )
             }
             composable(
                 WiccanDestinations.PAYWALL,
                 deepLinks = listOf(navDeepLink { uriPattern = WiccanDeepLinks.PREMIUM_URI }),
             ) {
-                PaywallScreen(onBack = { navController.popBackStackIfPossible() })
+                PaywallScreen(
+                    onBack = { navController.popBackStackIfPossible() },
+                    onTermsClick = { navController.navigate(WiccanDestinations.TERMS) },
+                    onPrivacyClick = { navController.navigate(WiccanDestinations.PRIVACY) },
+                )
             }
             composable(WiccanDestinations.ARCHIVE_DETAIL_ROUTE) {
                 // contentId itself is read from SavedStateHandle inside ArchiveDetailViewModel;
@@ -81,7 +93,35 @@ fun WiccanAppShell(modifier: Modifier = Modifier, startOnPaywall: Boolean = fals
                 requireNotNull(it.arguments?.getString(ARCHIVE_DETAIL_CONTENT_ID_ARG))
                 ArchiveDetailScreen(onBack = { navController.popBackStackIfPossible() })
             }
+            legalDocument(
+                route = WiccanDestinations.TERMS,
+                documentId = LegalDocumentId.TERMS,
+                navController = navController,
+            )
+            legalDocument(
+                route = WiccanDestinations.PRIVACY,
+                documentId = LegalDocumentId.PRIVACY,
+                navController = navController,
+            )
+            legalDocument(
+                route = WiccanDestinations.CONTENT_SAFETY,
+                documentId = LegalDocumentId.CONTENT_SAFETY,
+                navController = navController,
+            )
         }
+    }
+}
+
+private fun androidx.navigation.NavGraphBuilder.legalDocument(
+    route: String,
+    documentId: LegalDocumentId,
+    navController: NavHostController,
+) {
+    composable(route) {
+        LegalDocumentScreen(
+            document = WiccanLegalDocuments.get(documentId),
+            onBack = { navController.popBackStackIfPossible() },
+        )
     }
 }
 

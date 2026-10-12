@@ -43,6 +43,8 @@ import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
 fun PaywallScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
+    onTermsClick: () -> Unit = {},
+    onPrivacyClick: () -> Unit = {},
     viewModel: PaywallViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -140,11 +142,25 @@ fun PaywallScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Cancel anytime through Google Play. You can keep using Wiccan's free daily content either way.",
+                    text = "Google Play charges your payment method when purchase is confirmed. The monthly " +
+                        "subscription renews automatically at the then-current price unless canceled before " +
+                        "renewal. Cancel in Google Play; premium access normally continues through the paid " +
+                        "period. No free trial is offered on this screen.",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                 )
+                Row(horizontalArrangement = Arrangement.Center) {
+                    TextButton(onClick = onTermsClick) { Text("Terms") }
+                    TextButton(onClick = onPrivacyClick) { Text("Privacy") }
+                }
+                Text(
+                    text = "Wiccan's free daily content remains available without a subscription.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }

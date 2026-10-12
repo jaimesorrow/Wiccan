@@ -8,6 +8,7 @@ failures=0
 
 pass() { printf 'PASS  %s\n' "$1"; }
 fail() { printf 'FAIL  %s\n' "$1"; failures=$((failures + 1)); }
+warn() { printf 'WARN  %s\n' "$1"; }
 
 require_grep() {
   local pattern="$1" file="$2" label="$3"
@@ -72,6 +73,23 @@ require_grep '^\s*throw err;' functions/src/index.ts   'Play RTDN rethrows failu
 
 require_grep 'tools:node="remove"' app/src/main/AndroidManifest.xml   'default WorkManager initializer is removed'
 require_grep 'WorkManager\.initialize\(this, workManagerConfiguration\)'   app/src/main/kotlin/com/jaimesorrow/wiccan/WiccanApplication.kt   'WorkManager uses the Hilt-aware configuration'
+
+require_grep 'const val TERMS = 2' app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/PolicyVersions.kt   'Android uses current Terms version 2'
+require_grep 'const val PRIVACY = 2' app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/PolicyVersions.kt   'Android uses current Privacy version 2'
+require_grep 'CURRENT_TERMS_VERSION = 2' functions/src/policyVersions.ts   'Functions uses current Terms version 2'
+require_grep 'CURRENT_PRIVACY_VERSION = 2' functions/src/policyVersions.ts   'Functions uses current Privacy version 2'
+require_grep 'termsVersion: 2, privacyVersion: 2' scripts/e2e-emulator.mjs   'emulator acceptance uses current policy versions'
+require_grep 'LegalDocumentId\.TERMS' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/auth/SignInScreen.kt   'Terms are reachable before account creation'
+require_grep 'LegalDocumentId\.CONTENT_SAFETY' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/policy/PolicyAcceptanceScreen.kt   'policy gate exposes Content & Safety guidance'
+require_grep 'onTermsClick' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/paywall/PaywallScreen.kt   'paywall exposes Terms beside subscription offer'
+require_grep 'onContentSafetyClick' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/settings/SettingsScreen.kt   'Settings exposes permanent safety guidance'
+require_grep '^# Google Play release compliance — Wiccan$' docs/PLAY_CONSOLE_READINESS.md   'Wiccan-specific Play compliance audit exists'
+
+if grep -Fq 'https://wiccan.app/privacy' app/src/main/kotlin/com/jaimesorrow/wiccan/core/config/PolicyUrls.kt; then
+  warn 'public legal/support URLs are placeholders; Play submission remains blocked'
+else
+  pass 'public legal/support URLs have been replaced and still require a live URL check'
+fi
 
 if git grep --cached -I -l -E -- '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|sk-proj-[A-Za-z0-9_-]{20,}|sk-ant-[A-Za-z0-9_-]{20,}' -- . >/dev/null; then
   fail 'no private key material or obvious server API secret is committed'

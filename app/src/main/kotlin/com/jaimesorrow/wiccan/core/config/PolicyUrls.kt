@@ -1,8 +1,9 @@
 package com.jaimesorrow.wiccan.core.config
 
 /**
- * Centralized production legal/support URLs - referenced from Settings and
- * the policy-acceptance screen, never hardcoded inline in a Composable.
+ * Centralized public legal/support destinations. Native policy documents are
+ * always available in the app; these URLs are still required for the Play
+ * listing and external account-deletion request path.
  *
  * TODO(release): these are placeholders. Replace with the real hosted
  * pages/address before any Play submission - Play explicitly rejects

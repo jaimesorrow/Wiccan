@@ -54,6 +54,9 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
     onGoPremiumClick: () -> Unit = {},
+    onTermsClick: () -> Unit = {},
+    onPrivacyClick: () -> Unit = {},
+    onContentSafetyClick: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -71,7 +74,14 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { viewModel.onEvent(SettingsUiEvent.CancelDeleteAccount) },
             title = { Text("Delete account?") },
-            text = { Text("This permanently deletes your account and delivery history. This cannot be undone.") },
+            text = {
+                Text(
+                    "Wiccan first cancels active Google Play renewal, then permanently deletes your " +
+                        "account, delivery history, devices, and subscription record. If cancellation " +
+                        "cannot be confirmed, deletion stops so you can retry. Limited pseudonymous " +
+                        "anti-fraud hashes may remain. This cannot be undone.",
+                )
+            },
             confirmButton = {
                 TextButton(onClick = { viewModel.onEvent(SettingsUiEvent.ConfirmDeleteAccount) }) {
                     Text("Delete")
@@ -173,11 +183,16 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.weight(1f))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PolicyUrls.TERMS_OF_SERVICE))) }) {
+                TextButton(onClick = onTermsClick) {
                     Text("Terms of Service", style = MaterialTheme.typography.labelSmall)
                 }
-                TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PolicyUrls.PRIVACY_POLICY))) }) {
+                TextButton(onClick = onPrivacyClick) {
                     Text("Privacy Policy", style = MaterialTheme.typography.labelSmall)
+                }
+            }
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                TextButton(onClick = onContentSafetyClick) {
+                    Text("Content & Safety", style = MaterialTheme.typography.labelSmall)
                 }
                 TextButton(onClick = { context.startActivity(supportEmailIntent()) }) {
                     Text("Contact Support", style = MaterialTheme.typography.labelSmall)
