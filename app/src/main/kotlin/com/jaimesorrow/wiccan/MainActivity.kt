@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -15,6 +16,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.luminance
@@ -24,6 +28,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.domain.model.RootState
 import com.jaimesorrow.wiccan.ui.auth.RootViewModel
 import com.jaimesorrow.wiccan.ui.auth.SignInScreen
+import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
+import com.jaimesorrow.wiccan.ui.legal.LegalDocumentScreen
+import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
 import com.jaimesorrow.wiccan.ui.navigation.WiccanAppShell
 import com.jaimesorrow.wiccan.ui.navigation.WiccanDeepLinks
 import com.jaimesorrow.wiccan.ui.notification.NotificationSetupEffect
@@ -58,15 +65,23 @@ class MainActivity : ComponentActivity() {
             WiccanTheme(themeMode = themeMode) {
                 EdgeToEdgeEffect()
                 val rootState by rootViewModel.rootState.collectAsStateWithLifecycle()
+                var openLegalDocument by remember { mutableStateOf<LegalDocumentId?>(null) }
 
-                when (rootState) {
+                openLegalDocument?.let { documentId ->
+                    BackHandler { openLegalDocument = null }
+                    LegalDocumentScreen(
+                        document = WiccanLegalDocuments.get(documentId),
+                        onBack = { openLegalDocument = null },
+                    )
+                } ?: when (rootState) {
                     RootState.SignedIn -> {
                         NotificationSetupEffect()
                         SubscriptionSetupEffect()
                         WiccanAppShell(startOnPaywall = startOnPaywall)
                     }
-                    RootState.SignedOut -> SignInScreen()
-                    RootState.RequiresPolicyAcceptance -> PolicyAcceptanceScreen()
+                    RootState.SignedOut -> SignInScreen(onOpenLegalDocument = { openLegalDocument = it })
+                    RootState.RequiresPolicyAcceptance ->
+                        PolicyAcceptanceScreen(onOpenLegalDocument = { openLegalDocument = it })
                     RootState.Loading, RootState.InitializingProfile -> LoadingIndicator()
                 }
             }
