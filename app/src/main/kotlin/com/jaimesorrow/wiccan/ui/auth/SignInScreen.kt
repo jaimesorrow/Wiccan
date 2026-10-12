@@ -2,6 +2,7 @@ package com.jaimesorrow.wiccan.ui.auth
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
+import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
 import com.jaimesorrow.wiccan.ui.today.components.HairlineDivider
 
@@ -37,7 +39,11 @@ import com.jaimesorrow.wiccan.ui.today.components.HairlineDivider
  * screens, per spec.
  */
 @Composable
-fun SignInScreen(modifier: Modifier = Modifier, viewModel: SignInViewModel = hiltViewModel()) {
+fun SignInScreen(
+    modifier: Modifier = Modifier,
+    onOpenLegalDocument: (LegalDocumentId) -> Unit = {},
+    viewModel: SignInViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -125,6 +131,21 @@ fun SignInScreen(modifier: Modifier = Modifier, viewModel: SignInViewModel = hil
             }
             TextButton(onClick = { viewModel.onEvent(SignInUiEvent.ForgotPasswordClicked) }) {
                 Text("Forgot password?")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Account creation is followed by a required policy review.",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row {
+                TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.TERMS) }) {
+                    Text("Terms")
+                }
+                TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) {
+                    Text("Privacy")
+                }
             }
 
             if (state.isLoading) {
