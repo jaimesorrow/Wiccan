@@ -1,8 +1,5 @@
 package com.jaimesorrow.wiccan.ui.policy
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,12 +23,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.jaimesorrow.wiccan.core.config.PolicyUrls
 import com.jaimesorrow.wiccan.core.error.toUserMessage
+import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
 
 /**
@@ -44,10 +40,10 @@ import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
 @Composable
 fun PolicyAcceptanceScreen(
     modifier: Modifier = Modifier,
+    onOpenLegalDocument: (LegalDocumentId) -> Unit = {},
     viewModel: PolicyAcceptanceViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
@@ -87,14 +83,17 @@ fun PolicyAcceptanceScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = { openUrl(context, PolicyUrls.TERMS_OF_SERVICE) }) {
+                TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.TERMS) }) {
                     Text("Terms of Service")
                 }
-                TextButton(onClick = { openUrl(context, PolicyUrls.PRIVACY_POLICY) }) {
+                TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) {
                     Text("Privacy Policy")
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.CONTENT_SAFETY) }) {
+                Text("Content & Safety")
+            }
+            Spacer(modifier = Modifier.height(4.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Checkbox(
@@ -102,7 +101,7 @@ fun PolicyAcceptanceScreen(
                     onCheckedChange = { viewModel.onEvent(PolicyAcceptanceUiEvent.CheckedChanged(it)) },
                 )
                 Text(
-                    text = "I agree to the Terms of Service and Privacy Policy",
+                    text = "I agree to the Terms of Service and acknowledge the Privacy Policy and safety guidance",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
@@ -123,8 +122,4 @@ fun PolicyAcceptanceScreen(
             }
         }
     }
-}
-
-private fun openUrl(context: Context, url: String) {
-    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
 }
