@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wiccan.app.BuildConfig
 
 /**
  * Requests the Android 13+ POST_NOTIFICATIONS runtime permission (a no-op
@@ -20,6 +21,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
  */
 @Composable
 fun NotificationSetupEffect(viewModel: NotificationSetupViewModel = hiltViewModel()) {
+    // FCM has no local Emulator Suite service. Do not request permission or
+    // register a real production token while the rest of the app is local.
+    if (BuildConfig.USE_FIREBASE_EMULATORS) return
+
     val context = LocalContext.current
 
     val permissionLauncher = rememberLauncherForActivityResult(

@@ -6,6 +6,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.messaging.FirebaseMessaging
+import com.jaimesorrow.wiccan.core.config.FirebaseEmulatorConfig
+import com.wiccan.app.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,11 +21,19 @@ object FirebaseModule {
 
     @Provides
     @Singleton
-    fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+    fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance().also { firestore ->
+        if (BuildConfig.USE_FIREBASE_EMULATORS) {
+            firestore.useEmulator(FirebaseEmulatorConfig.HOST, FirebaseEmulatorConfig.FIRESTORE_PORT)
+        }
+    }
 
     @Provides
     @Singleton
-    fun provideFirebaseFunctions(): FirebaseFunctions = FirebaseFunctions.getInstance()
+    fun provideFirebaseFunctions(): FirebaseFunctions = FirebaseFunctions.getInstance().also { functions ->
+        if (BuildConfig.USE_FIREBASE_EMULATORS) {
+            functions.useEmulator(FirebaseEmulatorConfig.HOST, FirebaseEmulatorConfig.FUNCTIONS_PORT)
+        }
+    }
 
     @Provides
     @Singleton
@@ -31,10 +41,18 @@ object FirebaseModule {
 
     @Provides
     @Singleton
-    fun provideFirebaseCrashlytics(): FirebaseCrashlytics = FirebaseCrashlytics.getInstance()
+    fun provideFirebaseCrashlytics(): FirebaseCrashlytics = FirebaseCrashlytics.getInstance().also { crashlytics ->
+        if (BuildConfig.USE_FIREBASE_EMULATORS) {
+            crashlytics.setCrashlyticsCollectionEnabled(false)
+        }
+    }
 
     @Provides
     @Singleton
     fun provideFirebaseAnalytics(@ApplicationContext context: Context): FirebaseAnalytics =
-        FirebaseAnalytics.getInstance(context)
+        FirebaseAnalytics.getInstance(context).also { analytics ->
+            if (BuildConfig.USE_FIREBASE_EMULATORS) {
+                analytics.setAnalyticsCollectionEnabled(false)
+            }
+        }
 }

@@ -20,6 +20,9 @@ cd .. && ANDROID_PACKAGE_NAME=com.jaimesorrow.wiccan \
 
 # terminal 2
 node scripts/e2e-emulator.mjs
+
+# terminal 3: build/install the Android emulator client
+./gradlew :app:installProdDebug -PuseFirebaseEmulators=true
 ```
 
 Emulator UI: <http://127.0.0.1:4000>. Ports: auth 9099, functions 5001,
@@ -42,38 +45,36 @@ that is correct fail-closed behaviour, not a bug. The functions run inside
 the emulator process, so the variable must be exported when the emulator
 is **started**; setting it in the test script has no effect on them.
 
-### App Check blocks the callables by default
+### App Check and Android emulator routing
 
-All 8 callables are `enforceAppCheck: true`, the Functions emulator honors
-that, and there is no App Check emulator to mint a token — so every
-callable returns `UNAUTHENTICATED` even with a valid ID token. The emulator
-log shows the split precisely:
+Firebase does not provide an App Check emulator. Callable options therefore
+disable App Check only when the Functions emulator itself supplies
+`FUNCTIONS_EMULATOR=true`; deployed functions never set that variable and
+continue to enforce App Check. `scripts/release-preflight.sh` locks in this
+fail-closed production condition.
 
+The Android app routes Auth, Firestore, and Functions to `10.0.2.2` only for
+an explicitly opted-in debug build:
+
+```bash
+./gradlew :app:installProdDebug -PuseFirebaseEmulators=true
 ```
-{"verifications":{"app":"MISSING","auth":"VALID"}}
-```
 
-`scripts/e2e-emulator.mjs` detects this case and explains it rather than
-reporting a wall of bogus failures. Two ways forward, neither adopted:
+Release builds hardcode emulator routing off. Emulator-mode debug builds
+also skip App Check installation, FCM token registration, Analytics, and
+Crashlytics collection so a local test does not mix emulated user data with
+production-only Firebase services. Without the Gradle property, an ordinary
+debug build keeps its normal Firebase behavior.
 
-- Scope enforcement to non-emulator runs —
-  `enforceAppCheck: process.env.FUNCTIONS_EMULATOR !== "true"`. The
-  Functions emulator sets `FUNCTIONS_EMULATOR=true` and deployed functions
-  never do, so production enforcement would be unchanged. It is still a
-  deliberate weakening of a hardened control in one environment, so it
-  needs an explicit decision rather than a quiet default.
-- Drive the flows from a real debug build with an App Check debug token
-  registered (§4 below), which tests the real client path but cannot run in
-  CI.
-
-With enforcement isolated locally, the suite passes **18/18** against
-`main`, covering: authenticated and unauthenticated `getTodayContent`;
+The end-to-end suite covers authenticated and unauthenticated `getTodayContent`;
 daily-assignment stability across repeat calls (same content twice); tier
 gating (a free user is never served premium or draft content); the
 `userContentHistory` write; `acceptTerms` and the `users/{uid}` document;
 `registerDeviceToken` and the `users/{uid}/devices` subcollection; the
 `devices` collection-group query; `verifyPurchase` argument validation; the
-`dailyContentEnabled` kill switch; and the `deleteUserData` cascade.
+`dailyContentEnabled` kill switch; and the `deleteUserData` cascade. Its
+current pass count is recorded by each verified run rather than hardcoded in
+this guide.
 
 That covers three things `docs/STATUS.md` lists as never exercised against
 a real Firestore: the collection-group device query, the daily-assignment

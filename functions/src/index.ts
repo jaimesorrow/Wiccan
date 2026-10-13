@@ -25,8 +25,14 @@ import { acceptTerms as acceptTermsCore, StalePolicyVersionError } from "./accep
 import { FirestoreSubscriptionRecordRepository } from "./firestoreSubscriptionRecordRepository";
 import { handleRtdnNotification, parseRtdnPurchaseToken } from "./handleRtdn";
 import { FirestoreSystemConfigRepository } from "./firestoreSystemConfigRepository";
+import { parseDeviceToken, parseTimeZone } from "./callableInput";
 
 initializeApp();
+
+// Firebase's Functions emulator cannot mint App Check tokens. Disable
+// enforcement only when the emulator itself sets FUNCTIONS_EMULATOR=true;
+// deployed environments never set it and therefore remain fail-closed.
+const CALLABLE_OPTIONS = { enforceAppCheck: process.env.FUNCTIONS_EMULATOR !== "true" };
 
 // Each Firebase environment must use its own registered Android application ID.
 // Missing configuration fails closed on Play Billing operations.
@@ -50,7 +56,7 @@ const PLAY_RTDN_TOPIC = process.env.PLAY_RTDN_TOPIC ?? "play-rtdn";
  * input, so a client cannot request (or game) another user's history.
  * App Check-enforced: only the real, attested Android client may call this.
  */
-export const getTodayContent = onCall({ enforceAppCheck: true }, async (request) => {
+export const getTodayContent = onCall(CALLABLE_OPTIONS, async (request) => {
   const now = new Date();
   const uid = request.auth?.uid;
   if (!uid) {
@@ -102,7 +108,7 @@ export const getTodayContent = onCall({ enforceAppCheck: true }, async (request)
  * verified auth context — a client can never verify a purchase for, or
  * report a tier on behalf of, another user. App Check-enforced.
  */
-export const verifyPurchase = onCall({ enforceAppCheck: true }, async (request) => {
+export const verifyPurchase = onCall(CALLABLE_OPTIONS, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to verify a purchase.");
@@ -200,19 +206,20 @@ export const handlePlayRtdn = onMessagePublished({ topic: PLAY_RTDN_TOPIC, retry
  * other callable here. App Check-enforced, per the final security state:
  * device registration is a protected profile mutation.
  */
-export const registerDeviceToken = onCall({ enforceAppCheck: true }, async (request) => {
+export const registerDeviceToken = onCall(CALLABLE_OPTIONS, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to register a device token.");
   }
 
-  const token = request.data?.token;
-  if (typeof token !== "string" || token.length === 0) {
-    throw new HttpsError("invalid-argument", "token is required.");
+  const token = parseDeviceToken(request.data?.token);
+  if (!token) {
+    throw new HttpsError("invalid-argument", "token must be a valid bounded FCM registration token.");
   }
-  const timeZone = request.data?.timeZone;
-  if (timeZone !== undefined && typeof timeZone !== "string") {
-    throw new HttpsError("invalid-argument", "timeZone must be a string when provided.");
+  const requestedTimeZone = request.data?.timeZone;
+  const timeZone = requestedTimeZone === undefined ? undefined : parseTimeZone(requestedTimeZone);
+  if (requestedTimeZone !== undefined && !timeZone) {
+    throw new HttpsError("invalid-argument", "timeZone must be a valid bounded time-zone identifier.");
   }
 
   try {
@@ -230,15 +237,15 @@ export const registerDeviceToken = onCall({ enforceAppCheck: true }, async (requ
  * receiving pushes meant for whoever signs in next on it - without
  * touching this user's other registered devices. App Check-enforced.
  */
-export const unregisterDeviceToken = onCall({ enforceAppCheck: true }, async (request) => {
+export const unregisterDeviceToken = onCall(CALLABLE_OPTIONS, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to unregister a device token.");
   }
 
-  const token = request.data?.token;
-  if (typeof token !== "string" || token.length === 0) {
-    throw new HttpsError("invalid-argument", "token is required.");
+  const token = parseDeviceToken(request.data?.token);
+  if (!token) {
+    throw new HttpsError("invalid-argument", "token must be a valid bounded FCM registration token.");
   }
 
   try {
@@ -255,19 +262,19 @@ export const unregisterDeviceToken = onCall({ enforceAppCheck: true }, async (re
  * independent of its token, e.g. when the app detects the device's time
  * zone no longer matches what's on record. App Check-enforced.
  */
-export const updateTimeZone = onCall({ enforceAppCheck: true }, async (request) => {
+export const updateTimeZone = onCall(CALLABLE_OPTIONS, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to update your time zone.");
   }
 
-  const token = request.data?.token;
-  if (typeof token !== "string" || token.length === 0) {
-    throw new HttpsError("invalid-argument", "token is required.");
+  const token = parseDeviceToken(request.data?.token);
+  if (!token) {
+    throw new HttpsError("invalid-argument", "token must be a valid bounded FCM registration token.");
   }
-  const timeZone = request.data?.timeZone;
-  if (typeof timeZone !== "string" || timeZone.length === 0) {
-    throw new HttpsError("invalid-argument", "timeZone is required.");
+  const timeZone = parseTimeZone(request.data?.timeZone);
+  if (!timeZone) {
+    throw new HttpsError("invalid-argument", "timeZone must be a valid bounded time-zone identifier.");
   }
 
   try {
@@ -284,15 +291,15 @@ export const updateTimeZone = onCall({ enforceAppCheck: true }, async (request) 
  * without unregistering it - e.g. a Settings switch the user can flip
  * back on later without re-registering. App Check-enforced.
  */
-export const setNotificationsEnabled = onCall({ enforceAppCheck: true }, async (request) => {
+export const setNotificationsEnabled = onCall(CALLABLE_OPTIONS, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to update notification settings.");
   }
 
-  const token = request.data?.token;
-  if (typeof token !== "string" || token.length === 0) {
-    throw new HttpsError("invalid-argument", "token is required.");
+  const token = parseDeviceToken(request.data?.token);
+  if (!token) {
+    throw new HttpsError("invalid-argument", "token must be a valid bounded FCM registration token.");
   }
   const enabled = request.data?.enabled;
   if (typeof enabled !== "boolean") {
@@ -314,7 +321,7 @@ export const setNotificationsEnabled = onCall({ enforceAppCheck: true }, async (
  * (see policyVersions.ts) rather than trusting the client's claim.
  * App Check-enforced.
  */
-export const acceptTerms = onCall({ enforceAppCheck: true }, async (request) => {
+export const acceptTerms = onCall(CALLABLE_OPTIONS, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to accept the current policies.");
@@ -386,7 +393,7 @@ export const onUserCreated = authV1.user().onCreate(async (user) => {
  * here, uid comes exclusively from the verified auth context, so a client
  * can never delete another user's account. App Check-enforced.
  */
-export const deleteUserData = onCall({ enforceAppCheck: true }, async (request) => {
+export const deleteUserData = onCall(CALLABLE_OPTIONS, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to delete your account.");

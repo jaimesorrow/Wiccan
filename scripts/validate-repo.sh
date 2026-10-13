@@ -99,7 +99,7 @@ else
 fi
 
 # Secrets that must never be committed, regardless of .gitignore working.
-if git grep -lIE -- '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|sk-ant-[A-Za-z0-9_-]{20,}' -- . >/dev/null 2>&1; then
+if git grep -lIE -- '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|sk-(proj|ant)-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}' -- . >/dev/null 2>&1; then
   fail "private key material or an API secret is committed"
 else
   scan_status=$?
@@ -201,6 +201,13 @@ section "4. Build - Cloud Functions"
 if (cd functions && npm ci) > /tmp/validate-fn.$$ 2>&1; then
   pass "functions dependencies (npm ci)"
   rm -f /tmp/validate-fn.$$
+  if (cd functions && npm audit --audit-level=moderate) > /tmp/validate-fn.$$ 2>&1; then
+    pass "functions dependency audit"
+  else
+    fail "functions dependency audit"
+    tail -10 /tmp/validate-fn.$$ | sed 's/^/        /'
+  fi
+  rm -f /tmp/validate-fn.$$
   for step in build test lint; do
     if (cd functions && npm run "$step") > /tmp/validate-fn.$$ 2>&1; then
       pass "functions npm run $step"
@@ -215,6 +222,23 @@ else
   tail -5 /tmp/validate-fn.$$ | sed 's/^/        /'
   rm -f /tmp/validate-fn.$$
   echo "  SKIP  functions build/test/lint: dependency installation failed"
+fi
+
+if (cd firestore-tests && npm ci) > /tmp/validate-firestore-deps.$$ 2>&1; then
+  pass "firestore test dependencies (npm ci)"
+  rm -f /tmp/validate-firestore-deps.$$
+  if (cd firestore-tests && npm audit --audit-level=moderate) > /tmp/validate-firestore-deps.$$ 2>&1; then
+    pass "firestore test dependency audit"
+  else
+    fail "firestore test dependency audit"
+    tail -10 /tmp/validate-firestore-deps.$$ | sed 's/^/        /'
+  fi
+  rm -f /tmp/validate-firestore-deps.$$
+else
+  fail "firestore test dependencies (npm ci)"
+  tail -5 /tmp/validate-firestore-deps.$$ | sed 's/^/        /'
+  rm -f /tmp/validate-firestore-deps.$$
+  echo "  SKIP  firestore test dependency audit: dependency installation failed"
 fi
 
 section "Result"
