@@ -43,13 +43,16 @@ require_grep 'debugImplementation\(libs\.firebase\.appcheck\.debug\)' app/build.
 forbid_grep '^\s*implementation\(libs\.firebase\.appcheck\.debug\)' app/build.gradle.kts   'release classpath excludes App Check debug provider'
 require_grep 'PlayIntegrityAppCheckProviderFactory'   app/src/release/kotlin/com/jaimesorrow/wiccan/appcheck/ReleaseAppCheckModule.kt   'release builds use Play Integrity App Check'
 
+require_grep 'const CALLABLE_OPTIONS = \{ enforceAppCheck: process\.env\.FUNCTIONS_EMULATOR !== "true" \};' functions/src/index.ts   'App Check is disabled only by the Functions emulator runtime'
 for fn in getTodayContent verifyPurchase registerDeviceToken unregisterDeviceToken updateTimeZone setNotificationsEnabled acceptTerms deleteUserData; do
-  if grep -Eq "export const ${fn} = onCall\\(\\{ enforceAppCheck: true \\}" functions/src/index.ts; then
-    pass "${fn} enforces App Check"
+  if grep -Eq "export const ${fn} = onCall\\(CALLABLE_OPTIONS" functions/src/index.ts; then
+    pass "${fn} uses production-enforced App Check options"
   else
-    fail "${fn} enforces App Check"
+    fail "${fn} uses production-enforced App Check options"
   fi
 done
+
+require_grep 'buildConfigField\("boolean", "USE_FIREBASE_EMULATORS", "false"\)' app/build.gradle.kts   'release builds cannot enable Firebase emulators'
 
 if grep -A4 -F 'match /users/{uid} {' firestore.rules | grep -Fq 'allow write: if false;'; then
   pass 'users collection client writes are denied'
@@ -91,7 +94,7 @@ else
   pass 'public legal/support URLs have been replaced and still require a live URL check'
 fi
 
-if git grep --cached -I -l -E -- '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|sk-proj-[A-Za-z0-9_-]{20,}|sk-ant-[A-Za-z0-9_-]{20,}' -- . >/dev/null; then
+if git grep --cached -I -l -E -- '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|sk-(proj|ant)-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}' -- . >/dev/null; then
   fail 'no private key material or obvious server API secret is committed'
 else
   scan_status=$?

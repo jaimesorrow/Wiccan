@@ -8,6 +8,7 @@ import androidx.work.WorkManager
 import com.jaimesorrow.wiccan.appcheck.AppCheckProviderInstaller
 import com.jaimesorrow.wiccan.worker.DailyContentWorker
 import com.jaimesorrow.wiccan.worker.WiccanWorkerFactory
+import com.wiccan.app.BuildConfig
 import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -30,7 +31,11 @@ class WiccanApplication : Application(), Configuration.Provider {
         // token to every subsequent Functions/Firestore request. Which
         // provider this installs is decided per build variant (src/debug
         // vs src/release), not at runtime - see AppCheckProviderInstaller.
-        appCheckProviderInstaller.install()
+        // Local Firebase emulators do not provide App Check. This flag can
+        // only be enabled in a debug build; release hardcodes it to false.
+        if (!BuildConfig.USE_FIREBASE_EMULATORS) {
+            appCheckProviderInstaller.install()
+        }
 
         // The manifest removes WorkManager's default App Startup initializer
         // so the Hilt-aware worker factory is always used. Initialize it

@@ -144,6 +144,8 @@ and `--structure` before the expensive steps.
 ```
 ./gradlew :app:assembleProdDebug
 ./gradlew :app:testProdDebugUnitTest
+# With the Firebase suite already running, install an emulator-routed build:
+./gradlew :app:installProdDebug -PuseFirebaseEmulators=true
 ```
 
 The app has three product flavors (`dev`/`staging`/`prod`, one per
@@ -163,6 +165,10 @@ Google Services plugin to generate `default_web_client_id`. Google and
 Email/Password providers are enabled. Confirm that the installed build's
 signing certificate is registered with Firebase, and verify Google sign-in
 on a device before treating authentication as release-ready.
+
+The opt-in emulator build sends Auth, Firestore, and Functions to the local
+ports declared in `firebase.json`. Release builds cannot enable that flag;
+see `docs/FIREBASE_SETUP.md` for the three-terminal test flow.
 
 ### Cloud Functions
 

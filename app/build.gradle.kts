@@ -22,6 +22,9 @@ ktlint {
 // (same as today) rather than failing the build; see docs/RELEASE_CHECKLIST.md.
 val keystorePropertiesFile = file("keystore.properties")
 val hasKeystoreProperties = keystorePropertiesFile.exists()
+val useFirebaseEmulators = providers.gradleProperty("useFirebaseEmulators")
+    .map(String::toBooleanStrict)
+    .getOrElse(false)
 val keystoreProperties = Properties().apply {
     if (hasKeystoreProperties) {
         load(keystorePropertiesFile.inputStream())
@@ -75,7 +78,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("boolean", "USE_FIREBASE_EMULATORS", useFirebaseEmulators.toString())
+        }
         release {
+            // A release must never route authentication or user data to a
+            // developer machine, even if the Gradle property was supplied.
+            buildConfigField("boolean", "USE_FIREBASE_EMULATORS", "false")
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             if (hasKeystoreProperties) {

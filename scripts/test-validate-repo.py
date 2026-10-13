@@ -38,6 +38,7 @@ class ValidateRepoTest(unittest.TestCase):
         self.write("app/google-services.ci.json", config)
         self.write("app/src/prod/google-services.json", config)
         self.write("functions/src/index.ts", "const packageName = process.env.ANDROID_PACKAGE_NAME;\n")
+        self.write("firestore-tests/package.json", "{}\n")
         self.write(".github/workflows/ci.yml", "run: ./scripts/validate-repo.sh --structure\n")
         self.write("scripts/release-preflight.sh", "#!/usr/bin/env bash\necho 'PASS fixture preflight'\n", executable=True)
         self.write("scripts/check-16kb-alignment.sh", "#!/usr/bin/env bash\necho alignment >> \"$VALIDATE_TEST_LOG\"\n", executable=True)
@@ -65,7 +66,7 @@ fi
 exec "$VALIDATE_TEST_REAL_GIT" "$@"
 """, executable=True)
         self.git("init", "-q")
-        self.git("add", "app", "functions", "scripts", ".github", "gradlew")
+        self.git("add", "app", "functions", "firestore-tests", "scripts", ".github", "gradlew")
 
     def write(self, relative, text, executable=False):
         path = self.root / relative
@@ -91,6 +92,7 @@ exec "$VALIDATE_TEST_REAL_GIT" "$@"
         result = self.run_validator()
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("npm ci", self.commands())
+        self.assertIn("npm audit --audit-level=moderate", self.commands())
         self.assertEqual(self.commands().count("alignment"), 1)
         for step in ("build", "test", "lint"):
             self.assertIn("npm run " + step, self.commands())
@@ -129,12 +131,21 @@ exec "$VALIDATE_TEST_REAL_GIT" "$@"
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn("merge conflict markers found", result.stdout)
 
-    def test_actual_secret_is_rejected(self):
-        self.write("secret.txt", "sk" + "-ant-" + "x" * 24 + "\n")
-        self.git("add", "secret.txt")
-        result = self.run_validator("--structure")
-        self.assertNotEqual(result.returncode, 0, result.stdout)
-        self.assertIn("private key material or an API secret is committed", result.stdout)
+    def test_actual_secrets_are_rejected(self):
+        secrets = (
+            "sk" + "-ant-" + "x" * 24,
+            "sk" + "-proj-" + "x" * 24,
+            "gh" + "p_" + "x" * 24,
+            "github" + "_pat_" + "x" * 24,
+            "AK" + "IA" + "A" * 16,
+        )
+        for index, secret in enumerate(secrets):
+            with self.subTest(index=index):
+                self.write("secret.txt", secret + "\n")
+                self.git("add", "secret.txt")
+                result = self.run_validator("--structure")
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+                self.assertIn("private key material or an API secret is committed", result.stdout)
 
     def test_missing_referenced_python_script_is_rejected(self):
         self.write(".github/workflows/ci.yml", "run: python3 scripts/missing-check.py\n")

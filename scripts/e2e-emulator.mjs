@@ -19,11 +19,9 @@
 // real project: the Firestore/Auth hosts below are hardcoded to localhost,
 // and firebase-admin refuses to reach production when they are set.
 //
-// NOTE: every callable is declared `enforceAppCheck: true`, and the
-// Functions emulator honors that - there is no App Check emulator to issue
-// a token, so all 8 callables reject with UNAUTHENTICATED out of the box.
-// This script detects that and explains it rather than reporting 13 bogus
-// failures. See docs/FIREBASE_SETUP.md ("Local testing") for the options.
+// App Check remains enforced in every deployed environment. The Functions
+// emulator sets FUNCTIONS_EMULATOR=true, which is the one explicit local
+// exception because Firebase does not provide an App Check emulator.
 
 import { createRequire } from "node:module";
 
@@ -155,6 +153,10 @@ async function main() {
 
   console.log("\n== device registration and preferences ==");
   const fcm = "e2e-fcm-token";
+  const oversized = await call("registerDeviceToken", token, { token: "x".repeat(4097), timeZone: "UTC" });
+  ok("registerDeviceToken rejects oversized tokens", oversized?.error?.status === "INVALID_ARGUMENT");
+  const invalidZone = await call("registerDeviceToken", token, { token: fcm, timeZone: "Not/A_Real_Zone" });
+  ok("registerDeviceToken rejects invalid time zones", invalidZone?.error?.status === "INVALID_ARGUMENT");
   const reg = await call("registerDeviceToken", token, { token: fcm, timeZone: "America/New_York" });
   ok("registerDeviceToken succeeds", !reg?.error, JSON.stringify(reg).slice(0, 200));
   const devices = await db.collection("users").doc(uid).collection("devices").get();

@@ -58,7 +58,13 @@ jobs:
       # (see app/build.gradle.kts's productFlavors comment) and are not
       # built here.
       - run: ./gradlew :app:testProdDebugUnitTest
-      - run: ./gradlew :app:assembleProdDebug
+      - run: ./gradlew :app:assembleProdDebug -PuseFirebaseEmulators=true
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: wiccan-firebase-emulator-debug-apk
+          path: app/build/outputs/apk/prod/debug/app-prod-debug.apk
+          if-no-files-found: error
+          retention-days: 14
       # No emulator here, so this can't run the instrumented Room migration
       # test - it at least catches a compile regression in androidTest on
       # every push. Running it for real needs a connectedAndroidTest job
@@ -83,6 +89,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: functions/package-lock.json
       - run: npm ci
+      - run: npm audit --audit-level=moderate
       - run: npm run build
       - run: npm test
       - run: npm run lint
@@ -104,6 +111,17 @@ jobs:
             firestore-tests/package-lock.json
       - run: npm --prefix functions ci
       - run: npm --prefix firestore-tests ci
+      - run: npm --prefix firestore-tests audit --audit-level=moderate
       # Uses only demo-wiccan: no credentials, deployed data, or Functions
       # emulator required. Run actual Admin SDK transaction and rules tests.
       - run: npm --prefix firestore-tests test
+      # Exercise the callable surface against Auth, Functions, Firestore and
+      # Pub/Sub emulators. Production App Check stays enforced; the Functions
+      # emulator is the only environment allowed to disable it.
+      - run: npm --prefix functions run build
+      - run: >-
+          ANDROID_PACKAGE_NAME=com.jaimesorrow.wiccan
+          npx --yes firebase-tools@15.33.0 emulators:exec
+          --project wiccan-android --config firebase.json
+          --only auth,functions,firestore,pubsub
+          "node scripts/e2e-emulator.mjs"

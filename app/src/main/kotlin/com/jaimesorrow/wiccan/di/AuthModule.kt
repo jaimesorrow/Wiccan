@@ -1,6 +1,8 @@
 package com.jaimesorrow.wiccan.di
 
 import com.google.firebase.auth.FirebaseAuth
+import com.jaimesorrow.wiccan.core.config.FirebaseEmulatorConfig
+import com.wiccan.app.BuildConfig
 import com.jaimesorrow.wiccan.core.auth.CurrentUserProvider
 import com.jaimesorrow.wiccan.core.auth.FirebaseCurrentUserProvider
 import dagger.Binds
@@ -16,7 +18,11 @@ object AuthProvidesModule {
 
     @Provides
     @Singleton
-    fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+    fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance().also { auth ->
+        if (BuildConfig.USE_FIREBASE_EMULATORS) {
+            auth.useEmulator(FirebaseEmulatorConfig.HOST, FirebaseEmulatorConfig.AUTH_PORT)
+        }
+    }
 }
 
 @Module
