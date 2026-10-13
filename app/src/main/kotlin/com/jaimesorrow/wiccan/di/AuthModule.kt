@@ -1,10 +1,10 @@
 package com.jaimesorrow.wiccan.di
 
 import com.google.firebase.auth.FirebaseAuth
-import com.jaimesorrow.wiccan.core.config.FirebaseEmulatorConfig
-import com.wiccan.app.BuildConfig
 import com.jaimesorrow.wiccan.core.auth.CurrentUserProvider
 import com.jaimesorrow.wiccan.core.auth.FirebaseCurrentUserProvider
+import com.jaimesorrow.wiccan.core.config.FirebaseEmulatorConfig
+import com.wiccan.app.BuildConfig
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
