@@ -5,7 +5,9 @@ import { contentSimilarityKey, isEligibleForDailyDelivery } from "./contentEligi
 
 const DEFAULT_ANCIENT_LESSON_SOURCE_IDS = new Set(
   loadContentSources()
-    .filter((source) => source.era === "ancient" && source.eligibleTypes.includes("lesson"))
+    .filter((source) =>
+      source.era === "ancient" && source.sourceKind === "ancient-grimoire" && source.eligibleTypes.includes("lesson"),
+    )
     .map((source) => source.id),
 );
 

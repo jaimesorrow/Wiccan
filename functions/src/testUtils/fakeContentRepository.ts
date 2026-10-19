@@ -1,6 +1,7 @@
 import { Content, ContentCategory, ContentTier } from "../types";
 import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort, SubscriptionRequiredError } from "../contentRepositoryPort";
 import { contentSimilarityKey, isEligibleForDailyDelivery, sharesContentSimilarity } from "../contentEligibility";
+import { practicalContentHash } from "../practicalLesson";
 
 /** In-memory stand-in for Firestore, for testing selectTodayContent. */
 export class FakeContentRepository implements ContentRepositoryPort {
@@ -112,4 +113,41 @@ export function makeContent(overrides: Partial<Content> & { id: string }): Conte
     status: "published",
     ...overrides,
   };
+}
+
+export function makeReviewedLesson(overrides: Partial<Content> & { id: string; sourceId: string }): Content {
+  const lesson = makeContent({
+    type: "lesson",
+    tradition: "Ancient ritual tradition",
+    category: "divination",
+    primaryCategoryId: "divination",
+    secondaryCategoryIds: [],
+    sourcePassageId: "passage-1",
+    summary: "A practical source-grounded lesson.",
+    intro: "Historically grounded introduction.",
+    body: "1. Prepare safely.\n2. Complete and close the documented method.",
+    reflection: "What did you observe?",
+    practice: "Complete the numbered method once.",
+    safetyNote: "Stop if the practice causes distress.",
+    application: "A labeled modern witchcraft application.",
+    lessonType: "divination",
+    requiresPotionDisclosure: false,
+    tools: [],
+    correspondences: [],
+    citations: [],
+    adaptationNotes: [],
+    rightsReviewRequired: false,
+    ...overrides,
+  });
+  lesson.practicalReview = {
+    reviewedBy: "test-editor",
+    reviewedAt: "2026-10-19T00:00:00.000Z",
+    contentHash: practicalContentHash(lesson),
+    sourceFidelityApproved: true,
+    scopeApproved: true,
+    safetyApproved: true,
+    rightsApproved: true,
+    duplicateReviewed: true,
+  };
+  return lesson;
 }

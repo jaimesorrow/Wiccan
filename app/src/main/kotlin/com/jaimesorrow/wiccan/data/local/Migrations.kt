@@ -38,5 +38,42 @@ val MIGRATION_2_3: Migration = object : Migration(2, 3) {
     }
 }
 
+/** Adds the practical lesson, disclosure, citation, and adaptation fields without replacing cached history. */
+val MIGRATION_3_4: Migration = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        listOf(
+            "summary",
+            "primaryCategoryId",
+            "secondaryCategoryIds",
+            "lessonType",
+            "potionSafetyDisclosure",
+            "tools",
+            "incantation",
+            "incantationOmissionReason",
+            "timing",
+            "application",
+            "correspondences",
+            "adaptationNotes",
+            "sourcePassageId",
+            "citationTextTitle",
+            "citationManuscriptId",
+            "citationTradition",
+            "citationManuscriptDate",
+            "citationCompositionDate",
+            "citationEdition",
+            "citationEditionDate",
+            "citationTranslator",
+            "citationLocator",
+            "citationUrl",
+        ).forEach { column ->
+            db.execSQL("ALTER TABLE cached_daily_content ADD COLUMN $column TEXT")
+        }
+        db.execSQL(
+            "ALTER TABLE cached_daily_content ADD COLUMN requiresPotionDisclosure INTEGER NOT NULL DEFAULT 0",
+        )
+        db.execSQL("ALTER TABLE cached_daily_content ADD COLUMN durationMinutes INTEGER")
+    }
+}
+
 /** Every migration WiccanDatabase has ever needed, in order. Never remove an entry - a device restoring an old backup may still be on any prior version. */
-val WICCAN_DATABASE_MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
+val WICCAN_DATABASE_MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)

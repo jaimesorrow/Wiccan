@@ -1,3 +1,4 @@
+import { findPassageViolations, loadSourcePassages } from "../sourcePassages";
 import { getFirestore } from "firebase-admin/firestore";
 import { parseArgs } from "node:util";
 import { loadContentSources } from "../contentSource";
@@ -30,6 +31,7 @@ async function main(): Promise<void> {
       commit: { type: "boolean", default: false },
       tier: { type: "string" },
       sourceId: { type: "string" },
+      passageId: { type: "string" },
       type: { type: "string" },
       count: { type: "string" },
       similarityGroupId: { type: "string" },
@@ -57,11 +59,15 @@ async function main(): Promise<void> {
     throw new Error(`Explicit --project ${CONTENT_PROJECT_ID} is required when --commit is used.`);
   }
 
+  const passages = loadSourcePassages();
+  const passage = passages.find((candidate) => candidate.id === args.passageId);
+  if (!passage || findPassageViolations(passage).length) throw new Error("--passageId must select a verified ancient passage with approved witchcraft scope and commercial-use rights.");
+  if (args.sourceId && args.sourceId !== passage.sourceId) throw new Error("--sourceId differs from the approved passage.");
   const sources = loadContentSources();
   const eligibleSources = sources.filter((source) =>
     source.era === "ancient" &&
     source.sourceKind === "ancient-grimoire" &&
-    (args.sourceId === undefined || source.id === args.sourceId) &&
+    source.id === passage.sourceId &&
     (args.type === undefined || source.eligibleTypes.includes(args.type as ContentType))
   );
   if (args.sourceId !== undefined && !sources.some((source) => source.id === args.sourceId)) {
@@ -78,6 +84,7 @@ async function main(): Promise<void> {
       count: count ?? 1,
       tier,
       type: args.type ?? "all eligible types",
+      passageId: passage.id,
       eligibleSourceIds: eligibleSources.map((source) => source.id),
       nextStep: `Add --project ${CONTENT_PROJECT_ID} --commit to call Claude and create review-required drafts.`,
     }, null, 2));
@@ -96,7 +103,8 @@ async function main(): Promise<void> {
   const results = await generateDrafts(
     {
       tier: tier as ContentTier,
-      sourceId: args.sourceId,
+      sourceId: passage.sourceId,
+      passageId: passage.id,
       type: args.type as ContentType | undefined,
       count,
       similarityGroupId: args.similarityGroupId,
@@ -105,6 +113,7 @@ async function main(): Promise<void> {
     sources,
     generator,
     repo,
+    passages,
   );
 
   console.log(JSON.stringify(results, null, 2));

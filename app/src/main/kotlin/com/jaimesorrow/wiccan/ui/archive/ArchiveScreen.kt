@@ -178,6 +178,15 @@ private fun CategoryHeader(category: ContentCategory, count: Int, isCollapsed: B
 
 /** Human-readable label for a [ContentCategory], for the Grimoire grouping headers. */
 internal fun ContentCategory.displayName(): String = when (this) {
+    ContentCategory.CANDLE_MAGIC -> "Candle Magic"
+    ContentCategory.HERBS_BOTANICALS -> "Herbs & Botanicals"
+    ContentCategory.POTIONS_INFUSIONS -> "Potions & Infusions"
+    ContentCategory.CRYSTALS_STONES -> "Crystals & Stones"
+    ContentCategory.CORD_KNOT_MAGIC -> "Cord & Knot Magic"
+    ContentCategory.MOON_MAGIC_TIMING -> "Moon Magic & Timing"
+    ContentCategory.ELEMENTAL_MAGIC -> "Elemental Magic"
+    ContentCategory.ALTARS_SACRED_SPACE -> "Altars & Sacred Space"
+    ContentCategory.DIVINATION -> "Divination"
     ContentCategory.PROTECTION -> "Protection"
     ContentCategory.LOVE_AND_RELATIONSHIPS -> "Love & Relationships"
     ContentCategory.PROSPERITY_AND_ABUNDANCE -> "Prosperity & Abundance"
