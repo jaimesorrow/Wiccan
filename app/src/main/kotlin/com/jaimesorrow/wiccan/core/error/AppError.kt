@@ -11,6 +11,7 @@ sealed class AppError {
     object NotFound : AppError()
     object NoNewLesson : AppError()
     object GoogleSignInUnavailable : AppError()
+    data class InvalidInput(val message: String) : AppError()
     data class PurchaseVerificationFailed(val reason: String? = null) : AppError()
     data class Unknown(val message: String? = null) : AppError()
 }
