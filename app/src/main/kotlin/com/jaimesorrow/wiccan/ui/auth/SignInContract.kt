@@ -12,6 +12,8 @@ data class SignInUiState(
     val mode: SignInMode = SignInMode.SIGN_IN,
     val email: String = "",
     val password: String = "",
+    val emailError: String? = null,
+    val passwordError: String? = null,
     val isGoogleSignInAvailable: Boolean = false,
 )
 
