@@ -1,6 +1,7 @@
 package com.jaimesorrow.wiccan.ui.auth
 
 import android.content.Context
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaimesorrow.wiccan.core.result.AppResult
@@ -31,10 +32,18 @@ class SignInViewModel @Inject constructor(
 
     fun onEvent(event: SignInUiEvent) {
         when (event) {
-            is SignInUiEvent.EmailChanged -> _state.update { it.copy(email = event.value) }
-            is SignInUiEvent.PasswordChanged -> _state.update { it.copy(password = event.value) }
+            is SignInUiEvent.EmailChanged -> _state.update {
+                it.copy(email = event.value, emailError = null)
+            }
+            is SignInUiEvent.PasswordChanged -> _state.update {
+                it.copy(password = event.value, passwordError = null)
+            }
             SignInUiEvent.ToggleMode -> _state.update {
-                it.copy(mode = if (it.mode == SignInMode.SIGN_IN) SignInMode.CREATE_ACCOUNT else SignInMode.SIGN_IN)
+                it.copy(
+                    mode = if (it.mode == SignInMode.SIGN_IN) SignInMode.CREATE_ACCOUNT else SignInMode.SIGN_IN,
+                    emailError = null,
+                    passwordError = null,
+                )
             }
             SignInUiEvent.SubmitEmailAuth -> submitEmailAuth()
             SignInUiEvent.ForgotPasswordClicked -> sendPasswordReset()
@@ -49,9 +58,32 @@ class SignInViewModel @Inject constructor(
     }
 
     private fun submitEmailAuth() {
-        val email = _state.value.email
+        val email = _state.value.email.trim()
         val password = _state.value.password
-        _state.update { it.copy(isLoading = true) }
+        val emailError = when {
+            email.isBlank() -> "Enter your email address."
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Enter a valid email address."
+            else -> null
+        }
+        val passwordError = when {
+            password.isBlank() -> "Enter your password."
+            password.length < 6 -> "Password must be at least 6 characters."
+            else -> null
+        }
+
+        if (emailError != null || passwordError != null) {
+            _state.update {
+                it.copy(
+                    email = email,
+                    emailError = emailError,
+                    passwordError = passwordError,
+                    isLoading = false,
+                )
+            }
+            return
+        }
+
+        _state.update { it.copy(email = email, isLoading = true) }
         viewModelScope.launch {
             val result = when (_state.value.mode) {
                 SignInMode.SIGN_IN -> authRepository.signInWithEmail(email, password)
@@ -62,7 +94,12 @@ class SignInViewModel @Inject constructor(
     }
 
     private fun sendPasswordReset() {
-        val email = _state.value.email
+        val email = _state.value.email.trim()
+        if (email.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            _state.update { it.copy(email = email, emailError = "Enter a valid email address.") }
+            return
+        }
+
         viewModelScope.launch {
             when (val result = authRepository.sendPasswordReset(email)) {
                 is AppResult.Success -> effectChannel.send(SignInUiEffect.PasswordResetEmailSent)
