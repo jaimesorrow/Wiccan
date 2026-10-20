@@ -1,189 +1,90 @@
-# Wiccan — Content Voice & Lesson Standard
+# Wiccan — Content Voice and Practical Lesson Standard
 
-This document is authoritative for Wiccan editorial content, generated drafts, validation, seed content, previews, and lesson rendering.
+Updated: October 20, 2026
+
+This is the editorial target for existing draft rewrites and future lessons, spells, potions, authoring prompts, validators, and shared detail screens. It supersedes the older historical-overview examples, intention categories, and optional standalone reflection exercises in earlier documentation and skill summaries.
+
+The complete fill-in template and nine-category table are in [Practical Lesson and Grimoire Templates](PRACTICAL_MAGIC_LESSON_TEMPLATE.md). Updating these documents does not establish that the live database, generator, validators, or Android schema already implement the target.
+
+## Source and scope
+
+Every daily entry must teach one distinct magical practice traceable to an inspected passage in an identifiable ancient grimoire or ancient magical manuscript. Verify both ancient-source eligibility and Wiccan/witchcraft scope. Preserve the source's actual tradition and label any contemporary Wiccan application as an adaptation.
+
+Inspect the passage before authoring. Keep its title, manuscript/catalogue identity, documented origin and dating evidence, exact locator, edition and translator/editor, accessible source location, and commercial-use rights findings. Distinguish manuscript date, estimated composition date, and modern edition/translation date. Do not infer antiquity from legendary attribution or treat all historical works as ancient.
+
+An old text does not establish rights to a modern translation or image. A broad catalogue overview, an AI summary, or a populated citation field does not prove passage verification. Do not generate a method first and attach a source afterward.
+
+If source evidence, dating, scope, rights, or a safe faithful adaptation is unresolved, retain a blocked draft and record the reason. Do not fabricate a source, rebrand an unrelated practice, invent an ancient Wiccan lineage, or substitute an unrelated exercise to fill a numeric or category quota.
 
 ## Voice
 
-Wiccan content must feel grounded, mature, historically aware, practical, reflective, and subtly grimoire-inspired. It should be serious rather than theatrical, clear enough for a modern reader, and respectful of different traditions and cultures.
+Use clear, original, mature, inclusive explanatory prose. Explain the specific practice substantively. Qualify historical claims, keep uncertainty visible, and frame magical associations as spiritual or symbolic practice.
 
-Avoid cheesy fantasy prose, fake antiquated English, sensational occult language, guaranteed supernatural outcomes, invented historical claims, medical diagnosis/treatment claims, presenting folklore as scientific fact, or fear-based spiritual claims.
+Exclude theatrical prose, fake antiquated English, stage magic, party activities, free-standing self-help presented as sourced spells, coercive targeting, fear-based claims, invented provenance, guaranteed outcomes, and unsupported medical claims.
 
-## Canonical lesson structure
+## Required lesson hierarchy
 
-Use this structure whenever it fits:
+1. Distinct title and brief summary.
+2. Actual source tradition, origin and dating; clearly identified contemporary application.
+3. Exactly one practical primary category; optional valid secondary categories.
+4. Introduction explaining what the reader will perform.
+5. Tools/materials and any source-supported timing or correspondences; label adaptations.
+6. Main lesson, approximately 250–450 words, centered on a coherent numbered method.
+7. Source-supported incantation or formula when appropriate.
+8. One specific reflection question.
+9. One concise practice/completion prompt pointing back to the method.
+10. Activity-specific safety note.
+11. Exact source, edition/translation, rights, uncertainty and adaptation notes.
+12. Shared potion disclosure when required.
 
-```text
-Lesson of the Day — [Title]
+The numbered method is the core lesson. Give enough detail to perform it without a second article. Include documented preparation and sequence; explain documented closing when present and label modern cleanup/storage/disposal guidance. Do not invent ceremonial opening or closing steps.
 
-Tradition: [Tradition]
-Category: [Category]
+Do not pad sparse evidence to meet a word range. Do not add conventional colors, moon phases, ingredients, quantities, invocations, or correspondences absent from the evidence. Label any reviewed modern addition clearly.
 
-Introduction
-A concise factual or contextual opening.
+A formula is source-dependent. Use only suitable, legally reusable wording with attribution, or an identified paraphrase. Omit the section when the source supplies none and record the editorial reason. An original rhyme is not mandatory.
 
-Lesson
-A substantial, readable explanation of the practice, symbolism, history, or framework. Clearly distinguish historical/customary claims, modern practice, symbolism, and personal reflection.
+## Practical categories
 
-Reflection
-One thoughtful question that connects the lesson to the reader's own practice or life.
+Use a flat list:
 
-Practice
-Optional. One safe, simple action the reader can try.
+- Candle Magic — `candle-magic`
+- Herbs & Botanicals — `herbs-botanicals`
+- Potions & Infusions — `potions-infusions`
+- Crystals & Stones — `crystals-stones`
+- Cord & Knot Magic — `cord-knot-magic`
+- Moon Magic & Timing — `moon-phases-timing`
+- Elemental Magic — `elemental-magic`
+- Altars & Sacred Space — `altars-sacred-space`
+- Divination — `divination`
 
-Safety Note
-Include whenever materials, ingestion, flame, smoke, skin contact, children, pets, plants, health, or another meaningful risk is involved.
-```
+Choose by the actual source-supported technique. Protection, love, cleansing, abundance and other aims can be optional tags. Retire the intention navigation groups. Review legacy categories per record; do not map an old intention to a new technique automatically. Keep unsupported category slots empty.
 
-Do not force Practice or Safety Note into a lesson when neither is appropriate.
+## Safety and disclosure
 
-## Preferred production data representation
+Keep practices self-directed or consent-based. Identify a preparation's permitted route of use and favor non-ingestible preparations during the rewrite. Do not turn unsafe historical recipes into modern instructions.
 
-```text
-id
-type = lesson
-tier = free | premium
-tradition
-category
-title
-intro
-body
-reflection
-practice?       // nullable
-materials?      // nullable
-safetyNote?     // nullable
-tags
-sourceId
-sourceCitation?
-sourceUrl?
-rightsReviewRequired?
-rightsNotes?
-similarityGroupId?  // stable across rewordings of the same lesson
-status = draft | published | withdrawn
-```
+Provide relevant precautions for flame, smoke, botanicals, oils, stones, water, cords, allergies, children and pets. Avoid essential-oil ingestion, tight bindings, cords near flames, hazardous unattended materials, invented doses, and unsupported ingredient-safety claims. Verify specialized guidance against authoritative sources during actual lesson preparation. Treat unresolved activity risks as review blockers.
 
-If adding `reflection` and `practice` requires a schema migration, implement it deliberately across Kotlin domain models, Firestore mapping, Room, Cloud Functions types, generation, validation, Grimoire/detail rendering, and tests. Do not bury structured metadata inside `body` merely to avoid a migration.
+Under the established project policy, potion, tea, bath, oil, spray, jar and skin-contact lesson types require `requiresPotionDisclosure = true`. Render `settings/disclosures.potionSafetyDisclosure` in addition to the lesson-specific safety note.
 
-Lessons have no experience-level field or label. Keep source and rights
-metadata alongside the historical lesson, and use the same editorial
-`similarityGroupId` when revising or substantially rewording it. Distinct
-lessons from one broad source need distinct identities. See
-`docs/ANCIENT_LESSON_SOURCING.md` for the seed's reviewed overlap groups.
+## Data and compatibility
 
-## Quality anchors
+Preserve document IDs, creation metadata, legitimate source/rights decisions, similarity identities, editorial annotations, curriculum placement, and delivered history. Keep the existing `content` collection compatible unless a reviewed architecture decision requires otherwise.
 
-### The Threshold
+The current legacy contract includes `intro`, `body`, `materials`, `category`, and `status`. Structured reflection and practice already exist. The authoring target adds the practical fields described in the linked template, including `summary`, `primaryCategoryId`, `lessonType`, `requiresPotionDisclosure`, and structured citations. Deliberately map aliases such as `intro/introduction`, `body/lesson`, `materials/tools`, and `status/contentStatus`. Finalize new metadata shapes in schema review rather than silently inventing serializers.
 
-**Tradition:** Folk Practice  
-**Category:** Home & Hearth
+Implement the target across generation, validation, import, Kotlin models/mapping, Room/caching, shared Compose detail rendering and meaningful regression tests before live content migration. Do not bury new structured sections in `body` to avoid the migration. Remove difficulty and experience gates while preserving free/premium access.
 
-**Introduction**  
-Every dwelling has a threshold. It is both an entrance and a boundary: a place where one space ends and another begins. In traditional folk practice, thresholds were treated with care because they symbolized consent, protection, and passage.
+## Grimoire and artwork
 
-**Lesson**  
-A threshold need not be mystical to carry meaning. It is a deliberate point of transition.
+Use **Grimoire**, with Timeline and Categories views. Today and received entries use the same full detail layout. Preserve saved entries during category transitions, stable assignment ownership/dates, no-repeat reservations, similarity exclusions, and clear exhausted/empty states.
 
-When you cross into your home, you may choose to treat that moment with intention. Pause before entering. Notice what you are carrying inward with you—anger, exhaustion, worry, noise from the day.
+Use restrained Wiccan line-art within the existing six-palette system. Preserve accessibility, themes, widgets, notifications, subscriptions, privacy, and account deletion.
 
-A simple household rite is to place your hand lightly against the doorframe and consider what you want to bring into your private space. No supernatural claim is required. The value is in establishing a repeated boundary between the outer world and your home.
+## Review and migration
 
-Historically, people in different places have marked doors and entrances with protective symbols, herbs, iron, salt, prayer, or other customs. Describe such practices carefully and avoid presenting one culture's practice as universal.
+Review distinct central technique and sequence as well as wording. Changing only a color, ingredient, or intention does not establish a new lesson.
 
-**Reflection**  
-What do you want your home to feel like when you cross its threshold?
+Before live content changes: verify the inventory, create a secure backup with restore instructions, prepare reviewed drafts and a per-record before/after report, preview against current document versions, and obtain approval for the concrete change set. Apply only approved fields with conflict protection and unchanged-record skips.
 
-**Practice**  
-Tonight, pause at your door before entering. Take one breath and choose one quality you want to bring inside with you.
-
-### The Waxing Moon
-
-**Tradition:** Modern Wiccan Practice  
-**Category:** Moon & Seasonal
-
-**Introduction**  
-The waxing moon is the period between the new moon and the full moon, when the illuminated portion visible from Earth appears to grow.
-
-**Lesson**  
-Within many modern magical traditions, the waxing moon is used symbolically for increase, development, and gradual strengthening.
-
-The important distinction is that Wiccan must not state that the moon forces a desired event to occur. Its visible cycle can instead provide practitioners with a recurring structure for reflection and intentional action.
-
-A waxing-moon practice might focus on learning a skill, rebuilding confidence, saving money, strengthening a habit, tending a relationship, or developing a creative project.
-
-A useful grimoire entry records both intention and action. For example: intention—greater discipline; action—twenty minutes of study each evening; observation—note resistance and progress over the cycle.
-
-**Reflection**  
-What in your life should be strengthened slowly rather than forced quickly?
-
-### Salt and Symbolic Boundaries
-
-**Tradition:** Folk Practice  
-**Category:** Protection
-
-**Introduction**  
-Salt has carried symbolic significance in many cultures because it preserves food, has historically been valuable, and is associated with preservation and cleanliness.
-
-**Lesson**  
-In some folk-magical practices, salt is used as a symbol of boundary and protection. State this as a cultural or symbolic practice, not as scientifically established supernatural protection.
-
-A small dish may serve as a deliberate reminder of household boundaries. The meaning is more important than using large quantities.
-
-Avoid scattering large amounts outdoors because excess salt can damage soil and plants.
-
-**Reflection**  
-Where would stronger boundaries improve your life?
-
-**Practice**  
-If this symbolism is meaningful to you, place a small amount of salt in a dedicated indoor dish and use seeing it as a prompt to reflect on your boundaries.
-
-**Safety Note**  
-Keep ritual materials where children and pets cannot ingest them. Avoid applying salt directly to soil or vegetation.
-
-## Spells and potions
-
-Use the same editorial philosophy for spells and potions:
-
-- distinguish symbolism/tradition from established physical effects;
-- provide clear materials and steps;
-- include safety notes when relevant;
-- never promise guaranteed love, wealth, healing, protection, or another supernatural result;
-- never substitute ritual for medical, legal, financial, or emergency care;
-- do not recommend unsafe ingestion or unidentified plants;
-- use “potion” carefully: many entries should be non-ingestible ritual preparations unless every ingredient and use is demonstrably food-safe.
-
-## Generation rule
-
-The draft-generation system may use only an editor-approved source classified
-as an ancient grimoire or ancient magical manuscript. All generated content
-types must remain traceable to that source's curated facts; modern occult
-books, generic model knowledge, and unlisted sources are outside the factual
-boundary. Generated content that violates this standard must fail validation
-before it is written.
-
-Every generated item is written with `status = draft` and
-`rightsReviewRequired = true` until manually reviewed and approved.
-
-## UI rule
-
-Lessons must display the hierarchy clearly:
-
-- type / tradition / category;
-- title;
-- introduction;
-- lesson;
-- reflection;
-- optional practice;
-- optional safety note.
-
-No physical photography is used for lesson artwork. Use restrained line-art matching the Wiccan visual system.
-
-## Acceptance criteria
-
-- Generated lessons read like the quality anchors above.
-- Reflection is meaningful rather than generic filler.
-- Historical statements are qualified appropriately.
-- Symbolic claims are not presented as objective supernatural facts.
-- Safety notes appear when risk warrants them.
-- UI renders all lesson sections cleanly.
-- Grimoire preserves the same content structure.
-- Tests cover serialization/migration for new structured fields.
-- Generator validation rejects unsafe or sensational content.
+All migrated content remains draft. Source verification, scope, rights, safety and editorial approval are separate from structural validation. Publication, Cloud Functions deployment, and Firestore rules deployment remain separate actions.
