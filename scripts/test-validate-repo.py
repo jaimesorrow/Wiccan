@@ -92,7 +92,7 @@ exec "$VALIDATE_TEST_REAL_GIT" "$@"
         result = self.run_validator()
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("npm ci", self.commands())
-        self.assertIn("npm audit --audit-level=moderate", self.commands())
+        self.assertEqual(self.commands().count("npm audit --audit-level=moderate"), 2)
         self.assertEqual(self.commands().count("alignment"), 1)
         for step in ("build", "test", "lint"):
             self.assertIn("npm run " + step, self.commands())
