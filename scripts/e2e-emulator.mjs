@@ -135,12 +135,22 @@ async function main() {
   }
 
   console.log("\n== getTodayContent ==");
+  for (const timezone of [null, 7, "", " UTC", "UTC ", "Not/A_Real_Zone", "x".repeat(256)]) {
+    const invalid = await call("getTodayContent", token, { timezone });
+    ok(`getTodayContent rejects invalid timezone ${JSON.stringify(timezone).slice(0, 60)}`,
+      invalid?.error?.status === "INVALID_ARGUMENT");
+  }
   const first = await call("getTodayContent", token);
   const firstId = first?.result?.id;
   ok("returns content for an authed user", !!first?.result, JSON.stringify(first).slice(0, 200));
   const second = await call("getTodayContent", token);
   ok("repeat call returns the same content", firstId && firstId === second?.result?.id,
     `${firstId} vs ${second?.result?.id}`);
+  for (const timezone of ["UTC", "America/Anchorage", "GMT+05:30", "UTC-03:30"]) {
+    const zoned = await call("getTodayContent", token, { timezone });
+    ok(`getTodayContent accepts timezone ${timezone}`, !!zoned?.result,
+      JSON.stringify(zoned).slice(0, 200));
+  }
   ok("free user is never served premium or draft content",
     firstId !== "e2e-premium-1" && firstId !== "e2e-draft-1", `got ${firstId}`);
   const hist = await db.collection("userContentHistory").doc(`${uid}_${today()}`).get();

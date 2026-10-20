@@ -8,7 +8,7 @@ import { auth as authV1 } from "firebase-functions/v1";
 import * as logger from "firebase-functions/logger";
 import { ContentPoolExhaustedError, DailyAssignmentUnavailableError, selectTodayContent } from "./getTodayContent";
 import { FirestoreContentRepository } from "./firestoreContentRepository";
-import { getUserLocalDate, isValidTimeZone, resolveTimeZone } from "./dateUtils";
+import { getUserLocalDate, resolveTimeZone } from "./dateUtils";
 import { GooglePlayBillingRepository } from "./googlePlayBillingRepository";
 import { FirestoreUserRepository } from "./firestoreUserRepository";
 import { verifyPurchaseAndSyncTier, PurchaseVerificationError } from "./verifyPurchase";
@@ -68,7 +68,7 @@ export const getTodayContent = onCall(CALLABLE_OPTIONS, async (request) => {
   // asynchronous notification registration has stored a profile zone.
   const requestedTimeZone = request.data?.timezone;
   if (requestedTimeZone !== undefined &&
-      (typeof requestedTimeZone !== "string" || !isValidTimeZone(requestedTimeZone))) {
+      parseTimeZone(requestedTimeZone) === null) {
     throw new HttpsError("invalid-argument", "timezone must be a valid IANA time zone or UTC offset.");
   }
 

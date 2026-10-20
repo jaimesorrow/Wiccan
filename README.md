@@ -146,7 +146,14 @@ and `--structure` before the expensive steps.
 ./gradlew :app:testProdDebugUnitTest
 # With the Firebase suite already running, install an emulator-routed build:
 ./gradlew :app:installProdDebug -PuseFirebaseEmulators=true
+# Before launching, clear saved Firebase Auth state from the previous mode:
+adb shell pm clear com.jaimesorrow.wiccan
 ```
+
+Clear app data every time you switch between emulator routing and normal
+Firebase, including when switching back. Both builds replace the same app;
+clearing its data signs you out and removes local settings and cached content.
+Use a test device and sign in again against the selected backend.
 
 The app has three product flavors (`dev`/`staging`/`prod`, one per
 environment - see Environments below). Production uses the verified

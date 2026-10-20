@@ -23,6 +23,7 @@ node scripts/e2e-emulator.mjs
 
 # terminal 3: build/install the Android emulator client
 ./gradlew :app:installProdDebug -PuseFirebaseEmulators=true
+adb shell pm clear com.jaimesorrow.wiccan
 ```
 
 Emulator UI: <http://127.0.0.1:4000>. Ports: auth 9099, functions 5001,
@@ -58,6 +59,19 @@ an explicitly opted-in debug build:
 
 ```bash
 ./gradlew :app:installProdDebug -PuseFirebaseEmulators=true
+adb shell pm clear com.jaimesorrow.wiccan
+```
+
+Before launching after **every change between emulator routing and normal
+Firebase**, clear app data with the command above. Both modes install as
+`com.jaimesorrow.wiccan`, so replacing the APK preserves Firebase Auth state
+from the previous backend. Clearing data signs you out and removes local
+settings and cached content; use a test device, then sign in against the
+selected backend. The same reset is required when switching back:
+
+```bash
+./gradlew :app:installProdDebug
+adb shell pm clear com.jaimesorrow.wiccan
 ```
 
 Release builds hardcode emulator routing off. Emulator-mode debug builds
