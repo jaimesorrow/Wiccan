@@ -1,7 +1,6 @@
 package com.jaimesorrow.wiccan.ui.auth
 
 import android.content.Context
-import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaimesorrow.wiccan.core.result.AppResult
@@ -16,6 +15,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+private val EMAIL_PATTERN = Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
@@ -62,7 +63,7 @@ class SignInViewModel @Inject constructor(
         val password = _state.value.password
         val emailError = when {
             email.isBlank() -> "Enter your email address."
-            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Enter a valid email address."
+            !EMAIL_PATTERN.matches(email) -> "Enter a valid email address."
             else -> null
         }
         val passwordError = when {
@@ -95,7 +96,7 @@ class SignInViewModel @Inject constructor(
 
     private fun sendPasswordReset() {
         val email = _state.value.email.trim()
-        if (email.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (email.isBlank() || !EMAIL_PATTERN.matches(email)) {
             _state.update { it.copy(email = email, emailError = "Enter a valid email address.") }
             return
         }
