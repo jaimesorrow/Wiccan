@@ -98,6 +98,8 @@ fun SignInScreen(
                 value = state.email,
                 onValueChange = { viewModel.onEvent(SignInUiEvent.EmailChanged(it)) },
                 label = { Text("Email") },
+                isError = state.emailError != null,
+                supportingText = state.emailError?.let { error -> { Text(error) } },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -106,6 +108,8 @@ fun SignInScreen(
                 value = state.password,
                 onValueChange = { viewModel.onEvent(SignInUiEvent.PasswordChanged(it)) },
                 label = { Text("Password") },
+                isError = state.passwordError != null,
+                supportingText = state.passwordError?.let { error -> { Text(error) } },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
