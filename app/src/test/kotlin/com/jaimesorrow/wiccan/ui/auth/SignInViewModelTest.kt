@@ -38,7 +38,7 @@ class SignInViewModelTest {
     }
 
     @Test
-    fun `ToggleMode switches between sign-in and create-account`() {
+    fun toggleModeSwitchesBetweenSignInAndCreateAccount() {
         assertEquals(SignInMode.SIGN_IN, viewModel.state.value.mode)
 
         viewModel.onEvent(SignInUiEvent.ToggleMode)
@@ -49,7 +49,31 @@ class SignInViewModelTest {
     }
 
     @Test
-    fun `SubmitEmailAuth in sign-in mode calls signInWithEmail with current fields`() = runTest(dispatcher) {
+    fun emptyCredentialsShowFieldValidationAndDoNotCallRepository() = runTest {
+        viewModel.onEvent(SignInUiEvent.SubmitEmailAuth)
+
+        assertEquals("Enter your email address.", viewModel.state.value.emailError)
+        assertEquals("Enter your password.", viewModel.state.value.passwordError)
+        assertFalse(viewModel.state.value.isLoading)
+        assertEquals(null, repository.lastSignInEmail)
+        assertEquals(null, repository.lastCreateAccountEmail)
+    }
+
+    @Test
+    fun invalidEmailAndShortPasswordShowFieldValidation() = runTest {
+        viewModel.onEvent(SignInUiEvent.EmailChanged("not-an-email"))
+        viewModel.onEvent(SignInUiEvent.PasswordChanged("short"))
+
+        viewModel.onEvent(SignInUiEvent.SubmitEmailAuth)
+
+        assertEquals("Enter a valid email address.", viewModel.state.value.emailError)
+        assertEquals("Password must be at least 6 characters.", viewModel.state.value.passwordError)
+        assertFalse(viewModel.state.value.isLoading)
+        assertEquals(null, repository.lastSignInEmail)
+    }
+
+    @Test
+    fun submitEmailAuthInSignInModeCallsSignInWithEmailWithCurrentFields() = runTest(dispatcher) {
         viewModel.onEvent(SignInUiEvent.EmailChanged("witch@example.com"))
         viewModel.onEvent(SignInUiEvent.PasswordChanged("hunter2"))
 
@@ -62,9 +86,10 @@ class SignInViewModelTest {
     }
 
     @Test
-    fun `SubmitEmailAuth in create-account mode calls createAccountWithEmail`() = runTest(dispatcher) {
+    fun submitEmailAuthInCreateAccountModeCallsCreateAccountWithEmail() = runTest(dispatcher) {
         viewModel.onEvent(SignInUiEvent.ToggleMode)
         viewModel.onEvent(SignInUiEvent.EmailChanged("new@example.com"))
+        viewModel.onEvent(SignInUiEvent.PasswordChanged("hunter2"))
 
         viewModel.onEvent(SignInUiEvent.SubmitEmailAuth)
         dispatcher.scheduler.advanceUntilIdle()
@@ -73,10 +98,12 @@ class SignInViewModelTest {
     }
 
     @Test
-    fun `a failed sign-in forwards the repository's error`() = runTest(dispatcher) {
+    fun aFailedSignInForwardsTheRepositoryError() = runTest(dispatcher) {
         repository.emailSignInResult = AppResult.Failure(AppError.Unknown("bad credentials"))
 
         viewModel.effects.test {
+            viewModel.onEvent(SignInUiEvent.EmailChanged("witch@example.com"))
+            viewModel.onEvent(SignInUiEvent.PasswordChanged("hunter2"))
             viewModel.onEvent(SignInUiEvent.SubmitEmailAuth)
             val effect = awaitItem()
             assertTrue(effect is SignInUiEffect.ShowSnackbar)
@@ -86,7 +113,7 @@ class SignInViewModelTest {
     }
 
     @Test
-    fun `ForgotPasswordClicked sends a reset email and emits a confirmation effect`() = runTest(dispatcher) {
+    fun forgotPasswordClickedSendsAResetEmailAndEmitsAConfirmationEffect() = runTest {
         viewModel.onEvent(SignInUiEvent.EmailChanged("forgot@example.com"))
 
         viewModel.effects.test {
@@ -98,19 +125,19 @@ class SignInViewModelTest {
     }
 
     @Test
-    fun `Google sign-in is offered when the build has a web OAuth client`() {
+    fun googleSignInIsOfferedWhenTheBuildHasAWebOAuthClient() {
         assertTrue(viewModel.state.value.isGoogleSignInAvailable)
     }
 
     @Test
-    fun `Google sign-in is hidden when the build has no web OAuth client`() {
+    fun googleSignInIsHiddenWhenTheBuildHasNoWebOAuthClient() {
         repository.googleSignInAvailable = false
 
         assertFalse(SignInViewModel(repository).state.value.isGoogleSignInAvailable)
     }
 
     @Test
-    fun `email sign-in works when Google sign-in is unavailable`() = runTest(dispatcher) {
+    fun emailSignInWorksWhenGoogleSignInIsUnavailable() = runTest(dispatcher) {
         repository.googleSignInAvailable = false
         viewModel = SignInViewModel(repository)
         viewModel.onEvent(SignInUiEvent.EmailChanged("witch@example.com"))
@@ -126,7 +153,7 @@ class SignInViewModelTest {
     }
 
     @Test
-    fun `Google sign-in failure emits a snackbar effect`() = runTest(dispatcher) {
+    fun googleSignInFailureEmitsASnackbarEffect() = runTest(dispatcher) {
         repository.googleResult = AppResult.Failure(AppError.Unknown("cancelled"))
         val context = mockk<Context>()
 
