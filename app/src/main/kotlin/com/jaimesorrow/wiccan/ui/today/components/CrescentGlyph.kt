@@ -8,17 +8,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 
 /**
- * Thin-line crescent moon drawn as two overlapping circles — the second
- * uses [BlendMode.Clear] to carve the crescent out of the first. Matches
- * the spec's "subtle thin-line decorative glyph" note without pulling in
- * an asset pipeline for a single icon.
+ * Thin-line crescent drawn from the difference between two circular paths.
+ * Drawing the outline never erases the surrounding screen background.
  */
 @Composable
 fun CrescentGlyph(
@@ -26,21 +25,18 @@ fun CrescentGlyph(
     tint: Color = MaterialTheme.colorScheme.tertiary,
 ) {
     Canvas(modifier = modifier.size(28.dp)) {
-        val radius = size.minDimension / 2f
         val stroke = Stroke(width = 1.2f.dp.toPx())
-        drawCircle(
-            color = tint,
-            radius = radius - stroke.width,
-            center = Offset(size.width / 2f, size.height / 2f),
-            style = stroke,
-        )
-        drawCircle(
-            color = Color.Transparent,
-            radius = radius - stroke.width,
-            center = Offset(size.width / 2f + radius * 0.55f, size.height / 2f),
-            style = Stroke(width = radius * 1.6f),
-            blendMode = BlendMode.Clear,
-        )
+        val radius = size.minDimension / 2f - stroke.width
+        val centerX = size.width * 0.66f
+        val centerY = size.height / 2f
+        val outer = Path().apply {
+            addOval(Rect(centerX - radius, centerY - radius, centerX + radius, centerY + radius))
+        }
+        val innerX = centerX + radius * 0.55f
+        val inner = Path().apply {
+            addOval(Rect(innerX - radius, centerY - radius, innerX + radius, centerY + radius))
+        }
+        drawPath(Path.combine(PathOperation.Difference, outer, inner), color = tint, style = stroke)
     }
 }
 

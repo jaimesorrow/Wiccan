@@ -1,11 +1,14 @@
 package com.jaimesorrow.wiccan.ui.auth
 
+import android.graphics.BitmapFactory
+import android.graphics.Color
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -79,6 +82,13 @@ class SignInScreenLayoutTest {
         }
         val prefix = "build/outputs/roborazzi/wiccan-auth-${mode.name.lowercase()}-${(fontScale * 100).toInt()}"
         composeRule.onRoot().captureRoboImage(filePath = "$prefix-top.png")
+        val glyph = composeRule.onNodeWithTag("auth-crescent").fetchSemanticsNode().boundsInRoot
+        val bitmap = requireNotNull(BitmapFactory.decodeFile("$prefix-top.png"))
+        assertEquals(
+            "Decorative glyph must not clear the screen background",
+            255,
+            Color.alpha(bitmap.getPixel(glyph.center.x.toInt(), glyph.center.y.toInt())),
+        )
 
         composeRule.onNodeWithText("Continue with Google").performScrollTo().assertIsDisplayed().performClick()
         assertEquals(1, googleClicks)
