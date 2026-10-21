@@ -59,6 +59,20 @@ class PaywallViewModelTest {
     }
 
     @Test
+    fun `returning to the paywall refreshes eligibility instead of reusing a consumed trial`() = runTest(dispatcher) {
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        viewModel.refreshOffer()
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(1, repository.priceCallCount)
+        assertTrue(viewModel.state.value.hasFreeTrial)
+        repository.hasFreeTrial = false
+        viewModel.refreshOffer()
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(2, repository.priceCallCount)
+        assertFalse(viewModel.state.value.hasFreeTrial)
+    }
+
+    @Test
     fun `a failed price load forwards the repository's error and leaves price unset`() = runTest(dispatcher) {
         repository.priceResult = AppResult.Failure(AppError.Network)
 

@@ -29,10 +29,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.core.util.findActivity
 import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
+import kotlinx.coroutines.awaitCancellation
 
 /**
  * Required after onboarding. A purchase callback alone never dismisses
@@ -49,6 +53,14 @@ fun PaywallScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(lifecycleOwner, viewModel) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewModel.refreshOffer()
+            awaitCancellation()
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->

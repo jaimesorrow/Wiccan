@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
                 EdgeToEdgeEffect()
                 val rootState by rootViewModel.rootState.collectAsStateWithLifecycle()
                 var openLegalDocument by remember { mutableStateOf<LegalDocumentId?>(null) }
-                var openAccount by remember { mutableStateOf(false) }
+                var openAccount by remember(rootState) { mutableStateOf(false) }
                 val subscriptionUid = when (val state = rootState) {
                     is RootState.SignedIn -> state.uid
                     is RootState.RequiresSubscription -> state.uid

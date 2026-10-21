@@ -41,6 +41,11 @@ class PaywallViewModel @Inject constructor(
         }
     }
 
+    /** A returning subscriber may no longer be eligible for the trial shown last time. */
+    fun refreshOffer() {
+        if (!_state.value.isLoadingPrice) loadPrice()
+    }
+
     fun subscribe(activity: Activity) {
         viewModelScope.launch {
             when (val result = subscriptionRepository.launchPurchaseFlow(activity)) {
