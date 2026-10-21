@@ -44,10 +44,12 @@ Open [Play Console](https://play.google.com/console/) → select Wiccan →
 Monetize with Play → Products → Subscriptions → `wiccan_premium_monthly`.
 
 1. Configure/activate the monthly auto-renewing base plan, with a US base price
-   of $5.99. Set intended countries and review localized prices/taxes.
+   of $5.99. Use a customer-facing name such as "Wiccan subscription", keeping
+   the existing product ID. Set intended countries and review localized prices/taxes.
 2. Add/activate a Google Play eligibility-controlled offer for new subscribers:
    one free phase lasting seven days, followed directly by the monthly base plan.
-   The client expects `P7D`, zero cost, one cycle, then `P1M` infinite renewal.
+   The client accepts `P7D` or `P1W`, zero cost, one finite cycle (or a single
+   nonrecurring trial phase), then `P1M` infinite renewal.
    It rejects other introductory phases and a USD renewal price other than $5.99.
 3. Make the product and offer available to the app's test/release track. Keep the
    existing product IDs; do not rename them or create a second free plan. Legacy
@@ -63,6 +65,8 @@ Monetize with Play → Products → Subscriptions → `wiccan_premium_monthly`.
 References: [subscription offers](https://developer.android.com/google/play/billing/subscriptions),
 [Billing integration](https://developer.android.com/google/play/billing/integrate),
 [subscription lifecycle](https://developer.android.com/google/play/billing/lifecycle/subscriptions).
+See also [Play Console subscription setup](https://support.google.com/googleplay/android-developer/answer/140504)
+and the [pricing-phase API](https://developer.android.com/reference/com/android/billingclient/api/ProductDetails.PricingPhase).
 
 ## Coordinated rollout
 

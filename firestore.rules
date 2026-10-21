@@ -14,7 +14,7 @@ service cloud.firestore {
     // to published content already delivered to them and to their own history
     // rows; all writes go through the Admin SDK inside getTodayContent. A
     // delivery marker is required for Grimoire reads, so published content cannot be scraped
-    // to bypass either subscription tiers or the one-entry-per-day selection.
+    // to bypass the subscription requirement or the one-entry-per-day selection.
     match /content/{contentId} {
       allow get: if request.auth != null && hasSubscription() && resource.data.status == 'published'
         && exists(/databases/$(database)/documents/userContentUsage/$(request.auth.uid)/content/$(contentId));

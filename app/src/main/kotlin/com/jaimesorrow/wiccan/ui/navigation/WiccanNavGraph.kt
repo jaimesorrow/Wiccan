@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -24,6 +25,7 @@ import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentScreen
 import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
 import com.jaimesorrow.wiccan.ui.settings.SettingsScreen
+import com.jaimesorrow.wiccan.ui.settings.SettingsViewModel
 import com.jaimesorrow.wiccan.ui.today.TodayScreen
 
 private data class BottomNavItem(val route: String, val label: String)
@@ -42,7 +44,11 @@ private val bottomNavItems = listOf(
  * subscription management. The root gate runs before this shell exists.
  */
 @Composable
-fun WiccanAppShell(modifier: Modifier = Modifier, startOnPaywall: Boolean = false) {
+fun WiccanAppShell(
+    modifier: Modifier = Modifier,
+    startOnPaywall: Boolean = false,
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
+) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -70,6 +76,7 @@ fun WiccanAppShell(modifier: Modifier = Modifier, startOnPaywall: Boolean = fals
             }
             composable(WiccanDestinations.SETTINGS) {
                 SettingsScreen(
+                    viewModel = settingsViewModel,
                     onTermsClick = { navController.navigate(WiccanDestinations.TERMS) },
                     onPrivacyClick = { navController.navigate(WiccanDestinations.PRIVACY) },
                     onContentSafetyClick = { navController.navigate(WiccanDestinations.CONTENT_SAFETY) },
@@ -82,6 +89,7 @@ fun WiccanAppShell(modifier: Modifier = Modifier, startOnPaywall: Boolean = fals
                 // Existing widget links remain valid. Subscribers manage
                 // their subscription here; everyone else is held at root.
                 SettingsScreen(
+                    viewModel = settingsViewModel,
                     accountOnly = true,
                     onBack = { navController.popBackStackIfPossible() },
                     onTermsClick = { navController.navigate(WiccanDestinations.TERMS) },

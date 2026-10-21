@@ -89,7 +89,12 @@ class MainActivity : ComponentActivity() {
                 } ?: when (rootState) {
                     is RootState.SignedIn -> key(subscriptionUid) {
                         NotificationSetupEffect()
-                        WiccanAppShell(startOnPaywall = startOnPaywall)
+                        // Account deletion must finish/sign out even if the
+                        // server revokes access and removes this navigation shell.
+                        WiccanAppShell(
+                            startOnPaywall = startOnPaywall,
+                            settingsViewModel = hiltViewModel(key = "subscription-account-$subscriptionUid"),
+                        )
                     }
                     is RootState.RequiresSubscription -> key(subscriptionUid) {
                         if (openAccount) {

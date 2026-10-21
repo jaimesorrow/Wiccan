@@ -30,6 +30,19 @@ class SubscriptionOfferTest {
     }
 
     @Test
+    fun `a one-week Play billing period is the same seven-day trial`() {
+        assertTrue(product(offer("trial", trial(period = "P1W"), renewal())).subscriptionOffer()!!.hasFreeTrial)
+        assertTrue(product(offer("trial", trial(nonRecurring = true), renewal())).subscriptionOffer()!!.hasFreeTrial)
+    }
+
+    @Test(expected = PlayBillingException::class)
+    fun `checkout cannot replace a displayed trial with an immediate monthly charge`() {
+        val displayed = product(offer("trial", trial(), renewal())).subscriptionOffer()!!
+        val nowIneligible = product(offer(null, renewal()))
+        nowIneligible.requireUnchangedOffer(displayed)
+    }
+
+    @Test
     fun `wrong US price yearly plans and unsupported promotional phases fail closed`() {
         assertNull(product(offer(null, renewal(micros = 4_990_000))).subscriptionOffer())
         assertNull(product(offer(null, renewal(period = "P1Y"))).subscriptionOffer())
@@ -87,10 +100,14 @@ class SubscriptionOfferTest {
         every { priceAmountMicros } returns micros
     }
 
-    private fun trial(period: String = "P7D"): ProductDetails.PricingPhase = mockk {
-        every { recurrenceMode } returns ProductDetails.RecurrenceMode.FINITE_RECURRING
+    private fun trial(period: String = "P7D", nonRecurring: Boolean = false): ProductDetails.PricingPhase = mockk {
+        every { recurrenceMode } returns if (nonRecurring) {
+            ProductDetails.RecurrenceMode.NON_RECURRING
+        } else {
+            ProductDetails.RecurrenceMode.FINITE_RECURRING
+        }
         every { billingPeriod } returns period
-        every { priceAmountMicros } returns 0
-        every { billingCycleCount } returns 1
+        every { priceAmountMicros } returns 0L
+        every { billingCycleCount } returns if (nonRecurring) 0 else 1
     }
 }

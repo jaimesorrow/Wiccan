@@ -41,10 +41,11 @@ class UserTierDataSource @Inject constructor(
                     return@addSnapshotListener
                 }
                 verificationTimeout.cancel()
-                val expiry = (snapshot.get("subscriptionExpiresAtMillis") as? Number)?.toLong() ?: 0L
+                val expiry = (snapshot.get("subscriptionExpiresAtMillis") as? Number)
+                    ?.takeIf { it.toDouble().isFinite() }?.toLong() ?: 0L
                 val remaining = expiry - System.currentTimeMillis()
                 val active =
-                    hasSubscriptionAccess(snapshot.getString(TIER_FIELD), expiry, snapshot.getBoolean("deletionInProgress") == true)
+                    hasSubscriptionAccess(snapshot.get(TIER_FIELD) as? String, expiry, snapshot.get("deletionInProgress") == true)
                 val tier = if (active) ContentTier.PREMIUM else ContentTier.FREE
                 trySend(tier)
                 if (active) {

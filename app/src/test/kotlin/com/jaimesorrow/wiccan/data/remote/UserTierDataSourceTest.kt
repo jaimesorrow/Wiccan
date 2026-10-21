@@ -34,6 +34,8 @@ class UserTierDataSourceTest {
             runCurrent()
             listener.captured.onEvent(snapshot(expiry, cached = true), null)
             assertEquals(ContentTier.FREE, awaitItem())
+            listener.captured.onEvent(snapshot(Double.POSITIVE_INFINITY, cached = false), null)
+            assertEquals(ContentTier.FREE, awaitItem())
             listener.captured.onEvent(snapshot(expiry, cached = false), null)
             assertEquals(ContentTier.PREMIUM, awaitItem())
             advanceTimeBy(61_000)
@@ -51,10 +53,12 @@ class UserTierDataSourceTest {
         assertFalse(hasSubscriptionAccess("premium", 200, true, nowMillis = 100))
     }
 
-    private fun snapshot(expiry: Long, cached: Boolean): DocumentSnapshot = mockk {
-        every { metadata } returns mockk { every { isFromCache } returns cached }
-        every { getString("tier") } returns "premium"
-        every { get("subscriptionExpiresAtMillis") } returns expiry
-        every { getBoolean("deletionInProgress") } returns false
+    private fun snapshot(expiry: Number, cached: Boolean): DocumentSnapshot {
+        val document = mockk<DocumentSnapshot>()
+        every { document.metadata } returns mockk { every { isFromCache } returns cached }
+        every { document.get("tier") } returns "premium"
+        every { document.get("subscriptionExpiresAtMillis") } returns expiry
+        every { document.get("deletionInProgress") } returns false
+        return document
     }
 }

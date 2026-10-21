@@ -130,9 +130,7 @@ class WiccanBillingClient @Inject constructor(
         val productDetails = queryProductDetails(productId)
         // Requery rather than caching ProductDetails. Never silently replace a
         // displayed free trial with an immediate charge if eligibility changed.
-        if (productDetails.subscriptionOffer() != expectedOffer) {
-            throw PlayBillingException("Your Google Play offer changed. Refresh the subscription offer and try again.")
-        }
+        productDetails.requireUnchangedOffer(expectedOffer)
 
         val flowParams = BillingFlowParams.newBuilder()
             .setObfuscatedAccountId(obfuscatedAccountId(userId))
@@ -181,12 +179,22 @@ internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
             return@mapNotNull null
         }
         val hasTrial = phases.size == 2 && phases.first().let { trial ->
-            trial.priceAmountMicros == 0L && trial.billingPeriod == "P7D" &&
-                trial.recurrenceMode == ProductDetails.RecurrenceMode.FINITE_RECURRING && trial.billingCycleCount == 1
+            trial.priceAmountMicros == 0L && trial.billingPeriod in setOf("P7D", "P1W") &&
+                (
+                    (trial.recurrenceMode == ProductDetails.RecurrenceMode.FINITE_RECURRING && trial.billingCycleCount == 1) ||
+                        (trial.recurrenceMode == ProductDetails.RecurrenceMode.NON_RECURRING && trial.billingCycleCount == 0)
+                    )
         }
         if (!hasTrial && (phases.size != 1 || offer.offerId != null)) return@mapNotNull null
         SubscriptionOffer(renewal.formattedPrice, hasTrial, offer.offerToken)
     }.sortedByDescending { it.hasFreeTrial }.firstOrNull()
+}
+
+/** Require the fresh Play terms to match the offer the user saw. */
+internal fun ProductDetails.requireUnchangedOffer(expected: SubscriptionOffer) {
+    if (subscriptionOffer() != expected) {
+        throw PlayBillingException("Your Google Play offer changed. Refresh the subscription offer and try again.")
+    }
 }
 
 /** Bind Play purchases to the Firebase account without sending the raw UID. */

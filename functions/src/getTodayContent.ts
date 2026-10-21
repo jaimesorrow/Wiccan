@@ -38,11 +38,12 @@ async function readAssignedContent(uid: string, contentId: string, repo: Content
 /**
  * Core daily-selection logic, per the Wiccan content-engine spec:
  *
- * 1. Fast path: if this user already has a history entry for `today`,
+ * 1. Verify active, unexpired subscription access before any history read.
+ *    Fast path: if this user already has a history entry for `today`,
  *    return that content (idempotent — repeated calls the same day agree).
  *    This is a plain read purely to skip the work below; it is never
  *    relied on for correctness.
- * 2. Otherwise, gather published content within the user's tier and drop
+ * 2. Otherwise, gather the single published subscriber content pool and drop
  *    any lesson that is not traceable to a curated ancient source.
  * 3. Exclude anything already delivered to the user.
  * 4. If nothing remains, log pool exhaustion and fail closed. Never repeat
