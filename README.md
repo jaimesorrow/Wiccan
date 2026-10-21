@@ -70,7 +70,7 @@ functions/                    Cloud Functions (Node/TypeScript)
   Google Play subscribers, then a US base price of $5.99/month. The paywall uses
   actual eligible Play offers and localized renewal prices, and cannot be skipped.
   Trial and paid access are identical. The two existing allow-listed product IDs
-  (`wiccan_premium_monthly` and `wiccan_premium_yearly`) verified
+  (`wiccan_premium_monthly` and `wiccan_premium_yearly`) are verified
   server-side via the Google Play Developer API; the client's own purchase
   state is never trusted as the access source of truth. New checkout only offers
   monthly; restore/server verification recognizes legacy yearly purchases too.

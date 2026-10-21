@@ -38,8 +38,8 @@ private val bottomNavItems = listOf(
  * The signed-in app shell: bottom navigation across the three primary
  * destinations (Today, Grimoire, Settings), with Paywall and
  * Archive detail as secondary routes reached by navigating in, not by
- * tab. [startOnPaywall] lets an external entry point (the locked widget's
- * `wiccan://premium` deep link) open straight onto Paywall.
+ * tab. [startOnPaywall] preserves the legacy `wiccan://premium` link as
+ * subscription management. The root gate runs before this shell exists.
  */
 @Composable
 fun WiccanAppShell(modifier: Modifier = Modifier, startOnPaywall: Boolean = false) {

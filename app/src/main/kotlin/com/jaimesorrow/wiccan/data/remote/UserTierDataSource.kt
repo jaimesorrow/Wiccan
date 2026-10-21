@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 
 /**
- * Streams `users/{uid}.tier`. This — and the daily lapse re-check — are
- * the only writers of that field (enforced by Firestore rules); the app
- * only ever reads it.
+ * Streams server-verified access and closes it at the verified expiry.
+ * Purchase verification, RTDN and reconciliation are the only writers;
+ * a cached profile or client purchase callback never grants access.
  */
 class UserTierDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
