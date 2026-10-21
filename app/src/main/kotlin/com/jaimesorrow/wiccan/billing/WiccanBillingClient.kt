@@ -14,6 +14,7 @@ import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
+import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.security.MessageDigest
 import javax.inject.Inject
@@ -124,10 +125,14 @@ class WiccanBillingClient @Inject constructor(
         activity: Activity,
         userId: String,
         productId: String = PREMIUM_MONTHLY_PRODUCT_ID,
+        expectedOffer: SubscriptionOffer,
     ): BillingResult {
         val productDetails = queryProductDetails(productId)
-        val offerToken = productDetails.recurringBasePlan()?.offerToken
-            ?: throw PlayBillingException("No recurring base plan available for '$productId'.")
+        // Requery rather than caching ProductDetails. Never silently replace a
+        // displayed free trial with an immediate charge if eligibility changed.
+        if (productDetails.subscriptionOffer() != expectedOffer) {
+            throw PlayBillingException("Your Google Play offer changed. Refresh the subscription offer and try again.")
+        }
 
         val flowParams = BillingFlowParams.newBuilder()
             .setObfuscatedAccountId(obfuscatedAccountId(userId))
@@ -135,7 +140,7 @@ class WiccanBillingClient @Inject constructor(
                 listOf(
                     BillingFlowParams.ProductDetailsParams.newBuilder()
                         .setProductDetails(productDetails)
-                        .setOfferToken(offerToken)
+                        .setOfferToken(expectedOffer.offerToken)
                         .build(),
                 ),
             )
@@ -163,20 +168,26 @@ class WiccanBillingClient @Inject constructor(
     }
 }
 
-/** Choose the same regular base plan for the displayed price and Play UI. */
-internal fun ProductDetails.recurringBasePlan(): ProductDetails.SubscriptionOfferDetails? {
-    val period = if (productId == PREMIUM_YEARLY_PRODUCT_ID) "P1Y" else "P1M"
-    return subscriptionOfferDetails?.firstOrNull { offer ->
-        offer.offerId == null && offer.pricingPhases.pricingPhaseList.any { phase ->
-            phase.recurrenceMode == ProductDetails.RecurrenceMode.INFINITE_RECURRING &&
-                phase.billingPeriod == period
+/** Only the configured monthly plan, optionally preceded by a seven-day trial. */
+internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
+    if (productId != PREMIUM_MONTHLY_PRODUCT_ID) return null
+    return subscriptionOfferDetails.orEmpty().mapNotNull { offer ->
+        val phases = offer.pricingPhases.pricingPhaseList
+        val renewal = phases.lastOrNull() ?: return@mapNotNull null
+        if (renewal.recurrenceMode != ProductDetails.RecurrenceMode.INFINITE_RECURRING ||
+            renewal.billingPeriod != "P1M" || renewal.priceAmountMicros <= 0 ||
+            (renewal.priceCurrencyCode == "USD" && renewal.priceAmountMicros != 5_990_000L)
+        ) {
+            return@mapNotNull null
         }
-    }
+        val hasTrial = phases.size == 2 && phases.first().let { trial ->
+            trial.priceAmountMicros == 0L && trial.billingPeriod == "P7D" &&
+                trial.recurrenceMode == ProductDetails.RecurrenceMode.FINITE_RECURRING && trial.billingCycleCount == 1
+        }
+        if (!hasTrial && (phases.size != 1 || offer.offerId != null)) return@mapNotNull null
+        SubscriptionOffer(renewal.formattedPrice, hasTrial, offer.offerToken)
+    }.sortedByDescending { it.hasFreeTrial }.firstOrNull()
 }
-
-fun ProductDetails.formattedPrice(): String? = recurringBasePlan()?.pricingPhases?.pricingPhaseList
-    ?.lastOrNull { it.recurrenceMode == ProductDetails.RecurrenceMode.INFINITE_RECURRING }
-    ?.formattedPrice
 
 /** Bind Play purchases to the Firebase account without sending the raw UID. */
 internal fun obfuscatedAccountId(userId: String): String = MessageDigest.getInstance("SHA-256")

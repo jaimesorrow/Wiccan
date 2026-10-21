@@ -4,40 +4,52 @@ import com.android.billingclient.api.ProductDetails
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SubscriptionOfferTest {
     @Test
-    fun `monthly price uses regular recurring base plan rather than introductory or annual offers`() {
+    fun `eligible seven-day trial is preferred and displays the monthly renewal price`() {
         val product = product(
-            PREMIUM_MONTHLY_PRODUCT_ID,
-            offer("free-trial", "P1M", "$0.00"),
-            offer(null, "P1Y", "$39.99"),
-            offer(null, "P1M", "$4.99"),
+            offer(null, renewal()),
+            offer("trial", trial(), renewal()),
         )
-
-        assertEquals("$4.99", product.formattedPrice())
-        assertEquals("base-P1M", product.recurringBasePlan()?.offerToken)
+        val selected = product.subscriptionOffer()!!
+        assertTrue(selected.hasFreeTrial)
+        assertEquals("$5.99", selected.formattedPrice)
+        assertEquals("trial-token", selected.offerToken)
     }
 
     @Test
-    fun `missing regular monthly plan does not present an introductory price as recurring`() {
-        val product = product(PREMIUM_MONTHLY_PRODUCT_ID, offer("trial", "P1M", "$0.00"))
-
-        assertNull(product.formattedPrice())
-        assertNull(product.recurringBasePlan())
+    fun `ineligible accounts receive the regular monthly plan without a trial promise`() {
+        val selected = product(offer(null, renewal())).subscriptionOffer()!!
+        assertFalse(selected.hasFreeTrial)
+        assertEquals("base-token", selected.offerToken)
     }
 
     @Test
-    fun `yearly product selects annual recurring base plan`() {
-        val product = product(
-            PREMIUM_YEARLY_PRODUCT_ID,
-            offer(null, "P1M", "$4.99"),
-            offer(null, "P1Y", "$39.99"),
-        )
+    fun `wrong US price yearly plans and unsupported promotional phases fail closed`() {
+        assertNull(product(offer(null, renewal(micros = 4_990_000))).subscriptionOffer())
+        assertNull(product(offer(null, renewal(period = "P1Y"))).subscriptionOffer())
+        assertNull(product(offer("promo", trial(period = "P3D"), renewal())).subscriptionOffer())
+        assertNull(product(offer("intro", renewal())).subscriptionOffer())
+        assertNull(product(offer("trial", trial(), trial(), renewal())).subscriptionOffer())
+        assertNull(product().subscriptionOffer())
+    }
 
-        assertEquals("$39.99", product.formattedPrice())
+    @Test
+    fun `localized prices are taken from Play rather than displaying a USD amount`() {
+        val selected = product(offer(null, renewal(currency = "GBP", price = "£5.49", micros = 5_490_000))).subscriptionOffer()!!
+        assertEquals("£5.49", selected.formattedPrice)
+    }
+
+    @Test
+    fun `legacy yearly product cannot be offered at the monthly checkout`() {
+        val product = product(offer(null, renewal()))
+        every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        assertNull(product.subscriptionOffer())
     }
 
     @Test
@@ -48,24 +60,37 @@ class SubscriptionOfferTest {
         )
     }
 
-    private fun product(id: String, vararg offers: ProductDetails.SubscriptionOfferDetails): ProductDetails = mockk {
-        every { productId } returns id
+    private fun product(vararg offers: ProductDetails.SubscriptionOfferDetails): ProductDetails = mockk {
+        every { productId } returns PREMIUM_MONTHLY_PRODUCT_ID
         every { subscriptionOfferDetails } returns offers.toList()
     }
 
-    private fun offer(id: String?, period: String, price: String): ProductDetails.SubscriptionOfferDetails {
-        val phase = mockk<ProductDetails.PricingPhase> {
-            every { recurrenceMode } returns ProductDetails.RecurrenceMode.INFINITE_RECURRING
-            every { billingPeriod } returns period
-            every { formattedPrice } returns price
-        }
-        val phases = mockk<ProductDetails.PricingPhases> {
-            every { pricingPhaseList } returns listOf(phase)
-        }
+    private fun offer(id: String?, vararg phaseList: ProductDetails.PricingPhase): ProductDetails.SubscriptionOfferDetails {
+        val phases = mockk<ProductDetails.PricingPhases> { every { pricingPhaseList } returns phaseList.toList() }
         return mockk {
             every { offerId } returns id
-            every { offerToken } returns "${id ?: "base"}-$period"
+            every { offerToken } returns "${id ?: "base"}-token"
             every { pricingPhases } returns phases
         }
+    }
+
+    private fun renewal(
+        period: String = "P1M",
+        currency: String = "USD",
+        price: String = "$5.99",
+        micros: Long = 5_990_000,
+    ): ProductDetails.PricingPhase = mockk {
+        every { recurrenceMode } returns ProductDetails.RecurrenceMode.INFINITE_RECURRING
+        every { billingPeriod } returns period
+        every { priceCurrencyCode } returns currency
+        every { formattedPrice } returns price
+        every { priceAmountMicros } returns micros
+    }
+
+    private fun trial(period: String = "P7D"): ProductDetails.PricingPhase = mockk {
+        every { recurrenceMode } returns ProductDetails.RecurrenceMode.FINITE_RECURRING
+        every { billingPeriod } returns period
+        every { priceAmountMicros } returns 0
+        every { billingCycleCount } returns 1
     }
 }

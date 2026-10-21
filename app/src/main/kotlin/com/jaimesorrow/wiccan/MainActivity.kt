@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -24,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.domain.model.RootState
 import com.jaimesorrow.wiccan.ui.auth.RootViewModel
@@ -34,8 +36,10 @@ import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
 import com.jaimesorrow.wiccan.ui.navigation.WiccanAppShell
 import com.jaimesorrow.wiccan.ui.navigation.WiccanDeepLinks
 import com.jaimesorrow.wiccan.ui.notification.NotificationSetupEffect
+import com.jaimesorrow.wiccan.ui.paywall.PaywallScreen
 import com.jaimesorrow.wiccan.ui.paywall.SubscriptionSetupEffect
 import com.jaimesorrow.wiccan.ui.policy.PolicyAcceptanceScreen
+import com.jaimesorrow.wiccan.ui.settings.SettingsScreen
 import com.jaimesorrow.wiccan.ui.theme.ThemeViewModel
 import com.jaimesorrow.wiccan.ui.theme.WiccanTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -66,6 +70,15 @@ class MainActivity : ComponentActivity() {
                 EdgeToEdgeEffect()
                 val rootState by rootViewModel.rootState.collectAsStateWithLifecycle()
                 var openLegalDocument by remember { mutableStateOf<LegalDocumentId?>(null) }
+                var openAccount by remember { mutableStateOf(false) }
+                val subscriptionUid = when (val state = rootState) {
+                    is RootState.SignedIn -> state.uid
+                    is RootState.RequiresSubscription -> state.uid
+                    else -> null
+                }
+                if (subscriptionUid != null) {
+                    key(subscriptionUid) { SubscriptionSetupEffect() }
+                }
 
                 openLegalDocument?.let { documentId ->
                     BackHandler { openLegalDocument = null }
@@ -74,10 +87,29 @@ class MainActivity : ComponentActivity() {
                         onBack = { openLegalDocument = null },
                     )
                 } ?: when (rootState) {
-                    RootState.SignedIn -> {
+                    is RootState.SignedIn -> key(subscriptionUid) {
                         NotificationSetupEffect()
-                        SubscriptionSetupEffect()
                         WiccanAppShell(startOnPaywall = startOnPaywall)
+                    }
+                    is RootState.RequiresSubscription -> key(subscriptionUid) {
+                        if (openAccount) {
+                            SettingsScreen(
+                                accountOnly = true,
+                                onBack = { openAccount = false },
+                                onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
+                                onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
+                                onContentSafetyClick = { openLegalDocument = LegalDocumentId.CONTENT_SAFETY },
+                                viewModel = hiltViewModel(key = "subscription-account-$subscriptionUid"),
+                            )
+                            BackHandler { openAccount = false }
+                        } else {
+                            PaywallScreen(
+                                onAccountClick = { openAccount = true },
+                                onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
+                                onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
+                                viewModel = hiltViewModel(key = "subscription-paywall-$subscriptionUid"),
+                            )
+                        }
                     }
                     RootState.SignedOut -> SignInScreen(onOpenLegalDocument = { openLegalDocument = it })
                     RootState.RequiresPolicyAcceptance ->

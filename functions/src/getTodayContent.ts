@@ -1,5 +1,5 @@
 import { Content } from "./types";
-import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort } from "./contentRepositoryPort";
+import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort, SubscriptionRequiredError } from "./contentRepositoryPort";
 import { loadContentSources } from "./contentSource";
 import { contentSimilarityKey, isEligibleForDailyDelivery } from "./contentEligibility";
 
@@ -28,8 +28,9 @@ export class DailyAssignmentUnavailableError extends Error {
   }
 }
 
-async function readAssignedContent(contentId: string, repo: ContentRepositoryPort): Promise<Content> {
+async function readAssignedContent(uid: string, contentId: string, repo: ContentRepositoryPort): Promise<Content> {
   const content = await repo.getContentById(contentId);
+  if (await repo.getUserTier(uid) !== "premium") throw new SubscriptionRequiredError();
   if (!content) throw new DailyAssignmentUnavailableError(contentId);
   return content;
 }
@@ -62,12 +63,13 @@ export async function selectTodayContent(
   repo: ContentRepositoryPort,
   ancientLessonSourceIds: ReadonlySet<string> = DEFAULT_ANCIENT_LESSON_SOURCE_IDS,
 ): Promise<Content> {
+  const tier = await repo.getUserTier(uid);
+  if (tier !== "premium") throw new SubscriptionRequiredError();
   const existingContentId = await repo.findTodayDeliveredContentId(uid, today);
   if (existingContentId) {
-    return readAssignedContent(existingContentId, repo);
+    return readAssignedContent(uid, existingContentId, repo);
   }
 
-  const tier = await repo.getUserTier(uid);
   const [deliveredIds, published] = await Promise.all([
     repo.getDeliveredContentIds(uid),
     repo.getPublishedContentForTier(tier),
@@ -97,13 +99,13 @@ export async function selectTodayContent(
 
     // Read the authoritative document again: publication, entitlement,
     // title, and editorial grouping may have changed since pool lookup.
-    return readAssignedContent(assignedId, repo);
+    return readAssignedContent(uid, assignedId, repo);
   }
 
   // A concurrent caller may have committed today while we ran out of
   // candidates. Honor that assignment rather than report false exhaustion.
   const committedId = await repo.findTodayDeliveredContentId(uid, today);
-  if (committedId) return readAssignedContent(committedId, repo);
+  if (committedId) return readAssignedContent(uid, committedId, repo);
   await repo.logPoolExhaustion(uid, tier, today);
   throw new ContentPoolExhaustedError(tier);
 }

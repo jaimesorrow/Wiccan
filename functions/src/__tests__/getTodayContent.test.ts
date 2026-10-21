@@ -1,4 +1,5 @@
 import { ContentPoolExhaustedError, DailyAssignmentUnavailableError, selectTodayContent } from "../getTodayContent";
+import { SubscriptionRequiredError } from "../contentRepositoryPort";
 import { FakeContentRepository, makeContent } from "../testUtils/fakeContentRepository";
 
 const UID = "user-123";
@@ -16,7 +17,7 @@ describe("selectTodayContent", () => {
 
     const result = await selectTodayContent(UID, TODAY, repo);
 
-    expect(["c1", "c2"]).toContain(result.id);
+    expect(["c1", "c2", "premium-1"]).toContain(result.id);
     expect(repo.history).toEqual([
       {
         userId: UID,
@@ -49,7 +50,7 @@ describe("selectTodayContent", () => {
 
     await expect(
       selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"])),
-    ).rejects.toThrow("No new published content available for tier 'free'.");
+    ).rejects.toThrow("No new published content available for tier 'premium'.");
   });
 
   it("is idempotent: a repeat call the same day returns the same content without a new history row", async () => {
@@ -63,6 +64,29 @@ describe("selectTodayContent", () => {
     expect(repo.history).toHaveLength(1);
   });
 
+  it("blocks the same-day history fast path after access lapses and restores the same assignment on renewal", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [makeContent({ id: "assigned" })];
+    await selectTodayContent(UID, TODAY, repo);
+    repo.tier = "free";
+    await expect(selectTodayContent(UID, TODAY, repo)).rejects.toBeInstanceOf(SubscriptionRequiredError);
+    expect(repo.history).toHaveLength(1);
+    repo.tier = "premium";
+    expect((await selectTodayContent(UID, TODAY, repo)).id).toBe("assigned");
+    expect(repo.history).toHaveLength(1);
+  });
+
+  it("rechecks access before returning an assigned document", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [makeContent({ id: "assigned" })];
+    const read = repo.getContentById.bind(repo);
+    repo.getContentById = async (id) => {
+      repo.tier = "free";
+      return read(id);
+    };
+    await expect(selectTodayContent(UID, TODAY, repo)).rejects.toBeInstanceOf(SubscriptionRequiredError);
+  });
+
   it("never repeats delivered content when the published pool is used up", async () => {
     const repo = new FakeContentRepository();
     repo.content = [makeContent({ id: "c1" }), makeContent({ id: "c2" })];
@@ -73,16 +97,16 @@ describe("selectTodayContent", () => {
     ];
 
     await expect(selectTodayContent(UID, TODAY, repo)).rejects.toThrow(
-      "No new published content available for tier 'free'.",
+      "No new published content available for tier 'premium'.",
     );
-    expect(repo.poolExhaustionEvents).toEqual([{ userId: UID, tier: "free", today: TODAY }]);
+    expect(repo.poolExhaustionEvents).toEqual([{ userId: UID, tier: "premium", today: TODAY }]);
     expect(repo.history).toHaveLength(2);
   });
 
   it("signals pool exhaustion with a distinct error for the callable and app", async () => {
     const repo = new FakeContentRepository();
     await expect(selectTodayContent(UID, TODAY, repo)).rejects.toBeInstanceOf(ContentPoolExhaustedError);
-    expect(repo.poolExhaustionEvents).toEqual([{ userId: UID, tier: "free", today: TODAY }]);
+    expect(repo.poolExhaustionEvents).toEqual([{ userId: UID, tier: "premium", today: TODAY }]);
   });
 
   it("two concurrent first-of-the-day calls converge on exactly one committed assignment", async () => {
@@ -124,17 +148,16 @@ describe("selectTodayContent", () => {
     }
   });
 
-  it("only offers a free user free-tier published content", async () => {
+  it("blocks an account without a subscription even when content was formerly marked free", async () => {
     const repo = new FakeContentRepository();
     repo.tier = "free";
-    repo.content = [makeContent({ id: "premium-only", tier: "premium" })];
+    repo.content = [makeContent({ id: "formerly-free", tier: "free" })];
 
-    await expect(selectTodayContent(UID, TODAY, repo)).rejects.toThrow(
-      "No new published content available for tier 'free'.",
-    );
+    await expect(selectTodayContent(UID, TODAY, repo)).rejects.toBeInstanceOf(SubscriptionRequiredError);
+    expect(repo.history).toHaveLength(0);
   });
 
-  it("lets a premium user draw from both free and premium published content", async () => {
+  it("uses one published pool regardless of legacy content tier", async () => {
     const repo = new FakeContentRepository();
     repo.tier = "premium";
     repo.content = [

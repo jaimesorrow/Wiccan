@@ -23,7 +23,6 @@ import com.jaimesorrow.wiccan.ui.archive.ArchiveScreen
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentScreen
 import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
-import com.jaimesorrow.wiccan.ui.paywall.PaywallScreen
 import com.jaimesorrow.wiccan.ui.settings.SettingsScreen
 import com.jaimesorrow.wiccan.ui.today.TodayScreen
 
@@ -71,7 +70,6 @@ fun WiccanAppShell(modifier: Modifier = Modifier, startOnPaywall: Boolean = fals
             }
             composable(WiccanDestinations.SETTINGS) {
                 SettingsScreen(
-                    onGoPremiumClick = { navController.navigate(WiccanDestinations.PAYWALL) },
                     onTermsClick = { navController.navigate(WiccanDestinations.TERMS) },
                     onPrivacyClick = { navController.navigate(WiccanDestinations.PRIVACY) },
                     onContentSafetyClick = { navController.navigate(WiccanDestinations.CONTENT_SAFETY) },
@@ -81,10 +79,14 @@ fun WiccanAppShell(modifier: Modifier = Modifier, startOnPaywall: Boolean = fals
                 WiccanDestinations.PAYWALL,
                 deepLinks = listOf(navDeepLink { uriPattern = WiccanDeepLinks.PREMIUM_URI }),
             ) {
-                PaywallScreen(
+                // Existing widget links remain valid. Subscribers manage
+                // their subscription here; everyone else is held at root.
+                SettingsScreen(
+                    accountOnly = true,
                     onBack = { navController.popBackStackIfPossible() },
                     onTermsClick = { navController.navigate(WiccanDestinations.TERMS) },
                     onPrivacyClick = { navController.navigate(WiccanDestinations.PRIVACY) },
+                    onContentSafetyClick = { navController.navigate(WiccanDestinations.CONTENT_SAFETY) },
                 )
             }
             composable(WiccanDestinations.ARCHIVE_DETAIL_ROUTE) {

@@ -8,7 +8,7 @@ import {
   FirestoreContentAdminRepository,
 } from "../firestoreContentAdminRepository";
 import { FirestoreAccountDeletionRepository } from "../firestoreAccountDeletionRepository";
-import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError } from "../contentRepositoryPort";
+import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, SubscriptionRequiredError } from "../contentRepositoryPort";
 import { ContentPoolExhaustedError, DailyAssignmentUnavailableError, selectTodayContent } from "../getTodayContent";
 import { makeContent } from "../testUtils/fakeContentRepository";
 import { FakePlayBillingPort } from "../testUtils/fakePlayBillingPort";
@@ -38,7 +38,7 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
       const documents = await db.collection(name).listDocuments();
       await Promise.all(documents.map((document) => db.recursiveDelete(document)));
     }
-    await db.collection("users").doc(UID).set({ tier: "free", timeZone: "America/Denver" });
+    await db.collection("users").doc(UID).set({ tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000, timeZone: "America/Denver" });
   });
 
   afterAll(async () => {
@@ -187,17 +187,21 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
     expect((await db.collection("contentPoolExhaustionEvents").get()).size).toBe(1);
   }, 15_000);
 
-  it("allows premium users free and premium lessons while free users cannot receive premium lessons", async () => {
+  it("uses one pool for subscribers and denies all content after expiry, including today's assignment", async () => {
     const free = makeContent({ id: "free" });
     const premium = makeContent({ id: "premium", tier: "premium" });
     await seed(free, premium);
-    expect((await repo.getPublishedContentForTier("free")).map((content) => content.id)).toEqual([free.id]);
+    expect(await repo.getPublishedContentForTier("free")).toEqual([]);
     expect(new Set((await repo.getPublishedContentForTier("premium")).map((content) => content.id)))
       .toEqual(new Set([free.id, premium.id]));
-    expect((await selectTodayContent(UID, TODAY, repo)).id).toBe(free.id);
-    await expect(selectTodayContent(UID, "2026-10-07", repo)).rejects.toBeInstanceOf(ContentPoolExhaustedError);
-    await db.collection("users").doc(UID).update({ tier: "premium" });
-    expect((await selectTodayContent(UID, "2026-10-07", repo)).id).toBe(premium.id);
+    const first = await selectTodayContent(UID, TODAY, repo);
+    await db.collection("users").doc(UID).update({ subscriptionExpiresAtMillis: Date.now() - 1 });
+    expect(await repo.getUserTier(UID)).toBe("free");
+    await expect(selectTodayContent(UID, TODAY, repo)).rejects.toBeInstanceOf(SubscriptionRequiredError);
+    await expect(repo.assignDailyContent(UID, TODAY, free, ANCIENT_SOURCES)).rejects.toBeInstanceOf(SubscriptionRequiredError);
+    await db.collection("users").doc(UID).update({ subscriptionExpiresAtMillis: Date.now() + 3_600_000 });
+    expect((await selectTodayContent(UID, TODAY, repo)).id).toBe(first.id);
+    expect((await selectTodayContent(UID, "2026-10-07", repo)).id).not.toBe(first.id);
   });
 
   it("revalidates publication and entitlement inside the transaction", async () => {
@@ -207,8 +211,9 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
       .rejects.toBeInstanceOf(ContentNoLongerEligibleError);
 
     await seed({ ...candidate, tier: "premium" });
+    await db.collection("users").doc(UID).update({ tier: "free" });
     await expect(repo.assignDailyContent(UID, TODAY, candidate, ANCIENT_SOURCES))
-      .rejects.toBeInstanceOf(ContentNoLongerEligibleError);
+      .rejects.toBeInstanceOf(SubscriptionRequiredError);
     await db.collection("users").doc(UID).update({ tier: "premium" });
     expect(await repo.assignDailyContent(UID, TODAY, candidate, ANCIENT_SOURCES)).toBe(candidate.id);
     expect((await db.collection("userContentHistory").get()).size).toBe(1);

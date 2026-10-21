@@ -2,6 +2,13 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function hasSubscription() {
+      let user = get(/databases/$(database)/documents/users/$(request.auth.uid));
+      return user.data.tier == 'premium'
+        && user.data.get('deletionInProgress', false) != true
+        && user.data.get('subscriptionExpiresAtMillis', 0) is number
+        && user.data.get('subscriptionExpiresAtMillis', 0) > request.time.toMillis();
+    }
     // Daily selection must run server-side (Cloud Function) so users can't
     // reset or game their delivery history. Clients get read-only access
     // to published content already delivered to them and to their own history
@@ -9,14 +16,14 @@ service cloud.firestore {
     // delivery marker is required for Grimoire reads, so published content cannot be scraped
     // to bypass either subscription tiers or the one-entry-per-day selection.
     match /content/{contentId} {
-      allow get: if request.auth != null && resource.data.status == 'published'
+      allow get: if request.auth != null && hasSubscription() && resource.data.status == 'published'
         && exists(/databases/$(database)/documents/userContentUsage/$(request.auth.uid)/content/$(contentId));
       allow list: if false;
       allow write: if false;
     }
 
     match /userContentHistory/{historyId} {
-      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && hasSubscription() && resource.data.userId == request.auth.uid;
       allow write: if false;
     }
 

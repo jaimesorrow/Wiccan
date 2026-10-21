@@ -26,6 +26,7 @@ import { FirestoreSubscriptionRecordRepository } from "./firestoreSubscriptionRe
 import { handleRtdnNotification, parseRtdnPurchaseToken } from "./handleRtdn";
 import { FirestoreSystemConfigRepository } from "./firestoreSystemConfigRepository";
 import { parseDeviceToken, parseTimeZone } from "./callableInput";
+import { SubscriptionRequiredError } from "./contentRepositoryPort";
 
 initializeApp();
 
@@ -91,6 +92,9 @@ export const getTodayContent = onCall(CALLABLE_OPTIONS, async (request) => {
       throw new HttpsError("resource-exhausted", "No new lessons remain. Your previous lessons are available in Grimoire.", {
         reason: "NO_NEW_CONTENT",
       });
+    }
+    if (err instanceof SubscriptionRequiredError) {
+      throw new HttpsError("permission-denied", err.message, { reason: "SUBSCRIPTION_REQUIRED" });
     }
     if (err instanceof DailyAssignmentUnavailableError) {
       throw new HttpsError("failed-precondition", "Today's assigned lesson is unavailable. Your Grimoire history has been preserved.", {
