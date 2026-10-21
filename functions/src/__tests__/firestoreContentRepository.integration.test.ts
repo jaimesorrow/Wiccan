@@ -22,6 +22,10 @@ const UID = "daily-integration-user";
 const TODAY = "2026-10-06";
 const ANCIENT_SOURCES = new Set(["ancient-source"]);
 
+// Real Firestore transaction retries use backoff under contention. A cold CI
+// emulator can exceed Jest's five-second unit-test budget before they finish.
+jest.setTimeout(15_000);
+
 describeWithEmulator("Firestore daily assignment transactions", () => {
   let app: App;
   let db: Firestore;
