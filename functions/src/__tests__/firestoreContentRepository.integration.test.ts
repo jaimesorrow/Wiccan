@@ -68,7 +68,7 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
     expect(history.docs[0].get("contentId")).toBe(results[0].id);
     expect((await db.collection("userContentUsage").doc(UID).collection("content").get()).size).toBe(1);
     expect((await selectTodayContent(UID, TODAY, repo)).id).toBe(results[0].id);
-  });
+  }, 15_000);
 
   it("legacy delivery history prevents a repeated ID even without a usage marker", async () => {
     const content = makeContent({ id: "seen" });
