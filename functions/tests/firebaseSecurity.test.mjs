@@ -71,6 +71,23 @@ test("clients cannot forge content delivery, ownership, subscription records, or
   await assertFails(getDoc(doc(alice, "users/bob")));
 });
 
+test("signed-in clients can read only the shared disclosure document", async () => {
+  await environment.withSecurityRulesDisabled(async (context) => {
+    const db = context.firestore();
+    await Promise.all([
+      setDoc(doc(db, "settings/disclosures"), { potionSafetyDisclosure: "Shared safety copy." }),
+      setDoc(doc(db, "settings/internal"), { secret: "server-only" }),
+    ]);
+  });
+  const alice = environment.authenticatedContext("alice").firestore();
+  const signedOut = environment.unauthenticatedContext().firestore();
+  await assertSucceeds(getDoc(doc(alice, "settings/disclosures")));
+  await assertFails(getDoc(doc(signedOut, "settings/disclosures")));
+  await assertFails(getDoc(doc(alice, "settings/internal")));
+  await assertFails(getDocs(collection(alice, "settings")));
+  await assertFails(setDoc(doc(alice, "settings/disclosures"), { potionSafetyDisclosure: "changed" }));
+});
+
 test("actual Firestore transactions allow one owner when two accounts race to claim a token", async () => {
   await Promise.all([adminDb.doc("users/alice").set({ tier: "free" }), adminDb.doc("users/bob").set({ tier: "free" })]);
   const users = new FirestoreUserRepository(adminDb);
@@ -159,3 +176,4 @@ test("legacy Archive backfill dry run does not write; commit preserves existing 
   assert.equal((await adminDb.doc("userContentUsage/alice/content/two").get()).get("custom"), "preserve");
   assert.equal((await adminDb.doc("userContentUsage/deleted-user/content/three").get()).exists, false);
 });
+

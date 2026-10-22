@@ -1,81 +1,36 @@
+import fs from "node:fs";
+import { parseArgs } from "node:util";
 import { getFirestore } from "firebase-admin/firestore";
-import { countSeedTypes, EXPECTED_LESSON_COUNT, loadContentSeed, findSeedViolations } from "../contentSeed";
-import { inspectLessonInventory } from "../contentInventory";
-import { createMissingSeedContent, findSeedImportConflicts } from "../seedContentImport";
-import { CONTENT_PROJECT_ID, initializeContentProject, parseContentArgs } from "./contentProject";
+import { countSeedTypes, loadContentSeed } from "../contentSeed";
+import { auditPracticalContent } from "../practicalContentAudit";
+import { applyReviewedContentChanges } from "../seedContentImport";
+import { loadSourcePassages } from "../sourcePassages";
+import type { BackupManifest, ReviewedChangeSet } from "../reviewedContentChanges";
+import { changeSetDigest } from "../reviewedContentChanges";
+import { CONTENT_PROJECT_ID, initializeContentProject } from "./contentProject";
 
-/**
- * Admin CLI: safely imports the checked-in ancient-source seed pool
- * (`functions/ancientContentSeed.json`) into the `content` collection.
- *
- * Run locally by a trusted operator authenticated as a service account
- * (GOOGLE_APPLICATION_CREDENTIALS pointing at a key file) - never deployed
- * as a callable, same as generate-draft/approve-draft.
- *
- * Missing documents are created as drafts. Existing documents keep their
- * status and authored fields; only similarityGroupId is synchronized and the
- * retired difficulty field is removed. The remote operation is pinned to the
- * production project and followed by a read-only lesson inventory check.
- *
- * Usage:
- *   npm run seed-content                 # validate only, writes nothing
- *   npm run seed-content -- --project wiccan-android --commit
- */
+/** Established import entry point. No legacy pool writes; migration needs a reviewed patch. */
 async function main(): Promise<void> {
-  const args = parseContentArgs(process.argv.slice(2), true);
-  const entries = loadContentSeed();
-  const violations = findSeedViolations(entries);
-  const counts = countSeedTypes(entries);
-  if (counts.lesson !== EXPECTED_LESSON_COUNT) {
-    violations.push(`Expected ${EXPECTED_LESSON_COUNT} lessons, found ${counts.lesson}; spells and potions do not count.`);
-  }
-  if (violations.length > 0) throw new Error(`Seed pool failed validation:\n- ${violations.join("\n- ")}`);
-
-  const needsRights = entries.filter((entry) => entry.rightsReviewRequired);
-  console.log(
-    `Seed pool: ${entries.length} drafts: ${counts.lesson} lessons, ${counts.spell} spells, ${counts.potion} potions.`,
-  );
-  console.log(
-    `Rights review required before publishing: ${needsRights.length} entries ` +
-      "(quoted phrasing from a modern translation, or unconfirmed museum prose).",
-  );
-
-  console.log(`Production target: ${CONTENT_PROJECT_ID}.`);
-  if (!args.commit) {
-    console.log(`Validation only. Import with --project ${CONTENT_PROJECT_ID} --commit.`);
+  const { values: args } = parseArgs({ options: {
+    project: { type: "string" }, commit: { type: "boolean", default: false },
+    changeset: { type: "string" }, approval: { type: "string" }, backup: { type: "string" },
+  }, strict: true, allowPositionals: false });
+  if (args.project !== undefined && args.project !== CONTENT_PROJECT_ID) throw new Error("Wrong content project.");
+  const passages = loadSourcePassages();
+  if (!args.changeset) {
+    if (args.commit) throw new Error("Legacy seed import is blocked. Supply a reviewed --changeset, exact --approval digest and --backup manifest.");
+    const entries = loadContentSeed();
+    const audit = auditPracticalContent(entries.map(({ id, ...fields }) => ({ id, fields })), passages);
+    console.log(JSON.stringify({ mode: "local-audit", writes: false, liveCountVerified: false, count: entries.length, types: countSeedTypes(entries), totals: audit.totals }, null, 2));
     return;
   }
-
+  const changeSet = JSON.parse(fs.readFileSync(args.changeset, "utf8")) as ReviewedChangeSet;
+  if (changeSet.projectId !== CONTENT_PROJECT_ID) throw new Error("Change set targets another project.");
+  const backup = args.backup ? JSON.parse(fs.readFileSync(args.backup, "utf8")) as BackupManifest : undefined;
   initializeContentProject(args.project);
-  console.log(`Reading and importing Firebase project: ${CONTENT_PROJECT_ID}.`);
-  const db = getFirestore();
-  const before = await db.collection("content").get();
-  const existing = before.docs.map((doc) => ({ id: doc.id, fields: doc.data() }));
-  const conflicts = findSeedImportConflicts(existing, entries);
-  if (conflicts.length > 0) {
-    throw new Error(`Import preflight failed; no documents were written:\n- ${conflicts.join("\n- ")}`);
-  }
-
-  const result = await createMissingSeedContent(db, entries);
-  console.log(
-    `Created ${result.createdIds.length} drafts; preserved ${result.preservedIds.length} existing documents; ` +
-      `synchronized ${result.metadataSyncedIds.length} similarity identities.`,
-  );
-  console.log(`Preserved edited content IDs: ${JSON.stringify(result.preservedModifiedIds)}.`);
-
-  const snapshot = await db.collection("content").get();
-  const report = inspectLessonInventory(
-    snapshot.docs.map((doc) => ({ id: doc.id, fields: doc.data() })),
-    entries,
-  );
-  console.log(JSON.stringify(report, null, 2));
-  if (report.issues.length > 0) {
-    throw new Error("Import completed, but remote lesson verification failed. Existing content was preserved; review the report.");
-  }
-  console.log(`Verified ${report.lessonCount} lessons. New drafts remain unpublished and require editorial approval.`);
+  console.log(JSON.stringify({ mode: args.commit ? "approved-apply" : "dry-run", project: args.project, changeSetDigest: changeSetDigest(changeSet) }));
+  const results = await applyReviewedContentChanges(getFirestore(), changeSet, passages, { commit: args.commit, approval: args.approval, backup });
+  console.log(JSON.stringify(results, null, 2));
+  if (results.some((result) => result.outcome === "conflict")) process.exitCode = 1;
 }
-
-main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+main().catch((error: unknown) => { console.error(error instanceof Error ? error.message : error); process.exitCode = 1; });

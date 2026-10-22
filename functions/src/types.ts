@@ -1,3 +1,6 @@
+import { PRACTICAL_CATEGORIES } from "./practicalLesson";
+import type { PracticalCategory, PracticalLessonFields } from "./practicalLesson";
+
 export type ContentType = "spell" | "potion" | "lesson";
 export type ContentTier = "free" | "premium";
 export type ContentStatus = "draft" | "published";
@@ -13,14 +16,14 @@ export const CONTENT_CATEGORIES = [
   "MoonAndSeasonal",
 ] as const;
 
-export type ContentCategory = (typeof CONTENT_CATEGORIES)[number];
+export type ContentCategory = (typeof CONTENT_CATEGORIES)[number] | PracticalCategory;
 
 export function isContentCategory(value: unknown): value is ContentCategory {
-  return typeof value === "string" && (CONTENT_CATEGORIES as readonly string[]).includes(value);
+  return typeof value === "string" && ([...CONTENT_CATEGORIES, ...PRACTICAL_CATEGORIES] as readonly string[]).includes(value);
 }
 
 /** Mirrors the Firestore `content` collection. */
-export interface Content {
+export interface Content extends PracticalLessonFields {
   id: string;
   type: ContentType;
   tier: ContentTier;
@@ -91,3 +94,4 @@ export interface SeedContent extends Content {
   rightsReviewRequired: boolean;
   status: "draft";
 }
+

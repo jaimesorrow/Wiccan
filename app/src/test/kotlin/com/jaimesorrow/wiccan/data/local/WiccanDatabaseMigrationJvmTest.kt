@@ -54,12 +54,18 @@ class WiccanDatabaseMigrationJvmTest {
         try {
             // Opening runs Room's target-schema validation, not only the ALTER statements.
             val migrated = database.openHelper.writableDatabase
-            migrated.query("SELECT body, category, reflection, practice FROM cached_daily_content").use {
+            migrated.query(
+                "SELECT body, category, reflection, practice, primaryCategoryId, sourcePassageId, " +
+                    "requiresPotionDisclosure FROM cached_daily_content",
+            ).use {
                 assertTrue(it.moveToFirst())
                 assertEquals("body", it.getString(0))
                 assertEquals(if (version == 1) "MOON_AND_SEASONAL" else "HOME_AND_HEARTH", it.getString(1))
                 assertTrue(it.isNull(2))
                 assertTrue(it.isNull(3))
+                assertTrue(it.isNull(4))
+                assertTrue(it.isNull(5))
+                assertEquals(0, it.getInt(6))
             }
             migrated.execSQL("UPDATE cached_daily_content SET reflection = 'Which boundary matters?'")
             migrated.query("SELECT reflection FROM cached_daily_content").use {
@@ -72,3 +78,4 @@ class WiccanDatabaseMigrationJvmTest {
         }
     }
 }
+

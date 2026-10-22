@@ -34,7 +34,8 @@ function toContent(id: string, data: FirebaseFirestore.DocumentData): Content {
     type: data.type,
     tier: data.tier,
     tradition: data.tradition,
-    category: isContentCategory(data.category) ? data.category : DEFAULT_CATEGORY,
+    category: isContentCategory(data.primaryCategoryId) ? data.primaryCategoryId :
+      isContentCategory(data.category) ? data.category : DEFAULT_CATEGORY,
     title: data.title,
     intro: data.intro,
     body: data.body,
@@ -50,6 +51,22 @@ function toContent(id: string, data: FirebaseFirestore.DocumentData): Content {
     rightsReviewRequired: typeof data.rightsReviewRequired === "boolean" ? data.rightsReviewRequired : undefined,
     rightsNotes: typeof data.rightsNotes === "string" ? data.rightsNotes : null,
     similarityGroupId: typeof data.similarityGroupId === "string" ? data.similarityGroupId : undefined,
+    summary: typeof data.summary === "string" ? data.summary : undefined,
+    primaryCategoryId: typeof data.primaryCategoryId === "string" ? data.primaryCategoryId : undefined,
+    secondaryCategoryIds: Array.isArray(data.secondaryCategoryIds) ? data.secondaryCategoryIds : [],
+    lessonType: typeof data.lessonType === "string" ? data.lessonType : undefined,
+    requiresPotionDisclosure: data.requiresPotionDisclosure === true,
+    durationMinutes: typeof data.durationMinutes === "number" ? data.durationMinutes : null,
+    tools: Array.isArray(data.tools) ? data.tools : data.materials ?? [],
+    incantation: typeof data.incantation === "string" ? data.incantation : null,
+    incantationOmissionReason: typeof data.incantationOmissionReason === "string" ? data.incantationOmissionReason : null,
+    timing: typeof data.timing === "string" ? data.timing : null,
+    application: typeof data.application === "string" ? data.application : undefined,
+    correspondences: Array.isArray(data.correspondences) ? data.correspondences : [],
+    citations: Array.isArray(data.citations) ? data.citations : [],
+    adaptationNotes: Array.isArray(data.adaptationNotes) ? data.adaptationNotes : [],
+    sourcePassageId: typeof data.sourcePassageId === "string" ? data.sourcePassageId : undefined,
+    practicalReview: data.practicalReview,
   };
 }
 
@@ -192,3 +209,4 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
     });
   }
 }
+

@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { Content } from "./types";
+import { isPracticalCategory, practicalContentHash } from "./practicalLesson";
 
 type SimilarityMetadata = Pick<Content, "similarityGroupId" | "sourceId" | "sourceCitation">;
 
@@ -37,5 +38,12 @@ export function similarityReservationId(key: string): string {
 
 export function isEligibleForDailyDelivery(content: Content, ancientLessonSourceIds: ReadonlySet<string>): boolean {
   if (content.type !== "lesson") return true;
-  return typeof content.sourceId === "string" && ancientLessonSourceIds.has(content.sourceId);
+  const review = content.practicalReview;
+  return typeof content.sourceId === "string" && ancientLessonSourceIds.has(content.sourceId) &&
+    typeof content.sourcePassageId === "string" && content.sourcePassageId.length > 0 &&
+    isPracticalCategory(content.primaryCategoryId) && content.category === content.primaryCategoryId &&
+    content.rightsReviewRequired !== true && review !== undefined &&
+    review.sourceFidelityApproved && review.scopeApproved && review.safetyApproved && review.rightsApproved &&
+    review.duplicateReviewed && review.contentHash === practicalContentHash(content);
 }
+

@@ -73,5 +73,13 @@ service cloud.firestore {
     match /systemConfig/{doc} {
       allow read, write: if false;
     }
+
+    // Shared safety copy is readable only by signed-in users. All edits remain
+    // Admin SDK/console operations; lesson rendering never accepts client text.
+    match /settings/disclosures {
+      allow get: if request.auth != null;
+      allow list, write: if false;
+    }
   }
 }
+

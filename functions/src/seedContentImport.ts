@@ -1,3 +1,8 @@
+import { findPracticalLessonViolations } from "./practicalLesson";
+import { loadSourcePassages } from "./sourcePassages";
+import type { SourcePassage } from "./sourcePassages";
+import { assertReviewedApply, planReviewedChange } from "./reviewedContentChanges";
+import type { BackupManifest, ReviewedChangeSet } from "./reviewedContentChanges";
 import { FieldValue, Firestore } from "firebase-admin/firestore";
 import { SeedContent } from "./types";
 import { InventoryDocument } from "./contentInventory";
@@ -38,7 +43,7 @@ export function findSeedImportConflicts(documents: InventoryDocument[], entries:
  * and removal of the retired difficulty field; their status and authored
  * fields are left untouched. Transaction retries protect concurrent edits.
  */
-export async function createMissingSeedContent(db: Firestore, entries: SeedContent[]): Promise<SeedImportResult> {
+export async function createMissingSeedContent(db: Firestore, entries: SeedContent[], passages: SourcePassage[] = loadSourcePassages()): Promise<SeedImportResult> {
   const result: SeedImportResult = {
     createdIds: [],
     preservedIds: [],
@@ -64,13 +69,11 @@ export async function createMissingSeedContent(db: Firestore, entries: SeedConte
           if (["title", "intro", "body", "reflection"].some((field) => existing.get(field) !== entry[field as keyof SeedContent])) {
             preservedModifiedIds.push(entry.id);
           }
-          transaction.set(refs[index], {
-            difficulty: FieldValue.delete(),
-            similarityGroupId: entry.similarityGroupId,
-          }, { merge: true });
-          metadataSyncedIds.push(entry.id);
+          // Preserve editorial identity, rights decisions and all other existing metadata.
           return;
         }
+        const violations = findPracticalLessonViolations(entry, passages);
+        if (violations.length) throw new Error(`Seed '${entry.id}' needs passage/editorial review before import: ${violations.join("; ")}`);
         const { id, ...fields } = entry;
         transaction.create(refs[index], { ...fields, status: "draft" });
         createdIds.push(id);
@@ -83,4 +86,33 @@ export async function createMissingSeedContent(db: Firestore, entries: SeedConte
     result.metadataSyncedIds.push(...completed.metadataSyncedIds);
   }
   return result;
+}
+
+
+/** Extends the established importer; defaults to read-only and preserves protected metadata. */
+export async function applyReviewedContentChanges(
+  db: Firestore,
+  changeSet: ReviewedChangeSet,
+  passages: SourcePassage[],
+  options: { commit?: boolean; approval?: string; backup?: BackupManifest } = {},
+): Promise<{ id: string; outcome: string; reason?: string }[]> {
+  if (changeSet.projectId !== "wiccan-android" || !changeSet.reviewId?.trim() || !Array.isArray(changeSet.entries)) throw new Error("Invalid target/review change set.");
+  if (options.commit) assertReviewedApply(changeSet, options.approval, options.backup);
+  if (new Set(changeSet.entries.map((entry) => entry.id)).size !== changeSet.entries.length) throw new Error("Duplicate IDs in changes.");
+  const results: { id: string; outcome: string; reason?: string }[] = [];
+  for (const change of changeSet.entries) {
+    if (!change.id || change.id.includes("/")) throw new Error("Invalid document ID.");
+    const ref = db.collection("content").doc(change.id);
+    const result = await db.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(ref);
+      const history = await transaction.get(db.collection("userContentHistory").where("contentId", "==", change.id).limit(1));
+      const version = snapshot.updateTime ? `${snapshot.updateTime.seconds}:${snapshot.updateTime.nanoseconds}` : undefined;
+      const plan = planReviewedChange(snapshot.exists ? snapshot.data()! : null, version, !history.empty, change, passages);
+      if (plan.outcome !== "ready") return { id: change.id, ...plan };
+      if (options.commit) transaction.update(ref, { ...plan.patch, updatedAt: FieldValue.serverTimestamp() });
+      return { id: change.id, outcome: options.commit ? "updated-draft" : "would-update-draft" };
+    });
+    results.push(result);
+  }
+  return results;
 }

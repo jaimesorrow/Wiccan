@@ -1,3 +1,6 @@
+import { findPracticalLessonViolations } from "./practicalLesson";
+import { loadSourcePassages } from "./sourcePassages";
+import type { SourcePassage } from "./sourcePassages";
 import { ContentAdminRepositoryPort, StoredContent } from "./contentAdminRepositoryPort";
 import { ContentSource, loadContentSources } from "./contentSource";
 
@@ -65,6 +68,7 @@ export async function approveDraft(
   contentId: string,
   repo: ContentAdminRepositoryPort,
   sources: ContentSource[] = loadContentSources(),
+  passages: SourcePassage[] = loadSourcePassages(),
 ): Promise<void> {
   const content = await repo.getContent(contentId);
   if (content === null) {
@@ -74,7 +78,10 @@ export async function approveDraft(
     return;
   }
 
-  const violations = findSafetyViolations(content, sources);
+  const practicalViolations = content.type === "lesson" || content.sourcePassageId
+    ? findPracticalLessonViolations(content, passages)
+    : [];
+  const violations = [...findSafetyViolations(content, sources), ...practicalViolations];
   if (violations.length > 0) {
     throw new UnsafeContentError(
       `Content '${contentId}' failed the pre-publish safety check: ${violations.join(" ")}`,
@@ -83,3 +90,4 @@ export async function approveDraft(
 
   await repo.publish(contentId);
 }
+

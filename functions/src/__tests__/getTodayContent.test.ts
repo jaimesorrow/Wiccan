@@ -1,5 +1,5 @@
 import { ContentPoolExhaustedError, DailyAssignmentUnavailableError, selectTodayContent } from "../getTodayContent";
-import { FakeContentRepository, makeContent } from "../testUtils/fakeContentRepository";
+import { FakeContentRepository, makeContent, makeReviewedLesson } from "../testUtils/fakeContentRepository";
 
 const UID = "user-123";
 const TODAY = "2026-09-09";
@@ -34,8 +34,8 @@ describe("selectTodayContent", () => {
   it("delivers a lesson only when its sourceId is in the ancient lesson registry", async () => {
     const repo = new FakeContentRepository();
     repo.content = [
-      makeContent({ id: "old-lesson", type: "lesson", sourceId: "early-modern-source" }),
-      makeContent({ id: "ancient-lesson", type: "lesson", sourceId: "ancient-source" }),
+      makeReviewedLesson({ id: "old-lesson", sourceId: "early-modern-source" }),
+      makeReviewedLesson({ id: "ancient-lesson", sourceId: "ancient-source" }),
     ];
 
     const result = await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]));
@@ -45,7 +45,7 @@ describe("selectTodayContent", () => {
 
   it("does not fall back to a non-ancient lesson when no eligible content exists", async () => {
     const repo = new FakeContentRepository();
-    repo.content = [makeContent({ id: "old-lesson", type: "lesson", sourceId: "early-modern-source" })];
+    repo.content = [makeReviewedLesson({ id: "old-lesson", sourceId: "early-modern-source" })];
 
     await expect(
       selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"])),
@@ -181,3 +181,4 @@ describe("selectTodayContent", () => {
     expect(repo.history.map((entry) => entry.deliveredDate)).toEqual([TODAY, "2026-09-10"]);
   });
 });
+
