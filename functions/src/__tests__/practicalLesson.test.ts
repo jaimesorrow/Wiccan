@@ -1,4 +1,10 @@
-import { findPracticalLessonViolations, practicalContentHash } from "../practicalLesson";
+import {
+  findPracticalLessonViolations,
+  findPracticalSafetyViolations,
+  isPracticalCategory,
+  PRACTICAL_CATEGORIES,
+  practicalContentHash,
+} from "../practicalLesson";
 import type { SourcePassage } from "../sourcePassages";
 
 const PASSAGE: SourcePassage = {
@@ -106,6 +112,12 @@ function reviewedLesson(): Record<string, unknown> {
 }
 
 describe("practical lesson gate", () => {
+  it("recognizes every proposed practical category and no legacy intention category", () => {
+    expect(PRACTICAL_CATEGORIES).toHaveLength(10);
+    for (const category of PRACTICAL_CATEGORIES) expect(isPracticalCategory(category)).toBe(true);
+    expect(isPracticalCategory("LoveAndRelationships")).toBe(false);
+  });
+
   it("accepts a passage-grounded lesson with a current complete review", () => {
     expect(findPracticalLessonViolations(reviewedLesson(), [PASSAGE])).toEqual([]);
   });
@@ -118,11 +130,11 @@ describe("practical lesson gate", () => {
     );
   });
 
-  it("blocks an invented formula when the inspected passage has no approved formula", () => {
+  it("blocks unlabeled modern wording when the inspected passage has no approved formula", () => {
     const content = reviewedLesson();
     content.incantation = "An invented line";
     expect(findPracticalLessonViolations(content, [PASSAGE])).toContain(
-      "source has no approved formula; do not invent an incantation",
+      "a modern incantation absent from the source must be labeled as original modern wording",
     );
   });
 
@@ -132,5 +144,15 @@ describe("practical lesson gate", () => {
     expect(findPracticalLessonViolations(content, [PASSAGE])).toContain(
       "verified source passage is missing from the editor-owned register",
     );
+  });
+
+  it.each([
+    ["1. Drink this ritual oil.\n2. Finish.", "generated practical lessons may not instruct ingestion"],
+    ["1. Make them love you without their consent.\n2. Finish.", "coercive targeting"],
+    ["1. This working guarantees wealth.\n2. Finish.", "guaranteed outcome"],
+    ["1. Burn the candle.\n2. Finish.", "flame-related lesson"],
+  ])("flags unsafe generated instructions: %s", (body, expected) => {
+    const content = { ...reviewedLesson(), body, lesson: body, safetyNote: "Be careful." };
+    expect(findPracticalSafetyViolations(content).join(" ")).toContain(expected);
   });
 });

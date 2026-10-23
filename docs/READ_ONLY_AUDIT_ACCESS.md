@@ -1,16 +1,16 @@
-# Read-only production audit access
+# Firebase audit access (read phase)
 
-The repository can be updated through GitHub, but this workspace currently has no Google/Firebase identity. The production inventory therefore remains unverified and no live lesson was edited.
+This file documents the first, read-only phase of the write-capable migration. The complete workflow is in [FIRESTORE_MIGRATION_RUNBOOK.md](FIRESTORE_MIGRATION_RUNBOOK.md). Production content has not been inventoried or changed from this workspace because no Firebase identity is connected yet.
 
-Open the [Google Cloud IAM page for `wiccan-android`](https://console.cloud.google.com/iam-admin/iam?project=wiccan-android) and grant the workspace's connected Google identity the narrow `Cloud Datastore Viewer` role (`roles/datastore.viewer`). Do not grant Editor or Owner for the audit.
+Connect the official Firebase integration to an account with access to `wiccan-android`, or attach an authorized Google Cloud identity to the managed workspace. The initial inventory needs Firestore read access. The later backup and reviewed draft update need narrowly scoped export and document-update access; do not commit credentials or service-account files.
 
-The workspace also needs that Google identity attached through the ChatGPT/Codex cloud-environment connection. After the connection reports ready, run:
+After the connection reports ready, run the mandatory read phase:
 
 ```bash
 cd functions
 npm run audit-content -- --project wiccan-android --output /tmp/wiccan-live-audit.json
 ```
 
-The audit command is read-only. It counts the actual `content` documents, inspects all statuses and types, reads delivery-history IDs to identify previously delivered records, reports duplicate concerns and source blockers, and does not update Firestore.
+The audit command counts the actual root `content` documents, inspects statuses and types, reads delivery-history IDs to identify previously delivered records, reports duplicate concerns and source blockers, and does not update Firestore.
 
-Production content changes require a separate reviewed change set, a backup manifest with a tested restore, conflict checks against each document update time, and explicit approval of the exact change-set digest. Publication is a later, separate action.
+Continue with the secure backup, dry run, exact-digest apply, and post-write audit in the runbook. The update path only modifies validated draft documents and preserves IDs and statuses. Publication is a later, separate action.

@@ -11,6 +11,7 @@ enum class ContentCategory {
     ELEMENTAL_MAGIC,
     ALTARS_SACRED_SPACE,
     DIVINATION,
+    PROTECTION_CLEANSING_WARDING,
     // Read compatibility for delivered Grimoire entries written before the practical taxonomy.
     PROTECTION,
     LOVE_AND_RELATIONSHIPS,
@@ -23,7 +24,7 @@ enum class ContentCategory {
     ;
 
     companion object {
-        /** Parses the PascalCase wire value the Cloud Functions `ContentCategory` union sends. */
+        /** Parses practical kebab-case IDs and legacy PascalCase values from Firestore. */
         fun fromWireValue(value: String): ContentCategory = when (value) {
             "candle-magic" -> CANDLE_MAGIC
             "herbs-botanicals" -> HERBS_BOTANICALS
@@ -34,6 +35,7 @@ enum class ContentCategory {
             "elemental-magic" -> ELEMENTAL_MAGIC
             "altars-sacred-space" -> ALTARS_SACRED_SPACE
             "divination" -> DIVINATION
+            "protection-cleansing-warding" -> PROTECTION_CLEANSING_WARDING
             "Protection" -> PROTECTION
             "LoveAndRelationships" -> LOVE_AND_RELATIONSHIPS
             "ProsperityAndAbundance" -> PROSPERITY_AND_ABUNDANCE

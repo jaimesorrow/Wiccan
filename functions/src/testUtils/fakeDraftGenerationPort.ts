@@ -23,7 +23,9 @@ export class FakeDraftGenerationPort implements DraftGenerationPort {
       practice: "Complete the numbered method once.",
       materials: request.type === "potion" ? ["a bowl of water", "a white candle"] : [],
       tools: request.type === "potion" ? ["a bowl of water", "a white candle"] : [],
-      safetyNote: request.type === "potion" ? "Keep away from open flame." : "Stop if the practice causes distress.",
+      safetyNote: request.type === "potion"
+        ? "Use a flameless light, keep the preparation external, and patch test for skin irritation."
+        : "Stop if the practice causes distress.",
       tags: [request.type],
       category: "divination",
       primaryCategoryId: "divination",

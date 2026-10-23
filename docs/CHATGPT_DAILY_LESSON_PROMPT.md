@@ -28,7 +28,7 @@ Do not invent a ritual, quotation, translation, date, locator, lineage, formula,
 If both gates pass, draft one lesson. Preserve the source's actual tradition and describe the contemporary Wiccan application separately. Keep historical instructions, scholarly uncertainty, modern adaptation, and safety changes visibly distinct.
 
 Use exactly one primary category, chosen by the central documented technique:
-candle-magic; herbs-botanicals; potions-infusions; crystals-stones; cord-knot-magic; moon-phases-timing; elemental-magic; altars-sacred-space; divination.
+candle-magic; herbs-botanicals; potions-infusions; crystals-stones; cord-knot-magic; moon-phases-timing; elemental-magic; altars-sacred-space; divination; protection-cleansing-warding.
 Secondary categories are optional and use the same list. Never add a category merely because a material appears incidentally. Do not invent candle colors, lunar timing, elemental correspondences, or ingredient meanings.
 
 Return a JSON object with:
@@ -43,7 +43,7 @@ Requirements:
 - lesson must contain a sequential numbered method that covers preparation, performance, closure, and handling/disposal.
 - Aim for 250–450 words only when the passage supports that length. Do not pad sparse evidence.
 - tools must distinguish source-documented requirements from labeled modern substitutions. Never invent quantities.
-- incantation may contain a lawful excerpt or a clearly identified paraphrase only when the source and rights record support it. Otherwise use null and explain why.
+- incantation may contain a lawful source excerpt only when the passage and rights record support it, or an optional original modern incantation labeled in adaptationNotes. Never present modern wording as a historical formula. Otherwise use null and explain why.
 - timing and correspondences may appear only when sourced or explicitly labeled as modern adaptations.
 - reflection is one question about the user's experience.
 - practice is one concise completion prompt pointing back to the numbered method; it is not a replacement for the method.

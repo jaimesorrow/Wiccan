@@ -54,6 +54,26 @@ class ContentMappersTest {
     }
 
     @Test
+    fun `all proposed practical category ids remain readable`() {
+        val expected = mapOf(
+            "candle-magic" to ContentCategory.CANDLE_MAGIC,
+            "herbs-botanicals" to ContentCategory.HERBS_BOTANICALS,
+            "potions-infusions" to ContentCategory.POTIONS_INFUSIONS,
+            "crystals-stones" to ContentCategory.CRYSTALS_STONES,
+            "cord-knot-magic" to ContentCategory.CORD_KNOT_MAGIC,
+            "moon-phases-timing" to ContentCategory.MOON_MAGIC_TIMING,
+            "elemental-magic" to ContentCategory.ELEMENTAL_MAGIC,
+            "altars-sacred-space" to ContentCategory.ALTARS_SACRED_SPACE,
+            "divination" to ContentCategory.DIVINATION,
+            "protection-cleansing-warding" to ContentCategory.PROTECTION_CLEANSING_WARDING,
+        )
+
+        expected.forEach { (wireValue, category) ->
+            assertEquals(category, (lesson + ("primaryCategoryId" to wireValue)).toContent().category)
+        }
+    }
+
+    @Test
     fun `existing history remains readable through Grimoire rename without replacing its keys`() {
         val row = mapOf<String, Any?>(
             "contentId" to "legacy-lesson",

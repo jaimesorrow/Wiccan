@@ -21,7 +21,8 @@
     "seed-content": "npm run build && node lib/scripts/seedContentCli.js",
     "verify-lessons": "npm run build && node lib/scripts/verifyLessonsCli.js",
     "backfill-content-usage": "npm run build && node lib/scripts/backfillContentUsageCli.js",
-    "audit-content": "npm run build && node lib/scripts/auditContentCli.js"
+    "audit-content": "npm run build && node lib/scripts/auditContentCli.js",
+    "compare-content-audits": "npm run build && node lib/scripts/compareContentAuditsCli.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.135.0",

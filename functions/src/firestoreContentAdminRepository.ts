@@ -14,9 +14,12 @@ export class FirestoreContentAdminRepository implements ContentAdminRepositoryPo
       ...draft,
       rightsReviewRequired: true,
       status: "draft" satisfies ContentStatus,
+      contentStatus: "draft" satisfies ContentStatus,
       generatedBy: CONTENT_GENERATOR_ID,
       generationSourceKind: CONTENT_GENERATION_SOURCE_KIND,
       generatedAt: FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     });
     return doc.id;
   }
@@ -34,7 +37,11 @@ export class FirestoreContentAdminRepository implements ContentAdminRepositoryPo
   }
 
   async publish(contentId: string): Promise<void> {
-    await this.db.collection(CONTENT_COLLECTION).doc(contentId).update({ status: "published" });
+    await this.db.collection(CONTENT_COLLECTION).doc(contentId).update({
+      status: "published",
+      contentStatus: "published",
+      updatedAt: FieldValue.serverTimestamp(),
+    });
   }
 
   async titleExists(title: string): Promise<boolean> {

@@ -153,13 +153,17 @@ export async function generateDrafts(
       citations: [citationForPassage(passage)],
       rightsNotes: passage.rights!.basis,
       rightsReviewRequired: true,
+      introduction: generated.intro,
+      lesson: generated.body,
+      contentStatus: "draft",
       slug: generated.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
       tools: generated.tools ?? generated.materials ?? [],
       similarityGroupId: request.similarityGroupId?.trim() ?? `generated:${passage.id}:${generated.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
     };
     // The model cannot certify its own output, even if an adapter returns extra keys.
     delete draft.practicalReview;
-    const violations = findPracticalLessonViolations(draft, passages, false);
+    // Validate the exact stored shape; the repository adds the authoritative legacy status atomically.
+    const violations = findPracticalLessonViolations({ ...draft, status: "draft" }, passages, false);
     if (violations.length) throw new InvalidGeneratedDraftError(violations.join("; "));
     const contentId = await repo.createDraft(draft);
 

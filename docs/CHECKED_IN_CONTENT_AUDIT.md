@@ -47,4 +47,4 @@ The seed contains 139 repeated `similarityGroupId` groups covering 293 records; 
 
 The 106 legacy rights flags are preserved. They do not imply that the remaining 190 records have verified commercial-use rights for an exact edition or translation.
 
-No record was deleted, merged, renumbered, reclassified, rewritten, approved, or published during this file audit. Live statuses, update times, existing published records, and Grimoire delivery history require the read-only Firestore audit described in [READ_ONLY_AUDIT_ACCESS.md](READ_ONLY_AUDIT_ACCESS.md).
+No record was deleted, merged, renumbered, reclassified, rewritten, approved, or published during this file audit. Live statuses, update times, existing published records, and Grimoire delivery history require the read-first Firestore workflow in [FIRESTORE_MIGRATION_RUNBOOK.md](FIRESTORE_MIGRATION_RUNBOOK.md). That workflow proceeds from inventory to backup, dry run, reviewed draft updates, and a post-write comparison; publication remains separate.

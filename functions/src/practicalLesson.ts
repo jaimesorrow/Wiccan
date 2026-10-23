@@ -5,6 +5,7 @@ import type { SourcePassage } from "./sourcePassages";
 export const PRACTICAL_CATEGORIES = [
   "candle-magic", "herbs-botanicals", "potions-infusions", "crystals-stones",
   "cord-knot-magic", "moon-phases-timing", "elemental-magic", "altars-sacred-space", "divination",
+  "protection-cleansing-warding",
 ] as const;
 export type PracticalCategory = (typeof PRACTICAL_CATEGORIES)[number];
 export const LESSON_TYPES = ["candle", "botanical", "potion", "tea", "bath", "oil", "spray", "jar", "skin-contact", "stone", "cord", "lunar", "elemental", "altar", "divination", "tool-light"] as const;
@@ -41,6 +42,8 @@ export interface PracticalLessonFields {
   adaptationNotes?: string[];
   sourcePassageId?: string;
   practicalReview?: PracticalReview;
+  /** Additive alias used by the revised schema; legacy `status` remains authoritative during migration. */
+  contentStatus?: "draft" | "published";
 }
 
 export function isPracticalCategory(value: unknown): value is PracticalCategory {
@@ -63,16 +66,70 @@ export function practicalContentHash(content: object): string {
   return createHash("sha256").update(stableJson(Object.fromEntries(AUTHORED_FIELDS.map((key) => [key, fields[key]])))).digest("hex");
 }
 
+function lessonText(fields: Record<string, unknown>): string {
+  return [
+    "title", "summary", "intro", "introduction", "body", "lesson", "reflection", "practice",
+    "safetyNote", "incantation", "timing", "application",
+  ].map((key) => typeof fields[key] === "string" ? fields[key] : "")
+    .concat(["materials", "tools", "correspondences", "adaptationNotes", "tags"].flatMap((key) =>
+      Array.isArray(fields[key]) ? (fields[key] as unknown[]).filter(nonblank) : []))
+    .join(" ")
+    .toLowerCase();
+}
+
+/** Conservative automated screening. A pass never replaces the required human safety review. */
+export function findPracticalSafetyViolations(content: object): string[] {
+  const fields = content as Record<string, unknown>;
+  const text = lessonText(fields);
+  const method = String(fields.lesson ?? fields.body ?? "").toLowerCase();
+  const safety = String(fields.safetyNote ?? "").toLowerCase();
+  const issues: string[] = [];
+
+  if (/\b(?:guarantees?|ensures?)\b|\bwill certainly\b|\b(?:always|definitely) (?:works?|causes?|brings?)\b/.test(text)) {
+    issues.push("lesson promises a guaranteed outcome");
+  }
+  if (/\bmake (?:him|her|them|that person|[a-z]+) (?:love|obey|return|submit)\b|\bagainst (?:his|her|their) will\b|\bwithout (?:their )?consent\b/.test(text)) {
+    issues.push("lesson contains coercive targeting rather than consent-based practice");
+  }
+  if (/\b(?:drink|swallow|ingest|consume)\b/.test(method)) {
+    issues.push("generated practical lessons may not instruct ingestion; require separate qualified review");
+  }
+  if (/essential oils?[^.]{0,80}\b(?:drink|swallow|ingest|consume|oral)\b|\b(?:drink|swallow|ingest|consume)[^.]{0,80}essential oils?\b/.test(text)) {
+    issues.push("essential oils must never be ingested");
+  }
+  if (/\b(?:cures?|treats?|prevents?)\s+(?:disease|illness|infection|cancer|depression|anxiety|diabetes|pain)\b|\breplace\w* (?:a |your )?(?:doctor|clinician|medical|mental health)\b/.test(text)) {
+    issues.push("lesson contains an unsupported medical claim or replacement-of-care instruction");
+  }
+  if (/\b(?:safe|harmless) (?:during|for|with)[^.]{0,50}\b(?:pregnan|medication|medicine)\b|\b(?:pregnan\w*|medication|medicine)[^.]{0,50}\b(?:safe|harmless)\b/.test(text)) {
+    issues.push("lesson makes an unsupported pregnancy or medication safety claim");
+  }
+  if (/\b(?:candle|open flame|burn|burning)\b/.test(text) &&
+      !/\b(?:flameless|extinguish|unattended|fireproof|heat-safe|fire-safe)\b/.test(safety)) {
+    issues.push("flame-related lesson needs explicit extinguishing, unattended-flame, or flameless guidance");
+  }
+  if (/\b(?:incense|smoke|smudg\w*)\b/.test(text) && !/\b(?:ventilat|smoke|asthma|respiratory|outdoors)\b/.test(safety)) {
+    issues.push("smoke-related lesson needs ventilation and respiratory precautions");
+  }
+  if (/\b(?:skin|bath|ritual oil|essential oil|topical|anoint)\b/.test(text) && !/\b(?:patch test|allerg|skin|external use|irritat)\b/.test(safety)) {
+    issues.push("skin-contact lesson needs allergy, patch-test, or irritation precautions");
+  }
+  if (/\b(?:cord|knot|bind|binding)\b/.test(text) && !/\b(?:never bind|do not bind|circulation|loose|children|pets)\b/.test(safety)) {
+    issues.push("cord or binding lesson needs body, circulation, child, or pet precautions");
+  }
+  return issues;
+}
+
 export function findPracticalLessonViolations(content: object, passages: SourcePassage[], requireEditorialReview = true): string[] {
   const fields = content as Record<string, unknown>;
-  const issues: string[] = [];
+  const issues: string[] = [...findPracticalSafetyViolations(content)];
   for (const key of ["title", "summary", "intro", "body", "reflection", "practice", "safetyNote", "application", "lessonType"] as const) {
     const alias = key === "intro" ? "introduction" : key === "body" ? "lesson" : key;
     if (!nonblank(fields[alias] ?? fields[key])) issues.push(`${key} is required`);
   }
   if (!nonblank(fields.reflection) || !fields.reflection.trim().endsWith("?")) issues.push("reflection must be a question");
-  if (!isPracticalCategory(fields.primaryCategoryId)) issues.push("primaryCategoryId must be one of the nine practical categories");
+  if (!isPracticalCategory(fields.primaryCategoryId)) issues.push("primaryCategoryId must be one of the ten practical categories");
   if (fields.category !== fields.primaryCategoryId) issues.push("category must mirror primaryCategoryId for compatible readers");
+  if (fields.contentStatus !== undefined && fields.contentStatus !== fields.status) issues.push("contentStatus must mirror the preserved legacy status");
   if (!Array.isArray(fields.secondaryCategoryIds) || !fields.secondaryCategoryIds.every(isPracticalCategory) || new Set(fields.secondaryCategoryIds).size !== fields.secondaryCategoryIds.length || fields.secondaryCategoryIds.includes(fields.primaryCategoryId)) issues.push("secondaryCategoryIds must contain distinct practical categories other than the primary");
   if (!(LESSON_TYPES as readonly unknown[]).includes(fields.lessonType)) issues.push("lessonType is unsupported");
   if (typeof fields.requiresPotionDisclosure !== "boolean" || (requiresDisclosure(fields) && fields.requiresPotionDisclosure !== true)) issues.push("required shared potion disclosure is missing");
@@ -93,7 +150,11 @@ export function findPracticalLessonViolations(content: object, passages: SourceP
     if (fields.tradition !== passage.tradition) issues.push("source tradition must be preserved accurately");
     if (fields.sourceCitation !== passage.locator || fields.sourceUrl !== passage.url) issues.push("source locator/URL differ from the inspected passage");
     if (!Array.isArray(fields.citations) || !fields.citations.some((citation) => stableJson(citation) === stableJson(citationForPassage(passage)))) issues.push("structured citation must retain exact verified edition, dating and locator metadata");
-    if (nonblank(fields.incantation) && !nonblank(passage.formula)) issues.push("source has no approved formula; do not invent an incantation");
+    if (nonblank(fields.incantation) && !nonblank(passage.formula) &&
+        (!Array.isArray(fields.adaptationNotes) ||
+          !(fields.adaptationNotes as unknown[]).some((note) => nonblank(note) && /original modern (?:incantation|wording)/i.test(note)))) {
+      issues.push("a modern incantation absent from the source must be labeled as original modern wording");
+    }
     if (!nonblank(fields.incantation) && !nonblank(fields.incantationOmissionReason)) issues.push("explain the omission of an incantation");
   }
   if (requireEditorialReview) {

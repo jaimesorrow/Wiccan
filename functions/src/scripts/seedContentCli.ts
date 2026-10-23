@@ -14,6 +14,7 @@ async function main(): Promise<void> {
   const { values: args } = parseArgs({ options: {
     project: { type: "string" }, commit: { type: "boolean", default: false },
     changeset: { type: "string" }, approval: { type: "string" }, backup: { type: "string" },
+    output: { type: "string" },
   }, strict: true, allowPositionals: false });
   if (args.project !== undefined && args.project !== CONTENT_PROJECT_ID) throw new Error("Wrong content project.");
   const passages = loadSourcePassages();
@@ -28,9 +29,12 @@ async function main(): Promise<void> {
   if (changeSet.projectId !== CONTENT_PROJECT_ID) throw new Error("Change set targets another project.");
   const backup = args.backup ? JSON.parse(fs.readFileSync(args.backup, "utf8")) as BackupManifest : undefined;
   initializeContentProject(args.project);
-  console.log(JSON.stringify({ mode: args.commit ? "approved-apply" : "dry-run", project: args.project, changeSetDigest: changeSetDigest(changeSet) }));
+  const header = { mode: args.commit ? "approved-apply" : "dry-run", project: args.project, changeSetDigest: changeSetDigest(changeSet) };
   const results = await applyReviewedContentChanges(getFirestore(), changeSet, passages, { commit: args.commit, approval: args.approval, backup });
-  console.log(JSON.stringify(results, null, 2));
+  const report = { ...header, generatedAt: new Date().toISOString(), results };
+  const json = JSON.stringify(report, null, 2) + "\n";
+  if (args.output) fs.writeFileSync(args.output, json, { mode: 0o600, flag: "wx" });
+  else process.stdout.write(json);
   if (results.some((result) => result.outcome === "conflict")) process.exitCode = 1;
 }
 

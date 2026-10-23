@@ -64,9 +64,10 @@ FORMAT
   source fidelity; do not substitute an unrelated intention exercise.
 - reflection: one experience-specific question. practice: one concise completion
   prompt pointing back to the numbered method; it is not the entire method.
-- incantation: lawful excerpt or explicitly identified paraphrase only when the
-  inspected passage supports it and rights permit it. Otherwise null and record
-  incantationOmissionReason. Never add a rhyme or invent ancient speech.
+- incantation: either a lawful source excerpt when the inspected passage and
+  rights permit it, or optional original modern wording. Label original wording
+  in adaptationNotes and never present it as an ancient formula. Otherwise use
+  null and record incantationOmissionReason. Never invent ancient speech.
 - timing: source timing with locator, or null if absent. Do not invent lunar
   timing or candle colors. correspondences must cite support or label adaptation.
 - adaptationNotes: document every changed, omitted or reconstructed source

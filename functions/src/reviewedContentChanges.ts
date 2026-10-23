@@ -5,7 +5,7 @@ import type { SourcePassage } from "./sourcePassages";
 export interface ReviewedChange { id: string; expectedUpdateTime: string; fields: Record<string, unknown>; subjectChangeReason?: string }
 export interface ReviewedChangeSet { projectId: string; reviewId: string; entries: ReviewedChange[] }
 export interface BackupManifest { projectId: string; exportUri: string; artifactSha256: string; completedAt: string; restoreTestedAt: string; contentIds: string[] }
-const PATCH_FIELDS = new Set<string>([...AUTHORED_FIELDS.filter((field) => !["type", "tier", "rightsReviewRequired", "rightsNotes", "similarityGroupId"].includes(field)), "practicalReview"]);
+const PATCH_FIELDS = new Set<string>([...AUTHORED_FIELDS.filter((field) => !["type", "tier", "rightsReviewRequired", "rightsNotes", "similarityGroupId"].includes(field)), "practicalReview", "contentStatus"]);
 export function changeSetDigest(changeSet: ReviewedChangeSet): string {
   return createHash("sha256").update(stableJson(changeSet)).digest("hex");
 }
@@ -25,6 +25,7 @@ export function planReviewedChange(current: Record<string, unknown> | null, upda
   if (!keys.length || keys.some((key) => !PATCH_FIELDS.has(key))) return { outcome: "conflict", reason: "patch includes unapproved or protected fields" } as const;
   if (keys.every((key) => stableJson(current[key]) === stableJson(change.fields[key]))) return { outcome: "unchanged" } as const;
   if (current.status !== "draft" || delivered) return { outcome: "conflict", reason: "published, withdrawn or previously delivered; compatibility/versioning proposal required" } as const;
+  if (change.fields.contentStatus !== undefined && change.fields.contentStatus !== current.status) return { outcome: "conflict", reason: "contentStatus must preserve and mirror the authoritative status" } as const;
   if (updateTime !== change.expectedUpdateTime) return { outcome: "conflict", reason: "document changed after review" } as const;
   if (change.fields.sourceId !== undefined && change.fields.sourceId !== current.sourceId && !change.subjectChangeReason?.trim()) return { outcome: "conflict", reason: "changed source requires an explicit subject/provenance review note" } as const;
   const merged = { ...current, ...change.fields };
