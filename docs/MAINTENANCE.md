@@ -14,7 +14,7 @@ currently handled (automated, manual, or not yet built).
   runs the full test suite against it, but a passing CI run doesn't mean
   "safe to auto-merge" for a major version bump (see Billing Library
   below for why).
-- **Compatibility audit (2026-10-12)**: Android, npm, Gradle, Firebase CLI,
+- **Compatibility audit (2026-10-24)**: Android, npm, Gradle, Firebase CLI,
   and GitHub Actions versions were compared with their current stable release
   channels. Compatible updates were applied together and both npm workspaces
   audit with zero known vulnerabilities. Three newer majors are deliberately
@@ -24,8 +24,11 @@ currently handled (automated, manual, or not yet built).
   `typescript-eslint`; and `@types/node` remains on major 22 to model the
   deployed runtime. Revisit those together when their runtime/tooling chain is
   supported rather than overriding peer requirements.
+- The October 24 refresh also moves `typescript-eslint` to 8.72.0 and
+  `body-parser` to 2.4.0. The latter fixes GHSA-27r3-jxmh-p828, a high-severity
+  denial-of-service issue in compressed request parsing.
 - The Firestore emulator scripts invoke the pinned current Firebase CLI with
-  `npx --yes firebase-tools@15.33.0`. Keeping the CLI out of the committed
+  `npx --yes firebase-tools@15.34.1`. Keeping the CLI out of the committed
   dependency graph avoids shipping its large, unrelated command-line
   dependency tree while preserving reproducible CI behavior.
 
