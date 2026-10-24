@@ -11,7 +11,7 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "test": "jest",
-    "test:firebase": "npm run build && npx --yes firebase-tools@15.33.0 emulators:exec --config ../firebase.json --only firestore --project demo-wiccan \"node --test tests/firebaseSecurity.test.mjs\"",
+    "test:firebase": "npm run build && npx --yes firebase-tools@15.34.1 emulators:exec --config ../firebase.json --only firestore --project demo-wiccan \"node --test tests/firebaseSecurity.test.mjs\"",
     "lint": "eslint src",
     "serve": "npm run build && firebase emulators:start --only functions",
     "deploy": "npm run build && firebase deploy --only functions",
@@ -46,7 +46,7 @@
     "jest": "^30.5.2",
     "ts-jest": "^29.4.15",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.71.2"
+    "typescript-eslint": "^8.72.0"
   },
   "overrides": {
     "@grpc/grpc-js": "1.14.6",
