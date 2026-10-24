@@ -1,5 +1,7 @@
 import { MAX_TIME_ZONE_LENGTH } from "../callableInput";
 import { getTodayContent } from "../index";
+import { FirestoreContentRepository } from "../firestoreContentRepository";
+import { FirestoreSystemConfigRepository } from "../firestoreSystemConfigRepository";
 
 // Calling .run bypasses SDK token verification; no Auth/App Check service is needed.
 jest.mock("firebase-admin/auth", () => ({ getAuth: jest.fn() }));
@@ -34,5 +36,15 @@ describe("getTodayContent callable time-zone validation", () => {
       Parameters<typeof getTodayContent.run>[0];
     await expect(getTodayContent.run(unauthenticated))
       .rejects.toMatchObject({ code: "unauthenticated" });
+  });
+
+  it("returns permission-denied with a subscription reason before reading assigned content", async () => {
+    jest.spyOn(FirestoreSystemConfigRepository.prototype, "getConfig")
+      .mockResolvedValue({ dailyContentEnabled: true, notificationsEnabled: true });
+    jest.spyOn(FirestoreContentRepository.prototype, "getUserTier").mockResolvedValue("free");
+    const history = jest.spyOn(FirestoreContentRepository.prototype, "findTodayDeliveredContentId");
+    await expect(getTodayContent.run(request("UTC")))
+      .rejects.toMatchObject({ code: "permission-denied", details: { reason: "SUBSCRIPTION_REQUIRED" } });
+    expect(history).not.toHaveBeenCalled();
   });
 });

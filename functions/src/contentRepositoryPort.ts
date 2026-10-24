@@ -1,5 +1,12 @@
 import { Content, ContentTier } from "./types";
 
+export class SubscriptionRequiredError extends Error {
+  constructor() {
+    super("An active trial or subscription is required.");
+    this.name = "SubscriptionRequiredError";
+  }
+}
+
 /** A different day's transaction reserved this content before our assignment committed. */
 export class ContentAlreadyDeliveredError extends Error {
   constructor(contentId: string) {
@@ -22,7 +29,7 @@ export class ContentNoLongerEligibleError extends Error {
  * in-memory fake instead of a live Firestore/emulator instance.
  */
 export interface ContentRepositoryPort {
-  /** Defaults to "free" for users with no subscription record. */
+  /** Legacy wire values: premium means verified, unexpired access; free means no access. */
   getUserTier(uid: string): Promise<ContentTier>;
 
   /** IANA time zone identifier for this user, e.g. "America/Denver". Null if never recorded. */
@@ -42,7 +49,7 @@ export interface ContentRepositoryPort {
 
   getContentById(id: string): Promise<Content | null>;
 
-  /** Published content whose tier is within what `tier` is entitled to. */
+  /** All published content for active subscribers; no content for inactive accounts. */
   getPublishedContentForTier(tier: ContentTier): Promise<Content[]>;
 
   /**

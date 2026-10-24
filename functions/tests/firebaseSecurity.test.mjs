@@ -36,8 +36,8 @@ async function seedArchive() {
   await environment.withSecurityRulesDisabled(async (context) => {
     const db = context.firestore();
     await Promise.all([
-      setDoc(doc(db, "users/alice"), { tier: "free" }),
-      setDoc(doc(db, "users/bob"), { tier: "premium" }),
+      setDoc(doc(db, "users/alice"), { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 }),
+      setDoc(doc(db, "users/bob"), { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 }),
       setDoc(doc(db, "content/free-lesson"), { status: "published", tier: "free" }),
       setDoc(doc(db, "content/premium-lesson"), { status: "published", tier: "premium" }),
       setDoc(doc(db, "content/draft-lesson"), { status: "draft", tier: "free" }),

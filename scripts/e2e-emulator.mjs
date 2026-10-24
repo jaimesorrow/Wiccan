@@ -135,6 +135,14 @@ async function main() {
   }
 
   console.log("\n== getTodayContent ==");
+  ok("signed-in account without a subscription is denied", probe?.error?.status === "PERMISSION_DENIED",
+    JSON.stringify(probe).slice(0, 200));
+  const forged = await call("getTodayContent", token, { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 });
+  ok("client entitlement fields cannot bypass subscription verification", forged?.error?.status === "PERMISSION_DENIED");
+  // Emulator-only fixture, not a production entitlement or a Play sandbox purchase.
+  await db.collection("users").doc(uid).set({
+    tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000,
+  }, { merge: true });
   for (const timezone of [null, 7, "", " UTC", "UTC ", "Not/A_Real_Zone", "x".repeat(256)]) {
     const invalid = await call("getTodayContent", token, { timezone });
     ok(`getTodayContent rejects invalid timezone ${JSON.stringify(timezone).slice(0, 60)}`,
@@ -142,7 +150,7 @@ async function main() {
   }
   const first = await call("getTodayContent", token);
   const firstId = first?.result?.id;
-  ok("returns content for an authed user", !!first?.result, JSON.stringify(first).slice(0, 200));
+  ok("returns content for a verified subscriber", !!first?.result, JSON.stringify(first).slice(0, 200));
   const second = await call("getTodayContent", token);
   ok("repeat call returns the same content", firstId && firstId === second?.result?.id,
     `${firstId} vs ${second?.result?.id}`);
@@ -151,13 +159,19 @@ async function main() {
     ok(`getTodayContent accepts timezone ${timezone}`, !!zoned?.result,
       JSON.stringify(zoned).slice(0, 200));
   }
-  ok("free user is never served premium or draft content",
-    firstId !== "e2e-premium-1" && firstId !== "e2e-draft-1", `got ${firstId}`);
+  ok("subscription pool never serves draft content", firstId && firstId !== "e2e-draft-1", `got ${firstId}`);
   const hist = await db.collection("userContentHistory").doc(`${uid}_${today()}`).get();
   ok("history document is written", hist.exists);
+  await db.collection("users").doc(uid).update({ subscriptionExpiresAtMillis: Date.now() - 1 });
+  const expired = await call("getTodayContent", token);
+  ok("expiry blocks the same-day history fast path", expired?.error?.status === "PERMISSION_DENIED");
+  ok("expiry preserves delivery history", (await hist.ref.get()).exists);
+  await db.collection("users").doc(uid).update({ subscriptionExpiresAtMillis: Date.now() + 3_600_000 });
+  const renewed = await call("getTodayContent", token);
+  ok("renewal restores the same committed assignment", renewed?.result?.id === firstId);
 
   console.log("\n== acceptTerms ==");
-  const terms = await call("acceptTerms", token, { termsVersion: 2, privacyVersion: 2 });
+  const terms = await call("acceptTerms", token, { termsVersion: 3, privacyVersion: 2 });
   ok("acceptTerms succeeds", !terms?.error, JSON.stringify(terms).slice(0, 200));
   ok("users/{uid} exists afterwards", (await db.collection("users").doc(uid).get()).exists);
 
@@ -208,3 +222,4 @@ main().catch((err) => {
   console.error("Are the emulators running? firebase emulators:start --project wiccan-android");
   process.exit(1);
 });
+

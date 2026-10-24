@@ -5,6 +5,7 @@ import com.jaimesorrow.wiccan.core.error.AppError
 data class PaywallUiState(
     val isLoadingPrice: Boolean = true,
     val price: String? = null,
+    val hasFreeTrial: Boolean = false,
     val isRestoring: Boolean = false,
 )
 

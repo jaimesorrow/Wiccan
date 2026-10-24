@@ -39,7 +39,7 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.TERMS,
         title = "Terms of Service",
         version = PolicyVersions.TERMS,
-        effectiveDate = "October 12, 2026",
+        effectiveDate = "October 21, 2026",
         introduction =
             "These Terms govern your use of Wiccan. By accepting them, you agree to use " +
                 "the app responsibly and in accordance with applicable law.",
@@ -81,12 +81,19 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Subscriptions and billing",
                 listOf(
-                    "Premium is an automatically renewing Google Play subscription. The purchase " +
-                        "screen shows the localized price and billing period before purchase. Google " +
-                        "Play charges your selected payment method when the purchase is confirmed.",
+                    "Wiccan requires a Google Play subscription after sign-in and onboarding. There is no " +
+                        "free content plan. Eligible new subscribers receive a 7-day free trial, followed by " +
+                        "an automatically renewing monthly subscription with a US base price of $5.99. " +
+                        "The purchase screen and Google Play show your actual eligibility, localized price, " +
+                        "and billing terms before you confirm.",
+                    "If a trial is offered, cancel before its end to avoid the first monthly charge. " +
+                        "If no trial is available, Google Play charges when you confirm. An active trial " +
+                        "or subscription is required for all daily content and Grimoire access.",
                     "Unless canceled before renewal, the subscription renews at the then-current " +
                         "price and period shown by Google Play. Manage or cancel it through Google " +
-                        "Play. Cancellation normally preserves premium access through the paid period. " +
+                        "Play → Payments & subscriptions → Subscriptions. Cancellation normally preserves " +
+                        "access until the verified expiry date. When access expires, the app returns to the " +
+                        "subscription screen; delivery history is preserved for renewal. " +
                         "Refund eligibility is governed by applicable law and Google Play's refund rules.",
                     "Restoring a purchase verifies entitlement with Google Play. Deleting an account " +
                         "first attempts to cancel active auto-renewal; deletion does not itself promise a refund.",
@@ -160,7 +167,7 @@ object WiccanLegalDocuments {
                 "Why information is used",
                 listOf(
                     "Information is used to authenticate accounts, avoid repeating daily content, " +
-                        "show archive history, deliver requested notifications, verify premium access, " +
+                        "show archive history, deliver requested notifications, verify subscription access, " +
                         "prevent fraud, enforce security, diagnose failures, understand app performance, " +
                         "and meet legal or platform obligations.",
                 ),
