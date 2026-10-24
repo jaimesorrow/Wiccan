@@ -3,6 +3,7 @@ package com.jaimesorrow.wiccan.data.repository
 import android.app.Activity
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.billing.PREMIUM_MONTHLY_PRODUCT_ID
@@ -13,6 +14,7 @@ import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.data.remote.SubscriptionFunctionsDataSource
 import com.jaimesorrow.wiccan.data.remote.UserTierDataSource
+import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -115,10 +117,11 @@ class SubscriptionRepositoryImplTest {
         val activity = mockk<Activity>()
         val billingResult = mockk<BillingResult>()
         every { billingResult.responseCode } returns BillingClient.BillingResponseCode.OK
-        coEvery { billingClient.launchPurchaseFlow(activity, "uid-123", PREMIUM_MONTHLY_PRODUCT_ID) } returns billingResult
+        val offer = loadOffer()
+        coEvery { billingClient.launchPurchaseFlow(activity, "uid-123", PREMIUM_MONTHLY_PRODUCT_ID, offer) } returns billingResult
 
         assertTrue(repository.launchPurchaseFlow(activity) is AppResult.Success)
-        coVerify(exactly = 1) { billingClient.launchPurchaseFlow(activity, "uid-123", PREMIUM_MONTHLY_PRODUCT_ID) }
+        coVerify(exactly = 1) { billingClient.launchPurchaseFlow(activity, "uid-123", PREMIUM_MONTHLY_PRODUCT_ID, offer) }
     }
 
     @Test
@@ -126,7 +129,38 @@ class SubscriptionRepositoryImplTest {
         every { currentUser.currentUserId } returns null
 
         assertEquals(AppResult.Failure(AppError.Unauthorized), repository.launchPurchaseFlow(mockk()))
-        coVerify(exactly = 0) { billingClient.launchPurchaseFlow(any(), any(), any()) }
+        coVerify(exactly = 0) { billingClient.launchPurchaseFlow(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `checkout requires an offer loaded for the current account`() = runTest {
+        assertTrue(repository.launchPurchaseFlow(mockk()) is AppResult.Failure)
+        loadOffer()
+        every { currentUser.currentUserId } returns "another-account"
+        assertTrue(repository.launchPurchaseFlow(mockk()) is AppResult.Failure)
+        coVerify(exactly = 0) { billingClient.launchPurchaseFlow(any(), any(), any(), any()) }
+    }
+
+    private suspend fun loadOffer(): SubscriptionOffer {
+        val phase = mockk<ProductDetails.PricingPhase> {
+            every { recurrenceMode } returns ProductDetails.RecurrenceMode.INFINITE_RECURRING
+            every { billingPeriod } returns "P1M"
+            every { priceAmountMicros } returns 5_990_000L
+            every { priceCurrencyCode } returns "USD"
+            every { formattedPrice } returns "$5.99"
+        }
+        val phases = mockk<ProductDetails.PricingPhases> { every { pricingPhaseList } returns listOf(phase) }
+        val offer = mockk<ProductDetails.SubscriptionOfferDetails> {
+            every { offerId } returns null
+            every { offerToken } returns "monthly-token"
+            every { pricingPhases } returns phases
+        }
+        val product = mockk<ProductDetails> {
+            every { productId } returns PREMIUM_MONTHLY_PRODUCT_ID
+            every { subscriptionOfferDetails } returns listOf(offer)
+        }
+        coEvery { billingClient.queryProductDetails(PREMIUM_MONTHLY_PRODUCT_ID) } returns product
+        return (repository.getOffer() as AppResult.Success).data
     }
 
     private fun purchase(

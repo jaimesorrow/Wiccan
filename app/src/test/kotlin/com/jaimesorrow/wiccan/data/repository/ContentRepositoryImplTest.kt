@@ -12,6 +12,7 @@ import com.jaimesorrow.wiccan.data.remote.ContentFunctionsDataSource
 import com.jaimesorrow.wiccan.domain.model.ContentStatus
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.ContentType
+import com.jaimesorrow.wiccan.ui.paywall.FakeSubscriptionRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -27,6 +28,7 @@ class ContentRepositoryImplTest {
 
     private val functionsDataSource: ContentFunctionsDataSource = mockk()
     private lateinit var dao: FakeCachedDailyContentDao
+    private val subscription = FakeSubscriptionRepository()
     private lateinit var repository: ContentRepositoryImpl
 
     private val userId = "user-123"
@@ -67,7 +69,8 @@ class ContentRepositoryImplTest {
         dao = FakeCachedDailyContentDao()
         every { calendar.today } returns today
         every { calendar.timezone } returns timezone
-        repository = ContentRepositoryImpl(functionsDataSource, dao, currentUser, calendar)
+        subscription.emitTier(ContentTier.PREMIUM)
+        repository = ContentRepositoryImpl(functionsDataSource, dao, currentUser, calendar, subscription)
     }
 
     @Test
@@ -146,6 +149,27 @@ class ContentRepositoryImplTest {
     fun `other users cached lessons are never exposed`() = runTest {
         dao.upsert(payload.toContent().toCachedEntity(today, "other-user", timezone))
         repository.observeTodayContent().test { assertNull(awaitItem()) }
+    }
+
+    @Test
+    fun `subscription expiry hides the cached lesson immediately`() = runTest {
+        dao.upsert(payload.toContent().toCachedEntity(today, userId, timezone))
+        repository.observeTodayContent().test {
+            assertEquals("content-1", awaitItem()?.id)
+            subscription.emitTier(ContentTier.FREE)
+            assertNull(awaitItem())
+        }
+    }
+
+    @Test
+    fun `server subscription denial clears the daily cache`() = runTest {
+        dao.upsert(payload.toContent().toCachedEntity(today, userId, timezone))
+        val failure = mockk<FirebaseFunctionsException>()
+        every { failure.code } returns FirebaseFunctionsException.Code.PERMISSION_DENIED
+        every { failure.details } returns mapOf("reason" to "SUBSCRIPTION_REQUIRED")
+        coEvery { functionsDataSource.getTodayContent(timezone) } throws failure
+        assertEquals(AppError.SubscriptionRequired, (repository.refreshTodayContent(userId) as AppResult.Failure).error)
+        assertNull(dao.get())
     }
 
     @Test

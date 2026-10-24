@@ -1,8 +1,9 @@
 import { Firestore, Timestamp } from "firebase-admin/firestore";
 import { Content, ContentCategory, ContentTier, isContentCategory } from "./types";
-import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort } from "./contentRepositoryPort";
+import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort, SubscriptionRequiredError } from "./contentRepositoryPort";
 import { contentSimilarityKey, isEligibleForDailyDelivery, sharesContentSimilarity, similarityReservationId } from "./contentEligibility";
 import { assertAccountWriteAllowed } from "./accountWriteGuard";
+import { hasSubscriptionAccess } from "./subscriptionAccess";
 
 /** Defensive fallback for any legacy content document written before category existed. */
 const DEFAULT_CATEGORY: ContentCategory = "MoonAndSeasonal";
@@ -12,11 +13,6 @@ const HISTORY_COLLECTION = "userContentHistory";
 const CONTENT_USAGE_COLLECTION = "userContentUsage";
 const USERS_COLLECTION = "users";
 const POOL_EXHAUSTION_COLLECTION = "contentPoolExhaustionEvents";
-
-/** Tiers a user on `tier` is entitled to see (premium also gets free). */
-function eligibleTiers(tier: ContentTier): ContentTier[] {
-  return tier === "premium" ? ["free", "premium"] : ["free"];
-}
 
 /**
  * Deterministic per-user-per-day history document ID. Giving every
@@ -58,7 +54,7 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
 
   async getUserTier(uid: string): Promise<ContentTier> {
     const snap = await this.db.collection(USERS_COLLECTION).doc(uid).get();
-    return snap.get("tier") === "premium" ? "premium" : "free";
+    return hasSubscriptionAccess(snap.data()) ? "premium" : "free";
   }
 
   async getUserTimeZone(uid: string): Promise<string | null> {
@@ -84,10 +80,10 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
   }
 
   async getPublishedContentForTier(tier: ContentTier): Promise<Content[]> {
+    if (tier !== "premium") return [];
     const snap = await this.db
       .collection(CONTENT_COLLECTION)
       .where("status", "==", "published")
-      .where("tier", "in", eligibleTiers(tier))
       .get();
     return snap.docs.map((doc) => toContent(doc.id, doc.data()));
   }
@@ -97,6 +93,9 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
     const usageRef = this.db.collection(CONTENT_USAGE_COLLECTION).doc(uid);
     const usedRef = usageRef.collection("content").doc(candidate.id);
     return this.db.runTransaction(async (txn) => {
+      const user = await txn.get(this.db.collection(USERS_COLLECTION).doc(uid));
+      assertAccountWriteAllowed(user);
+      if (!hasSubscriptionAccess(user.data())) throw new SubscriptionRequiredError();
       const snap = await txn.get(docRef);
       if (snap.exists) {
         return snap.get("contentId") as string;
@@ -112,16 +111,13 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
       await txn.get(usageRef);
       // Revalidate authoritative entitlement and publication in the same
       // transaction as delivery, never trusting the earlier pool snapshot.
-      const [user, currentDocument, history] = await Promise.all([
-        txn.get(this.db.collection(USERS_COLLECTION).doc(uid)),
+      const [currentDocument, history] = await Promise.all([
         txn.get(this.db.collection(CONTENT_COLLECTION).doc(candidate.id)),
         txn.get(this.db.collection(HISTORY_COLLECTION).where("userId", "==", uid)),
       ]);
-      assertAccountWriteAllowed(user);
       if (!currentDocument.exists) throw new ContentNoLongerEligibleError(candidate.id);
       const current = toContent(currentDocument.id, currentDocument.data()!);
-      const tier = user.get("tier") === "premium" ? "premium" : "free";
-      if (current.status !== "published" || !eligibleTiers(tier).includes(current.tier) ||
+      if (current.status !== "published" ||
           !isEligibleForDailyDelivery(current, ancientLessonSourceIds)) {
         throw new ContentNoLongerEligibleError(candidate.id);
       }
@@ -164,6 +160,7 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
           }
         }
       }
+      if (!hasSubscriptionAccess(user.data())) throw new SubscriptionRequiredError();
       txn.set(docRef, {
         userId: uid,
         contentId: candidate.id,
