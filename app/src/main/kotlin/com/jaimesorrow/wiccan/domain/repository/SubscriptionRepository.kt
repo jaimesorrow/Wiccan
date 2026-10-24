@@ -3,13 +3,13 @@ package com.jaimesorrow.wiccan.domain.repository
 import android.app.Activity
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.model.ContentTier
+import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import kotlinx.coroutines.flow.Flow
 
 /**
  * The only layer allowed to touch the Billing Library or the tier stored
- * in Firestore. [ContentTier] is reused here rather than a separate "user
- * tier" enum — a subscriber's tier and the content tiers it unlocks are
- * the same concept.
+ * in Firestore. Legacy [ContentTier] values represent active (PREMIUM) or
+ * inactive (FREE) access. Wiccan has one subscription and no free content plan.
  */
 interface SubscriptionRepository {
     /** Launches the Play purchase UI and reports recoverable Play errors. */
@@ -22,8 +22,8 @@ interface SubscriptionRepository {
      */
     fun observeTier(): Flow<ContentTier>
 
-    /** The monthly subscription's current localized recurring price. */
-    suspend fun getFormattedPrice(): AppResult<String>
+    /** Current eligible monthly offer, including its actual trial and renewal price. */
+    suspend fun getOffer(): AppResult<SubscriptionOffer>
 
     /**
      * Re-queries Play for subscriptions the signed-in Google account already

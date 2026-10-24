@@ -15,6 +15,12 @@ export class FirestoreSubscriptionRecordRepository implements SubscriptionRecord
         ...record,
         lastVerifiedAt: FieldValue.serverTimestamp(),
       }, { merge: true });
+      // Mirror only the verified deadline onto the readable profile. Never
+      // expose the server-only audit record or trust a client trial clock.
+      const expiry = record.expiryTimeMillis;
+      transaction.set(user.ref, {
+        subscriptionExpiresAtMillis: typeof expiry === "number" && Number.isFinite(expiry) ? expiry : 0,
+      }, { merge: true });
     });
   }
 }

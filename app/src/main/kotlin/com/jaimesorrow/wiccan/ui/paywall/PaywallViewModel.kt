@@ -41,20 +41,30 @@ class PaywallViewModel @Inject constructor(
         }
     }
 
+    /** A returning subscriber may no longer be eligible for the trial shown last time. */
+    fun refreshOffer() {
+        if (!_state.value.isLoadingPrice) loadPrice()
+    }
+
     fun subscribe(activity: Activity) {
         viewModelScope.launch {
             when (val result = subscriptionRepository.launchPurchaseFlow(activity)) {
                 is AppResult.Success -> Unit
-                is AppResult.Failure -> effectChannel.send(PaywallUiEffect.ShowSnackbar(result.error))
+                is AppResult.Failure -> {
+                    effectChannel.send(PaywallUiEffect.ShowSnackbar(result.error))
+                    loadPrice()
+                }
             }
         }
     }
 
     private fun loadPrice() {
-        _state.update { it.copy(isLoadingPrice = true) }
+        _state.update { it.copy(isLoadingPrice = true, price = null, hasFreeTrial = false) }
         viewModelScope.launch {
-            when (val result = subscriptionRepository.getFormattedPrice()) {
-                is AppResult.Success -> _state.update { it.copy(isLoadingPrice = false, price = result.data) }
+            when (val result = subscriptionRepository.getOffer()) {
+                is AppResult.Success -> _state.update {
+                    it.copy(isLoadingPrice = false, price = result.data.formattedPrice, hasFreeTrial = result.data.hasFreeTrial)
+                }
                 is AppResult.Failure -> {
                     _state.update { it.copy(isLoadingPrice = false) }
                     effectChannel.send(PaywallUiEffect.ShowSnackbar(result.error))

@@ -12,11 +12,13 @@ import com.jaimesorrow.wiccan.data.mapper.toContent
 import com.jaimesorrow.wiccan.data.mapper.toDomain
 import com.jaimesorrow.wiccan.data.remote.ContentFunctionsDataSource
 import com.jaimesorrow.wiccan.domain.model.Content
+import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.repository.ContentRepository
+import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -25,6 +27,7 @@ class ContentRepositoryImpl @Inject constructor(
     private val dao: CachedDailyContentDao,
     private val currentUserProvider: CurrentUserProvider,
     private val calendar: LocalCalendarProvider,
+    private val subscriptionRepository: SubscriptionRepository,
 ) : ContentRepository {
 
     private val refreshMutex = Mutex()
@@ -52,6 +55,10 @@ class ContentRepositoryImpl @Inject constructor(
             val functionsError = t as? FirebaseFunctionsException
             val reason = (functionsError?.details as? Map<*, *>)?.get("reason") as? String
             val error = when (reason) {
+                "SUBSCRIPTION_REQUIRED" -> {
+                    dao.clearForUser(userId)
+                    AppError.SubscriptionRequired
+                }
                 "NO_NEW_CONTENT" -> {
                     dao.clearForUser(userId)
                     AppError.NoNewLesson
@@ -64,10 +71,10 @@ class ContentRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun observeTodayContent(): Flow<Content?> = dao.observe().map { entity ->
+    override fun observeTodayContent(): Flow<Content?> = combine(dao.observe(), subscriptionRepository.observeTier()) { entity, tier ->
         val uid = currentUserProvider.currentUserId
         entity?.takeIf {
-            uid != null && it.userId == uid && it.deliveredDate == calendar.today
+            tier == ContentTier.PREMIUM && uid != null && it.userId == uid && it.deliveredDate == calendar.today
         }?.toDomain()
     }
 }
