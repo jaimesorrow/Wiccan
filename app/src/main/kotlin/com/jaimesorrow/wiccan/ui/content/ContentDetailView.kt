@@ -86,6 +86,14 @@ fun ContentDetailView(
             color = colors.onSurfaceVariant,
         )
 
+        content.summary?.takeIf { it.isNotBlank() }?.let {
+            Text(text = it, style = MaterialTheme.typography.titleMedium, color = colors.onSurfaceVariant)
+        }
+
+        content.sourceTradition?.takeIf { it.isNotBlank() }?.let {
+            LessonSection("Historical source tradition", it)
+        }
+
         if (content.intro.isNotBlank()) {
             Text(
                 text = content.intro,
@@ -96,18 +104,38 @@ fun ContentDetailView(
 
         HairlineDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        LessonSection(title = "Lesson", text = content.body)
+        content.application?.takeIf { it.isNotBlank() }?.let { LessonSection("Wiccan application", it) }
+        val displayedTools = content.tools.ifEmpty { content.materials.orEmpty() }
+        if (displayedTools.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            MaterialsCard(materials = displayedTools)
+        }
+        LessonSection(title = "Method", text = content.body)
+        content.incantation?.takeIf { it.isNotBlank() }?.let { LessonSection("Optional incantation", it) }
+        content.incantationOmissionReason?.takeIf { it.isNotBlank() }?.let {
+            LessonSection("Incantation note", it)
+        }
+        content.timing?.takeIf { it.isNotBlank() }?.let { LessonSection("Timing", it) }
+        content.correspondences.takeIf { it.isNotEmpty() }?.let {
+            LessonSection("Supported correspondences", it.joinToString(separator = "\n") { item -> "• $item" })
+        }
         content.reflection?.takeIf { it.isNotBlank() }?.let { LessonSection("Reflection", it) }
         content.practice?.takeIf { it.isNotBlank() }?.let { LessonSection("Practice", it) }
-
-        content.materials?.takeIf { it.isNotEmpty() }?.let { materials ->
-            Spacer(modifier = Modifier.height(8.dp))
-            MaterialsCard(materials = materials)
-        }
 
         content.safetyNote?.takeIf { it.isNotBlank() }?.let { note ->
             Spacer(modifier = Modifier.height(8.dp))
             SafetyNote(note = note)
+        }
+
+        if (content.requiresPotionDisclosure) {
+            SafetyNote(
+                note = content.potionSafetyDisclosure?.takeIf { it.isNotBlank() }
+                    ?: "Shared preparation disclosure is unavailable. Keep this lesson out of delivery until it is configured.",
+            )
+        }
+
+        content.adaptationNotes.takeIf { it.isNotEmpty() }?.let {
+            LessonSection("Adaptation notes", it.joinToString(separator = "\n") { item -> "• $item" })
         }
 
         content.sourceCitation?.takeIf { it.isNotBlank() }?.let { LessonSection("Source", it) }
@@ -115,6 +143,21 @@ fun ContentDetailView(
             Text(it, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
         }
         content.rightsNotes?.takeIf { it.isNotBlank() }?.let { LessonSection("Rights", it) }
+        content.citation?.let { citation ->
+            val details = listOfNotNull(
+                citation.textTitle?.let { "Text: $it" },
+                citation.manuscriptId?.let { "Manuscript: $it" },
+                citation.tradition?.let { "Source tradition: $it" },
+                citation.manuscriptDate?.let { "Manuscript date: $it" },
+                citation.compositionDate?.let { "Composition date: $it" },
+                citation.edition?.let { "Edition: $it" },
+                citation.editionDate?.let { "Edition date: $it" },
+                citation.translator?.let { "Translator/editor: $it" },
+                citation.locator?.let { "Exact locator: $it" },
+                citation.url,
+            ).filter { it.isNotBlank() }
+            if (details.isNotEmpty()) LessonSection("Verified source details", details.joinToString("\n"))
+        }
 
         if (isDailyLesson) {
             Text("Saved to Grimoire", style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)

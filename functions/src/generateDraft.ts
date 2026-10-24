@@ -1,5 +1,9 @@
-import { ContentSource } from "./contentSource";
-import { ContentTier, ContentType, isContentCategory } from "./types";
+import { citationForPassage, findPassageViolations, loadSourcePassages } from "./sourcePassages";
+import type { SourcePassage } from "./sourcePassages";
+import { findPracticalLessonViolations } from "./practicalLesson";
+import type { NewDraftContent } from "./contentAdminRepositoryPort";
+import { ContentSource, isLessonGenerationSource } from "./contentSource";
+import { ContentTier, ContentType } from "./types";
 import { DraftGenerationPort } from "./draftGenerationPort";
 import { ContentAdminRepositoryPort } from "./contentAdminRepositoryPort";
 
@@ -7,6 +11,8 @@ export interface GenerateDraftRequest {
   tier: ContentTier;
   /** Restrict to one source; omit to draw from the whole curated pool. */
   sourceId?: string;
+  /** Required approved passage identity, selected before any model call. */
+  passageId?: string;
   /** Restrict to one type; omit to draw from every type the source(s) support. */
   type?: ContentType;
   /** Number of drafts to generate in this call. Defaults to 1. */
@@ -42,12 +48,10 @@ function buildEligiblePairs(
     throw new InvalidGenerationRequestError(`Unknown sourceId '${sourceId}'.`);
   }
 
-  const grimoireSources = candidateSources.filter(
-    (source) => source.era === "ancient" && source.sourceKind === "ancient-grimoire",
-  );
+  const grimoireSources = candidateSources.filter(isLessonGenerationSource);
   if (sourceId && grimoireSources.length === 0) {
     throw new InvalidGenerationRequestError(
-      `Source '${sourceId}' is not an approved ancient grimoire and cannot be used for generation.`,
+      `Source '${sourceId}' is not an approved pre-modern grimoire and cannot be used for generation.`,
     );
   }
 
@@ -68,36 +72,6 @@ function buildEligiblePairs(
     throw new InvalidGenerationRequestError("No eligible source/type combinations available.");
   }
   return pairs;
-}
-
-function validateGeneratedDraft(
-  generated: Awaited<ReturnType<DraftGenerationPort["generateDraft"]>>,
-  type: ContentType,
-): void {
-  const violations: string[] = [];
-  if (generated.title.trim().length === 0) violations.push("title is empty");
-  if (generated.intro.trim().length === 0) violations.push("intro is empty");
-  if (generated.body.trim().length === 0) violations.push("body is empty");
-  if (!generated.reflection?.trim().endsWith("?")) {
-    violations.push("reflection must be a non-empty question");
-  }
-  if (generated.practice !== null && generated.practice !== undefined && generated.practice.trim().length === 0) {
-    violations.push("practice must be non-empty or null");
-  }
-  if (generated.materials !== null && generated.materials.some((material) => material.trim().length === 0)) {
-    violations.push("materials cannot contain blank entries");
-  }
-  if (generated.tags.length === 0 || generated.tags.some((tag) => tag.trim().length === 0)) {
-    violations.push("tags must contain at least one non-empty tag");
-  }
-  if (!isContentCategory(generated.category)) violations.push("category is invalid");
-  if (type === "potion" && !generated.safetyNote?.trim()) {
-    violations.push("potion requires a non-empty safetyNote");
-  }
-
-  if (violations.length > 0) {
-    throw new InvalidGeneratedDraftError(`Generated ${type} failed validation: ${violations.join("; ")}.`);
-  }
 }
 
 /**
@@ -125,10 +99,11 @@ export async function generateDrafts(
   sources: ContentSource[],
   generator: DraftGenerationPort,
   repo: ContentAdminRepositoryPort,
+  passages: SourcePassage[] = loadSourcePassages(),
 ): Promise<GeneratedDraftSummary[]> {
   const count = request.count ?? 1;
-  if (count < 1) {
-    throw new InvalidGenerationRequestError("count must be at least 1.");
+  if (!Number.isInteger(count) || count < 1 || count > 100) {
+    throw new InvalidGenerationRequestError("count must be an integer between 1 and 100.");
   }
   if (request.similarityGroupId !== undefined && request.similarityGroupId.trim().length === 0) {
     throw new InvalidGenerationRequestError("similarityGroupId must be non-empty when provided.");
@@ -137,12 +112,20 @@ export async function generateDrafts(
     throw new InvalidGenerationRequestError("sourceCitation must be non-empty when provided.");
   }
 
-  const pairs = buildEligiblePairs(sources, request.sourceId, request.type);
+  if (!request.passageId) throw new InvalidGenerationRequestError("Select a verified passageId before generation.");
+  const passage = passages.find((candidate) => candidate.id === request.passageId);
+  if (!passage || findPassageViolations(passage).length) {
+    throw new InvalidGenerationRequestError("Passage requires pre-modern dating, rights, scope, fidelity and safety verification before generation.");
+  }
+  if (request.sourceId && request.sourceId !== passage.sourceId) throw new InvalidGenerationRequestError("Source and passage identities disagree.");
+  if (request.sourceCitation && request.sourceCitation !== passage.locator) throw new InvalidGenerationRequestError("Citation must match the inspected passage locator.");
+  const pairs = buildEligiblePairs(sources, passage.sourceId, request.type);
   const results: GeneratedDraftSummary[] = [];
 
   for (let i = 0; i < count; i++) {
     const pair = pairs[i % pairs.length];
     const generated = await generator.generateDraft({
+      passage,
       type: pair.type,
       tradition: pair.source.tradition,
       period: pair.source.period,
@@ -151,28 +134,37 @@ export async function generateDrafts(
       summary: pair.source.summary,
       groundedFacts: pair.source.groundedFacts,
     });
-    validateGeneratedDraft(generated, pair.type);
 
     if (await repo.titleExists(generated.title)) {
       continue;
     }
 
-    const sourceUrl = pair.source.sourceReference.match(/https?:\/\/\S+/)?.[0];
-    const contentId = await repo.createDraft({
+    const draft: NewDraftContent = {
       ...generated,
       type: pair.type,
       tier: request.tier,
-      tradition: pair.source.tradition,
-      sourceId: pair.source.id,
-      sourceCitation: request.sourceCitation ?? pair.source.sourceReference,
-      rightsNotes: pair.source.publicDomainBasis,
-      // AI output always requires explicit editorial/source-rights review.
-      // approveDraft refuses publication while this remains true.
+      tradition: "Wiccan / Modern Witchcraft",
+      sourceTradition: passage.tradition!,
+      sourceId: passage.sourceId,
+      sourcePassageId: passage.id,
+      sourceCitation: passage.locator,
+      sourceUrl: passage.url,
+      citations: [citationForPassage(passage)],
+      rightsNotes: passage.rights!.basis,
       rightsReviewRequired: true,
-      ...(sourceUrl === undefined ? {} : { sourceUrl }),
-      similarityGroupId: request.similarityGroupId?.trim() ??
-        `generated:${pair.source.id}:${generated.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-    });
+      introduction: generated.intro,
+      lesson: generated.body,
+      contentStatus: "draft",
+      slug: generated.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+      tools: generated.tools ?? generated.materials ?? [],
+      similarityGroupId: request.similarityGroupId?.trim() ?? `generated:${passage.id}:${generated.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+    };
+    // The model cannot certify its own output, even if an adapter returns extra keys.
+    delete draft.practicalReview;
+    // Validate the exact stored shape; the repository adds the authoritative legacy status atomically.
+    const violations = findPracticalLessonViolations({ ...draft, status: "draft" }, passages, false);
+    if (violations.length) throw new InvalidGeneratedDraftError(violations.join("; "));
+    const contentId = await repo.createDraft(draft);
 
     results.push({ contentId, sourceId: pair.source.id, type: pair.type, title: generated.title });
   }

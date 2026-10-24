@@ -6,7 +6,7 @@ import androidx.room.TypeConverters
 
 @Database(
     entities = [CachedDailyContentEntity::class],
-    version = 3,
+    version = 5,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)

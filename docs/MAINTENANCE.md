@@ -36,8 +36,8 @@ currently handled (automated, manual, or not yet built).
 
 - `npm run content-agent -- --tier <free|premium> [--sourceId <id>] [--type <spell|potion|lesson>] [--count <n>]`
   previews a generation request without calling Claude or writing to
-  Firestore. The eligible pool contains only sources classified as an
-  `ancient-grimoire`; museum overviews and other historical context are
+  Firestore. The eligible pool contains only pre-modern sources classified as
+  an `ancient-grimoire` or `historical-grimoire`; museum overviews and other historical context are
   excluded even when they discuss ancient material.
 - `npm run content-agent -- --project wiccan-android --commit --tier <free|premium> [...]`
   calls Claude and writes review-required drafts. The exact production
@@ -47,7 +47,7 @@ currently handled (automated, manual, or not yet built).
   month, followed by source, duplication, safety, and rights review.
 - Every committed agent draft is server-stamped with
   `generatedBy = ancient-grimoire-content-agent`,
-  `generationSourceKind = ancient-grimoire`, and `generatedAt`. The repository
+  `generationSourceKind = historical-grimoire`, and `generatedAt`. The repository
   also forces `status = draft` and `rightsReviewRequired = true`, even if a
   caller supplies weaker values. These fields provide an audit trail; they do
   not replace the manual source, safety, duplication, and rights review.
