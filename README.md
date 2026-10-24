@@ -96,27 +96,24 @@ functions/                    Cloud Functions (Node/TypeScript)
 
 ## Content voice and lesson format
 
-`docs/CONTENT_VOICE_AND_LESSON_STANDARD.md` is the authoritative editorial
-standard for Wiccan lessons, spells, potions, generation prompts,
-validation, and content-detail UI.
+[Content Voice and Practical Lesson Standard](docs/CONTENT_VOICE_AND_LESSON_STANDARD.md)
+defines the updated editorial target.
+[Practical Lesson and Grimoire Templates](docs/PRACTICAL_MAGIC_LESSON_TEMPLATE.md)
+provides the fill-in format, nine practical categories, source-review requirements,
+and compatibility notes.
 
-Lessons should feel grounded, mature, historically careful, practical,
-reflective, and subtly grimoire-inspired — never theatrical or cheesy.
-The preferred lesson structure is:
+Every lesson must teach one source-verified Wiccan or witchcraft method.
+Preserve the historical source tradition and label modern adaptations. The
+core is a numbered method, supported by tools, documented timing, a
+source-dependent formula, reflection, a completion prompt, safety notes,
+and exact source/edition/rights references. Do not invent missing ritual
+steps or incantations.
 
-```text
-Introduction
-Lesson
-Reflection
-Practice      (optional)
-Safety Note   (when warranted)
-```
-
-Historical/customary claims must be qualified appropriately, symbolic
-claims must not be presented as scientifically established supernatural
-facts, and safety notes are required whenever meaningful material or
-health risks exist. Lesson artwork should use restrained Wiccan line-art,
-not physical photography.
+This is an authoring target. The current seed and runtime still use the
+legacy category/schema contract; coordinated Android and pipeline updates
+and a reviewed migration are required before applying it to live content.
+Source inspection, rights and safety approval remain necessary even when
+structural validation passes.
 
 ## Validating the repo
 
