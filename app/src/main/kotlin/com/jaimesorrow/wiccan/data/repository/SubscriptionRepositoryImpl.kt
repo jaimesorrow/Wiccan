@@ -8,8 +8,8 @@ import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.billing.PREMIUM_MONTHLY_PRODUCT_ID
 import com.jaimesorrow.wiccan.billing.PREMIUM_PRODUCT_IDS
 import com.jaimesorrow.wiccan.billing.WiccanBillingClient
-import com.jaimesorrow.wiccan.billing.formattedPrice
 import com.jaimesorrow.wiccan.billing.obfuscatedAccountId
+import com.jaimesorrow.wiccan.billing.subscriptionOffer
 import com.jaimesorrow.wiccan.core.auth.CurrentUserProvider
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.error.toAppError
@@ -17,6 +17,7 @@ import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.data.remote.SubscriptionFunctionsDataSource
 import com.jaimesorrow.wiccan.data.remote.UserTierDataSource
 import com.jaimesorrow.wiccan.domain.model.ContentTier
+import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,6 +40,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
 ) : SubscriptionRepository {
 
     private var lastObservedTier: ContentTier? = null
+    private var selectedOffer: Pair<String, SubscriptionOffer>? = null
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -53,7 +55,9 @@ class SubscriptionRepositoryImpl @Inject constructor(
     override suspend fun launchPurchaseFlow(activity: Activity): AppResult<Unit> {
         val userId = currentUserProvider.currentUserId ?: return AppResult.Failure(AppError.Unauthorized)
         return try {
-            val result = billingClient.launchPurchaseFlow(activity, userId, PREMIUM_MONTHLY_PRODUCT_ID)
+            val offer = selectedOffer?.takeIf { it.first == userId }?.second
+                ?: return AppResult.Failure(AppError.PurchaseVerificationFailed("Refresh the subscription offer before subscribing."))
+            val result = billingClient.launchPurchaseFlow(activity, userId, PREMIUM_MONTHLY_PRODUCT_ID, offer)
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                 AppResult.Success(Unit)
             } else {
@@ -80,10 +84,14 @@ class SubscriptionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getFormattedPrice(): AppResult<String> = try {
-        val price = billingClient.queryProductDetails(PREMIUM_MONTHLY_PRODUCT_ID).formattedPrice()
-            ?: error("No price available for '$PREMIUM_MONTHLY_PRODUCT_ID'.")
-        AppResult.Success(price)
+    override suspend fun getOffer(): AppResult<SubscriptionOffer> = try {
+        selectedOffer = null
+        val userId = currentUserProvider.currentUserId ?: error("Sign in to load the subscription offer.")
+        val offer = billingClient.queryProductDetails(PREMIUM_MONTHLY_PRODUCT_ID).subscriptionOffer()
+            ?: error("The Wiccan monthly subscription is unavailable. Please try again later.")
+        if (currentUserProvider.currentUserId != userId) error("The signed-in account changed. Refresh the offer.")
+        selectedOffer = userId to offer
+        AppResult.Success(offer)
     } catch (t: CancellationException) {
         throw t
     } catch (t: Throwable) {

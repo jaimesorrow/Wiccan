@@ -60,21 +60,27 @@ functions/                    Cloud Functions (Node/TypeScript)
   unseen eligible entry per user-local date, honoring existing history and
   excluding editorial similarity groups as well as previously delivered IDs.
   An exhausted pool returns an explicit no-new-content state; it never recycles
-  old entries. Free/premium selection remains server-controlled.
+  old entries. An active, unexpired subscription is required before any
+  delivery or history read, including repeat same-day calls.
 - **Grimoire** automatically lists every delivered entry, newest first, with
   category grouping and the same full detail view. New accounts reach Today
-  after sign-in and the existing legal acceptance gate, with no lesson-preference
-  or experience questionnaire.
-- **Billing** uses two allow-listed premium subscription products
-  (`wiccan_premium_monthly` and `wiccan_premium_yearly`) verified
+  after sign-in, the existing legal acceptance/onboarding gate, and mandatory
+  subscription verification. There is no free content plan.
+- **Billing** offers one monthly subscription: a 7-day trial for eligible new
+  Google Play subscribers, then a US base price of $5.99/month. The paywall uses
+  actual eligible Play offers and localized renewal prices, and cannot be skipped.
+  Trial and paid access are identical. The two existing allow-listed product IDs
+  (`wiccan_premium_monthly` and `wiccan_premium_yearly`) are verified
   server-side via the Google Play Developer API; the client's own purchase
-  state is never trusted as the tier source of truth. The current paywall
-  launches the monthly offer; restore/server verification recognizes both,
-  and a daily job re-checks active subscriptions for lapses.
+  state is never trusted as the access source of truth. New checkout only offers
+  monthly; restore/server verification recognizes legacy yearly purchases too.
+  RTDN and a daily job reconcile entitlement, while the verified expiry deadline
+  also closes access between updates. See [subscription setup and rollout](docs/SUBSCRIPTION_ACCESS.md).
 - **Seed content** ships in `functions/ancientContentSeed.json`: 296 entries
   written from four curated ancient sources — 200 lessons, 59 spells and
-  37 potions — without difficulty labels. Existing free/premium tiers remain
-  independent. `npm run seed-content` validates locally; an authenticated
+  37 potions — without difficulty labels. Legacy free/premium content fields are
+  retained for data compatibility and ignored for subscription content selection.
+  `npm run seed-content` validates locally; an authenticated
   `-- --project wiccan-android --commit` creates missing drafts, preserves
   existing edited/published content, retires old difficulty metadata, and
   verifies the live lesson inventory. See `docs/ANCIENT_LESSON_SOURCING.md`.
@@ -90,27 +96,24 @@ functions/                    Cloud Functions (Node/TypeScript)
 
 ## Content voice and lesson format
 
-`docs/CONTENT_VOICE_AND_LESSON_STANDARD.md` is the authoritative editorial
-standard for Wiccan lessons, spells, potions, generation prompts,
-validation, and content-detail UI.
+[Content Voice and Practical Lesson Standard](docs/CONTENT_VOICE_AND_LESSON_STANDARD.md)
+defines the updated editorial target.
+[Practical Lesson and Grimoire Templates](docs/PRACTICAL_MAGIC_LESSON_TEMPLATE.md)
+provides the fill-in format, nine practical categories, source-review requirements,
+and compatibility notes.
 
-Lessons should feel grounded, mature, historically careful, practical,
-reflective, and subtly grimoire-inspired — never theatrical or cheesy.
-The preferred lesson structure is:
+Every lesson must teach one source-verified Wiccan or witchcraft method.
+Preserve the historical source tradition and label modern adaptations. The
+core is a numbered method, supported by tools, documented timing, a
+source-dependent formula, reflection, a completion prompt, safety notes,
+and exact source/edition/rights references. Do not invent missing ritual
+steps or incantations.
 
-```text
-Introduction
-Lesson
-Reflection
-Practice      (optional)
-Safety Note   (when warranted)
-```
-
-Historical/customary claims must be qualified appropriately, symbolic
-claims must not be presented as scientifically established supernatural
-facts, and safety notes are required whenever meaningful material or
-health risks exist. Lesson artwork should use restrained Wiccan line-art,
-not physical photography.
+This is an authoring target. The current seed and runtime still use the
+legacy category/schema contract; coordinated Android and pipeline updates
+and a reviewed migration are required before applying it to live content.
+Source inspection, rights and safety approval remain necessary even when
+structural validation passes.
 
 ## Validating the repo
 
