@@ -21,6 +21,7 @@ Updated: 2026-10-24. This report distinguishes completed repository work from pr
 - Checked-in content audit: 296 inspected; 0 qualified; 296 source-blocked; 293 records in duplicate-concern coverage; 158 pairwise lexical concerns; 37 disclosure-triggering records.
 - Repository/toolchain structural checks: 43 release-preflight checks and all Python validation suites passed.
 - Android: repository and release-preflight checks passed. Compilation could not start because this execution environment has no Android SDK and the Gradle distribution download was unavailable during the final run. This is an unexecuted check, not a pass.
+- GitHub Actions: the rebased commit triggered CI, but GitHub started no runner steps and annotated every job with: "recent account payments have failed or your spending limit needs to be increased." This is an account billing block, not a test result. The same repository checks were executed locally as listed above.
 
 ## Approval gates and blockers
 
@@ -28,6 +29,7 @@ Updated: 2026-10-24. This report distinguishes completed repository work from pr
 - The five staged lessons are editorial examples. They are not bound to verified live document IDs or update times and cannot be considered migrated records.
 - `functions/sourcePassages.json` remains empty. No production change set can pass validation until exact passage, date, edition, translator, commercial-use rights, scope, fidelity, and safety reviews are recorded.
 - Semantic duplicate screening has an interface and thresholds but no configured provider; reports state `semanticExecuted: false`.
+- GitHub reports 33 open Dependabot alerts on the default branch, but the available integration token cannot read alert details (`403 Resource not accessible by integration`). Local Functions and Firestore npm audits are clean; the remaining repository-wide alerts require a maintainer with security-alert access to triage.
 - No production Firestore write, backup upload, content publication, schedule, deployment, merge, subscription change, or Play release occurred.
 
 ## Next gated sequence
