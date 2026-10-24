@@ -12,10 +12,12 @@ Updated: 2026-10-24. This report distinguishes completed repository work from pr
 - Added typed root `content/{id}` backup, private Cloud Storage upload with generation precondition, emulator restore verification, update-time guarded atomic migration, deterministic change-set digests, document comparison, and atomic conflict-aware rollback.
 - Restored the official Gradle wrapper JAR and executable wrapper mode required by CI.
 - Updated the manual content generator to accept verified ancient, medieval, or early-modern grimoire passages, store drafts only, and keep historical tradition separate from the modern Wiccan lesson tradition. No schedule or autonomous publishing path was enabled.
+- Added a local-only rewrite staging command for the checked-in curriculum. It produces twelve deterministic packets (eleven groups of 25 and one group of 21), preserves all 296 IDs and complete original draft fields, records per-record and per-batch SHA-256 digests, and has no network or write option.
+- Bound five expanded representative rewrites to actual checked-in draft IDs for editorial review. Their numbered instructional sections contain 273–293 words and cover ritual closure, candle work, cord work, sacred-space preparation, and water cleansing.
 
 ## Validation evidence
 
-- Functions: TypeScript build passed; ESLint passed; 34 suites and 274 tests passed, with one emulator-dependent suite skipped by the unit command.
+- Functions: TypeScript build passed; ESLint passed; 35 suites and 276 tests passed, with one emulator-dependent suite skipped by the unit command.
 - Dependency audit: zero known npm vulnerabilities at `--audit-level=moderate` after resolving the vulnerable transitive `body-parser` version.
 - Firebase emulator: 19 Firestore security-rule cases, 19 transaction/repository integration tests, and 36 end-to-end Auth/Functions/Firestore/Pub/Sub checks passed; no production data was contacted.
 - Checked-in content audit: 296 inspected; 0 qualified; 296 source-blocked; 293 records in duplicate-concern coverage; 158 pairwise lexical concerns; 37 disclosure-triggering records.
