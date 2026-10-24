@@ -30,6 +30,7 @@ function toContent(id: string, data: FirebaseFirestore.DocumentData): Content {
     type: data.type,
     tier: data.tier,
     tradition: data.tradition,
+    sourceTradition: typeof data.sourceTradition === "string" ? data.sourceTradition : undefined,
     category: isContentCategory(data.primaryCategoryId) ? data.primaryCategoryId :
       isContentCategory(data.category) ? data.category : DEFAULT_CATEGORY,
     title: data.title,

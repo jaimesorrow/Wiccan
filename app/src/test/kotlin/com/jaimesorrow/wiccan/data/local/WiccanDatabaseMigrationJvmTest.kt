@@ -56,7 +56,7 @@ class WiccanDatabaseMigrationJvmTest {
             val migrated = database.openHelper.writableDatabase
             migrated.query(
                 "SELECT body, category, reflection, practice, primaryCategoryId, sourcePassageId, " +
-                    "requiresPotionDisclosure FROM cached_daily_content",
+                    "requiresPotionDisclosure, sourceTradition FROM cached_daily_content",
             ).use {
                 assertTrue(it.moveToFirst())
                 assertEquals("body", it.getString(0))
@@ -66,6 +66,7 @@ class WiccanDatabaseMigrationJvmTest {
                 assertTrue(it.isNull(4))
                 assertTrue(it.isNull(5))
                 assertEquals(0, it.getInt(6))
+                assertTrue(it.isNull(7))
             }
             migrated.execSQL("UPDATE cached_daily_content SET reflection = 'Which boundary matters?'")
             migrated.query("SELECT reflection FROM cached_daily_content").use {

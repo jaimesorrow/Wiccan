@@ -39,6 +39,7 @@ data class Content(
     val correspondences: List<String> = emptyList(),
     val adaptationNotes: List<String> = emptyList(),
     val sourcePassageId: String? = null,
+    val sourceTradition: String? = null,
     val citation: ContentCitation? = null,
 )
 

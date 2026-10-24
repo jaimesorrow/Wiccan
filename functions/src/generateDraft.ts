@@ -2,7 +2,7 @@ import { citationForPassage, findPassageViolations, loadSourcePassages } from ".
 import type { SourcePassage } from "./sourcePassages";
 import { findPracticalLessonViolations } from "./practicalLesson";
 import type { NewDraftContent } from "./contentAdminRepositoryPort";
-import { ContentSource } from "./contentSource";
+import { ContentSource, isLessonGenerationSource } from "./contentSource";
 import { ContentTier, ContentType } from "./types";
 import { DraftGenerationPort } from "./draftGenerationPort";
 import { ContentAdminRepositoryPort } from "./contentAdminRepositoryPort";
@@ -48,12 +48,10 @@ function buildEligiblePairs(
     throw new InvalidGenerationRequestError(`Unknown sourceId '${sourceId}'.`);
   }
 
-  const grimoireSources = candidateSources.filter(
-    (source) => source.era === "ancient" && source.sourceKind === "ancient-grimoire",
-  );
+  const grimoireSources = candidateSources.filter(isLessonGenerationSource);
   if (sourceId && grimoireSources.length === 0) {
     throw new InvalidGenerationRequestError(
-      `Source '${sourceId}' is not an approved ancient grimoire and cannot be used for generation.`,
+      `Source '${sourceId}' is not an approved pre-modern grimoire and cannot be used for generation.`,
     );
   }
 
@@ -117,7 +115,7 @@ export async function generateDrafts(
   if (!request.passageId) throw new InvalidGenerationRequestError("Select a verified passageId before generation.");
   const passage = passages.find((candidate) => candidate.id === request.passageId);
   if (!passage || findPassageViolations(passage).length) {
-    throw new InvalidGenerationRequestError("Passage requires ancient dating, rights, scope, fidelity and safety verification before generation.");
+    throw new InvalidGenerationRequestError("Passage requires pre-modern dating, rights, scope, fidelity and safety verification before generation.");
   }
   if (request.sourceId && request.sourceId !== passage.sourceId) throw new InvalidGenerationRequestError("Source and passage identities disagree.");
   if (request.sourceCitation && request.sourceCitation !== passage.locator) throw new InvalidGenerationRequestError("Citation must match the inspected passage locator.");
@@ -145,7 +143,8 @@ export async function generateDrafts(
       ...generated,
       type: pair.type,
       tier: request.tier,
-      tradition: passage.tradition!,
+      tradition: "Wiccan / Modern Witchcraft",
+      sourceTradition: passage.tradition!,
       sourceId: passage.sourceId,
       sourcePassageId: passage.id,
       sourceCitation: passage.locator,

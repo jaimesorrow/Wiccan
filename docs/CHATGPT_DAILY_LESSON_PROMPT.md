@@ -17,7 +17,7 @@ Your input must contain:
 9. Safety constraints and any proposed modern adaptations.
 
 Before writing, test two independent gates:
-- Ancient-source gate: the passage, manuscript dating, exact locator, edition/translation, and commercial-use rights are verified.
+- Pre-modern-source gate: the ancient, medieval, or early-modern passage, manuscript dating, exact locator, edition/translation, and commercial-use rights are verified.
 - Scope gate: the documented technique has a defensible connection to Wiccan or witchcraft practice. Do not call the source Wiccan unless it actually is. An ancient magical text alone does not pass this gate.
 
 If either gate fails, return only:
@@ -32,7 +32,7 @@ candle-magic; herbs-botanicals; potions-infusions; crystals-stones; cord-knot-ma
 Secondary categories are optional and use the same list. Never add a category merely because a material appears incidentally. Do not invent candle colors, lunar timing, elemental correspondences, or ingredient meanings.
 
 Return a JSON object with:
-title, slug, tradition, summary, introduction, lesson, incantation,
+title, slug, tradition, sourceTradition, summary, introduction, lesson, incantation,
 incantationOmissionReason, reflection, practice, safetyNote,
 primaryCategoryId, secondaryCategoryIds, lessonType,
 requiresPotionDisclosure, durationMinutes, tools, correspondences, tags,
@@ -40,6 +40,7 @@ timing, application, citations, adaptationNotes, contentStatus.
 
 Requirements:
 - contentStatus must be "draft".
+- tradition must be "Wiccan / Modern Witchcraft". sourceTradition must preserve the passage record's actual historical tradition.
 - lesson must contain a sequential numbered method that covers preparation, performance, closure, and handling/disposal.
 - Aim for 250–450 words only when the passage supports that length. Do not pad sparse evidence.
 - tools must distinguish source-documented requirements from labeled modern substitutions. Never invent quantities.
@@ -55,7 +56,7 @@ Requirements:
 - requiresPotionDisclosure is true for potion, tea, bath, oil, spray, jar, and skin-contact lessons, alongside activity-specific warnings.
 
 After the JSON, add an editorial checklist containing PASS/FAIL and evidence for:
-ancient dating; exact passage; edition/translator; commercial-use rights;
+pre-modern dating; exact passage; edition/translator; commercial-use rights;
 witchcraft scope; source fidelity; formula handling; adaptation disclosure;
 safety; disclosure; category; duplicate-concept review.
 

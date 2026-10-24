@@ -40,6 +40,7 @@ export interface PracticalLessonFields {
   correspondences?: string[];
   citations?: Record<string, string>[];
   adaptationNotes?: string[];
+  sourceTradition?: string;
   sourcePassageId?: string;
   practicalReview?: PracticalReview;
   /** Additive alias used by the revised schema; legacy `status` remains authoritative during migration. */
@@ -60,10 +61,12 @@ export function stableJson(value: unknown): string {
   return JSON.stringify(value) ?? "null";
 }
 
-export const AUTHORED_FIELDS = ["title", "slug", "type", "tier", "tradition", "summary", "intro", "introduction", "body", "lesson", "reflection", "practice", "materials", "tools", "safetyNote", "tags", "category", "primaryCategoryId", "secondaryCategoryIds", "lessonType", "requiresPotionDisclosure", "durationMinutes", "incantation", "incantationOmissionReason", "timing", "application", "correspondences", "citations", "adaptationNotes", "sourcePassageId", "sourceId", "sourceCitation", "sourceUrl", "similarityGroupId", "rightsReviewRequired", "rightsNotes"] as const;
+export const AUTHORED_FIELDS = ["title", "slug", "type", "tier", "tradition", "sourceTradition", "summary", "intro", "introduction", "body", "lesson", "reflection", "practice", "materials", "tools", "safetyNote", "tags", "category", "primaryCategoryId", "secondaryCategoryIds", "lessonType", "requiresPotionDisclosure", "durationMinutes", "incantation", "incantationOmissionReason", "timing", "application", "correspondences", "citations", "adaptationNotes", "sourcePassageId", "sourceId", "sourceCitation", "sourceUrl", "similarityGroupId", "rightsReviewRequired", "rightsNotes"] as const;
 export function practicalContentHash(content: object): string {
   const fields = content as Record<string, unknown>;
-  return createHash("sha256").update(stableJson(Object.fromEntries(AUTHORED_FIELDS.map((key) => [key, fields[key]])))).digest("hex");
+  // Firestore readers commonly materialize an absent optional field as null.
+  // Treat null and missing alike so a reviewed hash survives storage round trips.
+  return createHash("sha256").update(stableJson(Object.fromEntries(AUTHORED_FIELDS.map((key) => [key, fields[key] ?? undefined])))).digest("hex");
 }
 
 function lessonText(fields: Record<string, unknown>): string {
@@ -127,10 +130,12 @@ export function findPracticalLessonViolations(content: object, passages: SourceP
     if (!nonblank(fields[alias] ?? fields[key])) issues.push(`${key} is required`);
   }
   if (!nonblank(fields.reflection) || !fields.reflection.trim().endsWith("?")) issues.push("reflection must be a question");
+  if (fields.tradition !== "Wiccan / Modern Witchcraft") issues.push("tradition must identify the lesson as Wiccan / Modern Witchcraft");
   if (!isPracticalCategory(fields.primaryCategoryId)) issues.push("primaryCategoryId must be one of the ten practical categories");
   if (fields.category !== fields.primaryCategoryId) issues.push("category must mirror primaryCategoryId for compatible readers");
   if (fields.contentStatus !== undefined && fields.contentStatus !== fields.status) issues.push("contentStatus must mirror the preserved legacy status");
-  if (!Array.isArray(fields.secondaryCategoryIds) || !fields.secondaryCategoryIds.every(isPracticalCategory) || new Set(fields.secondaryCategoryIds).size !== fields.secondaryCategoryIds.length || fields.secondaryCategoryIds.includes(fields.primaryCategoryId)) issues.push("secondaryCategoryIds must contain distinct practical categories other than the primary");
+  const secondaryCategoryIds = fields.secondaryCategoryIds;
+  if (!Array.isArray(secondaryCategoryIds) || !secondaryCategoryIds.every(isPracticalCategory) || new Set(secondaryCategoryIds).size !== secondaryCategoryIds.length || secondaryCategoryIds.some((categoryId) => categoryId === fields.primaryCategoryId)) issues.push("secondaryCategoryIds must contain distinct practical categories other than the primary");
   if (!(LESSON_TYPES as readonly unknown[]).includes(fields.lessonType)) issues.push("lessonType is unsupported");
   if (typeof fields.requiresPotionDisclosure !== "boolean" || (requiresDisclosure(fields) && fields.requiresPotionDisclosure !== true)) issues.push("required shared potion disclosure is missing");
   for (const key of ["tools", "adaptationNotes", "correspondences", "tags"] as const) {
@@ -147,7 +152,7 @@ export function findPracticalLessonViolations(content: object, passages: SourceP
   if (!passage) issues.push("verified source passage is missing from the editor-owned register");
   else {
     issues.push(...findPassageViolations(passage));
-    if (fields.tradition !== passage.tradition) issues.push("source tradition must be preserved accurately");
+    if (fields.sourceTradition !== passage.tradition) issues.push("sourceTradition must preserve the historical tradition accurately");
     if (fields.sourceCitation !== passage.locator || fields.sourceUrl !== passage.url) issues.push("source locator/URL differ from the inspected passage");
     if (!Array.isArray(fields.citations) || !fields.citations.some((citation) => stableJson(citation) === stableJson(citationForPassage(passage)))) issues.push("structured citation must retain exact verified edition, dating and locator metadata");
     if (nonblank(fields.incantation) && !nonblank(passage.formula) &&

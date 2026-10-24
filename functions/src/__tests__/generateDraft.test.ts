@@ -94,7 +94,8 @@ describe("generateDrafts", () => {
     expect(doc?.sourceId).toBe("source-a");
     expect(doc?.type).toBe("spell");
     expect(doc?.tier).toBe("free");
-    expect(doc?.tradition).toBe("Ancient ritual tradition");
+    expect(doc?.tradition).toBe("Wiccan / Modern Witchcraft");
+    expect(doc?.sourceTradition).toBe("Ancient ritual tradition");
     expect(doc?.reflection).toBe("What does this historical evidence help you notice?");
     expect(doc?.practice).toBe("Complete the numbered method once.");
     expect(doc?.sourceCitation).toBe("Tablet II, lines 4–8");
@@ -124,7 +125,7 @@ describe("generateDrafts", () => {
       similarityGroupId: "protective-symbol-lesson",
       sourceCitation: "Catalogue A, tablet II, lines 4–8",
       sourceUrl: "https://example.org/ancient-text",
-      rightsNotes: source.publicDomainBasis,
+      rightsNotes: "Public domain test edition.",
       reflection: "What does this historical evidence help you notice?",
       practice: "Complete the numbered method once.",
     });
@@ -172,7 +173,7 @@ describe("generateDrafts", () => {
     });
   });
 
-  it("round-robins across eligible source/type combinations for a batch", async () => {
+  it("keeps every draft in a batch bound to the selected verified passage", async () => {
     const generator = new FakeDraftGenerationPort();
     const repo = new FakeContentAdminRepository();
 
@@ -182,7 +183,7 @@ describe("generateDrafts", () => {
     const sourceIdsUsed = new Set(results.map((r) => r.sourceId));
     // With two sources offering three total (source,type) pairs, three
     // drafts should not collapse onto a single source.
-    expect(sourceIdsUsed.size).toBeGreaterThan(1);
+    expect(sourceIdsUsed).toEqual(new Set([SOURCE_A.id]));
     expect(repo.docs.size).toBe(3);
     for (const doc of repo.docs.values()) {
       expect(doc.status).toBe("draft");
@@ -208,7 +209,7 @@ describe("generateDrafts", () => {
       [SOURCE_A, CONTEXT_SOURCE],
       generator,
       repo,
-    )).rejects.toThrow(/not an approved ancient grimoire/);
+    )).rejects.toThrow(/not an approved pre-modern grimoire/);
     expect(generator.calls).toHaveLength(0);
     expect(repo.docs.size).toBe(0);
   });

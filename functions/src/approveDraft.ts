@@ -2,7 +2,7 @@ import { findPracticalLessonViolations } from "./practicalLesson";
 import { loadSourcePassages } from "./sourcePassages";
 import type { SourcePassage } from "./sourcePassages";
 import { ContentAdminRepositoryPort, StoredContent } from "./contentAdminRepositoryPort";
-import { ContentSource, loadContentSources } from "./contentSource";
+import { ContentSource, isLessonGenerationSource, loadContentSources } from "./contentSource";
 
 export class DraftNotFoundError extends Error {}
 export class UnsafeContentError extends Error {}
@@ -32,8 +32,8 @@ function findSafetyViolations(content: StoredContent, sources: ContentSource[]):
   }
 
   // Product requirement: every newly published Lesson of the Day must be
-  // grounded in a curated ancient source, not generic modern occult prose
-  // presented as ancient history. This is enforced again at publish time so
+  // grounded in a curated pre-modern grimoire, not generic modern occult prose
+  // presented as historical evidence. This is enforced again at publish time so
   // a manually created or tampered draft cannot bypass the source registry.
   if (content.type === "lesson") {
     if (!content.reflection?.trim().endsWith("?")) {
@@ -43,8 +43,8 @@ function findSafetyViolations(content: StoredContent, sources: ContentSource[]):
     if (!source) {
       violations.push(`lesson sourceId '${content.sourceId}' is not present in the curated source registry.`);
     } else {
-      if (source.era !== "ancient") {
-        violations.push(`lesson source '${source.id}' is not marked ancient.`);
+      if (!isLessonGenerationSource(source)) {
+        violations.push(`lesson source '${source.id}' is not an approved pre-modern grimoire.`);
       }
       if (!source.eligibleTypes.includes("lesson")) {
         violations.push(`source '${source.id}' is not approved for lesson generation.`);

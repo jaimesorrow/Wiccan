@@ -99,20 +99,38 @@ export async function applyReviewedContentChanges(
   if (changeSet.projectId !== "wiccan-android" || !changeSet.reviewId?.trim() || !Array.isArray(changeSet.entries)) throw new Error("Invalid target/review change set.");
   if (options.commit) assertReviewedApply(changeSet, options.approval, options.backup);
   if (new Set(changeSet.entries.map((entry) => entry.id)).size !== changeSet.entries.length) throw new Error("Duplicate IDs in changes.");
-  const results: { id: string; outcome: string; reason?: string }[] = [];
-  for (const change of changeSet.entries) {
-    if (!change.id || change.id.includes("/")) throw new Error("Invalid document ID.");
-    const ref = db.collection("content").doc(change.id);
-    const result = await db.runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(ref);
-      const history = await transaction.get(db.collection("userContentHistory").where("contentId", "==", change.id).limit(1));
+  if (changeSet.entries.length > TRANSACTION_LIMIT) throw new Error(`Reviewed change set exceeds the ${TRANSACTION_LIMIT}-document atomic limit; split it and approve each digest separately.`);
+  if (changeSet.entries.some((change) => !change.id || change.id.includes("/"))) throw new Error("Invalid document ID.");
+  return db.runTransaction(async (transaction) => {
+    const refs = changeSet.entries.map((change) => db.collection("content").doc(change.id));
+    const snapshots = await transaction.getAll(...refs);
+    const deliveredIds = new Set<string>();
+    for (let index = 0; index < changeSet.entries.length; index += 30) {
+      const ids = changeSet.entries.slice(index, index + 30).map((entry) => entry.id);
+      const history = await transaction.get(db.collection("userContentHistory").where("contentId", "in", ids).select("contentId"));
+      history.docs.forEach((document) => {
+        const contentId = document.get("contentId");
+        if (typeof contentId === "string") deliveredIds.add(contentId);
+      });
+    }
+    const plans = changeSet.entries.map((change, index) => {
+      const snapshot = snapshots[index];
       const version = snapshot.updateTime ? `${snapshot.updateTime.seconds}:${snapshot.updateTime.nanoseconds}` : undefined;
-      const plan = planReviewedChange(snapshot.exists ? snapshot.data()! : null, version, !history.empty, change, passages);
-      if (plan.outcome !== "ready") return { id: change.id, ...plan };
-      if (options.commit) transaction.update(ref, { ...plan.patch, updatedAt: FieldValue.serverTimestamp() });
-      return { id: change.id, outcome: options.commit ? "updated-draft" : "would-update-draft" };
+      return planReviewedChange(snapshot.exists ? snapshot.data()! : null, version, deliveredIds.has(change.id), change, passages);
     });
-    results.push(result);
-  }
-  return results;
+    if (plans.some((plan) => plan.outcome === "conflict")) {
+      return plans.map((plan, index) => plan.outcome === "ready"
+        ? { id: changeSet.entries[index].id, outcome: "conflict", reason: "atomic change set contains another conflict; no documents were written" }
+        : { id: changeSet.entries[index].id, ...plan });
+    }
+    if (options.commit) {
+      plans.forEach((plan, index) => {
+        if (plan.outcome === "ready") transaction.update(refs[index], { ...plan.patch, updatedAt: FieldValue.serverTimestamp() });
+      });
+    }
+    return plans.map((plan, index) => ({
+      id: changeSet.entries[index].id,
+      outcome: plan.outcome === "ready" ? (options.commit ? "updated-draft" : "would-update-draft") : plan.outcome,
+    }));
+  });
 }

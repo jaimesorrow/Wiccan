@@ -5,7 +5,8 @@ These are concrete editorial drafts, not live lessons. They remain blocked becau
 ## Candidate 1 — Closing a Scrying Session
 
 - Status: `draft — review required`
-- Tradition: Roman-period Egyptian magical practice
+- Tradition: Wiccan / Modern Witchcraft
+- Source tradition: Roman-period Egyptian magical practice
 - Contemporary application: A modern witchcraft closing practice for a self-directed scrying session. This is an adaptation, not an ancient Wiccan rite.
 - Primary category: `divination`
 - Lesson type: `divination`
@@ -77,7 +78,8 @@ Use divination for reflection, not for medical, legal, financial, or emergency d
 ## Candidate 2 — A Lamp and Dream Inquiry
 
 - Status: `draft — review required`
-- Tradition: Roman-period Egyptian magical practice
+- Tradition: Wiccan / Modern Witchcraft
+- Source tradition: Roman-period Egyptian magical practice
 - Contemporary application: A modern witchcraft dream-reflection practice adapted from a lamp inquiry. It is not an ancient Wiccan rite or a reconstruction.
 - Primary category: `divination`
 - Secondary category: `candle-magic`
@@ -153,7 +155,8 @@ Use a flameless light near sleeping areas. Do not burn oil, candles, or incense 
 ## Candidate 3 — A Four-Color Cord for Focus
 
 - Status: `draft — review required`
-- Tradition: Roman-period Egyptian magical practice
+- Tradition: Wiccan / Modern Witchcraft
+- Source tradition: Roman-period Egyptian magical practice
 - Contemporary application: A modern witchcraft braided focus charm. It is a substantial safety adaptation, not an ancient Wiccan rite or a reconstruction.
 - Primary category: `cord-knot-magic`
 - Secondary category: none
@@ -221,7 +224,8 @@ Keep loose fibers away from children and pets. Never tighten a cord around the n
 ## Candidate 4 — Preparing a Clean Table for Inquiry
 
 - Status: `draft — review required`
-- Tradition: Roman-period Egyptian magical practice
+- Tradition: Wiccan / Modern Witchcraft
+- Source tradition: Roman-period Egyptian magical practice
 - Contemporary application: A modern witchcraft sacred-space setup for self-directed inquiry. It is not an ancient Wiccan rite or a reconstruction.
 - Primary category: `altars-sacred-space`
 - Secondary category: `divination`
@@ -291,7 +295,8 @@ Keep the table stable and exits clear. This version is flameless and smokeless; 
 ## Candidate 5 — An Eye Symbol as a Written Reminder
 
 - Status: `draft — scope and safety review required`
-- Tradition: Roman-period Egyptian magical-medical practice
+- Tradition: Wiccan / Modern Witchcraft
+- Source tradition: Roman-period Egyptian magical-medical practice
 - Contemporary application: A modern witchcraft written charm used only as a reflective reminder. The source's medical aim is not retained, and this candidate must remain blocked unless an editor approves that changed scope.
 - Primary category: `protection-cleansing-warding`
 - Secondary category: none

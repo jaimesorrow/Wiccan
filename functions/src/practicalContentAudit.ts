@@ -1,6 +1,7 @@
 import { findPassageViolations } from "./sourcePassages";
 import type { SourcePassage } from "./sourcePassages";
 import { findPracticalLessonViolations, practicalContentHash } from "./practicalLesson";
+import { curriculumConcept, findLexicalDuplicateConcerns } from "./contentSimilarity";
 
 export interface AuditDocument { id: string; fields: Record<string, unknown>; updateTime?: string }
 const normalize = (value: unknown): string => typeof value === "string" ? value.trim().replace(/\s+/g, " ").toLowerCase() : "";
@@ -15,7 +16,11 @@ export function auditPracticalContent(documents: AuditDocument[], passages: Sour
     }
   }
   const duplicateConcerns = [...groups.entries()].filter(([, ids]) => ids.length > 1).map(([key, ids]) => ({ kind: key.split(":")[0], key, ids }));
-  const duplicateIds = new Set(duplicateConcerns.flatMap((group) => group.ids));
+  const lexicalDuplicateConcerns = findLexicalDuplicateConcerns(documents.map(({ id, fields }) => curriculumConcept(id, fields)));
+  const duplicateIds = new Set([
+    ...duplicateConcerns.flatMap((group) => group.ids),
+    ...lexicalDuplicateConcerns.flatMap((group) => [group.leftId, group.rightId]),
+  ]);
   const byStatus: Record<string, number> = {};
   const byType: Record<string, number> = {};
   const bySource: Record<string, number> = {};
@@ -70,6 +75,7 @@ export function auditPracticalContent(documents: AuditDocument[], passages: Sour
       eligibleUnderNewStandard: records.filter((r) => r.published && r.practicalStandardPassed).length,
     },
     caveats: ["Structural inspection is not passage verification or a completed editorial review.", "Duplicate groups are concerns requiring technique/objective/sequence review; no records are merged.", "Safety review required does not mean an activity has been verified unsafe.", "No records were changed, reclassified, rewritten or published."],
-    duplicateConcerns, sourceRegisterCandidates: [...uniqueCitations.values()], records,
+    duplicateCoverage: { exactAndLexicalExecuted: true, semanticProvider: "not-configured", semanticExecuted: false },
+    duplicateConcerns, lexicalDuplicateConcerns, sourceRegisterCandidates: [...uniqueCitations.values()], records,
   };
 }

@@ -4,7 +4,7 @@ import { ContentAdminRepositoryPort, NewDraftContent, StoredContent } from "./co
 
 const CONTENT_COLLECTION = "content";
 export const CONTENT_GENERATOR_ID = "ancient-grimoire-content-agent";
-export const CONTENT_GENERATION_SOURCE_KIND = "ancient-grimoire";
+export const CONTENT_GENERATION_SOURCE_KIND = "historical-grimoire";
 
 export class FirestoreContentAdminRepository implements ContentAdminRepositoryPort {
   constructor(private readonly db: Firestore) {}

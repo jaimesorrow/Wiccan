@@ -4,11 +4,11 @@ Updated: October 20, 2026
 
 This is the editorial target for existing draft rewrites and future lessons, spells, potions, authoring prompts, validators, and shared detail screens. It supersedes the older historical-overview examples, intention categories, and optional standalone reflection exercises in earlier documentation and skill summaries.
 
-The complete fill-in template and nine-category table are in [Practical Lesson and Grimoire Templates](PRACTICAL_MAGIC_LESSON_TEMPLATE.md). Updating these documents does not establish that the live database, generator, validators, or Android schema already implement the target.
+The complete fill-in template and ten-category table are in [Practical Lesson and Grimoire Templates](PRACTICAL_MAGIC_LESSON_TEMPLATE.md). Updating these documents does not establish that the live database, generator, validators, or Android schema already implement the target.
 
 ## Source and scope
 
-Every daily entry must teach one distinct magical practice traceable to an inspected passage in an identifiable ancient grimoire or ancient magical manuscript. Verify both ancient-source eligibility and Wiccan/witchcraft scope. Preserve the source's actual tradition and label any contemporary Wiccan application as an adaptation.
+Every daily entry must teach one distinct magical practice traceable to an inspected passage in an identifiable ancient, medieval, or early-modern grimoire or magical primary-source manuscript. Verify both pre-modern-source eligibility and Wiccan/witchcraft scope. Set `tradition` to `Wiccan / Modern Witchcraft`, preserve the actual historical tradition in `sourceTradition`, and label the contemporary application as an adaptation.
 
 Inspect the passage before authoring. Keep its title, manuscript/catalogue identity, documented origin and dating evidence, exact locator, edition and translator/editor, accessible source location, and commercial-use rights findings. Distinguish manuscript date, estimated composition date, and modern edition/translation date. Do not infer antiquity from legendary attribution or treat all historical works as ancient.
 
@@ -25,7 +25,7 @@ Exclude theatrical prose, fake antiquated English, stage magic, party activities
 ## Required lesson hierarchy
 
 1. Distinct title and brief summary.
-2. Actual source tradition, origin and dating; clearly identified contemporary application.
+2. `Wiccan / Modern Witchcraft` lesson tradition plus the actual source tradition, origin and dating; clearly identified contemporary application.
 3. Exactly one practical primary category; optional valid secondary categories.
 4. Introduction explaining what the reader will perform.
 5. Tools/materials and any source-supported timing or correspondences; label adaptations.
@@ -56,6 +56,7 @@ Use a flat list:
 - Elemental Magic — `elemental-magic`
 - Altars & Sacred Space — `altars-sacred-space`
 - Divination — `divination`
+- Protection, Cleansing & Warding — `protection-cleansing-warding`
 
 Choose by the actual source-supported technique. Protection, love, cleansing, abundance and other aims can be optional tags. Retire the intention navigation groups. Review legacy categories per record; do not map an old intention to a new technique automatically. Keep unsupported category slots empty.
 
@@ -71,7 +72,7 @@ Under the established project policy, potion, tea, bath, oil, spray, jar and ski
 
 Preserve document IDs, creation metadata, legitimate source/rights decisions, similarity identities, editorial annotations, curriculum placement, and delivered history. Keep the existing `content` collection compatible unless a reviewed architecture decision requires otherwise.
 
-The current legacy contract includes `intro`, `body`, `materials`, `category`, and `status`. Structured reflection and practice already exist. The authoring target adds the practical fields described in the linked template, including `summary`, `primaryCategoryId`, `lessonType`, `requiresPotionDisclosure`, and structured citations. Deliberately map aliases such as `intro/introduction`, `body/lesson`, `materials/tools`, and `status/contentStatus`. Finalize new metadata shapes in schema review rather than silently inventing serializers.
+The current legacy contract includes `intro`, `body`, `materials`, `category`, and `status`. Structured reflection and practice already exist. The authoring target adds the practical fields described in the linked template, including `sourceTradition`, `summary`, `primaryCategoryId`, `lessonType`, `requiresPotionDisclosure`, and structured citations. Deliberately map aliases such as `intro/introduction`, `body/lesson`, `materials/tools`, and `status/contentStatus`. Finalize new metadata shapes in schema review rather than silently inventing serializers.
 
 Implement the target across generation, validation, import, Kotlin models/mapping, Room/caching, shared Compose detail rendering and meaningful regression tests before live content migration. Do not bury new structured sections in `body` to avoid the migration. Remove difficulty and experience gates while preserving free/premium access.
 

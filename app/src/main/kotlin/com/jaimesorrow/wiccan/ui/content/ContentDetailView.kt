@@ -90,6 +90,10 @@ fun ContentDetailView(
             Text(text = it, style = MaterialTheme.typography.titleMedium, color = colors.onSurfaceVariant)
         }
 
+        content.sourceTradition?.takeIf { it.isNotBlank() }?.let {
+            LessonSection("Historical source tradition", it)
+        }
+
         if (content.intro.isNotBlank()) {
             Text(
                 text = content.intro,
@@ -107,9 +111,9 @@ fun ContentDetailView(
             MaterialsCard(materials = displayedTools)
         }
         LessonSection(title = "Method", text = content.body)
-        content.incantation?.takeIf { it.isNotBlank() }?.let { LessonSection("Formula", it) }
+        content.incantation?.takeIf { it.isNotBlank() }?.let { LessonSection("Optional incantation", it) }
         content.incantationOmissionReason?.takeIf { it.isNotBlank() }?.let {
-            LessonSection("Formula note", it)
+            LessonSection("Incantation note", it)
         }
         content.timing?.takeIf { it.isNotBlank() }?.let { LessonSection("Timing", it) }
         content.correspondences.takeIf { it.isNotEmpty() }?.let {

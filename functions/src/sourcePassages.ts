@@ -45,8 +45,8 @@ export function findPassageViolations(passage: SourcePassage): string[] {
     if (!nonblank(passage[key])) issues.push(`passage.${key} is required`);
   }
   if (!webUrl(passage.url)) issues.push("passage.url must locate the inspected passage");
-  if (passage.dating?.era !== "ancient" || passage.dating.status !== "verified" || !webUrl(passage.dating.evidenceUrl) || !nonblank(passage.dating.notes)) {
-    issues.push("ancient manuscript dating needs verified catalogue/scholarly evidence");
+  if (!["ancient", "medieval", "early-modern"].includes(passage.dating?.era ?? "") || passage.dating?.status !== "verified" || !webUrl(passage.dating.evidenceUrl) || !nonblank(passage.dating.notes)) {
+    issues.push("pre-modern manuscript dating needs verified catalogue/scholarly evidence");
   }
   if (passage.rights?.status !== "verified" || !nonblank(passage.rights.basis) || !webUrl(passage.rights.reference) || !passage.rights.jurisdictions?.length || !passage.rights.jurisdictions.every(nonblank)) {
     issues.push("commercial-use rights for the exact edition/translation need verification by jurisdiction");

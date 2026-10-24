@@ -1,7 +1,7 @@
 import { findPassageViolations, loadSourcePassages } from "../sourcePassages";
 import { getFirestore } from "firebase-admin/firestore";
 import { parseArgs } from "node:util";
-import { loadContentSources } from "../contentSource";
+import { isLessonGenerationSource, loadContentSources } from "../contentSource";
 import { ClaudeDraftGenerator } from "../claudeDraftGenerator";
 import { FirestoreContentAdminRepository } from "../firestoreContentAdminRepository";
 import { generateDrafts } from "../generateDraft";
@@ -61,12 +61,11 @@ async function main(): Promise<void> {
 
   const passages = loadSourcePassages();
   const passage = passages.find((candidate) => candidate.id === args.passageId);
-  if (!passage || findPassageViolations(passage).length) throw new Error("--passageId must select a verified ancient passage with approved witchcraft scope and commercial-use rights.");
+  if (!passage || findPassageViolations(passage).length) throw new Error("--passageId must select a verified pre-modern passage with approved witchcraft scope and commercial-use rights.");
   if (args.sourceId && args.sourceId !== passage.sourceId) throw new Error("--sourceId differs from the approved passage.");
   const sources = loadContentSources();
   const eligibleSources = sources.filter((source) =>
-    source.era === "ancient" &&
-    source.sourceKind === "ancient-grimoire" &&
+    isLessonGenerationSource(source) &&
     source.id === passage.sourceId &&
     (args.type === undefined || source.eligibleTypes.includes(args.type as ContentType))
   );
@@ -74,7 +73,7 @@ async function main(): Promise<void> {
     throw new Error(`Unknown sourceId '${args.sourceId}'.`);
   }
   if (eligibleSources.length === 0) {
-    throw new Error("No approved ancient grimoire supports the requested source/type selection.");
+    throw new Error("No approved pre-modern grimoire supports the requested source/type selection.");
   }
 
   if (!args.commit) {

@@ -1,6 +1,6 @@
 # Checked-in content audit
 
-Audit scope: `functions/ancientContentSeed.json` on repository main snapshot `05bc7393721d24fbb04f7c73da8b9ba7ba707ccb`. This is not a live Firestore inventory.
+Audit scope: `functions/ancientContentSeed.json`, re-run on 2026-10-23 against the Task 1 branch based on verified main `3ea0f2c6cbed90b8dc353d85b9126122ca73b31d`. This is not a live Firestore inventory.
 
 ## Verified file totals
 
@@ -33,11 +33,13 @@ Exact normalized titles: 0 duplicate groups. Exact normalized bodies: 0 duplicat
 
 The seed contains 139 repeated `similarityGroupId` groups covering 293 records; the largest group contains four records. These are editorial duplicate concerns, not automatic deletion or merge decisions. The current documentation says many companion lessons intentionally share an identity, so each group still needs review of technique, learning objective, and sequence.
 
+The shared concept screen also produced 158 pairwise lexical concerns using source passage, technique, purpose, materials, procedure, and learning objective. Exact fingerprints, normalized titles, passage reuse, word n-grams, and longest common procedure runs executed. Embedding-based semantic comparison did not execute because no reviewed provider is configured; the audit states this explicitly and cannot claim semantic clearance.
+
 ## New-standard disposition
 
 | Disposition | Count |
 | --- | ---: |
-| Ancient passage verified in the new register | 0 |
+| Pre-modern passage verified in the new register | 0 |
 | Rewritten and fully reviewed | 0 |
 | Source-blocked | 296 |
 | Exact edition/translation rights unresolved in the new register | 296 |

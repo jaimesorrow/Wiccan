@@ -16,24 +16,40 @@ Firestore data: [Firestore console](https://console.firebase.google.com/project/
 
 1. Verify the authenticated project ID is exactly `wiccan-android`.
 2. Run the read phase and retain the generated audit outside the repository.
-3. Export a secure backup and record its `gs://` URI, SHA-256, completion time, restore-test time, and every covered content ID in the backup manifest.
-4. Review the actual record count, statuses, update times, delivery-history matches, duplicates, source blockers, and proposed category mapping.
-5. Build a change set whose entries preserve the existing document ID and expected Firestore update time.
-6. Run the migration without `--commit`; retain the comparison report.
-7. Resolve every conflict and validation failure. Unsupported records remain unchanged drafts.
-8. Approve the SHA-256 digest of the exact final change set.
-9. Run with `--commit`, the exact approval digest, and the reviewed backup manifest.
-10. Re-run the audit and compare IDs, statuses, histories, and field hashes. Publication is a separate operation.
+3. Capture the root `content` collection into a typed, gzip-compressed artifact with mode `0600`. Upload that exact artifact to an existing private bucket that enforces public-access prevention, then record its `gs://` URI, object generation, SHA-256, completion time, and every covered content ID.
+4. Restore-test the exact artifact against the Firestore emulator and create a restore-tested manifest. The migration rejects an untested manifest.
+5. Review the actual record count, statuses, update times, delivery-history matches, duplicates, source blockers, and proposed category mapping.
+6. Build a change set whose entries preserve the existing document ID and expected Firestore update time.
+7. Run the migration without `--commit`; retain the comparison report.
+8. Resolve every conflict and validation failure. Unsupported records remain unchanged drafts.
+9. Approve the SHA-256 digest of the exact final change set.
+10. Run with `--commit`, the exact approval digest, and the restore-tested backup manifest.
+11. Re-run the audit and compare IDs, statuses, histories, and field hashes. Publication is a separate operation.
 
 ```bash
 cd functions
 npm run audit-content -- --project wiccan-android --output /secure/path/before-audit.json
+npm run backup-content -- \
+  --project wiccan-android \
+  --output /secure/path/content-backup.json.gz \
+  --report /secure/path/content-backup-report.json
+npm run upload-content-backup -- \
+  --project wiccan-android \
+  --artifact /secure/path/content-backup.json.gz \
+  --bucket <private-pap-enforced-bucket> \
+  --object wiccan/content-backup.json.gz \
+  --approval <exact-backup-sha256> \
+  --manifest /secure/path/upload-manifest.json
+FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 npm run restore-test-content-backup -- \
+  --artifact /secure/path/content-backup.json.gz \
+  --manifest /secure/path/upload-manifest.json \
+  --output /secure/path/restore-tested-manifest.json
 npm run seed-content -- --project wiccan-android \
   --changeset /secure/path/reviewed-changes.json \
   --output /secure/path/dry-run-report.json
 npm run seed-content -- --project wiccan-android \
   --changeset /secure/path/reviewed-changes.json \
-  --backup /secure/path/backup-manifest.json \
+  --backup /secure/path/restore-tested-manifest.json \
   --approval <exact-change-set-sha256> \
   --commit \
   --output /secure/path/apply-report.json
@@ -52,6 +68,28 @@ The apply path rejects missing IDs, duplicate IDs, non-draft or previously deliv
 Stop the migration if any post-write audit count, ID, status, or history invariant changes unexpectedly. Keep the application kill switch in its current state and do not publish the revised lessons.
 
 Use the secure pre-migration backup and the committed change report to restore only the affected root content document IDs. Before restoration, capture their current update times and verify that no later editor has changed them. Restore the exact pre-migration fields and preserved status; do not recreate missing IDs and do not touch similarly named nested `userContentUsage/{uid}/content` collections. Run the audit again and compare hashes to the before report.
+
+Generate the rollback plan from the restore-tested artifact, reviewed change set, and post-migration audit. Review its digest before adding `--commit --approval <digest>`:
+
+```bash
+npm run rollback-content -- \
+  --project wiccan-android \
+  --artifact /secure/path/content-backup.json.gz \
+  --manifest /secure/path/restore-tested-manifest.json \
+  --changeset /secure/path/reviewed-changes.json \
+  --afterAudit /secure/path/after-audit.json \
+  --output /secure/path/rollback-dry-run.json
+
+npm run rollback-content -- \
+  --project wiccan-android \
+  --artifact /secure/path/content-backup.json.gz \
+  --manifest /secure/path/restore-tested-manifest.json \
+  --changeset /secure/path/reviewed-changes.json \
+  --afterAudit /secure/path/after-audit.json \
+  --approval <exact-rollback-plan-sha256> \
+  --commit \
+  --output /secure/path/rollback-apply-report.json
+```
 
 A broad collection-group import is not an acceptable shortcut because the project also uses nested collections named `content`. A rollback must be scoped to the reviewed root document IDs.
 

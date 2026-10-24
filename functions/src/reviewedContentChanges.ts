@@ -4,7 +4,15 @@ import type { SourcePassage } from "./sourcePassages";
 
 export interface ReviewedChange { id: string; expectedUpdateTime: string; fields: Record<string, unknown>; subjectChangeReason?: string }
 export interface ReviewedChangeSet { projectId: string; reviewId: string; entries: ReviewedChange[] }
-export interface BackupManifest { projectId: string; exportUri: string; artifactSha256: string; completedAt: string; restoreTestedAt: string; contentIds: string[] }
+export interface BackupManifest {
+  projectId: string;
+  exportUri: string;
+  artifactSha256: string;
+  objectGeneration?: string;
+  completedAt: string;
+  restoreTestedAt?: string;
+  contentIds: string[];
+}
 const PATCH_FIELDS = new Set<string>([...AUTHORED_FIELDS.filter((field) => !["type", "tier", "rightsReviewRequired", "rightsNotes", "similarityGroupId"].includes(field)), "practicalReview", "contentStatus"]);
 export function changeSetDigest(changeSet: ReviewedChangeSet): string {
   return createHash("sha256").update(stableJson(changeSet)).digest("hex");
@@ -13,7 +21,10 @@ export function assertReviewedApply(changeSet: ReviewedChangeSet, approval: stri
   if (changeSet.projectId !== "wiccan-android" || !changeSet.reviewId?.trim() || !Array.isArray(changeSet.entries)) throw new Error("A project-specific reviewed change set is required.");
   if (new Set(changeSet.entries.map((entry) => entry.id)).size !== changeSet.entries.length) throw new Error("Duplicate document IDs in reviewed changes.");
   if (approval !== changeSetDigest(changeSet)) throw new Error("Explicit approval must match the SHA-256 digest of this exact reviewed change set.");
-  if (!backup || backup.projectId !== changeSet.projectId || !/^gs:\/\//.test(backup.exportUri) || !/^[a-f0-9]{64}$/.test(backup.artifactSha256) || !Number.isFinite(Date.parse(backup.completedAt)) || !Number.isFinite(Date.parse(backup.restoreTestedAt)) || Date.parse(backup.restoreTestedAt) < Date.parse(backup.completedAt) || !Array.isArray(backup.contentIds) || changeSet.entries.some((entry) => !backup.contentIds.includes(entry.id))) {
+  if (!backup || backup.projectId !== changeSet.projectId || !/^gs:\/\//.test(backup.exportUri) || !/^[a-f0-9]{64}$/.test(backup.artifactSha256) ||
+      !backup.objectGeneration?.trim() || !Number.isFinite(Date.parse(backup.completedAt)) || !backup.restoreTestedAt ||
+      !Number.isFinite(Date.parse(backup.restoreTestedAt)) || Date.parse(backup.restoreTestedAt) < Date.parse(backup.completedAt) ||
+      !Array.isArray(backup.contentIds) || changeSet.entries.some((entry) => !backup.contentIds.includes(entry.id))) {
     throw new Error("A secure backup manifest covering every ID and a completed restore drill is required.");
   }
 }

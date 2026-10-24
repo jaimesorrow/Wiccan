@@ -41,10 +41,12 @@ class ContentMappersTest {
                 "sourceUrl" to "https://example.com/source",
                 "rightsReviewRequired" to false,
                 "rightsNotes" to "Original synthesis with attribution",
+                "sourceTradition" to "Roman-period Egyptian magical practice",
             )
             ).toContent()
         assertEquals(content, content.toCachedEntity("2026-10-06", "user-1", "Europe/London").toDomain())
         assertEquals(ContentCategory.PROTECTION, content.category)
+        assertEquals("Roman-period Egyptian magical practice", content.sourceTradition)
     }
 
     @Test

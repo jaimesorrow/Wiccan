@@ -1,12 +1,12 @@
 import { Content } from "./types";
 import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort, SubscriptionRequiredError } from "./contentRepositoryPort";
-import { loadContentSources } from "./contentSource";
+import { isLessonGenerationSource, loadContentSources } from "./contentSource";
 import { contentSimilarityKey, isEligibleForDailyDelivery } from "./contentEligibility";
 
 const DEFAULT_ANCIENT_LESSON_SOURCE_IDS = new Set(
   loadContentSources()
     .filter((source) =>
-      source.era === "ancient" && source.sourceKind === "ancient-grimoire" && source.eligibleTypes.includes("lesson"),
+      isLessonGenerationSource(source) && source.eligibleTypes.includes("lesson"),
     )
     .map((source) => source.id),
 );
@@ -46,7 +46,7 @@ async function readAssignedContent(uid: string, contentId: string, repo: Content
  *    This is a plain read purely to skip the work below; it is never
  *    relied on for correctness.
  * 2. Otherwise, gather the single published subscriber content pool and drop
- *    any lesson that is not traceable to a curated ancient source.
+ *    any lesson that is not traceable to a curated pre-modern grimoire source.
  * 3. Exclude anything already delivered to the user.
  * 4. If nothing remains, log pool exhaustion and fail closed. Never repeat
  *    a lesson already delivered to this user.

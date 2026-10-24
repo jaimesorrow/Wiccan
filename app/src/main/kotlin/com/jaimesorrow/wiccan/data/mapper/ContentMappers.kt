@@ -49,6 +49,7 @@ fun Map<String, Any?>.toContent(): Content {
         correspondences = (this["correspondences"] as? List<String>).orEmpty(),
         adaptationNotes = (this["adaptationNotes"] as? List<String>).orEmpty(),
         sourcePassageId = this["sourcePassageId"] as? String,
+        sourceTradition = (this["sourceTradition"] as? String) ?: (structuredCitation?.get("tradition") as? String),
         citation = structuredCitation?.toCitation(),
     )
 }
@@ -104,6 +105,7 @@ fun Content.toCachedEntity(deliveredDate: String, userId: String, timezone: Stri
     correspondences = correspondences,
     adaptationNotes = adaptationNotes,
     sourcePassageId = sourcePassageId,
+    sourceTradition = sourceTradition,
     citationTextTitle = citation?.textTitle,
     citationManuscriptId = citation?.manuscriptId,
     citationTradition = citation?.tradition,
@@ -151,6 +153,7 @@ fun CachedDailyContentEntity.toDomain(): Content = Content(
     correspondences = correspondences.orEmpty(),
     adaptationNotes = adaptationNotes.orEmpty(),
     sourcePassageId = sourcePassageId,
+    sourceTradition = sourceTradition,
     citation = if (citationTextTitle == null && citationLocator == null) null else ContentCitation(
         textTitle = citationTextTitle,
         manuscriptId = citationManuscriptId,

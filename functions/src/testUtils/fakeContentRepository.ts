@@ -118,7 +118,8 @@ export function makeContent(overrides: Partial<Content> & { id: string }): Conte
 export function makeReviewedLesson(overrides: Partial<Content> & { id: string; sourceId: string }): Content {
   const lesson = makeContent({
     type: "lesson",
-    tradition: "Ancient ritual tradition",
+    tradition: "Wiccan / Modern Witchcraft",
+    sourceTradition: "Ancient ritual tradition",
     category: "divination",
     primaryCategoryId: "divination",
     secondaryCategoryIds: [],
@@ -132,6 +133,10 @@ export function makeReviewedLesson(overrides: Partial<Content> & { id: string; s
     application: "A labeled modern witchcraft application.",
     lessonType: "divination",
     requiresPotionDisclosure: false,
+    durationMinutes: null,
+    incantation: null,
+    incantationOmissionReason: "No formula is present in the reviewed passage.",
+    timing: null,
     tools: [],
     correspondences: [],
     citations: [],
