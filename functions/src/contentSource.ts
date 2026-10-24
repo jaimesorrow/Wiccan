@@ -4,7 +4,7 @@ import { z } from "zod";
 import { ContentType } from "./types";
 
 export type HistoricalEra = "ancient" | "medieval" | "early-modern" | "modern";
-export type ContentSourceKind = "ancient-grimoire" | "ancient-historical-context";
+export type ContentSourceKind = "ancient-grimoire" | "historical-grimoire" | "ancient-historical-context";
 
 /**
  * A hand-curated, manually vetted historical source.
@@ -24,7 +24,7 @@ export interface ContentSource {
   title: string;
   tradition: string;
   era: HistoricalEra;
-  /** Only ancient-grimoire sources are eligible for AI content generation. */
+  /** Only pre-modern grimoire sources are eligible for AI content generation. */
   sourceKind: ContentSourceKind;
   period: string;
   publicDomainBasis: string;
@@ -42,7 +42,7 @@ const ContentSourceSchema = z.object({
   title: z.string().min(1),
   tradition: z.string().min(1),
   era: z.enum(["ancient", "medieval", "early-modern", "modern"]),
-  sourceKind: z.enum(["ancient-grimoire", "ancient-historical-context"]),
+  sourceKind: z.enum(["ancient-grimoire", "historical-grimoire", "ancient-historical-context"]),
   period: z.string().min(1),
   publicDomainBasis: z.string().min(1),
   sourceReference: z.string().min(1),
@@ -57,11 +57,11 @@ const ContentSourceSchema = z.object({
       message: "Sources classified as ancient grimoires must have era 'ancient'.",
     });
   }
-  if (source.eligibleTypes.includes("lesson") && source.era !== "ancient") {
+  if (source.sourceKind === "historical-grimoire" && !["medieval", "early-modern"].includes(source.era)) {
     ctx.addIssue({
       code: "custom",
       path: ["era"],
-      message: "Lesson-eligible sources must be ancient under the Lesson of the Day sourcing policy.",
+      message: "Historical grimoires must be medieval or early-modern.",
     });
   }
 });
@@ -79,4 +79,9 @@ export function loadContentSources(
   const raw = fs.readFileSync(sourcesPath, "utf-8");
   const parsed: unknown = JSON.parse(raw);
   return ContentSourcesSchema.parse(parsed);
+}
+
+/** Candidate summaries never qualify a source by themselves; exact passage review remains mandatory. */
+export function isLessonGenerationSource(source: ContentSource): boolean {
+  return (source.sourceKind === "ancient-grimoire" || source.sourceKind === "historical-grimoire") && source.era !== "modern";
 }

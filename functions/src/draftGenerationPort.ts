@@ -1,7 +1,9 @@
+import type { PracticalLessonFields } from "./practicalLesson";
+import type { SourcePassage } from "./sourcePassages";
 import { ContentCategory, ContentType } from "./types";
 
 /** The fields an LLM generates for one draft; everything else (type, tier, tradition, sourceId, status) is assigned by generateDraft itself. */
-export interface GeneratedDraftFields {
+export interface GeneratedDraftFields extends PracticalLessonFields {
   title: string;
   intro: string;
   body: string;
@@ -25,6 +27,8 @@ export interface DraftGenerationRequest {
   summary: string;
   /** The factual boundary for historical claims in generated lessons. */
   groundedFacts: string[];
+  /** Exact editor-inspected passage, never a source inferred after generation. */
+  passage?: SourcePassage;
 }
 
 /**

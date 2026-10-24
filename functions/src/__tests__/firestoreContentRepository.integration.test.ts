@@ -10,7 +10,7 @@ import {
 import { FirestoreAccountDeletionRepository } from "../firestoreAccountDeletionRepository";
 import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, SubscriptionRequiredError } from "../contentRepositoryPort";
 import { ContentPoolExhaustedError, DailyAssignmentUnavailableError, selectTodayContent } from "../getTodayContent";
-import { makeContent } from "../testUtils/fakeContentRepository";
+import { makeContent, makeReviewedLesson } from "../testUtils/fakeContentRepository";
 import { FakePlayBillingPort } from "../testUtils/fakePlayBillingPort";
 import { Content } from "../types";
 import { getUserLocalDate } from "../dateUtils";
@@ -224,11 +224,16 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
   });
 
   it("revalidates ancient lesson provenance and writes current metadata rather than a stale snapshot", async () => {
-    const candidate = makeContent({ id: "stale-lesson", type: "lesson", sourceId: "ancient-source", title: "Old title" });
+    const candidate = makeReviewedLesson({ id: "stale-lesson", sourceId: "ancient-source", title: "Old title" });
     await seed({ ...candidate, sourceId: "ineligible-source" });
     await expect(repo.assignDailyContent(UID, TODAY, candidate, ANCIENT_SOURCES))
       .rejects.toBeInstanceOf(ContentNoLongerEligibleError);
-    await seed({ ...candidate, title: "Edited title", similarityGroupId: "edited-group" });
+    await seed(makeReviewedLesson({
+      id: candidate.id,
+      sourceId: "ancient-source",
+      title: "Edited title",
+      similarityGroupId: "edited-group",
+    }));
     expect(await repo.assignDailyContent(UID, TODAY, candidate, ANCIENT_SOURCES)).toBe(candidate.id);
     const history = await db.collection("userContentHistory").doc(`${UID}_${TODAY}`).get();
     expect(history.get("title")).toBe("Edited title");

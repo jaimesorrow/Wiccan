@@ -105,7 +105,7 @@ class WiccanDatabaseMigrationTest {
     }
 
     @Test
-    fun migrate1To3_preservesHistoricalLessonWhileAddingNullableMetadata() {
+    fun migrate1To4_preservesHistoricalLessonWhileAddingPracticalMetadata() {
         createDatabase(1).apply {
             execSQL(
                 """
@@ -119,7 +119,8 @@ class WiccanDatabaseMigrationTest {
         }
         val migrated = openCurrentDatabase()
         migrated.query(
-            "SELECT title, intro, body, safetyNote, deliveredDate, category, reflection, rightsNotes, userId " +
+            "SELECT title, intro, body, safetyNote, deliveredDate, category, reflection, rightsNotes, userId, " +
+                "sourcePassageId, primaryCategoryId, requiresPotionDisclosure " +
                 "FROM cached_daily_content WHERE contentId = 'old-lesson'",
         ).use {
             assertTrue(it.moveToFirst())
@@ -132,11 +133,14 @@ class WiccanDatabaseMigrationTest {
             assertTrue(it.isNull(6))
             assertTrue(it.isNull(7))
             assertTrue(it.isNull(8))
+            assertTrue(it.isNull(9))
+            assertTrue(it.isNull(10))
+            assertEquals(0, it.getInt(11))
         }
     }
 
     @Test
-    fun migrate2To3_preservesExistingCategoryAndLessonFields() {
+    fun migrate2To4_preservesExistingCategoryAndLessonFields() {
         createDatabase(2).apply {
             execSQL(
                 """
@@ -150,7 +154,8 @@ class WiccanDatabaseMigrationTest {
         }
         val migrated = openCurrentDatabase()
         migrated.query(
-            "SELECT category, body, safetyNote, timezone, rightsReviewRequired FROM cached_daily_content WHERE contentId = 'old-lesson'",
+            "SELECT category, body, safetyNote, timezone, rightsReviewRequired, tools, citationLocator " +
+                "FROM cached_daily_content WHERE contentId = 'old-lesson'",
         ).use {
             assertTrue(it.moveToFirst())
             assertEquals("PROTECTION", it.getString(0))
@@ -158,6 +163,8 @@ class WiccanDatabaseMigrationTest {
             assertEquals("Safe practice only", it.getString(2))
             assertTrue(it.isNull(3))
             assertTrue(it.isNull(4))
+            assertTrue(it.isNull(5))
+            assertTrue(it.isNull(6))
         }
     }
 }

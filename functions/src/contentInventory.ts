@@ -1,3 +1,4 @@
+import { PRACTICAL_CATEGORIES } from "./practicalLesson";
 import { z } from "zod";
 import { ContentSource, loadContentSources } from "./contentSource";
 import { EXPECTED_LESSON_COUNT } from "./contentSeed";
@@ -26,7 +27,7 @@ const PublishedOrDraftLessonSchema = z.object({
   status: z.enum(["draft", "published"]),
   title: z.string().trim().min(1),
   tradition: z.string().trim().min(1),
-  category: z.enum(CONTENT_CATEGORIES),
+  category: z.enum([...CONTENT_CATEGORIES, ...PRACTICAL_CATEGORIES]),
   intro: z.string().trim().min(1),
   body: z.string().trim().min(1),
   reflection: z.string().trim().min(1),

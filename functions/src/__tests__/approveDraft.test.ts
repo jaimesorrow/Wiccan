@@ -99,7 +99,7 @@ describe("approveDraft", () => {
     expect(await repo.getStatus(contentId)).toBe("published");
   });
 
-  it("publishes a lesson only when its source is curated, ancient, and lesson-eligible", async () => {
+  it("does not treat a broad ancient source record as passage verification", async () => {
     const repo = new FakeContentAdminRepository();
     const contentId = await repo.createDraft({
       ...BASE_DRAFT,
@@ -110,9 +110,10 @@ describe("approveDraft", () => {
       reflection: "What does this source teach us about its historical setting?",
     });
 
-    await approveDraft(contentId, repo, [ANCIENT_LESSON_SOURCE]);
-
-    expect(await repo.getStatus(contentId)).toBe("published");
+    await expect(approveDraft(contentId, repo, [ANCIENT_LESSON_SOURCE])).rejects.toThrow(
+      "verified source passage is missing",
+    );
+    expect(await repo.getStatus(contentId)).toBe("draft");
   });
 
   it("refuses to publish a lesson whose source is not ancient", async () => {

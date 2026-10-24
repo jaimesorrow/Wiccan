@@ -83,7 +83,16 @@ export const getTodayContent = onCall(CALLABLE_OPTIONS, async (request) => {
     const timezone = resolveTimeZone(requestedTimeZone ?? await repo.getUserTimeZone(uid));
     const deliveredDate = getUserLocalDate(timezone, now);
     const content = await selectTodayContent(uid, deliveredDate, repo);
-    return { ...content, deliveredDate, timezone };
+    let potionSafetyDisclosure: string | undefined;
+    if (content.requiresPotionDisclosure) {
+      const disclosures = await getFirestore().collection("settings").doc("disclosures").get();
+      const configured = disclosures.get("potionSafetyDisclosure");
+      if (typeof configured !== "string" || !configured.trim()) {
+        throw new Error("Required potionSafetyDisclosure is not configured.");
+      }
+      potionSafetyDisclosure = configured;
+    }
+    return { ...content, ...(potionSafetyDisclosure ? { potionSafetyDisclosure } : {}), deliveredDate, timezone };
   } catch (err) {
     if (err instanceof HttpsError) {
       throw err;
