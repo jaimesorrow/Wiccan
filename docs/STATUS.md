@@ -25,7 +25,7 @@ file) or is named explicitly as still open, with a reason.
 
 | Area | Status |
 |---|---|
-| Daily content selection (deterministic, tier-filtered, transactional) | PASS |
+| Daily content selection (deterministic, subscription-gated, transactional) | PASS |
 | Room cache + DAO | PASS |
 | Today/Archive/Settings/Paywall screens (MVI) | PASS |
 | Auth (Credential Manager Google sign-in + Firebase email/password) | PASS |
@@ -44,6 +44,7 @@ file) or is named explicitly as still open, with a reason.
 | Server-controlled profile mutations (device token, time zone, terms) | PASS |
 | Versioned Terms/Privacy acceptance gate | PASS |
 | Subscription lifecycle hardening (entitlement fix, RTDN, acknowledgement) | PASS |
+| Required subscription after onboarding, 7-day eligible trial then $5.99/month US base price | IN REVIEW — [PR #70](https://github.com/jaimesorrow/Wiccan/pull/70); one content pool, expiry gates Android/callable/rules, Terms v3. [Console setup and coordinated rollout](SUBSCRIPTION_ACCESS.md) remain required before release. |
 | Category-organized Grimoire (automatically delivered history) | PASS |
 | Multi-device FCM (per-device registration, no cross-device clobbering) | FIXED |
 | Content safety gate + duplicate-title prevention | FIXED |

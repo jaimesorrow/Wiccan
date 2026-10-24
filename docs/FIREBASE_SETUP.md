@@ -81,8 +81,9 @@ production-only Firebase services. Without the Gradle property, an ordinary
 debug build keeps its normal Firebase behavior.
 
 The end-to-end suite covers authenticated and unauthenticated `getTodayContent`;
-daily-assignment stability across repeat calls (same content twice); tier
-gating (a free user is never served premium or draft content); the
+daily-assignment stability across repeat calls (same content twice); subscription
+gating (inactive accounts receive no content, even through existing same-day history);
+expiry and renewal with preserved history; rejection of client-forged access; the
 `userContentHistory` write; `acceptTerms` and the `users/{uid}` document;
 `registerDeviceToken` and the `users/{uid}/devices` subcollection; the
 `devices` collection-group query; `verifyPurchase` argument validation; the

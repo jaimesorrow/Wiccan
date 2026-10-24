@@ -23,7 +23,7 @@
     "backfill-content-usage": "npm run build && node lib/scripts/backfillContentUsageCli.js"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.133.0",
+    "@anthropic-ai/sdk": "^0.135.0",
     "@googleapis/androidpublisher": "^42.2.0",
     "firebase-admin": "^14.5.0",
     "firebase-functions": "^7.4.0",
@@ -34,11 +34,11 @@
     "@firebase/rules-unit-testing": "^5.0.2",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.6.5",
-    "eslint": "^10.12.0",
+    "eslint": "^10.13.0",
     "firebase": "^12.19.0",
     "globals": "^17.13.0",
     "jest": "^30.5.2",
-    "ts-jest": "^29.4.14",
+    "ts-jest": "^29.4.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.1"
   },
