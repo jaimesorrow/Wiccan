@@ -1,10 +1,10 @@
 import { Content, ContentCategory, ContentTier } from "../types";
-import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort } from "../contentRepositoryPort";
+import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort, SubscriptionRequiredError } from "../contentRepositoryPort";
 import { contentSimilarityKey, isEligibleForDailyDelivery, sharesContentSimilarity } from "../contentEligibility";
 
 /** In-memory stand-in for Firestore, for testing selectTodayContent. */
 export class FakeContentRepository implements ContentRepositoryPort {
-  tier: ContentTier = "free";
+  tier: ContentTier = "premium";
   timeZone: string | null = null;
   content: Content[] = [];
   history: {
@@ -43,8 +43,7 @@ export class FakeContentRepository implements ContentRepositoryPort {
   }
 
   async getPublishedContentForTier(tier: ContentTier): Promise<Content[]> {
-    const eligible = tier === "premium" ? ["free", "premium"] : ["free"];
-    return this.content.filter((c) => c.status === "published" && eligible.includes(c.tier));
+    return tier === "premium" ? this.content.filter((c) => c.status === "published") : [];
   }
 
   /**
@@ -56,6 +55,7 @@ export class FakeContentRepository implements ContentRepositoryPort {
    * never interleave inside this function, only around it.
    */
   async assignDailyContent(userId: string, deliveredDate: string, candidate: Content, ancientLessonSourceIds: ReadonlySet<string>): Promise<string> {
+    if (this.tier !== "premium") throw new SubscriptionRequiredError();
     const existing = this.history.find((h) => h.userId === userId && h.deliveredDate === deliveredDate);
     if (existing) {
       return existing.contentId;
@@ -64,7 +64,7 @@ export class FakeContentRepository implements ContentRepositoryPort {
       throw new ContentAlreadyDeliveredError(candidate.id);
     }
     const current = this.content.find((content) => content.id === candidate.id);
-    if (!current || current.status !== "published" || (current.tier === "premium" && this.tier !== "premium") ||
+    if (!current || current.status !== "published" ||
         !isEligibleForDailyDelivery(current, ancientLessonSourceIds)) {
       throw new ContentNoLongerEligibleError(candidate.id);
     }

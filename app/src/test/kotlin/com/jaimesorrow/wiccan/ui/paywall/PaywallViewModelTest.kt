@@ -46,6 +46,30 @@ class PaywallViewModelTest {
 
         assertEquals("$4.99/mo", viewModel.state.value.price)
         assertFalse(viewModel.state.value.isLoadingPrice)
+        assertTrue(viewModel.state.value.hasFreeTrial)
+    }
+
+    @Test
+    fun `an ineligible account is never promised a free trial`() = runTest(dispatcher) {
+        repository.hasFreeTrial = false
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertFalse(viewModel.state.value.hasFreeTrial)
+        assertEquals("$5.99", viewModel.state.value.price)
+    }
+
+    @Test
+    fun `returning to the paywall refreshes eligibility instead of reusing a consumed trial`() = runTest(dispatcher) {
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        viewModel.refreshOffer()
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(1, repository.priceCallCount)
+        assertTrue(viewModel.state.value.hasFreeTrial)
+        repository.hasFreeTrial = false
+        viewModel.refreshOffer()
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(2, repository.priceCallCount)
+        assertFalse(viewModel.state.value.hasFreeTrial)
     }
 
     @Test
