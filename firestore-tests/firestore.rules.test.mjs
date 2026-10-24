@@ -59,8 +59,8 @@ beforeEach(async () => {
         userId: OTHER,
         contentId: "another-users-lesson",
       }),
-      setDoc(doc(db, `users/${OWNER}`), { tier: "free" }),
-      setDoc(doc(db, `users/${OTHER}`), { tier: "premium" }),
+      setDoc(doc(db, `users/${OWNER}`), { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 }),
+      setDoc(doc(db, `users/${OTHER}`), { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 }),
       setDoc(doc(db, "content/published-free"), { status: "published", tier: "free" }),
       setDoc(doc(db, "content/published-premium"), { status: "published", tier: "premium" }),
       setDoc(doc(db, "content/unreserved-published"), { status: "published", tier: "free" }),
@@ -141,7 +141,7 @@ describe("delivered-content history used by Grimoire", () => {
 describe("verified server tier", () => {
   it("allows reading one's own profile and rejects another user's profile", async () => {
     const ownProfile = await assertSucceeds(getDoc(doc(ownerDb(), `users/${OWNER}`)));
-    assert.equal(ownProfile.data().tier, "free");
+    assert.equal(ownProfile.data().tier, "premium");
     await assertFails(getDoc(doc(ownerDb(), `users/${OTHER}`)));
   });
 
@@ -179,7 +179,27 @@ describe("server-authoritative usage reservations", () => {
 });
 
 describe("delivered published-content read policy", () => {
-  it("allows delivered free and premium reads after assignment, independent of the user's current tier", async () => {
+  for (const fields of [
+    { tier: "free", subscriptionExpiresAtMillis: Date.now() + 3_600_000 },
+    { tier: "premium", subscriptionExpiresAtMillis: 0 },
+    { tier: "premium" },
+    { tier: "premium", subscriptionExpiresAtMillis: "2099" },
+    { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000, deletionInProgress: true },
+  ]) {
+    it(`blocks all lesson and history access for inactive profiles ${JSON.stringify(fields)}`, async () => {
+      await environment.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), `users/${OWNER}`), fields);
+      });
+      await assertFails(getDoc(doc(ownerDb(), "content/published-free")));
+      await assertFails(getDoc(doc(ownerDb(), "content/published-premium")));
+      await assertFails(getDoc(doc(ownerDb(), HISTORY_PATH)));
+      await assertFails(getDocs(query(collection(ownerDb(), "userContentHistory"), where("userId", "==", OWNER))));
+      await assertSucceeds(getDoc(doc(ownerDb(), `users/${OWNER}`)));
+      await assertFails(updateDoc(doc(ownerDb(), `users/${OWNER}`), { subscriptionExpiresAtMillis: Date.now() + 3_600_000 }));
+    });
+  }
+
+  it("allows subscribers delivered content regardless of the legacy content tier", async () => {
     await assertSucceeds(getDoc(doc(ownerDb(), "content/published-free")));
     await assertSucceeds(getDoc(doc(ownerDb(), "content/published-premium")));
   });

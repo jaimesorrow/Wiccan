@@ -39,21 +39,20 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.config.PolicyUrls
 import com.jaimesorrow.wiccan.core.error.toUserMessage
-import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
 import com.jaimesorrow.wiccan.ui.theme.description
 import com.jaimesorrow.wiccan.ui.theme.displayName
 
 /**
- * Account settings: sign out, manage the subscription (deep link to Play
- * for premium, or an entry to the Paywall for free), toggle the daily
- * notification, and delete the account.
+ * Account settings and the restricted account/support surface available
+ * before subscription. Neither surface offers a free content plan.
  */
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
-    onGoPremiumClick: () -> Unit = {},
+    accountOnly: Boolean = false,
+    onBack: () -> Unit = {},
     onTermsClick: () -> Unit = {},
     onPrivacyClick: () -> Unit = {},
     onContentSafetyClick: () -> Unit = {},
@@ -109,7 +108,12 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.Top,
         ) {
             Spacer(modifier = Modifier.height(32.dp))
-            Text("Settings", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
+            if (accountOnly) TextButton(onClick = onBack) { Text("← Subscription") }
+            Text(
+                if (accountOnly) "Account & support" else "Settings",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
             Spacer(modifier = Modifier.height(32.dp))
 
             OutlinedButton(
@@ -121,51 +125,47 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
             OutlinedButton(
-                onClick = {
-                    if (state.tier == ContentTier.PREMIUM) {
-                        context.startActivity(manageSubscriptionIntent())
-                    } else {
-                        onGoPremiumClick()
-                    }
-                },
+                onClick = { context.startActivity(manageSubscriptionIntent()) },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(if (state.tier == ContentTier.PREMIUM) "Manage Subscription" else "Go Premium")
+                Text("Manage Subscription")
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
+            if (!accountOnly) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = "Daily Notifications",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    Switch(
+                        checked = state.notificationsEnabled,
+                        onCheckedChange = { viewModel.onEvent(SettingsUiEvent.NotificationsToggled(it)) },
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
                 Text(
-                    text = "Daily Notifications",
-                    style = MaterialTheme.typography.bodyLarge,
+                    text = "Theme",
+                    style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
-                Switch(
-                    checked = state.notificationsEnabled,
-                    onCheckedChange = { viewModel.onEvent(SettingsUiEvent.NotificationsToggled(it)) },
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "The seasonal palette is the recommended default, but you can lock any of the six.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                ThemeModePicker(
+                    selected = state.themeMode,
+                    onSelected = { viewModel.onEvent(SettingsUiEvent.ThemeModeSelected(it)) },
                 )
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
-            Text(
-                text = "Theme",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "The seasonal palette is the recommended default, but you can lock any of the six.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            ThemeModePicker(
-                selected = state.themeMode,
-                onSelected = { viewModel.onEvent(SettingsUiEvent.ThemeModeSelected(it)) },
-            )
 
             Spacer(modifier = Modifier.height(24.dp))
             OutlinedButton(

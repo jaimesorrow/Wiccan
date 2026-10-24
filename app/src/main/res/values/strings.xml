@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Wiccan</string>
+    <string name="auth_intro_headline">Your path into Wicca begins here.</string>
+    <string name="auth_intro_body">Explore candle spells, herbal rituals, cord and knot work, and lunar practices inspired by historical grimoires. Learn through a new guided lesson each day—and build a personal Grimoire filled with your discoveries.</string>
+    <string name="auth_subscription_requirement">A subscription is required after onboarding.</string>
     <string name="content_introduction">Introduction</string>
     <string name="content_lesson">Lesson</string>
     <string name="content_reflection">Reflection</string>

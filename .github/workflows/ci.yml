@@ -58,6 +58,13 @@ jobs:
       # (see app/build.gradle.kts's productFlavors comment) and are not
       # built here.
       - run: ./gradlew :app:testProdDebugUnitTest
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: wiccan-auth-layouts
+          path: app/build/outputs/roborazzi/wiccan-auth-*.png
+          if-no-files-found: warn
+          retention-days: 14
       - run: ./gradlew :app:assembleProdDebug -PuseFirebaseEmulators=true
       - uses: actions/upload-artifact@v7.0.2
         with:
