@@ -137,7 +137,7 @@ class WiccanPaletteScreenshotTest {
  * are the real ones - only glyph shapes are substituted, so these PNGs are
  * accurate for color, contrast and layout, but not for typeface identity.
  */
-private val LocallyResolvableTypography: Typography = WiccanTypography.let { t ->
+internal val LocallyResolvableTypography: Typography = WiccanTypography.let { t ->
     fun TextStyle.local() = copy(fontFamily = FontFamily.Default)
     Typography(
         displayLarge = t.displayLarge.local(),

@@ -8,6 +8,6 @@ package com.jaimesorrow.wiccan.domain.model
  * `acceptTerms` call quoting anything other than its own current values.
  */
 object PolicyVersions {
-    const val TERMS = 2
+    const val TERMS = 3
     const val PRIVACY = 2
 }
