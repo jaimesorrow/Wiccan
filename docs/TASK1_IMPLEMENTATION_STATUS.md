@@ -4,7 +4,7 @@ Updated: 2026-10-24. This report distinguishes completed repository work from pr
 
 ## Completed repository work
 
-- Reverified GitHub `main` at `3ea0f2c6cbed90b8dc353d85b9126122ca73b31d` and retained draft PR #78 as the review vehicle.
+- Reverified GitHub `main` at `532088cb85a2cf2eafbcefa03437226d9e1d8332` and retained draft PR #78 as the review vehicle.
 - Audited the checked-in seed: 296 records, all drafts; 200 lessons, 59 spells, and 37 potions. None passes the new standard because the approved exact-passage register is empty.
 - Implemented ten practical categories, backward-compatible lesson aliases, separate `tradition = Wiccan / Modern Witchcraft` and `sourceTradition`, structured citations, adaptation notes, safety metadata, and Room migration 4→5.
 - Added a ten-candidate historical-source registry. Two editions have edition-level rights evidence, but zero candidates are production-approved because no exact passage has completed every review.
@@ -15,12 +15,12 @@ Updated: 2026-10-24. This report distinguishes completed repository work from pr
 
 ## Validation evidence
 
-- Functions: TypeScript build passed; ESLint passed; 31 suites and 246 tests passed, with one emulator-dependent suite skipped by the unit command.
+- Functions: TypeScript build passed; ESLint passed; 34 suites and 274 tests passed, with one emulator-dependent suite skipped by the unit command.
 - Dependency audit: zero known npm vulnerabilities at `--audit-level=moderate` after resolving the vulnerable transitive `body-parser` version.
-- Firebase emulator: 14 Firestore security-rule cases and 19 transaction/repository integration tests passed against the demo project; no production service was contacted.
+- Firebase emulator: 19 Firestore security-rule cases, 19 transaction/repository integration tests, and 36 end-to-end Auth/Functions/Firestore/Pub/Sub checks passed; no production data was contacted.
 - Checked-in content audit: 296 inspected; 0 qualified; 296 source-blocked; 293 records in duplicate-concern coverage; 158 pairwise lexical concerns; 37 disclosure-triggering records.
 - Repository/toolchain structural checks: 43 release-preflight checks and all Python validation suites passed.
-- Android: dependency resolution succeeded with the checksum-verified pinned Gradle 9.8.1 distribution. Compilation could not start because this execution environment has no Android SDK. This is an unexecuted check, not a pass.
+- Android: repository and release-preflight checks passed. Compilation could not start because this execution environment has no Android SDK and the Gradle distribution download was unavailable during the final run. This is an unexecuted check, not a pass.
 
 ## Approval gates and blockers
 

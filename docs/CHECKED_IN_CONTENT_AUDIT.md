@@ -1,6 +1,6 @@
 # Checked-in content audit
 
-Audit scope: `functions/ancientContentSeed.json`, re-run on 2026-10-23 against the Task 1 branch based on verified main `3ea0f2c6cbed90b8dc353d85b9126122ca73b31d`. This is not a live Firestore inventory.
+Audit scope: `functions/ancientContentSeed.json`, re-run on 2026-10-24 against the Task 1 branch based on verified main `532088cb85a2cf2eafbcefa03437226d9e1d8332`. This is not a live Firestore inventory.
 
 ## Verified file totals
 
