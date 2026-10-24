@@ -37,12 +37,17 @@ class ArchiveFirestoreDataSource @Inject constructor(
     suspend fun getContentById(contentId: String): Map<String, Any?> {
         val doc = firestore.collection(CONTENT_COLLECTION).document(contentId).get().await()
         if (!doc.exists()) throw ContentNotFoundException(contentId)
-        return (doc.data ?: emptyMap()) + ("id" to doc.id)
+        val content = (doc.data ?: emptyMap()) + ("id" to doc.id)
+        if (content["requiresPotionDisclosure"] != true) return content
+        val disclosures = firestore.collection(SETTINGS_COLLECTION).document(DISCLOSURES_DOCUMENT).get().await()
+        return content + ("potionSafetyDisclosure" to disclosures.getString("potionSafetyDisclosure"))
     }
 
     private companion object {
         const val HISTORY_COLLECTION = "userContentHistory"
         const val CONTENT_COLLECTION = "content"
+        const val SETTINGS_COLLECTION = "settings"
+        const val DISCLOSURES_DOCUMENT = "disclosures"
     }
 }
 

@@ -41,16 +41,38 @@ class ContentMappersTest {
                 "sourceUrl" to "https://example.com/source",
                 "rightsReviewRequired" to false,
                 "rightsNotes" to "Original synthesis with attribution",
+                "sourceTradition" to "Roman-period Egyptian magical practice",
             )
             ).toContent()
         assertEquals(content, content.toCachedEntity("2026-10-06", "user-1", "Europe/London").toDomain())
         assertEquals(ContentCategory.PROTECTION, content.category)
+        assertEquals("Roman-period Egyptian magical practice", content.sourceTradition)
     }
 
     @Test
     fun `legacy difficulty data does not become a field or affect content mapping`() {
         assertEquals(lesson.toContent(), (lesson + ("difficulty" to "advanced")).toContent())
         assertFalse(lesson.toContent().javaClass.declaredFields.any { it.name == "difficulty" })
+    }
+
+    @Test
+    fun `all proposed practical category ids remain readable`() {
+        val expected = mapOf(
+            "candle-magic" to ContentCategory.CANDLE_MAGIC,
+            "herbs-botanicals" to ContentCategory.HERBS_BOTANICALS,
+            "potions-infusions" to ContentCategory.POTIONS_INFUSIONS,
+            "crystals-stones" to ContentCategory.CRYSTALS_STONES,
+            "cord-knot-magic" to ContentCategory.CORD_KNOT_MAGIC,
+            "moon-phases-timing" to ContentCategory.MOON_MAGIC_TIMING,
+            "elemental-magic" to ContentCategory.ELEMENTAL_MAGIC,
+            "altars-sacred-space" to ContentCategory.ALTARS_SACRED_SPACE,
+            "divination" to ContentCategory.DIVINATION,
+            "protection-cleansing-warding" to ContentCategory.PROTECTION_CLEANSING_WARDING,
+        )
+
+        expected.forEach { (wireValue, category) ->
+            assertEquals(category, (lesson + ("primaryCategoryId" to wireValue)).toContent().category)
+        }
     }
 
     @Test

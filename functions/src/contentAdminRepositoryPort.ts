@@ -18,7 +18,7 @@ export interface StoredContent extends NewDraftContent {
   status: ContentStatus;
   /** Server-written audit metadata. Older hand-authored drafts may not carry it. */
   generatedBy?: string;
-  generationSourceKind?: "ancient-grimoire";
+  generationSourceKind?: "historical-grimoire";
   generatedAt?: unknown;
 }
 

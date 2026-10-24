@@ -3,34 +3,68 @@ package com.jaimesorrow.wiccan.data.mapper
 import com.jaimesorrow.wiccan.data.local.CachedDailyContentEntity
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
+import com.jaimesorrow.wiccan.domain.model.ContentCitation
 import com.jaimesorrow.wiccan.domain.model.ContentStatus
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.ContentType
 
 /** Maps the raw callable-function payload into the domain [Content] model. */
 @Suppress("UNCHECKED_CAST")
-fun Map<String, Any?>.toContent(): Content = Content(
-    id = this["id"] as? String ?: error("Missing 'id' in content payload"),
-    type = ContentType.valueOf((this["type"] as? String ?: error("Missing 'type' in content payload")).uppercase()),
-    tier = ContentTier.valueOf((this["tier"] as? String ?: error("Missing 'tier' in content payload")).uppercase()),
-    tradition = (this["tradition"] as? String).orEmpty(),
-    category = (this["category"] as? String)?.let {
-        runCatching { ContentCategory.fromWireValue(it) }.getOrDefault(ContentCategory.MOON_AND_SEASONAL)
-    } ?: ContentCategory.MOON_AND_SEASONAL,
-    title = (this["title"] as? String).orEmpty(),
-    intro = (this["intro"] as? String).orEmpty(),
-    body = (this["body"] as? String).orEmpty(),
-    reflection = this["reflection"] as? String,
-    practice = this["practice"] as? String,
-    materials = this["materials"] as? List<String>,
-    safetyNote = this["safetyNote"] as? String,
-    tags = (this["tags"] as? List<String>).orEmpty(),
-    status = ContentStatus.valueOf((this["status"] as? String ?: "published").uppercase()),
-    sourceId = this["sourceId"] as? String,
-    sourceCitation = this["sourceCitation"] as? String,
-    sourceUrl = this["sourceUrl"] as? String,
-    rightsReviewRequired = this["rightsReviewRequired"] as? Boolean,
-    rightsNotes = this["rightsNotes"] as? String,
+fun Map<String, Any?>.toContent(): Content {
+    val structuredCitation = (this["citations"] as? List<Map<String, Any?>>)?.firstOrNull()
+    return Content(
+        id = this["id"] as? String ?: error("Missing 'id' in content payload"),
+        type = ContentType.valueOf((this["type"] as? String ?: error("Missing 'type' in content payload")).uppercase()),
+        tier = ContentTier.valueOf((this["tier"] as? String ?: error("Missing 'tier' in content payload")).uppercase()),
+        tradition = (this["tradition"] as? String).orEmpty(),
+        category = ((this["primaryCategoryId"] ?: this["category"]) as? String)?.let {
+            runCatching { ContentCategory.fromWireValue(it) }.getOrDefault(ContentCategory.MOON_AND_SEASONAL)
+        } ?: ContentCategory.MOON_AND_SEASONAL,
+        title = (this["title"] as? String).orEmpty(),
+        intro = ((this["introduction"] ?: this["intro"]) as? String).orEmpty(),
+        body = ((this["lesson"] ?: this["body"]) as? String).orEmpty(),
+        reflection = this["reflection"] as? String,
+        practice = this["practice"] as? String,
+        materials = (this["tools"] ?: this["materials"]) as? List<String>,
+        safetyNote = this["safetyNote"] as? String,
+        tags = (this["tags"] as? List<String>).orEmpty(),
+        status = ContentStatus.valueOf(((this["contentStatus"] ?: this["status"]) as? String ?: "published").uppercase()),
+        sourceId = this["sourceId"] as? String,
+        sourceCitation = this["sourceCitation"] as? String,
+        sourceUrl = this["sourceUrl"] as? String,
+        rightsReviewRequired = this["rightsReviewRequired"] as? Boolean,
+        rightsNotes = this["rightsNotes"] as? String,
+        summary = this["summary"] as? String,
+        primaryCategoryId = this["primaryCategoryId"] as? String,
+        secondaryCategoryIds = (this["secondaryCategoryIds"] as? List<String>).orEmpty(),
+        lessonType = this["lessonType"] as? String,
+        requiresPotionDisclosure = this["requiresPotionDisclosure"] as? Boolean ?: false,
+        potionSafetyDisclosure = this["potionSafetyDisclosure"] as? String,
+        durationMinutes = (this["durationMinutes"] as? Number)?.toInt(),
+        tools = (this["tools"] as? List<String>) ?: (this["materials"] as? List<String>).orEmpty(),
+        incantation = this["incantation"] as? String,
+        incantationOmissionReason = this["incantationOmissionReason"] as? String,
+        timing = this["timing"] as? String,
+        application = this["application"] as? String,
+        correspondences = (this["correspondences"] as? List<String>).orEmpty(),
+        adaptationNotes = (this["adaptationNotes"] as? List<String>).orEmpty(),
+        sourcePassageId = this["sourcePassageId"] as? String,
+        sourceTradition = (this["sourceTradition"] as? String) ?: (structuredCitation?.get("tradition") as? String),
+        citation = structuredCitation?.toCitation(),
+    )
+}
+
+private fun Map<String, Any?>.toCitation(): ContentCitation = ContentCitation(
+    textTitle = this["textTitle"] as? String,
+    manuscriptId = this["manuscriptId"] as? String,
+    tradition = this["tradition"] as? String,
+    manuscriptDate = this["manuscriptDate"] as? String,
+    compositionDate = this["compositionDate"] as? String,
+    edition = this["edition"] as? String,
+    editionDate = this["editionDate"] as? String,
+    translator = this["translator"] as? String,
+    locator = this["locator"] as? String,
+    url = this["url"] as? String,
 )
 
 fun Content.toCachedEntity(deliveredDate: String, userId: String, timezone: String): CachedDailyContentEntity = CachedDailyContentEntity(
@@ -56,6 +90,32 @@ fun Content.toCachedEntity(deliveredDate: String, userId: String, timezone: Stri
     sourceUrl = sourceUrl,
     rightsReviewRequired = rightsReviewRequired,
     rightsNotes = rightsNotes,
+    summary = summary,
+    primaryCategoryId = primaryCategoryId,
+    secondaryCategoryIds = secondaryCategoryIds,
+    lessonType = lessonType,
+    requiresPotionDisclosure = requiresPotionDisclosure,
+    potionSafetyDisclosure = potionSafetyDisclosure,
+    durationMinutes = durationMinutes,
+    tools = tools,
+    incantation = incantation,
+    incantationOmissionReason = incantationOmissionReason,
+    timing = timing,
+    application = application,
+    correspondences = correspondences,
+    adaptationNotes = adaptationNotes,
+    sourcePassageId = sourcePassageId,
+    sourceTradition = sourceTradition,
+    citationTextTitle = citation?.textTitle,
+    citationManuscriptId = citation?.manuscriptId,
+    citationTradition = citation?.tradition,
+    citationManuscriptDate = citation?.manuscriptDate,
+    citationCompositionDate = citation?.compositionDate,
+    citationEdition = citation?.edition,
+    citationEditionDate = citation?.editionDate,
+    citationTranslator = citation?.translator,
+    citationLocator = citation?.locator,
+    citationUrl = citation?.url,
 )
 
 fun CachedDailyContentEntity.toDomain(): Content = Content(
@@ -63,7 +123,7 @@ fun CachedDailyContentEntity.toDomain(): Content = Content(
     type = ContentType.valueOf(type),
     tier = ContentTier.valueOf(tier),
     tradition = tradition,
-    category = ContentCategory.valueOf(category),
+    category = ContentCategory.fromStoredValue(category),
     title = title,
     intro = intro,
     body = body,
@@ -78,4 +138,32 @@ fun CachedDailyContentEntity.toDomain(): Content = Content(
     sourceUrl = sourceUrl,
     rightsReviewRequired = rightsReviewRequired,
     rightsNotes = rightsNotes,
+    summary = summary,
+    primaryCategoryId = primaryCategoryId,
+    secondaryCategoryIds = secondaryCategoryIds.orEmpty(),
+    lessonType = lessonType,
+    requiresPotionDisclosure = requiresPotionDisclosure,
+    potionSafetyDisclosure = potionSafetyDisclosure,
+    durationMinutes = durationMinutes,
+    tools = tools.orEmpty(),
+    incantation = incantation,
+    incantationOmissionReason = incantationOmissionReason,
+    timing = timing,
+    application = application,
+    correspondences = correspondences.orEmpty(),
+    adaptationNotes = adaptationNotes.orEmpty(),
+    sourcePassageId = sourcePassageId,
+    sourceTradition = sourceTradition,
+    citation = if (citationTextTitle == null && citationLocator == null) null else ContentCitation(
+        textTitle = citationTextTitle,
+        manuscriptId = citationManuscriptId,
+        tradition = citationTradition,
+        manuscriptDate = citationManuscriptDate,
+        compositionDate = citationCompositionDate,
+        edition = citationEdition,
+        editionDate = citationEditionDate,
+        translator = citationTranslator,
+        locator = citationLocator,
+        url = citationUrl,
+    ),
 )

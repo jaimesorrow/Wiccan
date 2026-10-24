@@ -1,7 +1,9 @@
-import { generateDrafts, InvalidGeneratedDraftError, InvalidGenerationRequestError } from "../generateDraft";
+import { generateDrafts as generateDraftsCore, InvalidGeneratedDraftError, InvalidGenerationRequestError } from "../generateDraft";
+import type { GenerateDraftRequest } from "../generateDraft";
 import { ContentSource } from "../contentSource";
 import { FakeDraftGenerationPort } from "../testUtils/fakeDraftGenerationPort";
 import { FakeContentAdminRepository } from "../testUtils/fakeContentAdminRepository";
+import type { SourcePassage } from "../sourcePassages";
 
 const SOURCE_A: ContentSource = {
   id: "source-a",
@@ -38,6 +40,42 @@ const CONTEXT_SOURCE: ContentSource = {
   sourceKind: "ancient-historical-context",
 };
 
+function verifiedPassage(sourceId: string, locator = "Tablet II, lines 4–8"): SourcePassage {
+  return {
+    id: `passage-${sourceId}`,
+    sourceId,
+    textTitle: "Ancient Source",
+    manuscriptId: "Museum 1",
+    tradition: sourceId === SOURCE_B.id ? SOURCE_B.tradition : SOURCE_A.tradition,
+    manuscriptDate: "Third century CE",
+    edition: "Public-domain edition",
+    editionDate: "1904",
+    translator: "Test Translator",
+    locator,
+    url: "https://example.org/ancient-text",
+    inspectedPassage: "An editor-inspected test passage.",
+    attestedInstructions: ["Prepare the material.", "Complete the operation."],
+    uncertainties: [],
+    formula: null,
+    formulaOmissionReason: "No formula is present.",
+    dating: { era: "ancient", status: "verified", evidenceUrl: "https://example.org/catalogue", notes: "Catalogue date." },
+    rights: { status: "verified", basis: "Public domain test edition.", reference: "https://example.org/rights", jurisdictions: ["US"] },
+    scope: { status: "approved", rationale: "Documented divination method used as a modern witchcraft adaptation.", evidenceUrl: "https://example.org/scope" },
+    review: { passageInspected: true, sourceFidelityApproved: true, safetyApproved: true, reviewedBy: "editor", reviewedAt: "2026-10-19T00:00:00.000Z" },
+  };
+}
+
+function generateDrafts(
+  request: GenerateDraftRequest,
+  sources: ContentSource[],
+  generator: FakeDraftGenerationPort,
+  repo: FakeContentAdminRepository,
+) {
+  const sourceId = request.sourceId ?? sources.find((source) => source.sourceKind === "ancient-grimoire")?.id ?? "missing";
+  const passage = verifiedPassage(sourceId, request.sourceCitation ?? "Tablet II, lines 4–8");
+  return generateDraftsCore({ ...request, passageId: passage.id }, sources, generator, repo, [passage]);
+}
+
 describe("generateDrafts", () => {
   it("generates a single draft with status draft and a sourceId", async () => {
     const generator = new FakeDraftGenerationPort();
@@ -56,11 +94,12 @@ describe("generateDrafts", () => {
     expect(doc?.sourceId).toBe("source-a");
     expect(doc?.type).toBe("spell");
     expect(doc?.tier).toBe("free");
-    expect(doc?.tradition).toBe("Ancient ritual tradition");
+    expect(doc?.tradition).toBe("Wiccan / Modern Witchcraft");
+    expect(doc?.sourceTradition).toBe("Ancient ritual tradition");
     expect(doc?.reflection).toBe("What does this historical evidence help you notice?");
-    expect(doc?.practice).toBeNull();
-    expect(doc?.sourceCitation).toBe(SOURCE_A.sourceReference);
-    expect(doc?.rightsNotes).toBe(SOURCE_A.publicDomainBasis);
+    expect(doc?.practice).toBe("Complete the numbered method once.");
+    expect(doc?.sourceCitation).toBe("Tablet II, lines 4–8");
+    expect(doc?.rightsNotes).toBe("Public domain test edition.");
     expect(doc?.rightsReviewRequired).toBe(true);
   });
 
@@ -86,9 +125,9 @@ describe("generateDrafts", () => {
       similarityGroupId: "protective-symbol-lesson",
       sourceCitation: "Catalogue A, tablet II, lines 4–8",
       sourceUrl: "https://example.org/ancient-text",
-      rightsNotes: source.publicDomainBasis,
+      rightsNotes: "Public domain test edition.",
       reflection: "What does this historical evidence help you notice?",
-      practice: null,
+      practice: "Complete the numbered method once.",
     });
   });
 
@@ -129,12 +168,12 @@ describe("generateDrafts", () => {
     });
     expect(repo.docs.get(results[0].contentId)).toMatchObject({
       reflection: "What does this historical evidence help you notice?",
-      practice: null,
+      practice: "Complete the numbered method once.",
       status: "draft",
     });
   });
 
-  it("round-robins across eligible source/type combinations for a batch", async () => {
+  it("keeps every draft in a batch bound to the selected verified passage", async () => {
     const generator = new FakeDraftGenerationPort();
     const repo = new FakeContentAdminRepository();
 
@@ -144,7 +183,7 @@ describe("generateDrafts", () => {
     const sourceIdsUsed = new Set(results.map((r) => r.sourceId));
     // With two sources offering three total (source,type) pairs, three
     // drafts should not collapse onto a single source.
-    expect(sourceIdsUsed.size).toBeGreaterThan(1);
+    expect(sourceIdsUsed).toEqual(new Set([SOURCE_A.id]));
     expect(repo.docs.size).toBe(3);
     for (const doc of repo.docs.values()) {
       expect(doc.status).toBe("draft");
@@ -170,7 +209,7 @@ describe("generateDrafts", () => {
       [SOURCE_A, CONTEXT_SOURCE],
       generator,
       repo,
-    )).rejects.toThrow(/not an approved ancient grimoire/);
+    )).rejects.toThrow(/not an approved pre-modern grimoire/);
     expect(generator.calls).toHaveLength(0);
     expect(repo.docs.size).toBe(0);
   });

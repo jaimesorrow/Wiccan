@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import os from "os";
-import { loadContentSources } from "../contentSource";
+import { isLessonGenerationSource, loadContentSources } from "../contentSource";
 
 describe("loadContentSources", () => {
   it("loads and validates the real checked-in sources.json", () => {
@@ -19,16 +19,14 @@ describe("loadContentSources", () => {
     }
   });
 
-  it("identifies a non-empty generation pool made only of ancient grimoires", () => {
-    const generationSources = loadContentSources().filter(
-      (source) => source.era === "ancient" && source.sourceKind === "ancient-grimoire",
-    );
+  it("identifies a non-empty generation pool made only of pre-modern grimoires", () => {
+    const generationSources = loadContentSources().filter(isLessonGenerationSource);
 
     expect(generationSources.length).toBeGreaterThan(0);
     expect(generationSources.every((source) => source.sourceKind === "ancient-grimoire")).toBe(true);
   });
 
-  it("keeps every lesson-eligible source explicitly ancient", () => {
+  it("keeps current checked-in lesson sources explicitly ancient", () => {
     const lessonSources = loadContentSources().filter((source) => source.eligibleTypes.includes("lesson"));
 
     expect(lessonSources.length).toBeGreaterThan(0);
@@ -39,15 +37,15 @@ describe("loadContentSources", () => {
     }
   });
 
-  it("rejects a non-ancient source that is marked lesson-eligible", () => {
+  it("accepts a medieval historical grimoire for passage-gated lesson generation", () => {
     const tmpFile = path.join(os.tmpdir(), `non-ancient-lesson-${Date.now()}.json`);
     fs.writeFileSync(tmpFile, JSON.stringify([{
       id: "early-modern-lesson",
       title: "Early Modern Source",
       tradition: "European folk practice",
       era: "early-modern",
-      sourceKind: "ancient-historical-context",
-      period: "17th century CE",
+      sourceKind: "historical-grimoire",
+      period: "15th century CE",
       publicDomainBasis: "Historical subject matter.",
       sourceReference: "Example catalogue",
       summary: "Example summary.",
@@ -56,7 +54,8 @@ describe("loadContentSources", () => {
     }]));
 
     try {
-      expect(() => loadContentSources(tmpFile)).toThrow(/Lesson-eligible sources must be ancient/);
+      const [source] = loadContentSources(tmpFile);
+      expect(isLessonGenerationSource(source)).toBe(true);
     } finally {
       fs.unlinkSync(tmpFile);
     }
