@@ -5,25 +5,29 @@ Batch 1 covers the first 25 checked-in draft IDs in `functions/ancientContentSee
 ## Result
 
 - Records dispositioned: **25/25**.
-- Full practical rewrites completed: **7/25**.
-- Source, rights, or scope holds: **18/25**.
+- Full practical rewrites completed: **9/25**.
+- Source, rights, or scope holds: **16/25**.
 - Firebase-ready records: **0/25**.
 - Published records: **0**.
 - Firestore reads or writes: **0**.
 
 The completed editorial rewrites are:
 
-1. `maqlu-010-nine-tablets-one-night` → **The Words-and-Actions Ledger**.
-2. `maqlu-012-saying-it-again-three-and-seven` → **Three Deliberate Repetitions**.
-3. `london-leiden-016-the-number-seven-in-egyptian-practice` → **The Seven-Point Boundary**.
-4. `maqlu-017-the-patient-speaks-in-first-person` → **The First-Person Threshold**.
-5. `maqlu-019-the-three-movements-of-the-night` → **Boundary, Removal, Washing**.
-6. `maqlu-022-water-closes-what-fire-opened` → **Dawn Water Closure**.
-7. `maqlu-024-what-maqlu-was` → **The Circle Around the Vessel**.
+1. `egypt-heka-002-guarding-children` → **Seven-Knot Household Guardian**.
+2. `egypt-heka-007-knots-as-working-technology` → **Four-Strand Working Cord**.
+3. `maqlu-010-nine-tablets-one-night` → **The Words-and-Actions Ledger**.
+4. `maqlu-012-saying-it-again-three-and-seven` → **Three Deliberate Repetitions**.
+5. `london-leiden-016-the-number-seven-in-egyptian-practice` → **The Seven-Point Boundary**.
+6. `maqlu-017-the-patient-speaks-in-first-person` → **The First-Person Threshold**.
+7. `maqlu-019-the-three-movements-of-the-night` → **Boundary, Removal, Washing**.
+8. `maqlu-022-water-closes-what-fire-opened` → **Dawn Water Closure**.
+9. `maqlu-024-what-maqlu-was` → **The Circle Around the Vessel**.
 
 The five new Maqlū proposals cite exact Ritual Tablet line ranges and use the ORACC/CMAwRo text. Archived ORACC licensing evidence states CC BY-SA 3.0 terms, but the live rights page was unavailable and the ShareAlike effect on product distribution still requires independent review. All seven proposals remain drafts with `rightsReviewRequired: true` and are not approved migration patches.
 
-## Holds for the remaining 18 records
+The two Berlin Papyrus 3027 proposals use Adolf Erman's 1901 public-domain edition and exact page/manuscript locators. Both remove child-worn cords and substitute inaccessible household or tabletop tools. They still require independent fidelity, dating, scope, safety, and duplicate approval.
+
+## Holds for the remaining 16 records
 
 The packet records a proposed practical concept and primary category for every held record. The holds are intentional:
 

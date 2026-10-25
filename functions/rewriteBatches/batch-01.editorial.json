@@ -24,8 +24,83 @@
       "id": "egypt-heka-002-guarding-children",
       "proposedPrimaryCategoryId": "cord-knot-magic",
       "proposedConcept": "An adult-made household boundary cord that never touches a child",
-      "disposition": "source_passage_and_translation_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "Seven-Knot Household Guardian",
+        "slug": "seven-knot-household-guardian",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian household protective magic",
+        "summary": "Tie a seven-knot cord for a safe household location while replacing the source’s child-worn amulet with a non-wearable modern boundary marker.",
+        "intro": "Berlin Papyrus 3027 preserves a dawn protective text and directs that a seal and hand emblem be made into a protective object tied with seven knots, one knot in the morning and another in the evening until seven are complete. The historical object was connected with protecting a child. This is ancient Egyptian household magic, not Wicca. The modern adaptation retains the seven-knot sequence and alternating daily timing while placing the cord high on a household hook, never on a child or body.",
+        "introduction": "Berlin Papyrus 3027 preserves a dawn protective text and directs that a seal and hand emblem be made into a protective object tied with seven knots, one knot in the morning and another in the evening until seven are complete. The historical object was connected with protecting a child. This is ancient Egyptian household magic, not Wicca. The modern adaptation retains the seven-knot sequence and alternating daily timing while placing the cord high on a household hook, never on a child or body.",
+        "body": "1. Choose a short length of thick cotton cord in a visible color. Select a high indoor hook or closed storage place that children and pets cannot reach. The cord will mark a household boundary; it must never be worn, tied to furniture that may tip, or placed across a doorway.\n\n2. Write one concrete household care commitment, such as checking door locks, storing medicine securely, or keeping an exit clear. The commitment is modern and practical. It replaces the historical claim that an amulet repels harmful dead or disease.\n\n3. On the first morning, hold the loose cord and say, “This home is tended through watchful care.” Tie one loose overhand knot near an end. This wording is original and does not translate the papyrus.\n\n4. That evening, review the care commitment and complete one small related action. Tie a second knot. Continue morning and evening, tying only one knot at each session, until the seventh knot is complete. The alternating sequence follows Erman’s description; the safety actions are modern additions.\n\n5. Keep every knot loose enough to inspect. As you tie, avoid naming another person as a threat or promising supernatural protection. Each knot records attention already given or an action you freely undertake.\n\n6. After the seventh knot, count all seven once. Say, “Seven knots complete the sign; protection continues through the care that is mine.” Hang the cord at the selected inaccessible indoor location.\n\n7. Record the seven care actions in a notebook. Inspect the cord monthly for fraying, then retire it after one season by cutting it into short pieces before disposal. Replace it only when beginning seven new, specific household actions.",
+        "lesson": "1. Choose a short length of thick cotton cord in a visible color. Select a high indoor hook or closed storage place that children and pets cannot reach. The cord will mark a household boundary; it must never be worn, tied to furniture that may tip, or placed across a doorway.\n\n2. Write one concrete household care commitment, such as checking door locks, storing medicine securely, or keeping an exit clear. The commitment is modern and practical. It replaces the historical claim that an amulet repels harmful dead or disease.\n\n3. On the first morning, hold the loose cord and say, “This home is tended through watchful care.” Tie one loose overhand knot near an end. This wording is original and does not translate the papyrus.\n\n4. That evening, review the care commitment and complete one small related action. Tie a second knot. Continue morning and evening, tying only one knot at each session, until the seventh knot is complete. The alternating sequence follows Erman’s description; the safety actions are modern additions.\n\n5. Keep every knot loose enough to inspect. As you tie, avoid naming another person as a threat or promising supernatural protection. Each knot records attention already given or an action you freely undertake.\n\n6. After the seventh knot, count all seven once. Say, “Seven knots complete the sign; protection continues through the care that is mine.” Hang the cord at the selected inaccessible indoor location.\n\n7. Record the seven care actions in a notebook. Inspect the cord monthly for fraying, then retire it after one season by cutting it into short pieces before disposal. Replace it only when beginning seven new, specific household actions.",
+        "reflection": "How did linking each knot to an observable care action change your understanding of protection?",
+        "practice": "Tie the seven knots across alternating morning and evening sessions and complete one household care action with each knot.",
+        "materials": [
+          "Thick cotton cord",
+          "Scissors",
+          "Paper and pen",
+          "High inaccessible indoor hook or closed storage place"
+        ],
+        "tools": [
+          "Thick cotton cord",
+          "Scissors",
+          "Paper and pen",
+          "High inaccessible indoor hook or closed storage place"
+        ],
+        "safetyNote": "Never place cord around a child, adult, animal, neck, limb, finger, bed, doorway, or escape route. Keep cord and scissors away from children and pets, avoid tight knots on the body, and cut discarded cord into short pieces to prevent entanglement. This practice supplements ordinary household safety rather than replacing it.",
+        "category": "cord-knot-magic",
+        "primaryCategoryId": "cord-knot-magic",
+        "secondaryCategoryIds": [
+          "protection-cleansing-warding"
+        ],
+        "lessonType": "cord",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 20,
+        "incantation": "Seven knots complete the sign; protection continues through the care that is mine.",
+        "timing": "One knot each morning and evening until seven are complete, adapting the source’s stated sequence.",
+        "application": "Use seven knots to record seven concrete acts of household care.",
+        "correspondences": [
+          "Documented material technique: a protective object tied with seven knots",
+          "Documented timing: one knot in the morning and another in the evening until seven",
+          "Modern adaptation: inaccessible household placement and observable safety actions"
+        ],
+        "citations": [
+          {
+            "textTitle": "Zaubersprüche für Mutter und Kind",
+            "manuscriptId": "Berlin Papyrus 3027",
+            "tradition": "Ancient Egyptian household protective magic",
+            "manuscriptDate": "New Kingdom manuscript tradition; exact catalogue dating requires confirmation",
+            "edition": "Adolf Erman, Zaubersprüche für Mutter und Kind",
+            "editionDate": "1901",
+            "translator": "Adolf Erman (German edition and translation)",
+            "locator": "pp. 40–41; Papyrus 3027 reverse 2,7–3,3",
+            "url": "https://archive.org/details/b24866003"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains seven knots and alternating morning/evening construction.",
+          "Removes child-worn placement, disease claims, hostile dead, and ancient divine address.",
+          "Substitutes a household boundary marker and practical care checklist for a bodily amulet.",
+          "The incantation is original modern wording and is not attributed to the papyrus."
+        ],
+        "sourcePassageId": "berlin-3027-rev-2-7-3-3-seven-knots",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Erman, Zaubersprüche für Mutter und Kind (1901), pp. 40–41; Papyrus 3027 reverse 2,7–3,3",
+        "sourceUrl": "https://archive.org/details/b24866003",
+        "similarityGroupId": "seven-knot-household-guardian",
+        "rightsReviewRequired": true,
+        "rightsNotes": "Adolf Erman’s 1901 edition was published before the United States public-domain cutoff and Erman died in 1937, placing the text beyond a life-plus-70 term. Final distribution-jurisdiction and independent passage review remain required.",
+        "tags": [
+          "berlin-papyrus-3027",
+          "seven-knots",
+          "household",
+          "protection"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-003-handbooks-not-scripture",
@@ -59,8 +134,85 @@
       "id": "egypt-heka-007-knots-as-working-technology",
       "proposedPrimaryCategoryId": "cord-knot-magic",
       "proposedConcept": "A loose, removable protection cord using an attested knot count",
-      "disposition": "source_passage_and_translation_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "Four-Strand Working Cord",
+        "slug": "four-strand-working-cord",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian household protective magic",
+        "summary": "Twist four linen or cotton strands into a removable four-knot cord that marks preparation, action, completion, and release.",
+        "intro": "In Erman’s 1901 edition of Berlin Papyrus 3027, one protective passage describes thread preparation through spinning or twisting and gives a human-use instruction using four linen threads and four knots. The historical cord was placed on a child. This modern Wiccan adaptation keeps the documented four-strand construction and four-knot count but turns the cord into a tabletop ritual tool for a consenting adult’s self-directed work.",
+        "introduction": "In Erman’s 1901 edition of Berlin Papyrus 3027, one protective passage describes thread preparation through spinning or twisting and gives a human-use instruction using four linen threads and four knots. The historical cord was placed on a child. This modern Wiccan adaptation keeps the documented four-strand construction and four-knot count but turns the cord into a tabletop ritual tool for a consenting adult’s self-directed work.",
+        "body": "1. Cut four equal lengths of undyed linen or cotton cord. Work at a clear table and count the strands aloud. Choose one modest task that can be completed today. Do not prepare a cord for another person without their knowledge and consent.\n\n2. Align the four strands and secure their upper ends to the table with a removable clip. Twist or braid them into one cord. The source discusses thread preparation and four strands but leaves technical readings uncertain; this braid is explicitly a modern construction choice.\n\n3. Tie the first loose knot and name “Preparation.” Arrange the materials needed for your chosen task. Tie the second and name “Action.” Begin the task for at least five focused minutes.\n\n4. When the planned work is complete or the timer ends, tie the third knot and name “Completion.” Write what was actually done without exaggerating the result.\n\n5. Tie the fourth knot and name “Release.” Say, “Four strands gathered, four stages known; the work is ended and the tool stands alone.” This is original modern wording, not an ancient formula.\n\n6. Lay the cord beside your notebook for one closing breath. Treat the knots as a record of the sequence, not as a restraint, a medical object, or a promise that an outcome must occur.\n\n7. Coil the cord onto a storage card and put it away. Do not wear it or leave it loose. Reuse it only for the same four-stage learning exercise. When frayed, cut it into short pieces before disposal so it cannot entangle a child, pet, or wildlife.",
+        "lesson": "1. Cut four equal lengths of undyed linen or cotton cord. Work at a clear table and count the strands aloud. Choose one modest task that can be completed today. Do not prepare a cord for another person without their knowledge and consent.\n\n2. Align the four strands and secure their upper ends to the table with a removable clip. Twist or braid them into one cord. The source discusses thread preparation and four strands but leaves technical readings uncertain; this braid is explicitly a modern construction choice.\n\n3. Tie the first loose knot and name “Preparation.” Arrange the materials needed for your chosen task. Tie the second and name “Action.” Begin the task for at least five focused minutes.\n\n4. When the planned work is complete or the timer ends, tie the third knot and name “Completion.” Write what was actually done without exaggerating the result.\n\n5. Tie the fourth knot and name “Release.” Say, “Four strands gathered, four stages known; the work is ended and the tool stands alone.” This is original modern wording, not an ancient formula.\n\n6. Lay the cord beside your notebook for one closing breath. Treat the knots as a record of the sequence, not as a restraint, a medical object, or a promise that an outcome must occur.\n\n7. Coil the cord onto a storage card and put it away. Do not wear it or leave it loose. Reuse it only for the same four-stage learning exercise. When frayed, cut it into short pieces before disposal so it cannot entangle a child, pet, or wildlife.",
+        "reflection": "Which of the four named stages was easiest to skip before the cord made it visible?",
+        "practice": "Construct one four-strand cord and use its four knots to complete one bounded task.",
+        "materials": [
+          "Four equal linen or cotton strands",
+          "Scissors",
+          "Removable table clip",
+          "Notebook and pen",
+          "Timer",
+          "Storage card"
+        ],
+        "tools": [
+          "Four equal linen or cotton strands",
+          "Scissors",
+          "Removable table clip",
+          "Notebook and pen",
+          "Timer",
+          "Storage card"
+        ],
+        "safetyNote": "Keep fibers, scissors, and the finished cord away from children and pets. Never tie the cord around a neck, limb, finger, person, or animal, and never use it as a restraint. Keep it away from flame and cut worn cord into short pieces before disposal.",
+        "category": "cord-knot-magic",
+        "primaryCategoryId": "cord-knot-magic",
+        "secondaryCategoryIds": [],
+        "lessonType": "cord",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 25,
+        "incantation": "Four strands gathered, four stages known; the work is ended and the tool stands alone.",
+        "timing": "Any time suitable for one bounded task; the historical child-worn timing is not reproduced.",
+        "application": "Use a four-strand, four-knot cord as a visible sequence for preparation, action, completion, and release.",
+        "correspondences": [
+          "Documented materials: four linen threads",
+          "Documented construction: twisting or spinning and four knots",
+          "Modern adaptation: four named stages and tabletop storage"
+        ],
+        "citations": [
+          {
+            "textTitle": "Zaubersprüche für Mutter und Kind",
+            "manuscriptId": "Berlin Papyrus 3027",
+            "tradition": "Ancient Egyptian household protective magic",
+            "manuscriptDate": "New Kingdom manuscript tradition; exact catalogue dating requires confirmation",
+            "edition": "Adolf Erman, Zaubersprüche für Mutter und Kind",
+            "editionDate": "1901",
+            "translator": "Adolf Erman (German edition and translation)",
+            "locator": "p. 37, four linen threads and four knots in the amulet instruction",
+            "url": "https://archive.org/details/b24866003"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains the four-thread structure, cord-making action, and four-knot count.",
+          "Treats the source’s uncertain textile verbs cautiously and labels braiding as modern.",
+          "Removes placement on a child, bodily wear, medical claims, and hostile spirit framing.",
+          "The incantation is original modern wording and is not attributed to the papyrus."
+        ],
+        "sourcePassageId": "berlin-3027-four-linen-threads-four-knots",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Erman, Zaubersprüche für Mutter und Kind (1901), p. 37, four linen threads and four knots in the amulet instruction",
+        "sourceUrl": "https://archive.org/details/b24866003",
+        "similarityGroupId": "four-strand-working-cord",
+        "rightsReviewRequired": true,
+        "rightsNotes": "Adolf Erman’s 1901 edition was published before the United States public-domain cutoff and Erman died in 1937, placing the text beyond a life-plus-70 term. Final distribution-jurisdiction and independent passage review remain required.",
+        "tags": [
+          "berlin-papyrus-3027",
+          "four-strands",
+          "four-knots",
+          "textile"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-008-medicine-and-magic-were-one-practice",
