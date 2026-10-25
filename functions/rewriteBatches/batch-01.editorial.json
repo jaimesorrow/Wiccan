@@ -80,8 +80,83 @@
       "id": "maqlu-010-nine-tablets-one-night",
       "proposedPrimaryCategoryId": "altars-sacred-space",
       "proposedConcept": "A staged words-and-actions ritual plan derived from a specific Maqlu sequence",
-      "disposition": "exact_passage_and_oracc_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Words-and-Actions Ledger",
+        "slug": "words-and-actions-ledger",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Mesopotamian anti-witchcraft ritual practice",
+        "summary": "Plan one bounded ritual by recording its spoken words separately from its physical actions, then reunite them in a safe sequence.",
+        "intro": "The Maqlu corpus preserves incantations across eight tablets and a ninth ritual tablet that orders their accompanying actions. The ritual tablet repeatedly pairs an incantation opening with a material instruction. This is ancient Mesopotamian anti-witchcraft practice, not Wicca. The modern adaptation keeps the documented discipline of coordinating speech and action while omitting figurines, accusations, sulphur, fire, and claims of supernatural attack.",
+        "introduction": "The Maqlu corpus preserves incantations across eight tablets and a ninth ritual tablet that orders their accompanying actions. The ritual tablet repeatedly pairs an incantation opening with a material instruction. This is ancient Mesopotamian anti-witchcraft practice, not Wicca. The modern adaptation keeps the documented discipline of coordinating speech and action while omitting figurines, accusations, sulphur, fire, and claims of supernatural attack.",
+        "body": "1. Choose one self-directed purpose that can be addressed symbolically, such as ending a period of rumination or preparing to begin a task. Set a fifteen-minute limit. On a clean sheet, draw two columns titled “Words” and “Actions.” This two-column format is modern; its inspiration is the source’s separation and coordination of incantation and ritual instructions.\n\n2. In the Actions column, write three safe movements: arrange one ordinary object, pause for three breaths, and return the object to its usual place. Use a stone, cup, or key that already belongs to you. Do not use a weapon, flame, smoke, bodily material, or an image of another person.\n\n3. Beside each movement, write one short sentence in the Words column. Make every sentence describe your own choice. Avoid commands aimed at another person and avoid promising a result. The source contains hostile accusations; this adaptation expressly removes them.\n\n4. Read the ledger silently from top to bottom. Check that every spoken line has one clear action and that the final action restores the space. Revise any vague instruction before starting.\n\n5. Perform the first action and speak its paired sentence once. Continue down the page without adding spontaneous threats, ingredients, or repetitions. If the sequence stops feeling appropriate, end it and proceed to cleanup.\n\n6. After the third pair, say, “The words are spoken; the actions are done; this working is closed.” This is original modern wording. Put the object away and take three ordinary breaths.\n\n7. Mark each completed pair with a check. Record whether the written order made the practice clearer. Keep the ledger as a planning record, or recycle it if it contains private thoughts. Do not repeat the working merely to force certainty.",
+        "lesson": "1. Choose one self-directed purpose that can be addressed symbolically, such as ending a period of rumination or preparing to begin a task. Set a fifteen-minute limit. On a clean sheet, draw two columns titled “Words” and “Actions.” This two-column format is modern; its inspiration is the source’s separation and coordination of incantation and ritual instructions.\n\n2. In the Actions column, write three safe movements: arrange one ordinary object, pause for three breaths, and return the object to its usual place. Use a stone, cup, or key that already belongs to you. Do not use a weapon, flame, smoke, bodily material, or an image of another person.\n\n3. Beside each movement, write one short sentence in the Words column. Make every sentence describe your own choice. Avoid commands aimed at another person and avoid promising a result. The source contains hostile accusations; this adaptation expressly removes them.\n\n4. Read the ledger silently from top to bottom. Check that every spoken line has one clear action and that the final action restores the space. Revise any vague instruction before starting.\n\n5. Perform the first action and speak its paired sentence once. Continue down the page without adding spontaneous threats, ingredients, or repetitions. If the sequence stops feeling appropriate, end it and proceed to cleanup.\n\n6. After the third pair, say, “The words are spoken; the actions are done; this working is closed.” This is original modern wording. Put the object away and take three ordinary breaths.\n\n7. Mark each completed pair with a check. Record whether the written order made the practice clearer. Keep the ledger as a planning record, or recycle it if it contains private thoughts. Do not repeat the working merely to force certainty.",
+        "reflection": "How did separating words from actions change the clarity or limits of the working?",
+        "practice": "Create and complete one three-pair ledger, including its written closing step.",
+        "materials": [
+          "Paper",
+          "Pen",
+          "One ordinary personal object",
+          "Timer"
+        ],
+        "tools": [
+          "Paper",
+          "Pen",
+          "One ordinary personal object",
+          "Timer"
+        ],
+        "safetyNote": "Use a stable, nonbreakable object and keep the walking area clear. This version is flameless and smoke-free; it excludes the source’s sulphur, burning, figurines, and accusations. Keep the practice self-directed and stop if repetition becomes distressing.",
+        "category": "altars-sacred-space",
+        "primaryCategoryId": "altars-sacred-space",
+        "secondaryCategoryIds": [
+          "protection-cleansing-warding"
+        ],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 15,
+        "incantation": "The words are spoken; the actions are done; this working is closed.",
+        "timing": "Any quiet period; the source’s full overnight sequence is not reconstructed.",
+        "application": "Plan and perform a short ritual in which every spoken line has a defined, safe action.",
+        "correspondences": [
+          "Documented structure: incantation openings paired with ritual actions",
+          "Documented structure: a separate ritual tablet ordering actions",
+          "Modern adaptation: a written two-column ledger and three safe action pairs"
+        ],
+        "citations": [
+          {
+            "textTitle": "Maqlu Ritual Tablet",
+            "manuscriptId": "Composite first-millennium BCE Maqlu series",
+            "tradition": "Ancient Mesopotamian anti-witchcraft ritual practice",
+            "manuscriptDate": "First-millennium BCE witnesses",
+            "edition": "Corpus of Mesopotamian Anti-Witchcraft Rituals Online",
+            "editionDate": "Modern digital edition",
+            "translator": "ORACC/CMAwRo editorial project",
+            "locator": "Ritual Tablet, obverse lines 1′–31′ and instructional headings",
+            "url": "https://oracc.museum.upenn.edu/cmawro/Q002713"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains the source’s coordination of spoken text and ordered physical procedure.",
+          "Replaces the multi-tablet anti-witchcraft ceremony with one short self-directed sequence.",
+          "Omits combustion, sulphur, figurines, hostile accusations, and efficacy claims.",
+          "The incantation is original modern wording and is not attributed to the source."
+        ],
+        "sourcePassageId": "maqlu-ritual-tablet-structure-words-actions",
+        "sourceId": "mesopotamian-maqlu",
+        "sourceCitation": "Maqlu Ritual Tablet, obverse lines 1′–31′ and its tablet-by-tablet instructional headings",
+        "sourceUrl": "https://oracc.museum.upenn.edu/cmawro/Q002713",
+        "similarityGroupId": "words-actions-ledger",
+        "rightsReviewRequired": true,
+        "rightsNotes": "ORACC states that its online documentation and website material are released under CC BY-SA 3.0, allowing adaptation with attribution and ShareAlike. The live page was unavailable during review; archived licensing evidence and product ShareAlike implications require independent confirmation.",
+        "tags": [
+          "maqlu",
+          "ritual-planning",
+          "words-and-actions",
+          "closure"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-011-protecting-the-house-itself",
@@ -94,8 +169,79 @@
       "id": "maqlu-012-saying-it-again-three-and-seven",
       "proposedPrimaryCategoryId": "protection-cleansing-warding",
       "proposedConcept": "A bounded repeated cleansing formula using an attested count",
-      "disposition": "exact_passage_and_oracc_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "Three Deliberate Repetitions",
+        "slug": "three-deliberate-repetitions",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Mesopotamian anti-witchcraft ritual practice",
+        "summary": "Use a source-attested count of three to pace one original, self-directed release statement and then stop.",
+        "intro": "Maqlu Ritual Tablet line 6′ directs the recitation of the incantation identified by its opening “I call upon you” three times. Later fragmentary instructions again preserve a threefold recitation. The ancient rite proceeds into hazardous burning and hostile imagery. This modern Wiccan adaptation retains only the attested use of a fixed threefold recitation to structure speech. It supplies new wording, a firm stopping point, and no claim that repetition compels a being or outcome.",
+        "introduction": "Maqlu Ritual Tablet line 6′ directs the recitation of the incantation identified by its opening “I call upon you” three times. Later fragmentary instructions again preserve a threefold recitation. The ancient rite proceeds into hazardous burning and hostile imagery. This modern Wiccan adaptation retains only the attested use of a fixed threefold recitation to structure speech. It supplies new wording, a firm stopping point, and no claim that repetition compels a being or outcome.",
+        "body": "1. Choose one thought or habit you want to set down for the next part of the day. Phrase it as your own action, such as “I release this task until tomorrow,” rather than a demand directed at another person.\n\n2. Place three flat counters in a row on a stable table. Set a five-minute timer. The three counters are a modern counting aid; the source records a threefold recitation but does not prescribe these objects.\n\n3. Write one sentence of no more than twelve words. Read it once and check that it contains no prediction, accusation, medical claim, or attempt to control someone. If it does, rewrite it as a boundary governing your own conduct.\n\n4. Touch the first counter and speak the sentence at an ordinary volume. Take one unforced breath. Touch the second counter and repeat the same words without intensifying them. Breathe again, then touch the third and make the final repetition.\n\n5. After the third recitation, turn all three counters face down or move them into a small group. Do not add a fourth repetition. The fixed ending is part of the modern safety boundary and distinguishes deliberate ritual repetition from compulsive checking.\n\n6. Say, “Three times spoken, now complete; I return to the choice before my feet.” This is original modern wording. Write one practical next action that matches the boundary you stated.\n\n7. Put the counters away and carry out that action if it remains safe and useful. Record how the first, second, and third repetitions felt different. Wait until another day before using the method for a different issue.",
+        "lesson": "1. Choose one thought or habit you want to set down for the next part of the day. Phrase it as your own action, such as “I release this task until tomorrow,” rather than a demand directed at another person.\n\n2. Place three flat counters in a row on a stable table. Set a five-minute timer. The three counters are a modern counting aid; the source records a threefold recitation but does not prescribe these objects.\n\n3. Write one sentence of no more than twelve words. Read it once and check that it contains no prediction, accusation, medical claim, or attempt to control someone. If it does, rewrite it as a boundary governing your own conduct.\n\n4. Touch the first counter and speak the sentence at an ordinary volume. Take one unforced breath. Touch the second counter and repeat the same words without intensifying them. Breathe again, then touch the third and make the final repetition.\n\n5. After the third recitation, turn all three counters face down or move them into a small group. Do not add a fourth repetition. The fixed ending is part of the modern safety boundary and distinguishes deliberate ritual repetition from compulsive checking.\n\n6. Say, “Three times spoken, now complete; I return to the choice before my feet.” This is original modern wording. Write one practical next action that matches the boundary you stated.\n\n7. Put the counters away and carry out that action if it remains safe and useful. Record how the first, second, and third repetitions felt different. Wait until another day before using the method for a different issue.",
+        "reflection": "What changed between the first, second, and third recitations?",
+        "practice": "Write one self-directed sentence, speak it exactly three times, close the working, and take one practical action.",
+        "materials": [
+          "Three flat counters",
+          "Paper and pen",
+          "Timer"
+        ],
+        "tools": [
+          "Three flat counters",
+          "Paper and pen",
+          "Timer"
+        ],
+        "safetyNote": "Keep small counters away from children and pets. This version is flameless and smoke-free and excludes the source’s hazardous combustion and hostile imagery. Stop if repetition increases anxiety or feels compulsory.",
+        "category": "protection-cleansing-warding",
+        "primaryCategoryId": "protection-cleansing-warding",
+        "secondaryCategoryIds": [],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 7,
+        "incantation": "Three times spoken, now complete; I return to the choice before my feet.",
+        "timing": "Any quiet period; no lunar timing is asserted.",
+        "application": "Use a fixed historical repetition count as a boundary for self-directed ritual speech.",
+        "correspondences": [
+          "Documented count: three recitations at Ritual Tablet line 6′",
+          "Documented feature: the same incantation opening is repeated",
+          "Modern adaptation: three counters, self-directed wording, and a stopping rule"
+        ],
+        "citations": [
+          {
+            "textTitle": "Maqlu Ritual Tablet",
+            "manuscriptId": "Composite first-millennium BCE Maqlu series",
+            "tradition": "Ancient Mesopotamian anti-witchcraft ritual practice",
+            "manuscriptDate": "First-millennium BCE witnesses",
+            "edition": "Corpus of Mesopotamian Anti-Witchcraft Rituals Online",
+            "editionDate": "Modern digital edition",
+            "translator": "ORACC/CMAwRo editorial project",
+            "locator": "Ritual Tablet, obverse line 6′; fragmentary parallel at 14′–18′",
+            "url": "https://oracc.museum.upenn.edu/cmawro/Q002713"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains the attested threefold recitation as the central technique.",
+          "Does not reproduce or translate the historical incantation.",
+          "Omits fire, sulphur, figurines, accusations, and coercion.",
+          "The incantation is original modern wording and is not attributed to the source."
+        ],
+        "sourcePassageId": "maqlu-ritual-tablet-obv-6-threefold-recitation",
+        "sourceId": "mesopotamian-maqlu",
+        "sourceCitation": "Maqlu Ritual Tablet, obverse line 6′, with the fragmentary parallel at lines 14′–18′",
+        "sourceUrl": "https://oracc.museum.upenn.edu/cmawro/Q002713",
+        "similarityGroupId": "threefold-recitation",
+        "rightsReviewRequired": true,
+        "rightsNotes": "ORACC states that its online documentation and website material are released under CC BY-SA 3.0, allowing adaptation with attribution and ShareAlike. The live page was unavailable during review; archived licensing evidence and product ShareAlike implications require independent confirmation.",
+        "tags": [
+          "maqlu",
+          "repetition",
+          "three",
+          "spoken-boundary"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-013-spells-for-bad-dreams",
@@ -202,8 +348,81 @@
       "id": "maqlu-017-the-patient-speaks-in-first-person",
       "proposedPrimaryCategoryId": "protection-cleansing-warding",
       "proposedConcept": "A first-person self-protection formula tied to an exact Maqlu passage",
-      "disposition": "exact_passage_and_oracc_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The First-Person Threshold",
+        "slug": "first-person-threshold",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Mesopotamian anti-witchcraft ritual practice",
+        "summary": "Speak one original first-person statement while crossing from reflection into an ordinary chosen action.",
+        "intro": "Maqlu Ritual Tablet line 23′ identifies an incantation by the first-person opening “I have been sent and I will go,” then pairs it with arranged figurines. The historical procedure belongs to Mesopotamian anti-witchcraft ritual and does not document Wicca. This adaptation retains first-person ritual speech and purposeful movement while removing figurines representing accused people, burning, divine compulsion, and claims of attack.",
+        "introduction": "Maqlu Ritual Tablet line 23′ identifies an incantation by the first-person opening “I have been sent and I will go,” then pairs it with arranged figurines. The historical procedure belongs to Mesopotamian anti-witchcraft ritual and does not document Wicca. This adaptation retains first-person ritual speech and purposeful movement while removing figurines representing accused people, burning, divine compulsion, and claims of attack.",
+        "body": "1. Identify one ordinary action you have freely chosen and can safely begin now: making a necessary call, opening a work document, tidying one surface, or taking a brief walk. Write the action in plain language.\n\n2. Choose a doorway or another visible threshold in your own space. Clear the floor on both sides. Place a single flat marker beside the threshold, never where it could cause a trip. The marker and doorway are modern substitutions; the source’s first-person line is paired with arranged figurines, which this version excludes.\n\n3. Stand on the starting side and name what is true: “I have chosen my next action.” Then name the action. Do not claim that a deity, omen, or another person ordered it.\n\n4. Say, “I set my direction, and I go by my own consent.” This is original modern wording, not a translation. Step across the threshold once. If mobility makes stepping unsuitable, move the marker from one side of a line on the table to the other.\n\n5. Pause after crossing and take one unforced breath. Begin the chosen action for at least two minutes. The practical beginning is essential; the spoken threshold is not presented as sufficient by itself.\n\n6. When the two minutes end, decide whether to continue, schedule the remainder, or stop. Each option remains yours. Avoid repeating the crossing to seek a feeling of certainty.\n\n7. Return the marker to storage and restore the walkway. Write one sentence beginning “I chose” and one beginning “I did.” These statements keep personal agency visible and close the working without assigning power to the threshold itself.",
+        "lesson": "1. Identify one ordinary action you have freely chosen and can safely begin now: making a necessary call, opening a work document, tidying one surface, or taking a brief walk. Write the action in plain language.\n\n2. Choose a doorway or another visible threshold in your own space. Clear the floor on both sides. Place a single flat marker beside the threshold, never where it could cause a trip. The marker and doorway are modern substitutions; the source’s first-person line is paired with arranged figurines, which this version excludes.\n\n3. Stand on the starting side and name what is true: “I have chosen my next action.” Then name the action. Do not claim that a deity, omen, or another person ordered it.\n\n4. Say, “I set my direction, and I go by my own consent.” This is original modern wording, not a translation. Step across the threshold once. If mobility makes stepping unsuitable, move the marker from one side of a line on the table to the other.\n\n5. Pause after crossing and take one unforced breath. Begin the chosen action for at least two minutes. The practical beginning is essential; the spoken threshold is not presented as sufficient by itself.\n\n6. When the two minutes end, decide whether to continue, schedule the remainder, or stop. Each option remains yours. Avoid repeating the crossing to seek a feeling of certainty.\n\n7. Return the marker to storage and restore the walkway. Write one sentence beginning “I chose” and one beginning “I did.” These statements keep personal agency visible and close the working without assigning power to the threshold itself.",
+        "reflection": "Did first-person wording make your agency clearer before you crossed the threshold?",
+        "practice": "Use the threshold once to begin one safe action that you have already chosen.",
+        "materials": [
+          "Paper and pen",
+          "One flat marker",
+          "Timer"
+        ],
+        "tools": [
+          "Paper and pen",
+          "One flat marker",
+          "Timer"
+        ],
+        "safetyNote": "Keep thresholds and walkways clear and use the seated tabletop alternative if stepping is unsafe. This version is flameless and smoke-free. It excludes hostile representations and must remain self-directed and voluntary.",
+        "category": "protection-cleansing-warding",
+        "primaryCategoryId": "protection-cleansing-warding",
+        "secondaryCategoryIds": [
+          "altars-sacred-space"
+        ],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 10,
+        "incantation": "I set my direction, and I go by my own consent.",
+        "timing": "When beginning a chosen task; no historical lunar timing is claimed.",
+        "application": "Mark the transition from reflection to a freely chosen action through first-person ritual speech.",
+        "correspondences": [
+          "Documented speech form: a first-person incantation opening",
+          "Documented action context: material actions paired with the spoken opening",
+          "Modern adaptation: crossing a safe threshold to begin a chosen task"
+        ],
+        "citations": [
+          {
+            "textTitle": "Maqlu Ritual Tablet",
+            "manuscriptId": "Composite first-millennium BCE Maqlu series",
+            "tradition": "Ancient Mesopotamian anti-witchcraft ritual practice",
+            "manuscriptDate": "First-millennium BCE witnesses",
+            "edition": "Corpus of Mesopotamian Anti-Witchcraft Rituals Online",
+            "editionDate": "Modern digital edition",
+            "translator": "ORACC/CMAwRo editorial project",
+            "locator": "Ritual Tablet, obverse line 23′",
+            "url": "https://oracc.museum.upenn.edu/cmawro/Q002713"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains first-person ritual speech and purposeful movement.",
+          "Replaces all figurines and hostile representation with one neutral personal marker.",
+          "Adds explicit consent, accessibility, and an ordinary follow-through action.",
+          "The incantation is original modern wording and is not attributed to the source."
+        ],
+        "sourcePassageId": "maqlu-ritual-tablet-obv-23-first-person-going",
+        "sourceId": "mesopotamian-maqlu",
+        "sourceCitation": "Maqlu Ritual Tablet, obverse line 23′",
+        "sourceUrl": "https://oracc.museum.upenn.edu/cmawro/Q002713",
+        "similarityGroupId": "first-person-threshold",
+        "rightsReviewRequired": true,
+        "rightsNotes": "ORACC states that its online documentation and website material are released under CC BY-SA 3.0, allowing adaptation with attribution and ShareAlike. The live page was unavailable during review; archived licensing evidence and product ShareAlike implications require independent confirmation.",
+        "tags": [
+          "maqlu",
+          "first-person",
+          "threshold",
+          "agency"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-018-the-plague-of-the-year",
@@ -216,8 +435,83 @@
       "id": "maqlu-019-the-three-movements-of-the-night",
       "proposedPrimaryCategoryId": "moon-phases-timing",
       "proposedConcept": "A three-stage evening-to-dawn ritual using an exact Maqlu sequence",
-      "disposition": "invalid_primary_source_url_and_exact_passage_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "Boundary, Removal, Washing",
+        "slug": "boundary-removal-washing",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Mesopotamian anti-witchcraft ritual practice",
+        "summary": "Complete a three-part closing sequence that marks a boundary, removes one temporary symbol, and finishes with ordinary handwashing.",
+        "intro": "Near the close of the Maqlu ritual tablet, the procedure moves through a drawn boundary around a bed, removal of the fire in the morning, and a series of handwashings at dawn. The source includes burning, hostile figures, and anti-witchcraft claims. This modern Wiccan adaptation keeps the documented ordering of boundary, removal, and washing but makes every step self-directed, flameless, and free of accusations.",
+        "introduction": "Near the close of the Maqlu ritual tablet, the procedure moves through a drawn boundary around a bed, removal of the fire in the morning, and a series of handwashings at dawn. The source includes burning, hostile figures, and anti-witchcraft claims. This modern Wiccan adaptation keeps the documented ordering of boundary, removal, and washing but makes every step self-directed, flameless, and free of accusations.",
+        "body": "1. At the end of an evening reflection, write one concern you will not continue working on tonight. Use a sentence about your own attention. Do not identify another person as a magical threat.\n\n2. Lay four flat coasters around the notebook to mark its temporary boundary. The source draws a circle around a bed; four coasters are a modern, removable substitute that avoids powders on floors and keeps exits clear.\n\n3. Spend five minutes recording what is known, what is uncertain, and the next time you will address the concern. When the timer ends, close the notebook. Say, “The boundary is held; tonight’s inquiry is complete.” These are original modern words.\n\n4. Gather the coasters and carry the closed notebook to its normal storage place. The source removes ritual fire in the morning; this smoke-free and flameless action retains removal as a distinct stage without reproducing combustion or disposal in a river.\n\n5. Go to a sink and wash your hands with ordinary soap and comfortably warm water. Treat this as normal hygiene that also marks the change of activity. Make no claim that water removes illness, curses, or another person’s influence.\n\n6. Dry your hands, return the towel, and turn off the light in the work area. Say, “What is closed may rest; morning will meet what remains.” Do not reopen the notebook that night merely to repeat the sequence.\n\n7. At the next appropriate time, review only the practical action you recorded. Complete, revise, or discard it using ordinary judgment. The three movements are a structure for closure, not a prediction or promise about what follows.",
+        "lesson": "1. At the end of an evening reflection, write one concern you will not continue working on tonight. Use a sentence about your own attention. Do not identify another person as a magical threat.\n\n2. Lay four flat coasters around the notebook to mark its temporary boundary. The source draws a circle around a bed; four coasters are a modern, removable substitute that avoids powders on floors and keeps exits clear.\n\n3. Spend five minutes recording what is known, what is uncertain, and the next time you will address the concern. When the timer ends, close the notebook. Say, “The boundary is held; tonight’s inquiry is complete.” These are original modern words.\n\n4. Gather the coasters and carry the closed notebook to its normal storage place. The source removes ritual fire in the morning; this smoke-free and flameless action retains removal as a distinct stage without reproducing combustion or disposal in a river.\n\n5. Go to a sink and wash your hands with ordinary soap and comfortably warm water. Treat this as normal hygiene that also marks the change of activity. Make no claim that water removes illness, curses, or another person’s influence.\n\n6. Dry your hands, return the towel, and turn off the light in the work area. Say, “What is closed may rest; morning will meet what remains.” Do not reopen the notebook that night merely to repeat the sequence.\n\n7. At the next appropriate time, review only the practical action you recorded. Complete, revise, or discard it using ordinary judgment. The three movements are a structure for closure, not a prediction or promise about what follows.",
+        "reflection": "Which movement—boundary, removal, or washing—most clearly ended the evening inquiry?",
+        "practice": "Complete the three movements once after a bounded evening reflection.",
+        "materials": [
+          "Notebook and pen",
+          "Four flat coasters",
+          "Timer",
+          "Sink, ordinary soap, and clean towel"
+        ],
+        "tools": [
+          "Notebook and pen",
+          "Four flat coasters",
+          "Timer",
+          "Sink, ordinary soap, and clean towel"
+        ],
+        "safetyNote": "Keep floor and walking areas clear, use a safe water temperature, dry spills, and protect irritated skin. This version is flameless and smoke-free and excludes powders, river disposal, hostile figures, and accusations.",
+        "category": "protection-cleansing-warding",
+        "primaryCategoryId": "protection-cleansing-warding",
+        "secondaryCategoryIds": [
+          "elemental-magic"
+        ],
+        "lessonType": "elemental",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 15,
+        "incantation": "What is closed may rest; morning will meet what remains.",
+        "timing": "Evening closure followed by ordinary review at the next appropriate time.",
+        "application": "Close a bounded reflection through three distinct physical transitions.",
+        "correspondences": [
+          "Documented sequence: a boundary is drawn at lines 136′–137′",
+          "Documented sequence: ritual fire is removed in the morning at lines 138′–140′",
+          "Documented sequence: handwashing and dawn formulas at lines 148′–156′"
+        ],
+        "citations": [
+          {
+            "textTitle": "Maqlu Ritual Tablet",
+            "manuscriptId": "Composite first-millennium BCE Maqlu series",
+            "tradition": "Ancient Mesopotamian anti-witchcraft ritual practice",
+            "manuscriptDate": "First-millennium BCE witnesses",
+            "edition": "Corpus of Mesopotamian Anti-Witchcraft Rituals Online",
+            "editionDate": "Modern digital edition",
+            "translator": "ORACC/CMAwRo editorial project",
+            "locator": "Ritual Tablet, obverse lines 136′–156′",
+            "url": "https://oracc.museum.upenn.edu/cmawro/Q002713"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains the ordering of boundary, removal, and washing.",
+          "Substitutes removable coasters and notebook storage for a drawn circle and removal of fire.",
+          "Omits combustion, river disposal, hostile figures, accusations, and efficacy claims.",
+          "The incantation is original modern wording and is not attributed to the source."
+        ],
+        "sourcePassageId": "maqlu-ritual-tablet-obv-136-156-closing-sequence",
+        "sourceId": "mesopotamian-maqlu",
+        "sourceCitation": "Maqlu Ritual Tablet, obverse lines 136′–156′",
+        "sourceUrl": "https://oracc.museum.upenn.edu/cmawro/Q002713",
+        "similarityGroupId": "three-movement-closure",
+        "rightsReviewRequired": true,
+        "rightsNotes": "ORACC states that its online documentation and website material are released under CC BY-SA 3.0, allowing adaptation with attribution and ShareAlike. The live page was unavailable during review; archived licensing evidence and product ShareAlike implications require independent confirmation.",
+        "tags": [
+          "maqlu",
+          "closure",
+          "boundary",
+          "handwashing"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-020-thoth-the-god-of-spells",
@@ -328,8 +622,86 @@
       "id": "maqlu-024-what-maqlu-was",
       "proposedPrimaryCategoryId": "protection-cleansing-warding",
       "proposedConcept": "A distinct practical protection sequence tied to an exact Maqlu passage",
-      "disposition": "secondary_source_and_exact_passage_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Circle Around the Vessel",
+        "slug": "circle-around-the-vessel",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Mesopotamian anti-witchcraft ritual practice",
+        "summary": "Mark a temporary protective boundary around a reflective bowl, conduct one short inquiry, and erase the boundary completely.",
+        "intro": "Maqlu Ritual Tablet lines 19′–22′ pair water sprinkling with a circle drawn around a crucible using gypsum and roasted flour. The surrounding rite is Mesopotamian anti-witchcraft practice, not Wicca, and later actions include hazardous fire and hostile figurines. This modern adaptation retains the attested techniques of water, a vessel, and a visible encircling boundary while substituting a dry bowl and a removable paper circle.",
+        "introduction": "Maqlu Ritual Tablet lines 19′–22′ pair water sprinkling with a circle drawn around a crucible using gypsum and roasted flour. The surrounding rite is Mesopotamian anti-witchcraft practice, not Wicca, and later actions include hazardous fire and hostile figurines. This modern adaptation retains the attested techniques of water, a vessel, and a visible encircling boundary while substituting a dry bowl and a removable paper circle.",
+        "body": "1. Place a dry, unbreakable bowl on a stable table away from edges and electrical equipment. Set a ten-minute timer. Write one question about your own boundaries or responsibilities on a separate card.\n\n2. Put a large sheet of paper beneath the bowl. Draw one complete circle on the paper around the bowl without moving the vessel. The source uses gypsum and roasted flour around a crucible; paper and pencil are modern substitutions that avoid loose powder and do not reproduce the source’s fire setting.\n\n3. Place the question card beside the bowl, outside the circle. Say, “This line marks the work I choose to hold; what lies beyond it remains beyond my claim.” This is original modern wording.\n\n4. Look at the empty center and list three matters that belong within your control. Then list three matters outside your control. Do not use the boundary to claim ownership of another person’s choices or to diagnose a supernatural attack.\n\n5. Move only the items within your control onto the question card. Choose one achievable next action. The bowl remains empty; it serves as the documented vessel form without holding a preparation, flame, or substance.\n\n6. When the timer ends, lift the bowl and erase the pencil circle completely. If erasing is impractical, fold the paper inward until the line is hidden and recycle it. Say, “The marked space is released; my responsibility is clear.”\n\n7. Return the bowl to ordinary use and complete or schedule the chosen action. Store the card only if useful. Do not preserve the circle as a permanent ward or repeat the inquiry to compel reassurance.",
+        "lesson": "1. Place a dry, unbreakable bowl on a stable table away from edges and electrical equipment. Set a ten-minute timer. Write one question about your own boundaries or responsibilities on a separate card.\n\n2. Put a large sheet of paper beneath the bowl. Draw one complete circle on the paper around the bowl without moving the vessel. The source uses gypsum and roasted flour around a crucible; paper and pencil are modern substitutions that avoid loose powder and do not reproduce the source’s fire setting.\n\n3. Place the question card beside the bowl, outside the circle. Say, “This line marks the work I choose to hold; what lies beyond it remains beyond my claim.” This is original modern wording.\n\n4. Look at the empty center and list three matters that belong within your control. Then list three matters outside your control. Do not use the boundary to claim ownership of another person’s choices or to diagnose a supernatural attack.\n\n5. Move only the items within your control onto the question card. Choose one achievable next action. The bowl remains empty; it serves as the documented vessel form without holding a preparation, flame, or substance.\n\n6. When the timer ends, lift the bowl and erase the pencil circle completely. If erasing is impractical, fold the paper inward until the line is hidden and recycle it. Say, “The marked space is released; my responsibility is clear.”\n\n7. Return the bowl to ordinary use and complete or schedule the chosen action. Store the card only if useful. Do not preserve the circle as a permanent ward or repeat the inquiry to compel reassurance.",
+        "reflection": "How did drawing and erasing the circle affect your sense of what was within your responsibility?",
+        "practice": "Mark one temporary vessel boundary, identify one action within your control, and erase the boundary.",
+        "materials": [
+          "Dry unbreakable bowl",
+          "Large sheet of paper",
+          "Pencil and eraser",
+          "Question card",
+          "Timer"
+        ],
+        "tools": [
+          "Dry unbreakable bowl",
+          "Large sheet of paper",
+          "Pencil and eraser",
+          "Question card",
+          "Timer"
+        ],
+        "safetyNote": "Use a stable, dry surface and keep the bowl away from table edges, children, pets, and electrical equipment. This version is flameless and smoke-free and uses no loose gypsum, flour, fire, or hostile representation.",
+        "category": "protection-cleansing-warding",
+        "primaryCategoryId": "protection-cleansing-warding",
+        "secondaryCategoryIds": [
+          "altars-sacred-space"
+        ],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 12,
+        "incantation": "This line marks the work I choose to hold; what lies beyond it remains beyond my claim.",
+        "timing": "Any quiet period; no lunar timing is asserted.",
+        "application": "Create and release a visible boundary for one self-directed inquiry.",
+        "correspondences": [
+          "Documented object: a crucible or vessel",
+          "Documented action: sprinkling water at lines 19′–20′",
+          "Documented action: drawing a circle around the crucible at lines 21′–22′",
+          "Modern adaptation: an empty bowl and erasable paper circle"
+        ],
+        "citations": [
+          {
+            "textTitle": "Maqlu Ritual Tablet",
+            "manuscriptId": "Composite first-millennium BCE Maqlu series",
+            "tradition": "Ancient Mesopotamian anti-witchcraft ritual practice",
+            "manuscriptDate": "First-millennium BCE witnesses",
+            "edition": "Corpus of Mesopotamian Anti-Witchcraft Rituals Online",
+            "editionDate": "Modern digital edition",
+            "translator": "ORACC/CMAwRo editorial project",
+            "locator": "Ritual Tablet, obverse lines 19′–22′",
+            "url": "https://oracc.museum.upenn.edu/cmawro/Q002713"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains a vessel and visible encircling boundary as the central technique.",
+          "Replaces gypsum, roasted flour, sprinkling, and the crucible with dry, removable materials.",
+          "Omits all later burning, hostile figurines, accusations, and efficacy claims.",
+          "The incantation is original modern wording and is not attributed to the source."
+        ],
+        "sourcePassageId": "maqlu-ritual-tablet-obv-19-22-vessel-circle",
+        "sourceId": "mesopotamian-maqlu",
+        "sourceCitation": "Maqlu Ritual Tablet, obverse lines 19′–22′",
+        "sourceUrl": "https://oracc.museum.upenn.edu/cmawro/Q002713",
+        "similarityGroupId": "vessel-boundary-circle",
+        "rightsReviewRequired": true,
+        "rightsNotes": "ORACC states that its online documentation and website material are released under CC BY-SA 3.0, allowing adaptation with attribution and ShareAlike. The live page was unavailable during review; archived licensing evidence and product ShareAlike implications require independent confirmation.",
+        "tags": [
+          "maqlu",
+          "circle",
+          "vessel",
+          "boundary"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-025-where-an-amulet-s-power-came-from",

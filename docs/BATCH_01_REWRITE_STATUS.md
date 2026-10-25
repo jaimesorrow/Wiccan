@@ -5,20 +5,25 @@ Batch 1 covers the first 25 checked-in draft IDs in `functions/ancientContentSee
 ## Result
 
 - Records dispositioned: **25/25**.
-- Full practical rewrites completed: **2/25**.
-- Source, rights, or scope holds: **23/25**.
+- Full practical rewrites completed: **7/25**.
+- Source, rights, or scope holds: **18/25**.
 - Firebase-ready records: **0/25**.
 - Published records: **0**.
 - Firestore reads or writes: **0**.
 
-The two completed editorial rewrites are:
+The completed editorial rewrites are:
 
-1. `london-leiden-016-the-number-seven-in-egyptian-practice` → **The Seven-Point Boundary** (`altars-sacred-space`, secondary `divination`). Its 1904 edition and passage locator have research support, but it still requires independent passage, scope, rights-jurisdiction, safety, and duplicate approval.
-2. `maqlu-022-water-closes-what-fire-opened` → **Dawn Water Closure** (`protection-cleansing-warding`, secondary `elemental-magic`). The rewrite is complete, but exact ORACC reuse terms and line-level source review remain unresolved.
+1. `maqlu-010-nine-tablets-one-night` → **The Words-and-Actions Ledger**.
+2. `maqlu-012-saying-it-again-three-and-seven` → **Three Deliberate Repetitions**.
+3. `london-leiden-016-the-number-seven-in-egyptian-practice` → **The Seven-Point Boundary**.
+4. `maqlu-017-the-patient-speaks-in-first-person` → **The First-Person Threshold**.
+5. `maqlu-019-the-three-movements-of-the-night` → **Boundary, Removal, Washing**.
+6. `maqlu-022-water-closes-what-fire-opened` → **Dawn Water Closure**.
+7. `maqlu-024-what-maqlu-was` → **The Circle Around the Vessel**.
 
-Neither rewrite is safe to upload as an approved migration patch yet. Both remain drafts and retain `rightsReviewRequired: true`.
+The five new Maqlū proposals cite exact Ritual Tablet line ranges and use the ORACC/CMAwRo text. Archived ORACC licensing evidence states CC BY-SA 3.0 terms, but the live rights page was unavailable and the ShareAlike effect on product distribution still requires independent review. All seven proposals remain drafts with `rightsReviewRequired: true` and are not approved migration patches.
 
-## Holds for the remaining 23 records
+## Holds for the remaining 18 records
 
 The packet records a proposed practical concept and primary category for every held record. The holds are intentional:
 
