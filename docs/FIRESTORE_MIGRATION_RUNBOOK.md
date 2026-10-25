@@ -95,4 +95,4 @@ A broad collection-group import is not an acceptable shortcut because the projec
 
 ## Production state
 
-No live audit, backup, dry-run, or content write has completed from this workspace yet because no Firebase or Google Cloud identity is connected. Repository work and staged examples are preparation, not evidence about current production contents.
+Firebase CLI access was connected on 2026-10-25 and a read-only Firestore audit verified 150 root `content` documents, all drafts. A typed local backup was captured with SHA-256 `e3d2b7d4817f3015fe4a576c8855398ca3a4574b3f56ef9cc5e95eb0a9c13e02`. The project listed no Cloud Storage bucket, so private upload, immutable object generation, and emulator restore validation remain incomplete. No content write, publication, rules deployment, or index deployment has occurred. See [LIVE_FIRESTORE_CONTENT_AUDIT_2026-10-25.md](LIVE_FIRESTORE_CONTENT_AUDIT_2026-10-25.md).
