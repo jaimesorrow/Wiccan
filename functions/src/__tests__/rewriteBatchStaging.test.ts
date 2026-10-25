@@ -35,7 +35,7 @@ describe("local rewrite batch staging", () => {
   });
 });
 
-describe.each([1, 2, 3, 4])("batch %i editorial artifact", (batchNumber) => {
+describe.each([1, 2, 3, 4, 5, 6])("batch %i editorial artifact", (batchNumber) => {
   const packetPath = path.join(__dirname, "..", "..", "rewriteBatches", `batch-${String(batchNumber).padStart(2, "0")}.editorial.json`);
   const packet = JSON.parse(fs.readFileSync(packetPath, "utf8")) as {
     batchSize: number;
@@ -79,6 +79,21 @@ describe.each([1, 2, 3, 4])("batch %i editorial artifact", (batchNumber) => {
     }
     expect(findLexicalDuplicateConcerns(completed.map((entry) =>
       curriculumConcept(entry.id, entry.proposedFields!),
+    ))).toEqual([]);
+  });
+});
+
+describe("complete live-curriculum editorial artifacts", () => {
+  it("cover 150 distinct seed IDs without lexical duplicate concerns", () => {
+    const packets = [1, 2, 3, 4, 5, 6].map((batchNumber) => JSON.parse(fs.readFileSync(
+      path.join(__dirname, "..", "..", "rewriteBatches", `batch-${String(batchNumber).padStart(2, "0")}.editorial.json`),
+      "utf8",
+    )) as { entries: Array<{ id: string; proposedFields: Record<string, unknown> }> });
+    const entries = packets.flatMap((packet) => packet.entries);
+    expect(entries).toHaveLength(150);
+    expect(new Set(entries.map((entry) => entry.id)).size).toBe(150);
+    expect(findLexicalDuplicateConcerns(entries.map((entry) =>
+      curriculumConcept(entry.id, entry.proposedFields),
     ))).toEqual([]);
   });
 });
