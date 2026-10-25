@@ -1,4 +1,7 @@
+import fs from "node:fs";
+import path from "node:path";
 import { loadContentSeed } from "../contentSeed";
+import { findPracticalLessonViolations } from "../practicalLesson";
 import { createRewriteStagingBatches } from "../rewriteBatchStaging";
 
 describe("local rewrite batch staging", () => {
@@ -28,5 +31,47 @@ describe("local rewrite batch staging", () => {
     expect(() => createRewriteStagingBatches([first, first])).toThrow("Duplicate");
     expect(() => createRewriteStagingBatches([{ ...first, id: "nested/id" }])).toThrow("valid root document ID");
     expect(() => createRewriteStagingBatches([{ ...first, status: "published" } as typeof first])).toThrow("not a draft");
+  });
+});
+
+describe("batch 1 editorial artifact", () => {
+  const packetPath = path.join(__dirname, "..", "..", "rewriteBatches", "batch-01.editorial.json");
+  const packet = JSON.parse(fs.readFileSync(packetPath, "utf8")) as {
+    batchSize: number;
+    writes: boolean;
+    firebaseReady: boolean;
+    entries: Array<{ id: string; disposition: string; proposedFields: Record<string, unknown> | null }>;
+  };
+
+  it("dispositions exactly 25 preserved seed IDs without enabling writes", () => {
+    const seed = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "ancientContentSeed.json"), "utf8")) as Array<{ id: string }>;
+    expect(packet.batchSize).toBe(25);
+    expect(packet.entries.map((entry) => entry.id)).toEqual(seed.slice(0, 25).map((entry) => entry.id));
+    expect(new Set(packet.entries.map((entry) => entry.id)).size).toBe(25);
+    expect(packet.writes).toBe(false);
+    expect(packet.firebaseReady).toBe(false);
+  });
+
+  it("keeps completed proposals as drafts with 250–450-word numbered lessons", () => {
+    const completed = packet.entries.filter((entry) => entry.proposedFields !== null);
+    expect(completed).toHaveLength(2);
+    for (const entry of completed) {
+      const fields = entry.proposedFields!;
+      const lesson = String(fields.lesson);
+      const words = lesson.trim().split(/\s+/).length;
+      expect(fields.status).toBe("draft");
+      expect(fields.contentStatus).toBe("draft");
+      expect(fields.tradition).toBe("Wiccan / Modern Witchcraft");
+      expect(fields.body).toBe(fields.lesson);
+      expect(fields.intro).toBe(fields.introduction);
+      expect(fields.materials).toEqual(fields.tools);
+      expect(words).toBeGreaterThanOrEqual(250);
+      expect(words).toBeLessThanOrEqual(450);
+      expect(lesson.match(/^\d+\. /gm)?.map((step) => Number.parseInt(step, 10))).toEqual([1, 2, 3, 4, 5, 6, 7]);
+      expect(fields.rightsReviewRequired).toBe(true);
+      expect(findPracticalLessonViolations(fields, [], false)).toEqual([
+        "verified source passage is missing from the editor-owned register",
+      ]);
+    }
   });
 });

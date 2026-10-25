@@ -1,0 +1,342 @@
+{
+  "schemaVersion": 1,
+  "projectId": "wiccan-android",
+  "batchNumber": 1,
+  "batchSize": 25,
+  "writes": false,
+  "sourceKind": "checked-in-seed",
+  "editorialProcessingComplete": true,
+  "firebaseReady": false,
+  "blockingReasons": [
+    "No lesson in this batch is bound to a live Firestore updateTime.",
+    "The editor-owned verified source passage register is empty.",
+    "No production backup and restore test has been completed."
+  ],
+  "entries": [
+    {
+      "id": "egypt-heka-001-charging-water-by-contact",
+      "proposedPrimaryCategoryId": "elemental-magic",
+      "proposedConcept": "A non-ingestible water-contact blessing based on an attested cippus passage",
+      "disposition": "source_passage_and_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-002-guarding-children",
+      "proposedPrimaryCategoryId": "cord-knot-magic",
+      "proposedConcept": "An adult-made household boundary cord that never touches a child",
+      "disposition": "source_passage_and_translation_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-003-handbooks-not-scripture",
+      "proposedPrimaryCategoryId": "altars-sacred-space",
+      "proposedConcept": "A written ritual sequence derived from a specific handbook operation",
+      "disposition": "unsupported_practical_passage_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-004-healing-statues-and-cippi",
+      "proposedPrimaryCategoryId": "elemental-magic",
+      "proposedConcept": "A safe water-pouring observance adapted from a named cippus inscription",
+      "disposition": "source_passage_and_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-005-heka-magic-as-a-god",
+      "proposedPrimaryCategoryId": "altars-sacred-space",
+      "proposedConcept": "A spoken altar dedication supported by a specific primary passage",
+      "disposition": "source_passage_and_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-006-isis-mistress-of-magic",
+      "proposedPrimaryCategoryId": "protection-cleansing-warding",
+      "proposedConcept": "A self-directed protective address adapted from an identified Isis passage",
+      "disposition": "source_passage_and_translation_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-007-knots-as-working-technology",
+      "proposedPrimaryCategoryId": "cord-knot-magic",
+      "proposedConcept": "A loose, removable protection cord using an attested knot count",
+      "disposition": "source_passage_and_translation_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-008-medicine-and-magic-were-one-practice",
+      "proposedPrimaryCategoryId": "herbs-botanicals",
+      "proposedConcept": "A non-medical botanical placement adapted from a specific papyrus recipe",
+      "disposition": "unsupported_practical_passage_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-009-naming-the-body-part-by-part",
+      "proposedPrimaryCategoryId": "protection-cleansing-warding",
+      "proposedConcept": "A non-medical embodied boundary recitation based on a located passage",
+      "disposition": "source_passage_and_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "maqlu-010-nine-tablets-one-night",
+      "proposedPrimaryCategoryId": "altars-sacred-space",
+      "proposedConcept": "A staged words-and-actions ritual plan derived from a specific Maqlu sequence",
+      "disposition": "exact_passage_and_oracc_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-011-protecting-the-house-itself",
+      "proposedPrimaryCategoryId": "protection-cleansing-warding",
+      "proposedConcept": "A consent-respecting household threshold ward supported by a located passage",
+      "disposition": "source_passage_and_translation_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "maqlu-012-saying-it-again-three-and-seven",
+      "proposedPrimaryCategoryId": "protection-cleansing-warding",
+      "proposedConcept": "A bounded repeated cleansing formula using an attested count",
+      "disposition": "exact_passage_and_oracc_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-013-spells-for-bad-dreams",
+      "proposedPrimaryCategoryId": "protection-cleansing-warding",
+      "proposedConcept": "A bedside protection working adapted from a specific dream passage",
+      "disposition": "source_passage_and_translation_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-014-spells-for-childbirth",
+      "proposedPrimaryCategoryId": "protection-cleansing-warding",
+      "proposedConcept": "A symbolic support charm with no medical or pregnancy claim",
+      "disposition": "medical_scope_source_and_translation_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "harris-015-the-harris-magical-papyrus",
+      "proposedPrimaryCategoryId": "protection-cleansing-warding",
+      "proposedConcept": "A practical protective sequence from an exact Harris Papyrus passage",
+      "disposition": "unsupported_practical_passage_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "london-leiden-016-the-number-seven-in-egyptian-practice",
+      "proposedPrimaryCategoryId": "altars-sacred-space",
+      "proposedConcept": "A seven-point ritual boundary adapted from an attested vessel-divination arrangement",
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Seven-Point Boundary",
+        "slug": "the-seven-point-boundary",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Roman-period Egyptian magical practice",
+        "summary": "Arrange seven ordinary objects to define a temporary, self-directed space for reflection, then dismantle it deliberately.",
+        "intro": "The Demotic Magical Papyrus of London and Leiden uses repeated groups of seven in a vessel-divination preparation: seven bricks or palm sticks, seven clean loaves, seven lumps of salt, seven recitations, and a seventh-hour limit. This is Roman-period Egyptian ritual practice, not ancient Wicca. The modern adaptation keeps the documented use of seven to structure space and repetition while removing the child medium, oil divination, food, spirit invocation, and supernatural claims.",
+        "introduction": "The Demotic Magical Papyrus of London and Leiden uses repeated groups of seven in a vessel-divination preparation: seven bricks or palm sticks, seven clean loaves, seven lumps of salt, seven recitations, and a seventh-hour limit. This is Roman-period Egyptian ritual practice, not ancient Wicca. The modern adaptation keeps the documented use of seven to structure space and repetition while removing the child medium, oil divination, food, spirit invocation, and supernatural claims.",
+        "body": "1. Choose a stable table or clear floor area where seven small objects cannot become a trip hazard. Select seven matching stones, wooden disks, or coasters. Do not use food, salt, flame, oil, or stacked bricks. Write one question about your own conduct or priorities and set a seven-minute timer.\n\n2. Clean the surface and place the first object at the point nearest you. Arrange the other six clockwise until they form a loose ring with an open center. Count aloud as each object is set down. The count comes from the source; the ring and clockwise direction are modern construction choices.\n\n3. Place your written question in the center. Say, “Seven points mark the time and place; my judgment remains my own.” This is original modern wording, not a translation of the papyrus.\n\n4. Take seven unforced breaths. On each breath, name one fact, uncertainty, resource, limit, possible action, consequence, or next step connected to the question. If one category has no answer, say “unknown” rather than inventing certainty.\n\n5. Spend the remaining time writing. Keep observations separate from interpretations, and do not treat a thought, image, or coincidence as a guaranteed message. Stop when the timer sounds even if the answer feels incomplete.\n\n6. Read the next step you recorded. If it is safe, lawful, and within your control, schedule it. Otherwise revise it into a smaller action. The practical action, rather than a promised omen, carries the work forward.\n\n7. Remove the objects one at a time in reverse order while counting down to one. Fold the question, put the objects away, and restore the surface to ordinary use. Deliberate dismantling completes the boundary and prevents repeated checking for a preferred answer.",
+        "lesson": "1. Choose a stable table or clear floor area where seven small objects cannot become a trip hazard. Select seven matching stones, wooden disks, or coasters. Do not use food, salt, flame, oil, or stacked bricks. Write one question about your own conduct or priorities and set a seven-minute timer.\n\n2. Clean the surface and place the first object at the point nearest you. Arrange the other six clockwise until they form a loose ring with an open center. Count aloud as each object is set down. The count comes from the source; the ring and clockwise direction are modern construction choices.\n\n3. Place your written question in the center. Say, “Seven points mark the time and place; my judgment remains my own.” This is original modern wording, not a translation of the papyrus.\n\n4. Take seven unforced breaths. On each breath, name one fact, uncertainty, resource, limit, possible action, consequence, or next step connected to the question. If one category has no answer, say “unknown” rather than inventing certainty.\n\n5. Spend the remaining time writing. Keep observations separate from interpretations, and do not treat a thought, image, or coincidence as a guaranteed message. Stop when the timer sounds even if the answer feels incomplete.\n\n6. Read the next step you recorded. If it is safe, lawful, and within your control, schedule it. Otherwise revise it into a smaller action. The practical action, rather than a promised omen, carries the work forward.\n\n7. Remove the objects one at a time in reverse order while counting down to one. Fold the question, put the objects away, and restore the surface to ordinary use. Deliberate dismantling completes the boundary and prevents repeated checking for a preferred answer.",
+        "reflection": "How did using a fixed count change the way you began, limited, and completed the working?",
+        "practice": "Create the seven-point boundary once, complete the seven-minute reflection, and dismantle it immediately afterward.",
+        "materials": [
+          "Seven matching stones, wooden disks, or coasters",
+          "Paper and pen",
+          "Timer"
+        ],
+        "tools": [
+          "Seven matching stones, wooden disks, or coasters",
+          "Paper and pen",
+          "Timer"
+        ],
+        "safetyNote": "Use flat, stable objects and keep walkways clear. Do not stack bricks, involve a child as a medium, ingest ritual materials, or use oil or flame. This reflective practice does not predict outcomes. Seek qualified help for medical, legal, financial, or mental-health needs.",
+        "category": "altars-sacred-space",
+        "primaryCategoryId": "altars-sacred-space",
+        "secondaryCategoryIds": [
+          "divination"
+        ],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 12,
+        "incantation": "Seven points mark the time and place; my judgment remains my own.",
+        "timing": "Any quiet period; the historical seventh-hour setting is not reconstructed.",
+        "application": "Use the temporary boundary to contain one self-directed reflective question.",
+        "correspondences": [
+          "Documented: repeated groups and actions of seven",
+          "Documented: a defined ritual arrangement and time limit",
+          "Modern adaptation: seven flat objects forming a temporary boundary"
+        ],
+        "citations": [
+          {
+            "textTitle": "The Demotic Magical Papyrus of London and Leiden",
+            "manuscriptId": "P. BM EA 10070 / P. Leiden I 383",
+            "tradition": "Roman-period Egyptian magical practice",
+            "manuscriptDate": "200–225 CE",
+            "edition": "F. Ll. Griffith and Herbert Thompson, The Demotic Magical Papyrus of London and Leiden, vol. I",
+            "editionDate": "1904",
+            "translator": "F. Ll. Griffith and Herbert Thompson",
+            "locator": "Recto column III, lines 5–19",
+            "url": "https://archive.org/details/demoticmagicalpa01grifuoft/page/37/mode/2up"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains the source's repeated use of seven to organize objects, recitation, and time.",
+          "Removes the child medium, oil vessel, food, salt, spirit invocation, and efficacy claims.",
+          "The circular layout, reflective prompts, timer, and incantation are original modern Wiccan adaptations.",
+          "The incantation is original modern wording and is not attributed to the manuscript."
+        ],
+        "sourcePassageId": "london-leiden-recto-iii-5-19-sevenfold-arrangement",
+        "sourceId": "london-leiden-demotic-magical-papyrus",
+        "sourceCitation": "The Demotic Magical Papyrus of London and Leiden, recto column III, lines 5–19",
+        "sourceUrl": "https://archive.org/details/demoticmagicalpa01grifuoft/page/37/mode/2up",
+        "similarityGroupId": "seven-point-boundary",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The 1904 edition is public domain in the United States and beyond a life-plus-70 term; final distribution-jurisdiction and independent passage review remain required.",
+        "status": "draft",
+        "contentStatus": "draft",
+        "tags": [
+          "seven",
+          "ritual-boundary",
+          "reflection",
+          "roman-egypt"
+        ]
+      }
+    },
+    {
+      "id": "maqlu-017-the-patient-speaks-in-first-person",
+      "proposedPrimaryCategoryId": "protection-cleansing-warding",
+      "proposedConcept": "A first-person self-protection formula tied to an exact Maqlu passage",
+      "disposition": "exact_passage_and_oracc_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-018-the-plague-of-the-year",
+      "proposedPrimaryCategoryId": "moon-phases-timing",
+      "proposedConcept": "A seasonal household observance with no disease-prevention claim",
+      "disposition": "medical_scope_source_and_translation_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "maqlu-019-the-three-movements-of-the-night",
+      "proposedPrimaryCategoryId": "moon-phases-timing",
+      "proposedConcept": "A three-stage evening-to-dawn ritual using an exact Maqlu sequence",
+      "disposition": "invalid_primary_source_url_and_exact_passage_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-020-thoth-the-god-of-spells",
+      "proposedPrimaryCategoryId": "divination",
+      "proposedConcept": "A writing-based divination preparation supported by a specific Thoth passage",
+      "disposition": "source_passage_and_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-021-treating-the-foot-to-cure-the-head",
+      "proposedPrimaryCategoryId": "protection-cleansing-warding",
+      "proposedConcept": "A symbolic whole-body reflection with all medical treatment claims removed",
+      "disposition": "medical_scope_source_and_translation_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "maqlu-022-water-closes-what-fire-opened",
+      "proposedPrimaryCategoryId": "protection-cleansing-warding",
+      "proposedConcept": "A dawn handwashing closure adapted from the Maqlu water sequence",
+      "disposition": "editorial_rewrite_complete_source_rights_review_pending",
+      "proposedFields": {
+        "title": "Dawn Water Closure",
+        "slug": "dawn-water-closure",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Mesopotamian anti-witchcraft ritual practice",
+        "summary": "Use ordinary handwashing at dawn or the start of the day to close a difficult period of reflection without reproducing the source’s burning rites.",
+        "intro": "The Maqlu ritual tablet moves from destructive fire symbolism to quenching, sprinkling, repeated washing, and dawn formulas. This is ancient Mesopotamian ritual, not Wicca. The adaptation isolates the attested movement toward water and morning, removes burning and accusations against other people, and turns handwashing into a modern personal closure practice with no medical or supernatural claim.",
+        "introduction": "The Maqlu ritual tablet moves from destructive fire symbolism to quenching, sprinkling, repeated washing, and dawn formulas. This is ancient Mesopotamian ritual, not Wicca. The adaptation isolates the attested movement toward water and morning, removes burning and accusations against other people, and turns handwashing into a modern personal closure practice with no medical or supernatural claim.",
+        "body": "1. At dawn or near the beginning of your day, write one burden you are ready to stop rehearsing. Describe your own fear, habit, or unfinished reflection; do not name another person as an enemy or accuse anyone of witchcraft.\n\n2. Beneath it, write one action within your control for today. Keep the paper dry and place it beside, never inside, the sink. This written step is a modern addition that gives the closing a practical destination.\n\n3. Turn on comfortably warm water. Wet your hands and apply ordinary soap. As you wash the palms, say, “What has ended need not be carried.” As you wash the backs of the hands, say, “What remains can meet the morning.” These words are original and do not translate a Maqlu formula.\n\n4. Clean between the fingers and around the nails for the ordinary recommended handwashing duration. Notice the temperature and movement of water without claiming it absorbs illness, danger, curses, or another person’s influence.\n\n5. Rinse completely. Watch the soap leave, then turn off the tap to avoid waste. Dry your hands thoroughly. The physical completion—water stopped, hands dried, towel returned—is the boundary of the working.\n\n6. Read the action you wrote. Tear off and recycle or discard the sentence naming the burden; keep the action sentence if it will help. Do not burn either piece. The historical fire sequence is context only and is deliberately excluded.\n\n7. Open a curtain or step into ordinary daylight if safe, then complete the chosen action. Repeat the practice on another day only for a newly defined reflection, not as a compulsive attempt to force certainty.",
+        "lesson": "1. At dawn or near the beginning of your day, write one burden you are ready to stop rehearsing. Describe your own fear, habit, or unfinished reflection; do not name another person as an enemy or accuse anyone of witchcraft.\n\n2. Beneath it, write one action within your control for today. Keep the paper dry and place it beside, never inside, the sink. This written step is a modern addition that gives the closing a practical destination.\n\n3. Turn on comfortably warm water. Wet your hands and apply ordinary soap. As you wash the palms, say, “What has ended need not be carried.” As you wash the backs of the hands, say, “What remains can meet the morning.” These words are original and do not translate a Maqlu formula.\n\n4. Clean between the fingers and around the nails for the ordinary recommended handwashing duration. Notice the temperature and movement of water without claiming it absorbs illness, danger, curses, or another person’s influence.\n\n5. Rinse completely. Watch the soap leave, then turn off the tap to avoid waste. Dry your hands thoroughly. The physical completion—water stopped, hands dried, towel returned—is the boundary of the working.\n\n6. Read the action you wrote. Tear off and recycle or discard the sentence naming the burden; keep the action sentence if it will help. Do not burn either piece. The historical fire sequence is context only and is deliberately excluded.\n\n7. Open a curtain or step into ordinary daylight if safe, then complete the chosen action. Repeat the practice on another day only for a newly defined reflection, not as a compulsive attempt to force certainty.",
+        "reflection": "Did the transition from water to a concrete action create a clearer ending than reflection alone?",
+        "practice": "Complete the seven-step handwashing closure once and follow it with the written ordinary action.",
+        "materials": [
+          "Sink with clean running water",
+          "Ordinary soap",
+          "Clean towel",
+          "Small piece of paper and pen",
+          "Recycling or waste bin"
+        ],
+        "tools": [
+          "Sink with clean running water",
+          "Ordinary soap",
+          "Clean towel",
+          "Small piece of paper and pen",
+          "Recycling or waste bin"
+        ],
+        "safetyNote": "Use a safe water temperature, dry spills, conserve water, and protect irritated or broken skin. This is symbolic hygiene with no medical or supernatural cleansing claim. This version is flameless and uses no smoke, historical substances, or accusations against another person.",
+        "category": "protection-cleansing-warding",
+        "primaryCategoryId": "protection-cleansing-warding",
+        "secondaryCategoryIds": [
+          "elemental-magic"
+        ],
+        "lessonType": "elemental",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 10,
+        "incantation": "Morning has opened; water has passed. My hands meet the work that is mine at last.",
+        "timing": "Dawn or the beginning of the practitioner’s day.",
+        "application": "Close one self-directed period of reflection and move into one ordinary action.",
+        "correspondences": [
+          "Documented sequence: fire followed by quenching, sprinkling, handwashing, and dawn",
+          "Documented element: water",
+          "Modern adaptation: an ordinary action chosen by the practitioner"
+        ],
+        "citations": [
+          {
+            "textTitle": "Maqlu Ritual Tablet",
+            "manuscriptId": "Composite first-millennium BCE Maqlu series",
+            "tradition": "Ancient Mesopotamian anti-witchcraft ritual practice",
+            "manuscriptDate": "First millennium BCE witnesses",
+            "edition": "Corpus of Mesopotamian Anti-Witchcraft Rituals Online",
+            "editionDate": "Modern digital edition",
+            "translator": "ORACC/CMAwR editorial project",
+            "locator": "Ritual Tablet, obverse lines 148′–161′",
+            "url": "https://oracc.museum.upenn.edu/cmawro/Q002713"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains the documented progression toward water, washing, and dawn.",
+          "Omits burning, hostile accusation, ritual efficacy claims, and reconstructed formulas.",
+          "Adds self-directed wording, paper disposal, water conservation, and an achievable next action.",
+          "The incantation is original modern wording and is not attributed to the source."
+        ],
+        "sourcePassageId": "maqlu-ritual-tablet-obv-148-161-dawn-washing",
+        "sourceId": "mesopotamian-maqlu",
+        "sourceCitation": "Maqlu Ritual Tablet, obverse lines 148′–161′",
+        "sourceUrl": "https://oracc.museum.upenn.edu/cmawro/Q002713",
+        "similarityGroupId": "dawn-handwashing",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The exact ORACC reuse terms and line-level rendering require independent review before this proposal can become a production patch.",
+        "status": "draft",
+        "contentStatus": "draft",
+        "tags": [
+          "water",
+          "dawn",
+          "closure",
+          "mesopotamia"
+        ]
+      }
+    },
+    {
+      "id": "egypt-heka-023-wedjat-eye-and-heart-scarab",
+      "proposedPrimaryCategoryId": "crystals-stones",
+      "proposedConcept": "A stone or clay eye-symbol placement based on a specific amulet inscription",
+      "disposition": "source_passage_and_rights_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "maqlu-024-what-maqlu-was",
+      "proposedPrimaryCategoryId": "protection-cleansing-warding",
+      "proposedConcept": "A distinct practical protection sequence tied to an exact Maqlu passage",
+      "disposition": "secondary_source_and_exact_passage_hold",
+      "proposedFields": null
+    },
+    {
+      "id": "egypt-heka-025-where-an-amulet-s-power-came-from",
+      "proposedPrimaryCategoryId": "crystals-stones",
+      "proposedConcept": "A material amulet dedication based on an identified object inscription",
+      "disposition": "source_passage_and_rights_hold",
+      "proposedFields": null
+    }
+  ]
+}
