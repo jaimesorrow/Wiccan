@@ -54,7 +54,7 @@ describe("batch 1 editorial artifact", () => {
 
   it("keeps completed proposals as drafts with 250–450-word numbered lessons", () => {
     const completed = packet.entries.filter((entry) => entry.proposedFields !== null);
-    expect(completed).toHaveLength(9);
+    expect(completed).toHaveLength(10);
     for (const entry of completed) {
       const fields = entry.proposedFields!;
       const lesson = String(fields.lesson);

@@ -29,6 +29,13 @@ The 1901 edition predates the current United States public-domain cutoff. Erman 
 - Editorial uncertainty: Erman expressly marks parts of the textile vocabulary and damaged text as conjectural. A lesson may retain the counts and general cord-making action but must label braiding as a modern choice.
 - Proposed adaptation: **Four-Strand Working Cord** retains four strands and four knots as a tabletop sequence marker, removes bodily placement, and adds storage and entanglement precautions.
 
+### Two birth-place bricks and fine linen
+
+- Edition pages: 26–27.
+- Attested features: a birth-related recitation spoken over two bricks associated with the birth place; fine linen; meat and bird offerings; incense and fire.
+- Unsafe or unsuitable context: the source addresses childbirth through ritual efficacy and includes combustion and animal offerings.
+- Proposed adaptation: **Two Tiles of Welcomed Support** keeps two symbolic support objects, linen, and spoken care on a stable altar. It forbids physical use of the tiles during labor, removes all combustion and animal material, makes no health claim, and requires consent plus ordinary care actions.
+
 ## Required review
 
 Both proposals still require confirmation of the manuscript date from a current collection catalogue, line-by-line fidelity review against the scan, a Wiccan-scope decision, safety and duplicate review, and a final content-hash-bound rights decision.

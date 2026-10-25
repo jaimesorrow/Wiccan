@@ -406,8 +406,83 @@
       "id": "egypt-heka-014-spells-for-childbirth",
       "proposedPrimaryCategoryId": "protection-cleansing-warding",
       "proposedConcept": "A symbolic support charm with no medical or pregnancy claim",
-      "disposition": "medical_scope_source_and_translation_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "Two Tiles of Welcomed Support",
+        "slug": "two-tiles-of-welcomed-support",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian birth-related household magic",
+        "summary": "Prepare two symbolic altar tiles and name two consent-based forms of practical support for a birth or another welcomed transition.",
+        "intro": "Berlin Papyrus 3027 includes a birth-related recitation spoken over two bricks associated with the birthing place. Erman’s 1901 edition also records fine linen, offerings, incense, and fire. This is ancient Egyptian ritual material, not Wicca. The modern adaptation retains two marked supports, linen, spoken care, and protective intention while removing physical use of birth bricks, combustion, animal offerings, and claims about labor or health.",
+        "introduction": "Berlin Papyrus 3027 includes a birth-related recitation spoken over two bricks associated with the birthing place. Erman’s 1901 edition also records fine linen, offerings, incense, and fire. This is ancient Egyptian ritual material, not Wicca. The modern adaptation retains two marked supports, linen, spoken care, and protective intention while removing physical use of birth bricks, combustion, animal offerings, and claims about labor or health.",
+        "body": "1. Choose a transition you are personally undergoing or supporting with consent: pregnancy, recovery after birth, adoption, beginning a caregiving role, or another clearly named act of bringing something into life. Write the person’s chosen name or the transition’s title on a card. Do not use this ritual to predict or manage a medical outcome.\n\n2. Place two flat ceramic tiles side by side on a stable altar or table. The source speaks over two birth bricks; these tiles are symbolic altar objects only. No person should stand, sit, kneel, or labor on them.\n\n3. Lay a small piece of clean linen across the tiles. Erman’s passage names fine linen clothing for the officiant. This adaptation moves linen onto the altar and removes specialist dress, meat and bird offerings, incense, and fire.\n\n4. Set the card on the linen. If the named person is someone other than you, confirm that they welcome this spiritual support. Say, “May care surround this passage; may choice, skill, and compassion meet it.” This is original modern wording.\n\n5. Name two forms of practical support—one for each tile. Examples include preparing a meal, arranging transport, respecting rest, or following an agreed contact plan. Write only actions that the recipient has requested or accepted.\n\n6. Fold the linen once over the card without tying it. Say, “The rite is closed; the promised care remains.” Leave the folded linen on the tiles for the duration of one quiet breath, then remove it. The two supports you named, rather than the objects, carry the commitment forward.\n\n7. Return the tiles to ordinary storage. Give or perform the promised support at the agreed time. Store the card privately or recycle it. If pregnancy or birth is involved, follow the recipient’s clinical care plan and contact qualified maternity or emergency services when needed.",
+        "lesson": "1. Choose a transition you are personally undergoing or supporting with consent: pregnancy, recovery after birth, adoption, beginning a caregiving role, or another clearly named act of bringing something into life. Write the person’s chosen name or the transition’s title on a card. Do not use this ritual to predict or manage a medical outcome.\n\n2. Place two flat ceramic tiles side by side on a stable altar or table. The source speaks over two birth bricks; these tiles are symbolic altar objects only. No person should stand, sit, kneel, or labor on them.\n\n3. Lay a small piece of clean linen across the tiles. Erman’s passage names fine linen clothing for the officiant. This adaptation moves linen onto the altar and removes specialist dress, meat and bird offerings, incense, and fire.\n\n4. Set the card on the linen. If the named person is someone other than you, confirm that they welcome this spiritual support. Say, “May care surround this passage; may choice, skill, and compassion meet it.” This is original modern wording.\n\n5. Name two forms of practical support—one for each tile. Examples include preparing a meal, arranging transport, respecting rest, or following an agreed contact plan. Write only actions that the recipient has requested or accepted.\n\n6. Fold the linen once over the card without tying it. Say, “The rite is closed; the promised care remains.” Leave the folded linen on the tiles for the duration of one quiet breath, then remove it. The two supports you named, rather than the objects, carry the commitment forward.\n\n7. Return the tiles to ordinary storage. Give or perform the promised support at the agreed time. Store the card privately or recycle it. If pregnancy or birth is involved, follow the recipient’s clinical care plan and contact qualified maternity or emergency services when needed.",
+        "reflection": "How did naming two consent-based actions change the meaning of spiritual support?",
+        "practice": "Prepare the two-tile altar once, name two welcomed supports, close the rite, and carry out the agreed actions.",
+        "materials": [
+          "Two flat ceramic tiles",
+          "Small piece of clean linen",
+          "Paper card and pen"
+        ],
+        "tools": [
+          "Two flat ceramic tiles",
+          "Small piece of clean linen",
+          "Paper card and pen"
+        ],
+        "safetyNote": "Keep tiles flat on a stable table; no person should stand, sit, kneel, or labor on them. This version uses no flame, smoke, incense, animal offering, herb, oil, or bodily application. Obtain consent before naming another person. Anyone who is pregnant or giving birth should follow their clinical care plan and contact qualified maternity or emergency services when needed.",
+        "category": "altars-sacred-space",
+        "primaryCategoryId": "altars-sacred-space",
+        "secondaryCategoryIds": [
+          "protection-cleansing-warding"
+        ],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 15,
+        "incantation": "May care surround this passage; may choice, skill, and compassion meet it.",
+        "timing": "At a mutually welcomed time before or after a transition; no medical timing is prescribed.",
+        "application": "Translate protective ritual symbolism into two specific, consent-based acts of care.",
+        "correspondences": [
+          "Documented objects: two bricks associated with the birth place",
+          "Documented textile: fine linen",
+          "Documented ritual elements omitted here: animal offerings, incense, and fire",
+          "Modern adaptation: two flat altar tiles representing two agreed supports"
+        ],
+        "citations": [
+          {
+            "textTitle": "Zaubersprüche für Mutter und Kind",
+            "manuscriptId": "Berlin Papyrus 3027",
+            "tradition": "Ancient Egyptian birth-related household magic",
+            "manuscriptDate": "New Kingdom manuscript tradition; exact catalogue dating requires confirmation",
+            "edition": "Adolf Erman, Zaubersprüche für Mutter und Kind",
+            "editionDate": "1901",
+            "translator": "Adolf Erman (German edition and translation)",
+            "locator": "Edition pp. 26–27, birth recitation over two bricks",
+            "url": "https://archive.org/details/b24866003"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains two support objects, linen, spoken protective intention, and a birth-related context.",
+          "Moves the objects to a symbolic altar and forbids their physical use during labor.",
+          "Removes meat and bird offerings, incense, fire, specialist dress, and claims about health outcomes.",
+          "Adds consent and two concrete care commitments.",
+          "The incantation is original modern wording and is not attributed to the papyrus."
+        ],
+        "sourcePassageId": "berlin-3027-pp-26-27-two-birth-bricks",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Erman, Zaubersprüche für Mutter und Kind (1901), pp. 26–27, recitation over two birth bricks",
+        "sourceUrl": "https://archive.org/details/b24866003",
+        "similarityGroupId": "two-tiles-consent-support",
+        "rightsReviewRequired": true,
+        "rightsNotes": "Erman’s 1901 edition predates the United States public-domain cutoff and Erman died in 1937. Final distribution-jurisdiction, manuscript dating, and independent passage review remain required.",
+        "tags": [
+          "berlin-papyrus-3027",
+          "birth-bricks",
+          "linen",
+          "consent-based-support"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "harris-015-the-harris-magical-papyrus",
