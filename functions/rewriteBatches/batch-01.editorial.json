@@ -17,8 +17,88 @@
       "id": "egypt-heka-001-charging-water-by-contact",
       "proposedPrimaryCategoryId": "elemental-magic",
       "proposedConcept": "A non-ingestible water-contact blessing based on an attested cippus passage",
-      "disposition": "source_passage_and_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "Water Across the Carved Sign",
+        "slug": "water-across-the-carved-sign",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Use flowing water across a reusable inscribed tile as a temporary ritual carrier, then return both water and tile to ordinary use without ingestion or health claims.",
+        "intro": "Cippi of Horus combine carved images, inscribed protective speech, and water passed over the surface. The cited Brooklyn Museum object belongs to this ancient Egyptian tradition; it is not Wiccan and the exact inscribed passage still requires independent verification. This modern adaptation retains contact between water and a marked surface while replacing medical use with a brief, non-ingestible Wiccan reflection on carrying an intention into action.",
+        "introduction": "Cippi of Horus combine carved images, inscribed protective speech, and water passed over the surface. The cited Brooklyn Museum object belongs to this ancient Egyptian tradition; it is not Wiccan and the exact inscribed passage still requires independent verification. This modern adaptation retains contact between water and a marked surface while replacing medical use with a brief, non-ingestible Wiccan reflection on carrying an intention into action.",
+        "body": "1. Choose one ordinary quality you want to carry into a specific action today, such as patience during a conversation or steadiness while completing a task. Write the quality and action in your notebook. Avoid health, emergency, or guaranteed-result intentions.\n\n2. On a clean, unglazed ceramic tile, draw one simple personal mark with a washable pencil. The mark must be your own; do not copy a museum image or claim it is an Egyptian sign. Place the tile in a shallow basin beside a sink.\n\n3. Pour a small amount of plain tap water slowly across the tile while saying, “Water crosses the sign; my chosen action carries on.” This is original modern wording. The water’s contact with the marked surface is the historical technique retained here.\n\n4. Watch the mark darken or soften for one breath. Name aloud the practical action written in your notebook. Do not describe the water as medicine, poison treatment, or a substance with guaranteed power.\n\n5. Lift the tile and let excess water return to the basin. Set it on a towel. Pour the used water directly down the sink; send it directly to the drain; it is not a beverage, stored preparation, spray, or topical material.\n\n6. Wash the tile with ordinary soap, rinse it, and dry it completely. Erase the temporary mark. Returning the object to ordinary use closes the working and distinguishes a temporary ritual tool from a permanent historical replica.\n\n7. Complete the named action within the time you chose. Later, record whether the water-contact sequence helped you remember the commitment. Judge the practice by attention and follow-through rather than by a supernatural outcome.",
+        "lesson": "1. Choose one ordinary quality you want to carry into a specific action today, such as patience during a conversation or steadiness while completing a task. Write the quality and action in your notebook. Avoid health, emergency, or guaranteed-result intentions.\n\n2. On a clean, unglazed ceramic tile, draw one simple personal mark with a washable pencil. The mark must be your own; do not copy a museum image or claim it is an Egyptian sign. Place the tile in a shallow basin beside a sink.\n\n3. Pour a small amount of plain tap water slowly across the tile while saying, “Water crosses the sign; my chosen action carries on.” This is original modern wording. The water’s contact with the marked surface is the historical technique retained here.\n\n4. Watch the mark darken or soften for one breath. Name aloud the practical action written in your notebook. Do not describe the water as medicine, poison treatment, or a substance with guaranteed power.\n\n5. Lift the tile and let excess water return to the basin. Set it on a towel. Pour the used water directly down the sink; send it directly to the drain; it is not a beverage, stored preparation, spray, or topical material.\n\n6. Wash the tile with ordinary soap, rinse it, and dry it completely. Erase the temporary mark. Returning the object to ordinary use closes the working and distinguishes a temporary ritual tool from a permanent historical replica.\n\n7. Complete the named action within the time you chose. Later, record whether the water-contact sequence helped you remember the commitment. Judge the practice by attention and follow-through rather than by a supernatural outcome.",
+        "reflection": "What did the movement of water add to your commitment that writing alone did not?",
+        "practice": "Pass water over one original marked tile, clean it completely, and complete the named ordinary action.",
+        "materials": [
+          "Clean unglazed ceramic tile",
+          "Washable pencil",
+          "Shallow basin",
+          "Plain tap water",
+          "Towel",
+          "Notebook and pen"
+        ],
+        "tools": [
+          "Clean unglazed ceramic tile",
+          "Washable pencil",
+          "Shallow basin",
+          "Plain tap water",
+          "Towel",
+          "Notebook and pen"
+        ],
+        "safetyNote": "Use only plain water and a clean, stable basin. Wipe spills immediately and keep water away from electrical equipment. Do not consume, store, spray, or apply the ritual water to skin, and never use it for bites, stings, illness, or other medical needs.",
+        "category": "elemental-magic",
+        "primaryCategoryId": "elemental-magic",
+        "secondaryCategoryIds": [],
+        "lessonType": "elemental",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 12,
+        "incantation": "Water crosses the sign; my chosen action carries on.",
+        "timing": "Any time before the named practical action; no historical medical timing is reproduced.",
+        "application": "Use water contact with a personally marked surface to reinforce one practical commitment.",
+        "correspondences": [
+          "Documented object type: an inscribed cippus",
+          "Documented technique claimed by the source record: liquid contacting the carved surface",
+          "Modern adaptation: original temporary mark, plain water, sink disposal, and practical follow-through"
+        ],
+        "citations": [
+          {
+            "textTitle": "Cippus of Horus, Brooklyn Museum",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "Cippus of Horus, Brooklyn Museum - Brooklyn Museum, Cippus of Horus on the Crocodiles",
+            "url": "https://www.brooklynmuseum.org/objects/3684"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains water moving across a marked surface.",
+          "Uses an original personal mark rather than copying ancient iconography.",
+          "Removes ingestion, washing of the body, healing claims, and treatment of venom.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-001-charging-water-by-contact",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Cippus of Horus, Brooklyn Museum - Brooklyn Museum, Cippus of Horus on the Crocodiles",
+        "sourceUrl": "https://www.brooklynmuseum.org/objects/3684",
+        "similarityGroupId": "water-marked-tile",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed historical locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "cippus",
+          "horus",
+          "water",
+          "transfer",
+          "water-contact",
+          "marked-tile",
+          "ritual-closure"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-002-guarding-children",
@@ -106,29 +186,332 @@
       "id": "egypt-heka-003-handbooks-not-scripture",
       "proposedPrimaryCategoryId": "altars-sacred-space",
       "proposedConcept": "A written ritual sequence derived from a specific handbook operation",
-      "disposition": "unsupported_practical_passage_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Red-Heading Ritual Plan",
+        "slug": "red-heading-ritual-plan",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Write a practical ritual plan with visually separated preparation, action, and closure headings, following the handbook character of an Egyptian magical-medical manuscript.",
+        "intro": "The London Medical Papyrus is a working compilation of incantations and recipes rather than scripture. Wreszinski’s public-domain edition describes red headings and instructions used to separate operations, although the exact passage supporting this seed record still needs review. This modern Wiccan lesson retains the practical handbook principle: a working is written as an ordered procedure that can be checked before it begins.",
+        "introduction": "The London Medical Papyrus is a working compilation of incantations and recipes rather than scripture. Wreszinski’s public-domain edition describes red headings and instructions used to separate operations, although the exact passage supporting this seed record still needs review. This modern Wiccan lesson retains the practical handbook principle: a working is written as an ordered procedure that can be checked before it begins.",
+        "body": "1. Select one harmless, self-directed ritual you already understand, such as arranging a reflective bowl, placing a stone beside a journal, or making a silent altar dedication. Do not choose food preparation, bodily application, combustion, or a medical purpose for this planning exercise.\n\n2. Divide one page into four sections. Write the headings “Purpose,” “Preparation,” “Action,” and “Closure” in red pencil. Use black pencil for all instructions. The two-color system is a modern visual adaptation inspired by manuscript rubrics; it is not a copied Egyptian layout.\n\n3. Under Purpose, write one sentence about what the working helps you practice. Under Preparation, list every object and the exact place it will be used. Remove anything unnecessary or hazardous.\n\n4. Under Action, write three to seven numbered steps. Begin each step with a verb. Include a stopping time and keep every action under your control. If a step depends on another person, record their consent or rewrite the step.\n\n5. Under Closure, state how every material returns to ordinary use, storage, recycling, or disposal. Add one observable next action so the ritual does not end with an unsupported promise.\n\n6. Read the complete page aloud once. Say, “Written with order, performed with care, completed and closed.” This is original modern wording. Correct missing tools, unclear quantities, or a closure that cannot be completed.\n\n7. Perform the plan exactly once or store it for later review. Afterward, mark each completed section and note any instruction that failed in practice. Revise the handbook entry rather than inventing an explanation or claiming a supernatural certainty.",
+        "lesson": "1. Select one harmless, self-directed ritual you already understand, such as arranging a reflective bowl, placing a stone beside a journal, or making a silent altar dedication. Do not choose food preparation, bodily application, combustion, or a medical purpose for this planning exercise.\n\n2. Divide one page into four sections. Write the headings “Purpose,” “Preparation,” “Action,” and “Closure” in red pencil. Use black pencil for all instructions. The two-color system is a modern visual adaptation inspired by manuscript rubrics; it is not a copied Egyptian layout.\n\n3. Under Purpose, write one sentence about what the working helps you practice. Under Preparation, list every object and the exact place it will be used. Remove anything unnecessary or hazardous.\n\n4. Under Action, write three to seven numbered steps. Begin each step with a verb. Include a stopping time and keep every action under your control. If a step depends on another person, record their consent or rewrite the step.\n\n5. Under Closure, state how every material returns to ordinary use, storage, recycling, or disposal. Add one observable next action so the ritual does not end with an unsupported promise.\n\n6. Read the complete page aloud once. Say, “Written with order, performed with care, completed and closed.” This is original modern wording. Correct missing tools, unclear quantities, or a closure that cannot be completed.\n\n7. Perform the plan exactly once or store it for later review. Afterward, mark each completed section and note any instruction that failed in practice. Revise the handbook entry rather than inventing an explanation or claiming a supernatural certainty.",
+        "reflection": "Which written section prevented the greatest confusion during the working?",
+        "practice": "Draft and test one four-section ritual plan with red headings and numbered black instructions.",
+        "materials": [
+          "Notebook or loose paper",
+          "Red pencil",
+          "Black pencil",
+          "Any harmless tools already required by the chosen working"
+        ],
+        "tools": [
+          "Notebook or loose paper",
+          "Red pencil",
+          "Black pencil",
+          "Any harmless tools already required by the chosen working"
+        ],
+        "safetyNote": "Choose a flameless, smoke-free, non-ingestible, not applied to the body working for this planning exercise. Keep tools stable and accessible, obtain consent for any shared action, and stop if the written method reveals a hazard or unclear disposal step.",
+        "category": "altars-sacred-space",
+        "primaryCategoryId": "altars-sacred-space",
+        "secondaryCategoryIds": [],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 25,
+        "incantation": "Written with order, performed with care, completed and closed.",
+        "timing": "Before performing a familiar self-directed working.",
+        "application": "Turn ritual inspiration into a reviewable, sequential practice plan.",
+        "correspondences": [
+          "Documented manuscript feature: a practical compilation of incantations and recipes",
+          "Documented scribal feature reported by the public-domain edition: red headings and instructions",
+          "Modern adaptation: four planning sections and a post-practice revision"
+        ],
+        "citations": [
+          {
+            "textTitle": "London Medical Papyrus (BM EA 10059)",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "London Medical Papyrus (BM EA 10059) - British Museum EA 10059: columns 1-11 (incantations 1-33) recto, 12-19 (34-52) verso",
+            "url": "https://www.britishmuseum.org/collection/object/Y_EA10059-1"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains the source’s handbook character and visible procedural organization.",
+          "Does not reproduce any medical recipe or incantation.",
+          "Adds consent, hazard review, disposal, and observable follow-through.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-003-handbooks-not-scripture",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "London Medical Papyrus (BM EA 10059) - British Museum EA 10059: columns 1-11 (incantations 1-33) recto, 12-19 (34-52) verso",
+        "sourceUrl": "https://www.britishmuseum.org/collection/object/Y_EA10059-1",
+        "similarityGroupId": "red-heading-ritual-plan",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed historical locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "handbook",
+          "compilation",
+          "manuscript",
+          "ritual-planning",
+          "rubric"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-004-healing-statues-and-cippi",
       "proposedPrimaryCategoryId": "elemental-magic",
       "proposedConcept": "A safe water-pouring observance adapted from a named cippus inscription",
-      "disposition": "source_passage_and_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Standing Image and Flowing Water",
+        "slug": "standing-image-flowing-water",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Create a temporary upright image beside flowing water to practice the historical relationship among image, recitation, and liquid without imitating treatment.",
+        "intro": "Ancient Egyptian healing statues and cippi joined an upright inscribed image with spoken text and water. The seed cites a healing statue and the Brooklyn Museum cippus, but its exact passages and translation rights remain under review. This modern Wiccan adaptation studies the relationship through an original paper image standing beside—not inside—water, separating it from the direct-contact tile practice taught elsewhere.",
+        "introduction": "Ancient Egyptian healing statues and cippi joined an upright inscribed image with spoken text and water. The seed cites a healing statue and the Brooklyn Museum cippus, but its exact passages and translation rights remain under review. This modern Wiccan adaptation studies the relationship through an original paper image standing beside—not inside—water, separating it from the direct-contact tile practice taught elsewhere.",
+        "body": "1. Fold a sheet of heavy paper into a freestanding card. On its face, draw an original image of yourself standing calmly. Add three small symbols representing resources you can actually use, such as a phone, door, book, friend, or path.\n\n2. Place the card upright on a dry counter at least a hand’s width from the sink. Set a clear bowl in the sink below the tap. The historical image-and-water relationship inspires this arrangement; no ancient figure or inscription is copied.\n\n3. Read the three resources aloud. Then say, “Image before me, water below; I remember the help I already know.” This is original modern wording and assigns no healing function to the image or water.\n\n4. Run a thin stream of plain water into the bowl for three breaths while looking at the standing card. Name one situation in which you will use one listed resource. Keep the paper dry and the bowl inside the sink.\n\n5. Turn off the tap. Pour the bowl out immediately and set it upside down to drain. Send the water directly to the drain; it is not a beverage, stored preparation, spray, or material for bodily application. The working concerns symbolic relationship, not preparation of a potion.\n\n6. Fold the card closed so the image is no longer visible. Write the chosen resource and next action on the outside. This visible-to-hidden change marks the end of the ritual gaze and the start of ordinary follow-through.\n\n7. Dry the sink area, return the bowl, and place the folded card in your notebook. Complete the next action. Recycle the card when the action is finished rather than preserving it as a medical or guaranteed protective object.",
+        "lesson": "1. Fold a sheet of heavy paper into a freestanding card. On its face, draw an original image of yourself standing calmly. Add three small symbols representing resources you can actually use, such as a phone, door, book, friend, or path.\n\n2. Place the card upright on a dry counter at least a hand’s width from the sink. Set a clear bowl in the sink below the tap. The historical image-and-water relationship inspires this arrangement; no ancient figure or inscription is copied.\n\n3. Read the three resources aloud. Then say, “Image before me, water below; I remember the help I already know.” This is original modern wording and assigns no healing function to the image or water.\n\n4. Run a thin stream of plain water into the bowl for three breaths while looking at the standing card. Name one situation in which you will use one listed resource. Keep the paper dry and the bowl inside the sink.\n\n5. Turn off the tap. Pour the bowl out immediately and set it upside down to drain. Send the water directly to the drain; it is not a beverage, stored preparation, spray, or material for bodily application. The working concerns symbolic relationship, not preparation of a potion.\n\n6. Fold the card closed so the image is no longer visible. Write the chosen resource and next action on the outside. This visible-to-hidden change marks the end of the ritual gaze and the start of ordinary follow-through.\n\n7. Dry the sink area, return the bowl, and place the folded card in your notebook. Complete the next action. Recycle the card when the action is finished rather than preserving it as a medical or guaranteed protective object.",
+        "reflection": "How did placing the image beside rather than in the water affect the meaning of the working?",
+        "practice": "Create one standing resource image, observe water flowing separately, close the card, and use one named resource.",
+        "materials": [
+          "Heavy paper",
+          "Pencil or colored pencils",
+          "Clear bowl",
+          "Sink with plain water",
+          "Towel"
+        ],
+        "tools": [
+          "Heavy paper",
+          "Pencil or colored pencils",
+          "Clear bowl",
+          "Sink with plain water",
+          "Towel"
+        ],
+        "safetyNote": "Keep paper and the working surface dry, place the bowl inside the sink, conserve water, and wipe spills. Keep water away from electrical equipment. Do not consume or apply the water, and do not use the practice for treating illness, bites, stings, or emergencies.",
+        "category": "altars-sacred-space",
+        "primaryCategoryId": "altars-sacred-space",
+        "secondaryCategoryIds": [
+          "elemental-magic"
+        ],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 15,
+        "incantation": "Image before me, water below; I remember the help I already know.",
+        "timing": "Any quiet time before using one named resource.",
+        "application": "Explore the documented image-speech-water relationship through separated, temporary modern materials.",
+        "correspondences": [
+          "Documented object types: upright healing statues and cippi",
+          "Documented relationship claimed by the seed: image, spoken text, and water",
+          "Modern adaptation: original paper resource image beside a draining bowl"
+        ],
+        "citations": [
+          {
+            "textTitle": "Borghouts, Ancient Egyptian Magical Texts; Brooklyn Museum",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "Borghouts, Ancient Egyptian Magical Texts; Brooklyn Museum - Borghouts spells 87 and 142 (healing statue Cairo JE 69771); Brooklyn Museum, Cippus of Horus on the Crocodiles",
+            "url": "https://www.brooklynmuseum.org/objects/3684"
+          }
+        ],
+        "adaptationNotes": [
+          "Keeps image, speech, and water as three related elements.",
+          "Separates paper and water and prohibits bodily or medical use.",
+          "Uses original imagery and an ordinary resource action rather than copying a historical figure.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-004-healing-statues-and-cippi",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Borghouts, Ancient Egyptian Magical Texts; Brooklyn Museum - Borghouts spells 87 and 142 (healing statue Cairo JE 69771); Brooklyn Museum, Cippus of Horus on the Crocodiles",
+        "sourceUrl": "https://www.brooklynmuseum.org/objects/3684",
+        "similarityGroupId": "standing-image-water",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed historical locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "statue",
+          "cippus",
+          "horus",
+          "objects",
+          "standing-image",
+          "water",
+          "resource-map"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-005-heka-magic-as-a-god",
       "proposedPrimaryCategoryId": "altars-sacred-space",
       "proposedConcept": "A spoken altar dedication supported by a specific primary passage",
-      "disposition": "source_passage_and_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "Naming the Act Before the Altar",
+        "slug": "naming-the-act-before-the-altar",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Name a ritual action precisely before beginning it, using an altar card to distinguish the practitioner, the method, and the hoped-for purpose.",
+        "intro": "The Metternich Stela gives Heka a divine role within protective speech, but the seed’s exact section and reusable translation remain unapproved. Modern Wicca does not inherit that ancient theology. This adaptation takes one defensible practical lesson from the source context: magical speech identifies who acts, what is done, and why. It uses an original altar statement without impersonating Heka or claiming ancient authority.",
+        "introduction": "The Metternich Stela gives Heka a divine role within protective speech, but the seed’s exact section and reusable translation remain unapproved. Modern Wicca does not inherit that ancient theology. This adaptation takes one defensible practical lesson from the source context: magical speech identifies who acts, what is done, and why. It uses an original altar statement without impersonating Heka or claiming ancient authority.",
+        "body": "1. Choose one small ritual action that is harmless and entirely yours, such as placing a stone beside a journal, opening a window briefly, or arranging a clean cloth. Decide what skill it represents: attention, courage, rest, or another grounded quality.\n\n2. On a card, complete three lines: “I am the practitioner.” “My action is ___.” “My purpose is to practice ___.” Avoid titles of authority, promises of results, and claims that an ancient deity speaks through you.\n\n3. Put the card on a clean altar or table with the single tool required for the action. Leave all unrelated objects off the surface. Read the card aloud at an ordinary volume.\n\n4. Say, “Named is the actor, named is the deed, named is the purpose I choose to feed.” This is original modern wording. Pause and check that the deed still matches the purpose. If it does not, revise the card before proceeding.\n\n5. Perform the action once. Describe it in literal language as you do it: “I place the stone,” “I open the window,” or “I unfold the cloth.” Do not turn the description into a prediction or command aimed at another person.\n\n6. Return the tool to its ordinary state. Beneath the three lines, write what physically happened and one next action that supports the named quality. Cross out any outcome that was outside your control.\n\n7. Close by saying, “The act is finished; the purpose continues through my choices.” Store or recycle the card. Use a new card for a different act so the name, method, and purpose remain specific rather than becoming a generic affirmation.",
+        "lesson": "1. Choose one small ritual action that is harmless and entirely yours, such as placing a stone beside a journal, opening a window briefly, or arranging a clean cloth. Decide what skill it represents: attention, courage, rest, or another grounded quality.\n\n2. On a card, complete three lines: “I am the practitioner.” “My action is ___.” “My purpose is to practice ___.” Avoid titles of authority, promises of results, and claims that an ancient deity speaks through you.\n\n3. Put the card on a clean altar or table with the single tool required for the action. Leave all unrelated objects off the surface. Read the card aloud at an ordinary volume.\n\n4. Say, “Named is the actor, named is the deed, named is the purpose I choose to feed.” This is original modern wording. Pause and check that the deed still matches the purpose. If it does not, revise the card before proceeding.\n\n5. Perform the action once. Describe it in literal language as you do it: “I place the stone,” “I open the window,” or “I unfold the cloth.” Do not turn the description into a prediction or command aimed at another person.\n\n6. Return the tool to its ordinary state. Beneath the three lines, write what physically happened and one next action that supports the named quality. Cross out any outcome that was outside your control.\n\n7. Close by saying, “The act is finished; the purpose continues through my choices.” Store or recycle the card. Use a new card for a different act so the name, method, and purpose remain specific rather than becoming a generic affirmation.",
+        "reflection": "Did naming actor, action, and purpose reveal any mismatch before you began?",
+        "practice": "Complete one three-line altar card, perform its named action once, and record the observable result.",
+        "materials": [
+          "Small card",
+          "Pen",
+          "One harmless ritual tool",
+          "Clean altar or table"
+        ],
+        "tools": [
+          "Small card",
+          "Pen",
+          "One harmless ritual tool",
+          "Clean altar or table"
+        ],
+        "safetyNote": "Choose a stable, flameless, smoke-free tool and keep the action self-directed. Do not impersonate a deity, target another person, or treat ritual speech as authority over medical, legal, financial, or emergency decisions.",
+        "category": "altars-sacred-space",
+        "primaryCategoryId": "altars-sacred-space",
+        "secondaryCategoryIds": [],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 12,
+        "incantation": "Named is the actor, named is the deed, named is the purpose I choose to feed.",
+        "timing": "Any time a clearly bounded ritual action is planned.",
+        "application": "Clarify ritual agency by naming the practitioner, physical act, and chosen practice purpose.",
+        "correspondences": [
+          "Historical context: Heka named as divine magical agency in protective material",
+          "Modern adaptation: explicit practitioner, action, and purpose statements",
+          "Ethical boundary: no claim of ancient identity or divine authority"
+        ],
+        "citations": [
+          {
+            "textTitle": "Metternich Stela, section I (the Sun, Sekhmet, Thoth and Heka)",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "Metternich Stela, section I (the Sun, Sekhmet, Thoth and Heka)",
+            "url": "http://attalus.org/egypt/spells.html"
+          }
+        ],
+        "adaptationNotes": [
+          "Does not reproduce a Metternich Stela formula while its edition remains unapproved.",
+          "Translates the source theme of named magical agency into transparent modern ritual planning.",
+          "Adds observable follow-through and rejects impersonation or guaranteed efficacy.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-005-heka-magic-as-a-god",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Metternich Stela, section I (the Sun, Sekhmet, Thoth and Heka)",
+        "sourceUrl": "http://attalus.org/egypt/spells.html",
+        "similarityGroupId": "named-ritual-agency",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed historical locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "heka",
+          "theology",
+          "deities",
+          "water",
+          "ritual-agency",
+          "altar-card"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-006-isis-mistress-of-magic",
       "proposedPrimaryCategoryId": "protection-cleansing-warding",
       "proposedConcept": "A self-directed protective address adapted from an identified Isis passage",
-      "disposition": "source_passage_and_translation_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Protective Encircling Gesture",
+        "slug": "protective-encircling-gesture",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Use a four-part self-encircling gesture to name personal boundaries, resources, exit, and consent without claiming an ancient Isis rite.",
+        "intro": "The seed cites protective speeches associated with Isis and the Metternich Stela, including the image of divine protection surrounding Horus. The exact passages and translation rights remain pending, and this is ancient Egyptian religion rather than Wicca. The modern adaptation uses the documented theme of encircling protection as a self-directed Wiccan boundary exercise, without reenacting healing claims or speaking as Isis.",
+        "introduction": "The seed cites protective speeches associated with Isis and the Metternich Stela, including the image of divine protection surrounding Horus. The exact passages and translation rights remain pending, and this is ancient Egyptian religion rather than Wicca. The modern adaptation uses the documented theme of encircling protection as a self-directed Wiccan boundary exercise, without reenacting healing claims or speaking as Isis.",
+        "body": "1. Stand or sit in a clear area with enough room to extend one hand. Place a small card and pen within reach. Choose one situation in which you need a boundary governing your own participation, not control over another person.\n\n2. Face forward and touch your hand lightly to your chest or hold it nearby. Say, “At the center, I name my consent.” Write what you freely agree to do and what you do not agree to do.\n\n3. Gesture slowly to your right and say, “At this side, I name my resources.” List one person, policy, tool, or place you can genuinely contact. Gesture to your left and say, “At this side, I name my limits.” State one clear limit.\n\n4. Gesture behind you without twisting beyond comfort and say, “Behind me, an exit remains.” Identify how you can pause, leave, decline, or ask for help. The four-part movement is a modern structure inspired by surrounding protection; it is not recorded as an Isis gesture.\n\n5. Trace one comfortable open arc in front of you, leaving a visible gap rather than closing a rigid circle. Say, “Care may surround me; my way remains open.” This is original modern wording.\n\n6. Read the consent, resource, limit, and exit once. Choose one practical step, such as sending a message, adjusting a plan, or moving an object. Do not interpret bodily sensations as prophecy.\n\n7. Lower your hand, step out through the imagined gap, and complete the chosen step. Tear up the card if privacy requires. The open exit and ordinary action complete the working; repeated circling is unnecessary.",
+        "lesson": "1. Stand or sit in a clear area with enough room to extend one hand. Place a small card and pen within reach. Choose one situation in which you need a boundary governing your own participation, not control over another person.\n\n2. Face forward and touch your hand lightly to your chest or hold it nearby. Say, “At the center, I name my consent.” Write what you freely agree to do and what you do not agree to do.\n\n3. Gesture slowly to your right and say, “At this side, I name my resources.” List one person, policy, tool, or place you can genuinely contact. Gesture to your left and say, “At this side, I name my limits.” State one clear limit.\n\n4. Gesture behind you without twisting beyond comfort and say, “Behind me, an exit remains.” Identify how you can pause, leave, decline, or ask for help. The four-part movement is a modern structure inspired by surrounding protection; it is not recorded as an Isis gesture.\n\n5. Trace one comfortable open arc in front of you, leaving a visible gap rather than closing a rigid circle. Say, “Care may surround me; my way remains open.” This is original modern wording.\n\n6. Read the consent, resource, limit, and exit once. Choose one practical step, such as sending a message, adjusting a plan, or moving an object. Do not interpret bodily sensations as prophecy.\n\n7. Lower your hand, step out through the imagined gap, and complete the chosen step. Tear up the card if privacy requires. The open exit and ordinary action complete the working; repeated circling is unnecessary.",
+        "reflection": "Which part—consent, resource, limit, or exit—most strengthened the boundary?",
+        "practice": "Complete the four-part gesture once and follow it with one ordinary boundary action.",
+        "materials": [
+          "Small card",
+          "Pen",
+          "Clear seated or standing space"
+        ],
+        "tools": [
+          "Small card",
+          "Pen",
+          "Clear seated or standing space"
+        ],
+        "safetyNote": "Move only within your comfortable range and use seated gestures if needed. Keep the area clear, stop for pain or dizziness, and do not use this exercise to manage immediate danger alone; contact appropriate emergency or professional support. Keep the boundary self-directed and consent-based.",
+        "category": "protection-cleansing-warding",
+        "primaryCategoryId": "protection-cleansing-warding",
+        "secondaryCategoryIds": [],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 10,
+        "incantation": "Care may surround me; my way remains open.",
+        "timing": "Before a situation in which a personal participation boundary is useful.",
+        "application": "Turn a historical theme of surrounding protection into a consent-centered personal boundary sequence.",
+        "correspondences": [
+          "Historical theme claimed by the seed: Isis as surrounding protection for Horus",
+          "Modern adaptation: four named boundary components and an intentionally open arc",
+          "Ethical correspondence: consent and an available exit"
+        ],
+        "citations": [
+          {
+            "textTitle": "Borghouts, Ancient Egyptian Magical Texts; Metternich Stela",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "Borghouts, Ancient Egyptian Magical Texts; Metternich Stela - Borghouts spells 90 and 91 (P. Chester Beatty VII recto 5, 4-7; Metternich Stela 108-251)",
+            "url": "https://dn760102.eu.archive.org/0/items/AncientEgyptianMagicalTexts/Ancient%20Egyptian%20Magical%20Texts.pdf"
+          }
+        ],
+        "adaptationNotes": [
+          "Does not reproduce an ancient formula or claim to speak as Isis.",
+          "Replaces healing and divine efficacy claims with consent, resources, limits, and exit planning.",
+          "Labels the four-part gesture and open arc as modern construction.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-006-isis-mistress-of-magic",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Borghouts, Ancient Egyptian Magical Texts; Metternich Stela - Borghouts spells 90 and 91 (P. Chester Beatty VII recto 5, 4-7; Metternich Stela 108-251)",
+        "sourceUrl": "https://dn760102.eu.archive.org/0/items/AncientEgyptianMagicalTexts/Ancient%20Egyptian%20Magical%20Texts.pdf",
+        "similarityGroupId": "protective-encircling-gesture",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed historical locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "isis",
+          "mythology",
+          "healing",
+          "precedent",
+          "boundary",
+          "consent",
+          "gesture"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-007-knots-as-working-technology",
@@ -218,15 +601,165 @@
       "id": "egypt-heka-008-medicine-and-magic-were-one-practice",
       "proposedPrimaryCategoryId": "herbs-botanicals",
       "proposedConcept": "A non-medical botanical placement adapted from a specific papyrus recipe",
-      "disposition": "unsupported_practical_passage_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Sealed Botanical Method Card",
+        "slug": "sealed-botanical-method-card",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Pair one sealed botanical token with a written ritual method, keeping symbolic speech separate from evidence-based care.",
+        "intro": "The London Medical Papyrus places spoken charms and material recipes in the same working collection. Its precise usable passage remains pending, and no ancient remedy is reproduced here. This modern Wiccan adaptation studies the documented pairing of words and materials through a sealed dried leaf and a method card, while clearly separating symbolic practice from professional care and avoiding preparation for consumption or bodily application.",
+        "introduction": "The London Medical Papyrus places spoken charms and material recipes in the same working collection. Its precise usable passage remains pending, and no ancient remedy is reproduced here. This modern Wiccan adaptation studies the documented pairing of words and materials through a sealed dried leaf and a method card, while clearly separating symbolic practice from professional care and avoiding preparation for consumption or bodily application.",
+        "body": "1. Choose one intact dried culinary bay leaf from your own kitchen supply. Seal it inside a small transparent pouch without crushing it. The leaf is a modern symbolic token; the pending source record does not establish bay as an ancient correspondence for this lesson.\n\n2. On a card, write two headings: “Material action” and “Spoken action.” Under the first, write “Place the sealed leaf beside my plan.” Under the second, write one original sentence about attention, such as “Word and material meet; practical care remains clear.”\n\n3. Beneath those headings, add “Ordinary support.” Record one evidence-based action appropriate to your situation, such as keeping an appointment, following written professional guidance, resting, or asking a qualified person a question. Do not write a diagnosis or alter prescribed care.\n\n4. Put the sealed leaf and card on a clean table. Speak the sentence once, then point to each of the three sections in order: material, words, ordinary support. This deliberate separation is the central modern exercise.\n\n5. Spend five minutes beginning the ordinary action if possible. The botanical token does not cause the result; it marks the ritual portion of the plan while the written action preserves practical accountability.\n\n6. Say, “Symbol is symbol, care is care; I close the rite with both made clear.” Put the sealed leaf away from food preparation areas so it is not accidentally used.\n\n7. Review the card later. Record what the ritual helped you remember and what required ordinary support. Discard the leaf pouch intact after one use, keeping it away from children and pets.",
+        "lesson": "1. Choose one intact dried culinary bay leaf from your own kitchen supply. Seal it inside a small transparent pouch without crushing it. The leaf is a modern symbolic token; the pending source record does not establish bay as an ancient correspondence for this lesson.\n\n2. On a card, write two headings: “Material action” and “Spoken action.” Under the first, write “Place the sealed leaf beside my plan.” Under the second, write one original sentence about attention, such as “Word and material meet; practical care remains clear.”\n\n3. Beneath those headings, add “Ordinary support.” Record one evidence-based action appropriate to your situation, such as keeping an appointment, following written professional guidance, resting, or asking a qualified person a question. Do not write a diagnosis or alter prescribed care.\n\n4. Put the sealed leaf and card on a clean table. Speak the sentence once, then point to each of the three sections in order: material, words, ordinary support. This deliberate separation is the central modern exercise.\n\n5. Spend five minutes beginning the ordinary action if possible. The botanical token does not cause the result; it marks the ritual portion of the plan while the written action preserves practical accountability.\n\n6. Say, “Symbol is symbol, care is care; I close the rite with both made clear.” Put the sealed leaf away from food preparation areas so it is not accidentally used.\n\n7. Review the card later. Record what the ritual helped you remember and what required ordinary support. Discard the leaf pouch intact after one use, keeping it away from children and pets.",
+        "reflection": "How did separating material, words, and ordinary support change your understanding of the working?",
+        "practice": "Complete one sealed-leaf method card and begin the ordinary support action it names.",
+        "materials": [
+          "One intact dried culinary bay leaf",
+          "Small transparent sealable pouch",
+          "Card and pen",
+          "Timer"
+        ],
+        "tools": [
+          "One intact dried culinary bay leaf",
+          "Small transparent sealable pouch",
+          "Card and pen",
+          "Timer"
+        ],
+        "safetyNote": "This practice is flameless and smoke-free. Keep the sealed leaf away from children and pets and discard it intact after use. Do not open, brew, scatter, inhale, or apply the botanical material. Do not change professional care or medication based on this symbolic exercise.",
+        "category": "herbs-botanicals",
+        "primaryCategoryId": "herbs-botanicals",
+        "secondaryCategoryIds": [],
+        "lessonType": "botanical",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 15,
+        "incantation": "Symbol is symbol, care is care; I close the rite with both made clear.",
+        "timing": "Any time a symbolic practice needs a clearly separated ordinary support action.",
+        "application": "Learn to coordinate ritual material and speech without confusing either with evidence-based care.",
+        "correspondences": [
+          "Documented manuscript pattern claimed by the seed: material recipes and spoken charms recorded together",
+          "Modern association: sealed bay leaf used only as a visible botanical token",
+          "Modern method: three explicit sections separating material, speech, and ordinary support"
+        ],
+        "citations": [
+          {
+            "textTitle": "London Medical Papyrus (BM EA 10059)",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "London Medical Papyrus (BM EA 10059) - London Medical Papyrus, 19 pages, 61 paragraphs, incantations 1-52 across recto and verso",
+            "url": "https://www.britishmuseum.org/collection/object/Y_EA10059-1"
+          }
+        ],
+        "adaptationNotes": [
+          "Does not reproduce or adapt an ancient medical recipe.",
+          "Labels the botanical choice as modern and prohibits preparation or bodily use.",
+          "Retains only the source-level relationship between spoken and material components.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-008-medicine-and-magic-were-one-practice",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "London Medical Papyrus (BM EA 10059) - London Medical Papyrus, 19 pages, 61 paragraphs, incantations 1-52 across recto and verso",
+        "sourceUrl": "https://www.britishmuseum.org/collection/object/Y_EA10059-1",
+        "similarityGroupId": "sealed-botanical-method-card",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "medicine",
+          "magic",
+          "healing",
+          "papyrus",
+          "sealed-botanical",
+          "method-card",
+          "symbol-and-care"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-009-naming-the-body-part-by-part",
       "proposedPrimaryCategoryId": "protection-cleansing-warding",
       "proposedConcept": "A non-medical embodied boundary recitation based on a located passage",
-      "disposition": "source_passage_and_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Ten-Point Protective Map",
+        "slug": "ten-point-protective-map",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Build a paper map from head to feet, naming ten areas in order and assigning each a practical form of care.",
+        "intro": "The Metternich Stela passage cited by the seed proceeds through head, eye, nose, arms, chest, belly, thighs, shins, and feet, associating each area with divine protection. Its reusable translation is not yet approved. This modern Wiccan adaptation keeps ordered, comprehensive naming but uses a paper outline and practical care statements rather than divine ownership, poison treatment, or contact with the body.",
+        "introduction": "The Metternich Stela passage cited by the seed proceeds through head, eye, nose, arms, chest, belly, thighs, shins, and feet, associating each area with divine protection. Its reusable translation is not yet approved. This modern Wiccan adaptation keeps ordered, comprehensive naming but uses a paper outline and practical care statements rather than divine ownership, poison treatment, or contact with the body.",
+        "body": "1. Draw a simple human outline on a large sheet of paper. It need not resemble you. Mark ten numbered points from top to bottom: head, eyes, nose, upper arms, lower arms, chest, middle, thighs, shins, and feet.\n\n2. Set ten flat paper tokens beside the outline. Choose one practical care word for each point, such as rest, clarity, air, strength, skill, breath, nourishment, movement, balance, and grounding. These words are modern and are not ancient correspondences.\n\n3. Beginning at the head, place one token at each numbered point. Speak the body-area name and its care word. Keep the sequence in order so no point is skipped; complete coverage is the historical structural idea retained here.\n\n4. After the fifth point, pause and check your breathing and posture. Continue only if comfortable. The exercise is attention and symbolism, not examination, diagnosis, or treatment.\n\n5. At the feet, say, “Named from crown to ground, each part receives attention; the whole remains my own.” This is original modern wording. Look over the complete map once.\n\n6. Choose one care word that can become an ordinary action today. Write the action beside the outline, such as taking a scheduled break or arranging suitable support. Do not infer a problem from the map.\n\n7. Remove the tokens from feet to head, count them, and store them. Fold or recycle the outline. The reverse removal closes the sequence and prevents the paper figure from being treated as a permanent proxy for yourself or anyone else.",
+        "lesson": "1. Draw a simple human outline on a large sheet of paper. It need not resemble you. Mark ten numbered points from top to bottom: head, eyes, nose, upper arms, lower arms, chest, middle, thighs, shins, and feet.\n\n2. Set ten flat paper tokens beside the outline. Choose one practical care word for each point, such as rest, clarity, air, strength, skill, breath, nourishment, movement, balance, and grounding. These words are modern and are not ancient correspondences.\n\n3. Beginning at the head, place one token at each numbered point. Speak the body-area name and its care word. Keep the sequence in order so no point is skipped; complete coverage is the historical structural idea retained here.\n\n4. After the fifth point, pause and check your breathing and posture. Continue only if comfortable. The exercise is attention and symbolism, not examination, diagnosis, or treatment.\n\n5. At the feet, say, “Named from crown to ground, each part receives attention; the whole remains my own.” This is original modern wording. Look over the complete map once.\n\n6. Choose one care word that can become an ordinary action today. Write the action beside the outline, such as taking a scheduled break or arranging suitable support. Do not infer a problem from the map.\n\n7. Remove the tokens from feet to head, count them, and store them. Fold or recycle the outline. The reverse removal closes the sequence and prevents the paper figure from being treated as a permanent proxy for yourself or anyone else.",
+        "reflection": "Which point was easiest to overlook before the ordered map made it visible?",
+        "practice": "Complete the ten-point paper map once and follow one chosen care word with an ordinary action.",
+        "materials": [
+          "Large sheet of paper",
+          "Pen or pencil",
+          "Ten flat paper tokens"
+        ],
+        "tools": [
+          "Large sheet of paper",
+          "Pen or pencil",
+          "Ten flat paper tokens"
+        ],
+        "safetyNote": "Use a comfortable seated position and stop for discomfort or distress. This paper exercise does not examine, diagnose, or treat the body. Keep small tokens away from children and pets, and never use the outline to represent a nonconsenting person.",
+        "category": "protection-cleansing-warding",
+        "primaryCategoryId": "protection-cleansing-warding",
+        "secondaryCategoryIds": [],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 15,
+        "incantation": "Named from crown to ground, each part receives attention; the whole remains my own.",
+        "timing": "Any quiet period; no medical or lunar timing is assigned.",
+        "application": "Use ordered naming to create a complete, self-directed map of attention and practical care.",
+        "correspondences": [
+          "Documented structure claimed by the seed: ordered naming from head through feet",
+          "Documented purpose claimed by the seed: complete protective coverage",
+          "Modern adaptation: paper outline, ten tokens, and practical care words"
+        ],
+        "citations": [
+          {
+            "textTitle": "Metternich Stela; Borghouts, Ancient Egyptian Magical Texts",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "Metternich Stela; Borghouts, Ancient Egyptian Magical Texts - Metternich Stela section G; Borghouts spell 87 (healing statue Cairo JE 69771, 112-180)",
+            "url": "http://attalus.org/egypt/spells.html"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains sequential whole-form naming as the central technique.",
+          "Removes divine ownership, poison treatment, and bodily application.",
+          "Uses no historical formula while translation rights remain unresolved.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-009-naming-the-body-part-by-part",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Metternich Stela; Borghouts, Ancient Egyptian Magical Texts - Metternich Stela section G; Borghouts spell 87 (healing statue Cairo JE 69771, 112-180)",
+        "sourceUrl": "http://attalus.org/egypt/spells.html",
+        "similarityGroupId": "ten-point-protective-map",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "body",
+          "litany",
+          "protection",
+          "deities",
+          "body-map",
+          "ordered-naming",
+          "completeness"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "maqlu-010-nine-tablets-one-night",
@@ -314,8 +847,84 @@
       "id": "egypt-heka-011-protecting-the-house-itself",
       "proposedPrimaryCategoryId": "protection-cleansing-warding",
       "proposedConcept": "A consent-respecting household threshold ward supported by a located passage",
-      "disposition": "source_passage_and_translation_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Door, Window, and Resting-Place Circuit",
+        "slug": "door-window-resting-place-circuit",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Walk a structured household circuit, naming openings and resting spaces before completing ordinary maintenance actions.",
+        "intro": "P. Chester Beatty VIII reportedly protects a house by naming its windows, gaps, bolts, hiding places, cross timbers, rooms, and bed. The modern translation cited by the seed is not cleared for reuse, so no formula is reproduced. This Wiccan adaptation retains the source’s architectural inventory and turns it into a consent-respecting home circuit combining spoken boundaries with ordinary maintenance.",
+        "introduction": "P. Chester Beatty VIII reportedly protects a house by naming its windows, gaps, bolts, hiding places, cross timbers, rooms, and bed. The modern translation cited by the seed is not cleared for reuse, so no formula is reproduced. This Wiccan adaptation retains the source’s architectural inventory and turns it into a consent-respecting home circuit combining spoken boundaries with ordinary maintenance.",
+        "body": "1. Write four headings on a card: “Entry,” “Window,” “Structure,” and “Rest.” Choose one example of each in your home. If you share the home, limit the working to common areas or spaces you have permission to enter.\n\n2. Begin at the selected entry. Observe the door, latch, and clear path without testing anything that does not belong to you. Say, “At the entry, welcome and boundary are both named.” Record one ordinary maintenance action.\n\n3. Move to the selected window. Notice its closure, covering, and nearby objects. Say, “At the window, light may enter and privacy remain.” Record one action within your control, such as moving an obstruction or scheduling a repair.\n\n4. At the structural point—a shelf, beam, wall, or cabinet—name what it supports. Do not climb or move heavy furniture. Say, “What supports this home is noticed and tended.”\n\n5. At the resting place, straighten one removable item with the occupant’s consent. Say, “Rest has a place, and this place may be released from the day.” This wording is original and not a translation.\n\n6. Return to the entry and review the four observations. Complete one simple action now and schedule any repair requiring skill. Ritual attention must not substitute for locks, alarms, qualified repairs, or emergency services.\n\n7. Say, “Opening, structure, room, and rest: the circuit is complete.” Put the card with household notes, then wash your hands normally if you handled dusty surfaces. Do not leave ritual marks on shared property. Record the completion date beside the action so the circuit produces a checkable household note.",
+        "lesson": "1. Write four headings on a card: “Entry,” “Window,” “Structure,” and “Rest.” Choose one example of each in your home. If you share the home, limit the working to common areas or spaces you have permission to enter.\n\n2. Begin at the selected entry. Observe the door, latch, and clear path without testing anything that does not belong to you. Say, “At the entry, welcome and boundary are both named.” Record one ordinary maintenance action.\n\n3. Move to the selected window. Notice its closure, covering, and nearby objects. Say, “At the window, light may enter and privacy remain.” Record one action within your control, such as moving an obstruction or scheduling a repair.\n\n4. At the structural point—a shelf, beam, wall, or cabinet—name what it supports. Do not climb or move heavy furniture. Say, “What supports this home is noticed and tended.”\n\n5. At the resting place, straighten one removable item with the occupant’s consent. Say, “Rest has a place, and this place may be released from the day.” This wording is original and not a translation.\n\n6. Return to the entry and review the four observations. Complete one simple action now and schedule any repair requiring skill. Ritual attention must not substitute for locks, alarms, qualified repairs, or emergency services.\n\n7. Say, “Opening, structure, room, and rest: the circuit is complete.” Put the card with household notes, then wash your hands normally if you handled dusty surfaces. Do not leave ritual marks on shared property. Record the completion date beside the action so the circuit produces a checkable household note.",
+        "reflection": "Which architectural feature became more visible when you named its function aloud?",
+        "practice": "Complete one four-stop household circuit and carry out one ordinary maintenance action.",
+        "materials": [
+          "Card and pen",
+          "Permission to enter each selected space",
+          "Optional household maintenance list"
+        ],
+        "tools": [
+          "Card and pen",
+          "Permission to enter each selected space",
+          "Optional household maintenance list"
+        ],
+        "safetyNote": "Do not climb, test electrical equipment, move heavy furniture, block exits, or alter shared property without permission. Use qualified repair or emergency services when appropriate. Keep the route well lit and stop if a location is unstable or inaccessible.",
+        "category": "protection-cleansing-warding",
+        "primaryCategoryId": "protection-cleansing-warding",
+        "secondaryCategoryIds": [
+          "altars-sacred-space"
+        ],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 20,
+        "incantation": "Opening, structure, room, and rest: the circuit is complete.",
+        "timing": "During daylight or adequate indoor lighting.",
+        "application": "Combine a source-inspired architectural inventory with consent and ordinary household maintenance.",
+        "correspondences": [
+          "Documented features claimed by the seed: openings, bolts, structure, room, and bed",
+          "Documented method claimed by the seed: protection through comprehensive naming",
+          "Modern adaptation: four-stop circuit and maintenance record"
+        ],
+        "citations": [
+          {
+            "textTitle": "Borghouts, Ancient Egyptian Magical Texts",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "Borghouts, Ancient Egyptian Magical Texts - Borghouts spell 11 (P. Chester Beatty VIII, verso 1, 1-2, 4)",
+            "url": "https://dn760102.eu.archive.org/0/items/AncientEgyptianMagicalTexts/Ancient%20Egyptian%20Magical%20Texts.pdf"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains piece-by-piece attention to the dwelling.",
+          "Does not reproduce the hostile-dead framing or a copyrighted translation.",
+          "Adds permission, accessibility, repair boundaries, and practical follow-through.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-011-protecting-the-house-itself",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Borghouts, Ancient Egyptian Magical Texts - Borghouts spell 11 (P. Chester Beatty VIII, verso 1, 1-2, 4)",
+        "sourceUrl": "https://dn760102.eu.archive.org/0/items/AncientEgyptianMagicalTexts/Ancient%20Egyptian%20Magical%20Texts.pdf",
+        "similarityGroupId": "house-feature-circuit",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "house",
+          "protection",
+          "architecture",
+          "dead",
+          "house-circuit",
+          "threshold",
+          "maintenance"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "maqlu-012-saying-it-again-three-and-seven",
@@ -399,8 +1008,86 @@
       "id": "egypt-heka-013-spells-for-bad-dreams",
       "proposedPrimaryCategoryId": "protection-cleansing-warding",
       "proposedConcept": "A bedside protection working adapted from a specific dream passage",
-      "disposition": "source_passage_and_translation_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Waking Dream Fold",
+        "slug": "waking-dream-fold",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Close a frightening dream through orientation, a folded written record, and a firm return to the waking room.",
+        "intro": "The cited Chester Beatty dream spells combine recitation with bread, beer-steeped herbs, myrrh, and contact with the face after waking. Their exact passages and translation rights remain pending. This modern Wiccan adaptation retains an immediate spoken response and a physical completion sequence but omits every historical substance and makes no claim to explain, prevent, or medically treat dreams.",
+        "introduction": "The cited Chester Beatty dream spells combine recitation with bread, beer-steeped herbs, myrrh, and contact with the face after waking. Their exact passages and translation rights remain pending. This modern Wiccan adaptation retains an immediate spoken response and a physical completion sequence but omits every historical substance and makes no claim to explain, prevent, or medically treat dreams.",
+        "body": "1. Prepare before sleep by placing a notebook, pencil, and small empty envelope beside the bed. Keep the walking path clear. Write today’s date on the envelope, then leave it open.\n\n2. If a frightening dream wakes you, first orient to the room. Name the date if known, the place, and three ordinary things you can see. Turn on a gentle light if needed. Do not begin divination while disoriented.\n\n3. Write no more than five factual details from the dream. Avoid deciding what it predicts or what another person secretly intends. Beneath the details write, “This was a dream; interpretation can wait.”\n\n4. Fold the note once and place it in the envelope. Say, “The dream is recorded and bounded; waking choice returns to me.” This is original modern wording, replacing the source’s substances and formula.\n\n5. Close the envelope and place it in a drawer or closed box. Feel both feet or hands supported by the bed or floor and take three unforced breaths. Do not repeatedly reopen the note during the night.\n\n6. Choose a quiet waking action: adjust the room temperature, take a normal sip from your usual bedside beverage, or contact a trusted person if appropriate. No ritual ingredient is prepared or consumed.\n\n7. Review the note in daylight only if useful. Record one emotion and one ordinary support action, then recycle or retain it privately. If nightmares are frequent, severe, trauma-related, or impair sleep, seek qualified health support rather than relying on the ritual.",
+        "lesson": "1. Prepare before sleep by placing a notebook, pencil, and small empty envelope beside the bed. Keep the walking path clear. Write today’s date on the envelope, then leave it open.\n\n2. If a frightening dream wakes you, first orient to the room. Name the date if known, the place, and three ordinary things you can see. Turn on a gentle light if needed. Do not begin divination while disoriented.\n\n3. Write no more than five factual details from the dream. Avoid deciding what it predicts or what another person secretly intends. Beneath the details write, “This was a dream; interpretation can wait.”\n\n4. Fold the note once and place it in the envelope. Say, “The dream is recorded and bounded; waking choice returns to me.” This is original modern wording, replacing the source’s substances and formula.\n\n5. Close the envelope and place it in a drawer or closed box. Feel both feet or hands supported by the bed or floor and take three unforced breaths. Do not repeatedly reopen the note during the night.\n\n6. Choose a quiet waking action: adjust the room temperature, take a normal sip from your usual bedside beverage, or contact a trusted person if appropriate. No ritual ingredient is prepared or consumed.\n\n7. Review the note in daylight only if useful. Record one emotion and one ordinary support action, then recycle or retain it privately. If nightmares are frequent, severe, trauma-related, or impair sleep, seek qualified health support rather than relying on the ritual.",
+        "reflection": "Which step most clearly separated the dream experience from the waking room?",
+        "practice": "Prepare the envelope before sleep and use the orientation-and-fold sequence only if needed.",
+        "materials": [
+          "Notebook paper",
+          "Pencil",
+          "Small envelope",
+          "Gentle bedside light",
+          "Closed drawer or box"
+        ],
+        "tools": [
+          "Notebook paper",
+          "Pencil",
+          "Small envelope",
+          "Gentle bedside light",
+          "Closed drawer or box"
+        ],
+        "safetyNote": "Keep the path and bedside area clear and avoid bright glare when waking. This version uses no beer, herb, myrrh, bread, smoke, or bodily preparation. Seek qualified support for persistent or severe nightmares, trauma symptoms, or impaired sleep.",
+        "category": "protection-cleansing-warding",
+        "primaryCategoryId": "protection-cleansing-warding",
+        "secondaryCategoryIds": [],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 10,
+        "incantation": "The dream is recorded and bounded; waking choice returns to me.",
+        "timing": "Immediately after waking from a distressing dream, with interpretation deferred until daylight.",
+        "application": "Use recording, containment, and orientation to mark a return from dream to waking attention.",
+        "correspondences": [
+          "Documented context claimed by the seed: immediate action after a nightmare",
+          "Documented combination claimed by the seed: spoken and material actions",
+          "Modern adaptation: orientation, written containment, and daylight review"
+        ],
+        "citations": [
+          {
+            "textTitle": "Borghouts, Ancient Egyptian Magical Texts",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "Borghouts, Ancient Egyptian Magical Texts - Borghouts spell 7 (P. Chester Beatty III, recto 10, 6-9); spell 8 (P. Chester Beatty VI, verso 2, 5-9)",
+            "url": "https://dn760102.eu.archive.org/0/items/AncientEgyptianMagicalTexts/Ancient%20Egyptian%20Magical%20Texts.pdf"
+          }
+        ],
+        "adaptationNotes": [
+          "Omits bread, beer, herbs, myrrh, and contact with the face.",
+          "Does not claim to prevent dreams or decode them as prophecy.",
+          "Adds orientation and referral for persistent distress.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-013-spells-for-bad-dreams",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Borghouts, Ancient Egyptian Magical Texts - Borghouts spell 7 (P. Chester Beatty III, recto 10, 6-9); spell 8 (P. Chester Beatty VI, verso 2, 5-9)",
+        "sourceUrl": "https://dn760102.eu.archive.org/0/items/AncientEgyptianMagicalTexts/Ancient%20Egyptian%20Magical%20Texts.pdf",
+        "similarityGroupId": "waking-dream-fold",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "dreams",
+          "nightmare",
+          "healing",
+          "night",
+          "dream",
+          "waking-orientation",
+          "folded-note"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-014-spells-for-childbirth",
@@ -488,8 +1175,90 @@
       "id": "harris-015-the-harris-magical-papyrus",
       "proposedPrimaryCategoryId": "protection-cleansing-warding",
       "proposedConcept": "A practical protective sequence from an exact Harris Papyrus passage",
-      "disposition": "unsupported_practical_passage_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Riverbank Boundary Card",
+        "slug": "riverbank-boundary-card",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Create a dry boundary card that distinguishes water, shoreline, and human path while studying an animal-danger papyrus without reenacting it.",
+        "intro": "The Harris Magical Papyrus groups hymns and incantations concerning crocodiles and other dangerous animals. The surviving manuscript is incomplete, and this seed record does not identify one approved operational passage. Rather than inventing a crocodile spell, this modern Wiccan lesson uses the documented danger-at-water context to create a dry symbolic boundary paired with ordinary water-safety decisions.",
+        "introduction": "The Harris Magical Papyrus groups hymns and incantations concerning crocodiles and other dangerous animals. The surviving manuscript is incomplete, and this seed record does not identify one approved operational passage. Rather than inventing a crocodile spell, this modern Wiccan lesson uses the documented danger-at-water context to create a dry symbolic boundary paired with ordinary water-safety decisions.",
+        "body": "1. On a blue sheet of paper draw one horizontal line to represent water. On a brown or plain sheet draw a second line to represent shore. Place the sheets edge to edge on a dry table, never beside actual open water.\n\n2. Cut a small arrow from scrap paper to represent the human path. Place it on the shore side. The colors and arrow are modern teaching tools, not copied Egyptian symbols or correspondences.\n\n3. Write three water-safety boundaries beside the path: use designated access, obey posted warnings, and keep distance from wildlife. Add one boundary appropriate to your region or planned activity.\n\n4. Say, “Water has its realm, wildlife has its way, and I keep to the path of care.” This is original modern wording. Move the arrow along the shore without crossing the drawn waterline.\n\n5. Name one historical fact documented by the seed: the papyrus organizes material concerning crocodiles and other dangerous animals. Then name what remains unknown: the exact action and words of the selected passage. This prevents the symbolic exercise from being presented as a reconstruction.\n\n6. Fold the water sheet away from the path and place the arrow on your written safety list. The physical separation marks closure. Do not leave paper outdoors or use the card as a real warning marker.\n\n7. Store the list with travel or outdoor plans if relevant. Before visiting water, consult current local guidance, weather, closures, and wildlife notices. The ordinary decision governs conduct; the paper ritual does not create protection.",
+        "lesson": "1. On a blue sheet of paper draw one horizontal line to represent water. On a brown or plain sheet draw a second line to represent shore. Place the sheets edge to edge on a dry table, never beside actual open water.\n\n2. Cut a small arrow from scrap paper to represent the human path. Place it on the shore side. The colors and arrow are modern teaching tools, not copied Egyptian symbols or correspondences.\n\n3. Write three water-safety boundaries beside the path: use designated access, obey posted warnings, and keep distance from wildlife. Add one boundary appropriate to your region or planned activity.\n\n4. Say, “Water has its realm, wildlife has its way, and I keep to the path of care.” This is original modern wording. Move the arrow along the shore without crossing the drawn waterline.\n\n5. Name one historical fact documented by the seed: the papyrus organizes material concerning crocodiles and other dangerous animals. Then name what remains unknown: the exact action and words of the selected passage. This prevents the symbolic exercise from being presented as a reconstruction.\n\n6. Fold the water sheet away from the path and place the arrow on your written safety list. The physical separation marks closure. Do not leave paper outdoors or use the card as a real warning marker.\n\n7. Store the list with travel or outdoor plans if relevant. Before visiting water, consult current local guidance, weather, closures, and wildlife notices. The ordinary decision governs conduct; the paper ritual does not create protection.",
+        "reflection": "How did separating water, shore, and path clarify a boundary you might otherwise overlook?",
+        "practice": "Make one dry riverbank card and record four ordinary water-safety boundaries.",
+        "materials": [
+          "Blue paper",
+          "Brown or plain paper",
+          "Scrap paper",
+          "Scissors",
+          "Pen",
+          "Dry stable table"
+        ],
+        "tools": [
+          "Blue paper",
+          "Brown or plain paper",
+          "Scrap paper",
+          "Scissors",
+          "Pen",
+          "Dry stable table"
+        ],
+        "safetyNote": "Perform this only on a dry indoor table. Keep scissors away from children and never approach wildlife or hazardous water for ritual purposes. Follow local warnings, barriers, weather guidance, and emergency instructions; the card provides no physical protection.",
+        "category": "protection-cleansing-warding",
+        "primaryCategoryId": "protection-cleansing-warding",
+        "secondaryCategoryIds": [
+          "elemental-magic"
+        ],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 15,
+        "incantation": "Water has its realm, wildlife has its way, and I keep to the path of care.",
+        "timing": "Before planning an ordinary visit near water; never during an emergency.",
+        "application": "Study a documented animal-danger context through a symbolic boundary that reinforces ordinary water safety.",
+        "correspondences": [
+          "Documented manuscript subject: crocodiles and other dangerous animals",
+          "Documented organization: related hymns and incantations grouped in a written compilation",
+          "Modern adaptation: dry water-shore-path diagram and safety list"
+        ],
+        "citations": [
+          {
+            "textTitle": "Harris Magical Papyrus (BM EA 10042)",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "Harris Magical Papyrus (BM EA 10042) - British Museum EA 10042; Lange 1927; Science in Ancient Egypt record",
+            "url": "https://www.britishmuseum.org/collection/object/Y_EA10042-2"
+          }
+        ],
+        "adaptationNotes": [
+          "Does not invent or reproduce a Harris Papyrus formula.",
+          "Uses no animal representation as a target and makes no protective claim.",
+          "Links the historical danger context to current posted guidance and distance from wildlife.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-harris-015-the-harris-magical-papyrus",
+        "sourceId": "harris-magical-papyrus",
+        "sourceCitation": "Harris Magical Papyrus (BM EA 10042) - British Museum EA 10042; Lange 1927; Science in Ancient Egypt record",
+        "sourceUrl": "https://www.britishmuseum.org/collection/object/Y_EA10042-2",
+        "similarityGroupId": "riverbank-boundary-card",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "harris",
+          "deir_el_medina",
+          "editions",
+          "manuscript",
+          "harris-papyrus",
+          "water-boundary",
+          "wildlife"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "london-leiden-016-the-number-seven-in-egyptian-practice",
@@ -655,8 +1424,84 @@
       "id": "egypt-heka-018-the-plague-of-the-year",
       "proposedPrimaryCategoryId": "moon-phases-timing",
       "proposedConcept": "A seasonal household observance with no disease-prevention claim",
-      "disposition": "medical_scope_source_and_translation_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Seasonal House Circuit",
+        "slug": "seasonal-house-circuit",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Walk the outside or inside edge of the home to mark a seasonal transition and complete ordinary preparedness tasks without disease-prevention claims.",
+        "intro": "The Edwin Smith verso spells cited by the seed frame the “plague of the year” as a seasonal threat and reportedly include making a circuit of the house. The modern Borghouts translation is not cleared here. This Wiccan adaptation retains seasonal timing and perimeter movement while removing epidemic efficacy, hostile beings, and any suggestion that ritual replaces public-health or clinical guidance.",
+        "introduction": "The Edwin Smith verso spells cited by the seed frame the “plague of the year” as a seasonal threat and reportedly include making a circuit of the house. The modern Borghouts translation is not cleared here. This Wiccan adaptation retains seasonal timing and perimeter movement while removing epidemic efficacy, hostile beings, and any suggestion that ritual replaces public-health or clinical guidance.",
+        "body": "1. Choose a seasonal transition relevant to your location, such as the start of hotter weather, cold weather, storms, or allergy season. Check current official guidance before the ritual and write three ordinary preparedness tasks.\n\n2. Decide on an accessible circuit. Walk outdoors only on property where you have permission and when conditions permit; otherwise use an indoor route through common areas. Carry no flame, smoke, powder, or liquid.\n\n3. At the starting point say, “I mark the season by attention and preparation.” This is original modern wording. Begin the circuit at a comfortable pace, noticing doors, windows, vents, and clear exits without touching equipment.\n\n4. At one quarter of the route, name the first preparedness task. At halfway, name the second. At three quarters, name the third. The quarter points are a modern structure and are not claimed from the papyrus.\n\n5. Return to the starting point and stop. Say, “The boundary is walked; practical care continues.” Record any maintenance issue you observed, but do not inspect roofs, wiring, fuel systems, or unstable areas yourself.\n\n6. Complete one simple task now, such as updating contact information or checking an official alert source. Schedule qualified assistance for work beyond your ability.\n\n7. Put away the list after all three tasks are completed. Do not repeat the circuit to seek certainty. Seasonal illness, fire, weather, and air-quality risks require current official guidance and appropriate professional care, not ritual protection. Record the completion dates beside the tasks so seasonal preparation remains observable and does not become repeated reassurance.",
+        "lesson": "1. Choose a seasonal transition relevant to your location, such as the start of hotter weather, cold weather, storms, or allergy season. Check current official guidance before the ritual and write three ordinary preparedness tasks.\n\n2. Decide on an accessible circuit. Walk outdoors only on property where you have permission and when conditions permit; otherwise use an indoor route through common areas. Carry no flame, smoke, powder, or liquid.\n\n3. At the starting point say, “I mark the season by attention and preparation.” This is original modern wording. Begin the circuit at a comfortable pace, noticing doors, windows, vents, and clear exits without touching equipment.\n\n4. At one quarter of the route, name the first preparedness task. At halfway, name the second. At three quarters, name the third. The quarter points are a modern structure and are not claimed from the papyrus.\n\n5. Return to the starting point and stop. Say, “The boundary is walked; practical care continues.” Record any maintenance issue you observed, but do not inspect roofs, wiring, fuel systems, or unstable areas yourself.\n\n6. Complete one simple task now, such as updating contact information or checking an official alert source. Schedule qualified assistance for work beyond your ability.\n\n7. Put away the list after all three tasks are completed. Do not repeat the circuit to seek certainty. Seasonal illness, fire, weather, and air-quality risks require current official guidance and appropriate professional care, not ritual protection. Record the completion dates beside the tasks so seasonal preparation remains observable and does not become repeated reassurance.",
+        "reflection": "Which practical seasonal task became clearer while moving around the household boundary?",
+        "practice": "Complete one accessible circuit and finish or schedule the three preparedness tasks.",
+        "materials": [
+          "Preparedness card and pen",
+          "Weather-appropriate clothing if outdoors",
+          "Accessible permitted route"
+        ],
+        "tools": [
+          "Preparedness card and pen",
+          "Weather-appropriate clothing if outdoors",
+          "Accessible permitted route"
+        ],
+        "safetyNote": "This version is flameless and smoke-free. Avoid extreme weather, darkness, unstable ground, traffic, roofs, wiring, fuel systems, and restricted areas. Follow current public-health, weather, fire, and emergency guidance. This symbolic circuit offers no physical protection from illness or environmental danger.",
+        "category": "moon-phases-timing",
+        "primaryCategoryId": "moon-phases-timing",
+        "secondaryCategoryIds": [
+          "protection-cleansing-warding"
+        ],
+        "lessonType": "lunar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 20,
+        "incantation": "The boundary is walked; practical care continues.",
+        "timing": "At a locally relevant seasonal transition and only under suitable conditions.",
+        "application": "Mark seasonal change through a household circuit linked to ordinary preparedness.",
+        "correspondences": [
+          "Documented framing claimed by the seed: a recurring danger associated with the year",
+          "Documented action claimed by the seed: walking a circuit of the house",
+          "Modern adaptation: three preparedness checkpoints and official guidance"
+        ],
+        "citations": [
+          {
+            "textTitle": "Borghouts, Ancient Egyptian Magical Texts",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "Borghouts, Ancient Egyptian Magical Texts - Borghouts spells 14-16 (Edwin Smith Surgical Papyrus, 18, 2-19)",
+            "url": "https://dn760102.eu.archive.org/0/items/AncientEgyptianMagicalTexts/Ancient%20Egyptian%20Magical%20Texts.pdf"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains seasonal timing and perimeter movement.",
+          "Removes disease-prevention claims, hostile spirits, and reconstructed speech.",
+          "Adds accessible routing, weather limits, and ordinary preparedness.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-018-the-plague-of-the-year",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Borghouts, Ancient Egyptian Magical Texts - Borghouts spells 14-16 (Edwin Smith Surgical Papyrus, 18, 2-19)",
+        "sourceUrl": "https://dn760102.eu.archive.org/0/items/AncientEgyptianMagicalTexts/Ancient%20Egyptian%20Magical%20Texts.pdf",
+        "similarityGroupId": "seasonal-house-circuit",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "plague",
+          "sakhmet",
+          "epidemic",
+          "protection",
+          "seasonal-boundary",
+          "house-circuit",
+          "preparedness"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "maqlu-019-the-three-movements-of-the-night",
@@ -744,15 +1589,164 @@
       "id": "egypt-heka-020-thoth-the-god-of-spells",
       "proposedPrimaryCategoryId": "divination",
       "proposedConcept": "A writing-based divination preparation supported by a specific Thoth passage",
-      "disposition": "source_passage_and_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Scribe’s Authority Check",
+        "slug": "scribes-authority-check",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Write and test one ritual statement in your own voice, distinguishing learned competence from borrowed divine authority.",
+        "intro": "The Metternich Stela presents Thoth as a specialist in protective speech, and some Egyptian formulas let a practitioner speak from a divine identity. The exact reusable passage remains unapproved. Modern Wicca does not grant ancient Egyptian priestly authority. This adaptation keeps writing, skilled speech, and review while requiring the practitioner to speak only from personal knowledge and responsibility.",
+        "introduction": "The Metternich Stela presents Thoth as a specialist in protective speech, and some Egyptian formulas let a practitioner speak from a divine identity. The exact reusable passage remains unapproved. Modern Wicca does not grant ancient Egyptian priestly authority. This adaptation keeps writing, skilled speech, and review while requiring the practitioner to speak only from personal knowledge and responsibility.",
+        "body": "1. Choose one ritual statement you intend to use in a self-directed working. Write it at the top of a page. Underline every claim about identity, knowledge, authority, or outcome.\n\n2. Make three columns titled “I know,” “I choose,” and “I cannot claim.” Sort each underlined phrase into one column. Move references to another person’s thoughts, future certainty, ancient office, or divine identity into “I cannot claim.”\n\n3. Rewrite the statement using only “I know” and “I choose.” For example, replace “I command certainty” with “I choose to examine what I know.” This is an ethical editing method, not a translation of a Thoth formula.\n\n4. Place a pen horizontally beneath the revised text as a boundary. Say, “Skill is practiced, words are reviewed, and authority stays with what I can answer for.” This is original modern wording.\n\n5. Read the revised statement once. Check whether it gives a physical instruction, a clear ending, and room for uncertainty. If it does not, revise it again before using it.\n\n6. Perform only the harmless, self-directed action named in the statement. Return the pen to ordinary use and draw a closing line beneath the entry.\n\n7. Record what evidence would cause you to change the statement. Keep the page as a versioned ritual note or recycle it. Never speak as an ancient deity, claim a historical office, or use ritual authority to override another person’s consent or professional advice. Date the final version so later revisions remain visible rather than being presented as timeless authority.",
+        "lesson": "1. Choose one ritual statement you intend to use in a self-directed working. Write it at the top of a page. Underline every claim about identity, knowledge, authority, or outcome.\n\n2. Make three columns titled “I know,” “I choose,” and “I cannot claim.” Sort each underlined phrase into one column. Move references to another person’s thoughts, future certainty, ancient office, or divine identity into “I cannot claim.”\n\n3. Rewrite the statement using only “I know” and “I choose.” For example, replace “I command certainty” with “I choose to examine what I know.” This is an ethical editing method, not a translation of a Thoth formula.\n\n4. Place a pen horizontally beneath the revised text as a boundary. Say, “Skill is practiced, words are reviewed, and authority stays with what I can answer for.” This is original modern wording.\n\n5. Read the revised statement once. Check whether it gives a physical instruction, a clear ending, and room for uncertainty. If it does not, revise it again before using it.\n\n6. Perform only the harmless, self-directed action named in the statement. Return the pen to ordinary use and draw a closing line beneath the entry.\n\n7. Record what evidence would cause you to change the statement. Keep the page as a versioned ritual note or recycle it. Never speak as an ancient deity, claim a historical office, or use ritual authority to override another person’s consent or professional advice. Date the final version so later revisions remain visible rather than being presented as timeless authority.",
+        "reflection": "Which phrase changed most when you limited authority to what you know and choose?",
+        "practice": "Apply the three-column authority check to one ritual statement before using it.",
+        "materials": [
+          "Notebook paper",
+          "Pen",
+          "One existing self-directed ritual statement"
+        ],
+        "tools": [
+          "Notebook paper",
+          "Pen",
+          "One existing self-directed ritual statement"
+        ],
+        "safetyNote": "Use only a harmless, flameless, smoke-free action. Keep statements self-directed, respect consent, and never present ritual authority as professional, divine, legal, medical, or historical authority.",
+        "category": "altars-sacred-space",
+        "primaryCategoryId": "altars-sacred-space",
+        "secondaryCategoryIds": [
+          "divination"
+        ],
+        "lessonType": "altar",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 18,
+        "incantation": "Skill is practiced, words are reviewed, and authority stays with what I can answer for.",
+        "timing": "Before using a newly written ritual statement.",
+        "application": "Practice accountable ritual speech through writing, review, revision, and closure.",
+        "correspondences": [
+          "Historical role claimed by the seed: Thoth as a specialist in writing and magical speech",
+          "Historical speech pattern claimed by the seed: practitioners adopting divine authority",
+          "Modern adaptation: three-column claim review and personal accountability"
+        ],
+        "citations": [
+          {
+            "textTitle": "Metternich Stela; The Metropolitan Museum of Art",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "Metternich Stela; The Metropolitan Museum of Art - Metternich Stela sections A, B, G; Stunkel, 'Ancient Egyptian Amulets' (Thoth restores the eye)",
+            "url": "http://attalus.org/egypt/spells.html"
+          }
+        ],
+        "adaptationNotes": [
+          "Does not reproduce a Metternich Stela formula or impersonate Thoth.",
+          "Retains writing, specialized speech, and review as the practical core.",
+          "Adds evidence, uncertainty, consent, and professional-boundary checks.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-020-thoth-the-god-of-spells",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Metternich Stela; The Metropolitan Museum of Art - Metternich Stela sections A, B, G; Stunkel, 'Ancient Egyptian Amulets' (Thoth restores the eye)",
+        "sourceUrl": "http://attalus.org/egypt/spells.html",
+        "similarityGroupId": "scribe-authority-check",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "thoth",
+          "deities",
+          "authority",
+          "poison",
+          "writing",
+          "ritual-authority"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "egypt-heka-021-treating-the-foot-to-cure-the-head",
       "proposedPrimaryCategoryId": "protection-cleansing-warding",
       "proposedConcept": "A symbolic whole-body reflection with all medical treatment claims removed",
-      "disposition": "medical_scope_source_and_translation_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Upper-and-Lower Stone Layout",
+        "slug": "upper-lower-stone-layout",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Arrange two stones at opposite ends of a paper figure to explore an attested upper–lower correspondence without applying a remedy to the body.",
+        "intro": "The seed cites a Leiden papyrus instruction in which a head conjuration with seven knots is placed at the left foot, expressing a stated link between lower and upper parts. The modern translation remains rights-blocked. This Wiccan adaptation retains only the unusual upper–lower relationship through two tabletop stones and seven counted observations; it removes bodily tying and every healing claim.",
+        "introduction": "The seed cites a Leiden papyrus instruction in which a head conjuration with seven knots is placed at the left foot, expressing a stated link between lower and upper parts. The modern translation remains rights-blocked. This Wiccan adaptation retains only the unusual upper–lower relationship through two tabletop stones and seven counted observations; it removes bodily tying and every healing claim.",
+        "body": "1. Draw a vertical line on a sheet of paper. Label its upper end “Above” and lower end “Below.” This is an abstract map, not a medical diagram. Place one smooth stone at each end.\n\n2. Write one question about balance between planning and action. Assign the upper stone to planning and the lower stone to action. These meanings are modern and are not presented as ancient correspondences.\n\n3. Move the lower stone slightly toward the center and name one action already taken. Move the upper stone toward the center and name one piece of planning still useful. Continue alternating until you have made seven total movements.\n\n4. Count every movement aloud. The number seven comes from the seed’s claimed historical instruction; moving stones and the planning/action meanings are modern substitutions for a knotted application at the foot.\n\n5. When the stones meet near the center, say, “What is above can guide; what is below can move; neither stands alone.” This is original modern wording.\n\n6. Write one next action and one limit on further planning. Separate the stones again and return them to their original ends. The return prevents the layout from becoming a permanent diagnosis or promise.\n\n7. Put the stones away and complete the next action if appropriate. Do not place stones on the body, tie anything to a foot, or use the layout for pain, injury, illness, or other health concerns. Record whether the alternating layout changed your plan, then close the notebook before beginning another question.",
+        "lesson": "1. Draw a vertical line on a sheet of paper. Label its upper end “Above” and lower end “Below.” This is an abstract map, not a medical diagram. Place one smooth stone at each end.\n\n2. Write one question about balance between planning and action. Assign the upper stone to planning and the lower stone to action. These meanings are modern and are not presented as ancient correspondences.\n\n3. Move the lower stone slightly toward the center and name one action already taken. Move the upper stone toward the center and name one piece of planning still useful. Continue alternating until you have made seven total movements.\n\n4. Count every movement aloud. The number seven comes from the seed’s claimed historical instruction; moving stones and the planning/action meanings are modern substitutions for a knotted application at the foot.\n\n5. When the stones meet near the center, say, “What is above can guide; what is below can move; neither stands alone.” This is original modern wording.\n\n6. Write one next action and one limit on further planning. Separate the stones again and return them to their original ends. The return prevents the layout from becoming a permanent diagnosis or promise.\n\n7. Put the stones away and complete the next action if appropriate. Do not place stones on the body, tie anything to a foot, or use the layout for pain, injury, illness, or other health concerns. Record whether the alternating layout changed your plan, then close the notebook before beginning another question.",
+        "reflection": "Did alternating upper and lower movements reveal an imbalance between planning and action?",
+        "practice": "Complete seven alternating stone movements and follow them with one bounded ordinary action.",
+        "materials": [
+          "Two smooth stable stones",
+          "Paper",
+          "Pen"
+        ],
+        "tools": [
+          "Two smooth stable stones",
+          "Paper",
+          "Pen"
+        ],
+        "safetyNote": "Use stones large enough not to be swallowed and keep them away from children and pets. Keep the layout on a stable table; do not place stones on the body or tie anything to a foot. Seek qualified care for pain, injury, or illness.",
+        "category": "crystals-stones",
+        "primaryCategoryId": "crystals-stones",
+        "secondaryCategoryIds": [],
+        "lessonType": "stone",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 12,
+        "incantation": "What is above can guide; what is below can move; neither stands alone.",
+        "timing": "Any time planning and action need comparison; no medical timing is assigned.",
+        "application": "Explore a source-claimed upper–lower correspondence through a reversible tabletop layout.",
+        "correspondences": [
+          "Documented relationship claimed by the seed: an upper concern addressed at a lower location",
+          "Documented count claimed by the seed: seven knots",
+          "Modern adaptation: two stones, seven movements, and planning/action labels"
+        ],
+        "citations": [
+          {
+            "textTitle": "Borghouts, Ancient Egyptian Magical Texts",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "Borghouts, Ancient Egyptian Magical Texts - Borghouts spell 45 (P. Leiden I 348, recto 13, 3-5); spell 42",
+            "url": "https://dn760102.eu.archive.org/0/items/AncientEgyptianMagicalTexts/Ancient%20Egyptian%20Magical%20Texts.pdf"
+          }
+        ],
+        "adaptationNotes": [
+          "Retains the upper–lower relationship and count of seven.",
+          "Removes bodily tying, conjuration, and healing claims.",
+          "Labels every stone meaning and movement as a modern adaptation.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-021-treating-the-foot-to-cure-the-head",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Borghouts, Ancient Egyptian Magical Texts - Borghouts spell 45 (P. Leiden I 348, recto 13, 3-5); spell 42",
+        "sourceUrl": "https://dn760102.eu.archive.org/0/items/AncientEgyptianMagicalTexts/Ancient%20Egyptian%20Magical%20Texts.pdf",
+        "similarityGroupId": "upper-lower-stone-layout",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "healing",
+          "principle",
+          "knots",
+          "body",
+          "upper-lower",
+          "two-stones",
+          "seven-movements"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "maqlu-022-water-closes-what-fire-opened",
@@ -842,8 +1836,82 @@
       "id": "egypt-heka-023-wedjat-eye-and-heart-scarab",
       "proposedPrimaryCategoryId": "crystals-stones",
       "proposedConcept": "A stone or clay eye-symbol placement based on a specific amulet inscription",
-      "disposition": "source_passage_and_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Restored Sight and Honest Heart Stones",
+        "slug": "restored-sight-honest-heart-stones",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Use two distinct stones to reflect separately on recovery after difficulty and values used in judgment.",
+        "intro": "The seed contrasts the wedjat eye, associated with restoration and used by living and dead, with the heart scarab’s funerary role in judgment. Its cited source is a modern museum essay rather than an approved primary passage. This adaptation does not copy either amulet. It uses two unmarked stones to keep recovery and ethical judgment separate while the historical evidence remains under review.",
+        "introduction": "The seed contrasts the wedjat eye, associated with restoration and used by living and dead, with the heart scarab’s funerary role in judgment. Its cited source is a modern museum essay rather than an approved primary passage. This adaptation does not copy either amulet. It uses two unmarked stones to keep recovery and ethical judgment separate while the historical evidence remains under review.",
+        "body": "1. Choose two visibly different, ordinary stones. Wash and dry them before the ritual if needed. Designate one “Recovery” and the other “Judgment” on two paper labels; do not carve, paint, or copy a wedjat or scarab image.\n\n2. Place Recovery on the left label. Write one difficulty from which you are already rebuilding and one resource that supports that process. Avoid promises that the stone heals or restores anything by itself.\n\n3. Place Judgment on the right label. Write one value you want to use in a current decision and one fact that the decision must respect. The funerary heart-scarab context is historical background, not a prediction about moral verdicts.\n\n4. Move the Recovery stone forward one hand-width and name the next restorative action within your control. Move the Judgment stone forward and name one question that tests your decision against the chosen value.\n\n5. Say, “One stone remembers repair; one stone remembers measure; my actions give them meaning.” This is original modern wording and does not translate an ancient text.\n\n6. Keep the stones separate. Complete the recovery action or schedule it, then answer the judgment question using available evidence. Do not combine the stones into a claim that recovery proves moral correctness.\n\n7. Return both stones to ordinary storage and recycle the labels. Record what each represented. The lesson ends with two distinct practical notes, preserving the historical difference between the amulet types rather than blending them into one generic charm. Date both notes so later changes in recovery or judgment remain visible and reviewable.",
+        "lesson": "1. Choose two visibly different, ordinary stones. Wash and dry them before the ritual if needed. Designate one “Recovery” and the other “Judgment” on two paper labels; do not carve, paint, or copy a wedjat or scarab image.\n\n2. Place Recovery on the left label. Write one difficulty from which you are already rebuilding and one resource that supports that process. Avoid promises that the stone heals or restores anything by itself.\n\n3. Place Judgment on the right label. Write one value you want to use in a current decision and one fact that the decision must respect. The funerary heart-scarab context is historical background, not a prediction about moral verdicts.\n\n4. Move the Recovery stone forward one hand-width and name the next restorative action within your control. Move the Judgment stone forward and name one question that tests your decision against the chosen value.\n\n5. Say, “One stone remembers repair; one stone remembers measure; my actions give them meaning.” This is original modern wording and does not translate an ancient text.\n\n6. Keep the stones separate. Complete the recovery action or schedule it, then answer the judgment question using available evidence. Do not combine the stones into a claim that recovery proves moral correctness.\n\n7. Return both stones to ordinary storage and recycle the labels. Record what each represented. The lesson ends with two distinct practical notes, preserving the historical difference between the amulet types rather than blending them into one generic charm. Date both notes so later changes in recovery or judgment remain visible and reviewable.",
+        "reflection": "Why was it useful to keep recovery and judgment as separate symbolic functions?",
+        "practice": "Complete the two-stone reflection and take one recovery action plus one evidence-based decision step.",
+        "materials": [
+          "Two distinct ordinary stones",
+          "Two paper labels",
+          "Pen"
+        ],
+        "tools": [
+          "Two distinct ordinary stones",
+          "Two paper labels",
+          "Pen"
+        ],
+        "safetyNote": "Use clean, stable stones large enough not to be swallowed and keep them away from children and pets. Do not place stones on the body or claim they heal, judge, diagnose, or predict. Use appropriate professional support for health or high-stakes decisions.",
+        "category": "crystals-stones",
+        "primaryCategoryId": "crystals-stones",
+        "secondaryCategoryIds": [],
+        "lessonType": "stone",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 15,
+        "incantation": "One stone remembers repair; one stone remembers measure; my actions give them meaning.",
+        "timing": "During a calm review of recovery and a separate personal decision.",
+        "application": "Keep restoration and ethical judgment distinct through two labeled symbolic objects and two practical actions.",
+        "correspondences": [
+          "Historical distinction claimed by the seed: wedjat restoration versus heart-scarab judgment",
+          "Modern substitution: unmarked ordinary stones",
+          "Modern practice: separate recovery action and value-based question"
+        ],
+        "citations": [
+          {
+            "textTitle": "Isabel Stunkel, 'Ancient Egyptian Amulets', Heilbrunn Timeline of Art History, The Metropolitan Museum of Art (2019)",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "Isabel Stunkel, 'Ancient Egyptian Amulets', Heilbrunn Timeline of Art History, The Metropolitan Museum of Art (2019)",
+            "url": "https://www.metmuseum.org/toah/hd/egam/hd_egam.htm"
+          }
+        ],
+        "adaptationNotes": [
+          "Does not reproduce funerary imagery or make a replica amulet.",
+          "Preserves the claimed difference between two historical object functions.",
+          "Removes afterlife verdicts, healing efficacy, and supernatural judgment.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-023-wedjat-eye-and-heart-scarab",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Isabel Stunkel, 'Ancient Egyptian Amulets', Heilbrunn Timeline of Art History, The Metropolitan Museum of Art (2019)",
+        "sourceUrl": "https://www.metmuseum.org/toah/hd/egam/hd_egam.htm",
+        "similarityGroupId": "recovery-judgment-stones",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "wedjat",
+          "scarab",
+          "maat",
+          "funerary",
+          "two-stones",
+          "restoration",
+          "judgment"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     },
     {
       "id": "maqlu-024-what-maqlu-was",
@@ -934,8 +2002,84 @@
       "id": "egypt-heka-025-where-an-amulet-s-power-came-from",
       "proposedPrimaryCategoryId": "crystals-stones",
       "proposedConcept": "A material amulet dedication based on an identified object inscription",
-      "disposition": "source_passage_and_rights_hold",
-      "proposedFields": null
+      "disposition": "editorial_rewrite_complete_source_review_pending",
+      "proposedFields": {
+        "title": "The Seven-Factor Talisman Record",
+        "slug": "seven-factor-talisman-record",
+        "tradition": "Wiccan / Modern Witchcraft",
+        "sourceTradition": "Ancient Egyptian",
+        "summary": "Dedicate an ordinary object by documenting seven meaning-bearing factors while labeling every modern choice.",
+        "intro": "The seed’s museum essay describes seven contributors to an Egyptian amulet’s force: shape, decoration, inscription, color, material, spoken words, and actions. This is a secondary summary and does not yet satisfy the primary-passage requirement. The modern lesson uses those seven analytical factors as a transparent dedication record, without claiming the object becomes an Egyptian amulet or borrowing ancient color meanings.",
+        "introduction": "The seed’s museum essay describes seven contributors to an Egyptian amulet’s force: shape, decoration, inscription, color, material, spoken words, and actions. This is a secondary summary and does not yet satisfy the primary-passage requirement. The modern lesson uses those seven analytical factors as a transparent dedication record, without claiming the object becomes an Egyptian amulet or borrowing ancient color meanings.",
+        "body": "1. Choose one ordinary object you already own, such as a smooth token, key ring, or plain pendant that will not be worn during the exercise. Clean it according to its normal care instructions and place it on a stable table.\n\n2. Number a page from one to seven. Record the object’s shape, decoration, inscription, color, and material in the first five lines. Describe only what is physically present; do not assign an ancient meaning.\n\n3. On line six, write one original sentence you will speak over the object. On line seven, write one harmless action you will perform with it, such as placing it beside a task list while beginning work.\n\n4. Review all seven lines. Mark each interpretation as “modern personal association.” Remove any claim that a color, material, or symbol had a documented Egyptian meaning unless an approved passage later supports it.\n\n5. Speak the line-six sentence once: “Seven factors named with honest care; this object recalls the work I choose to share.” This is original modern wording.\n\n6. Perform the line-seven action, then write the observable result. The object acts as a reminder within the practice; it does not compel an outcome or acquire verified historical power.\n\n7. Store the object normally and keep the seven-factor record with your notes. If you change its use, create a new record rather than pretending the original dedication covers every purpose. Do not sell or present it as an authentic Egyptian amulet. Date the record and note where the ordinary object is stored after the working closes.",
+        "lesson": "1. Choose one ordinary object you already own, such as a smooth token, key ring, or plain pendant that will not be worn during the exercise. Clean it according to its normal care instructions and place it on a stable table.\n\n2. Number a page from one to seven. Record the object’s shape, decoration, inscription, color, and material in the first five lines. Describe only what is physically present; do not assign an ancient meaning.\n\n3. On line six, write one original sentence you will speak over the object. On line seven, write one harmless action you will perform with it, such as placing it beside a task list while beginning work.\n\n4. Review all seven lines. Mark each interpretation as “modern personal association.” Remove any claim that a color, material, or symbol had a documented Egyptian meaning unless an approved passage later supports it.\n\n5. Speak the line-six sentence once: “Seven factors named with honest care; this object recalls the work I choose to share.” This is original modern wording.\n\n6. Perform the line-seven action, then write the observable result. The object acts as a reminder within the practice; it does not compel an outcome or acquire verified historical power.\n\n7. Store the object normally and keep the seven-factor record with your notes. If you change its use, create a new record rather than pretending the original dedication covers every purpose. Do not sell or present it as an authentic Egyptian amulet. Date the record and note where the ordinary object is stored after the working closes.",
+        "reflection": "Which of the seven factors contributed most to meaning without requiring a historical claim?",
+        "practice": "Complete one seven-factor record, speak the original dedication, and perform the documented action once.",
+        "materials": [
+          "One ordinary personal object",
+          "Notebook paper",
+          "Pen"
+        ],
+        "tools": [
+          "One ordinary personal object",
+          "Notebook paper",
+          "Pen"
+        ],
+        "safetyNote": "Choose a clean, stable, nonsharp object large enough not to be swallowed and keep it away from children and pets. Do not copy restricted museum imagery or present the result as an authentic historical artifact. Follow normal material-care instructions.",
+        "category": "crystals-stones",
+        "primaryCategoryId": "crystals-stones",
+        "secondaryCategoryIds": [
+          "altars-sacred-space"
+        ],
+        "lessonType": "stone",
+        "requiresPotionDisclosure": false,
+        "durationMinutes": 18,
+        "incantation": "Seven factors named with honest care; this object recalls the work I choose to share.",
+        "timing": "At the first clearly documented use of the chosen reminder object.",
+        "application": "Create a transparent modern talisman record that distinguishes physical traits, personal meanings, speech, and action.",
+        "correspondences": [
+          "Seven factors reported by the seed: shape, decoration, inscription, color, material, words, and acts",
+          "Modern requirement: label every interpretation as personal unless primary evidence supports it",
+          "Modern function: reminder linked to one documented action"
+        ],
+        "citations": [
+          {
+            "textTitle": "Isabel Stunkel, 'Ancient Egyptian Amulets', Heilbrunn Timeline of Art History, The Metropolitan Museum of Art (2019)",
+            "manuscriptId": "Pending independent manuscript or object identifier verification",
+            "tradition": "Ancient Egyptian",
+            "manuscriptDate": "Pending independent catalogue verification",
+            "edition": "Pending independent edition verification",
+            "editionDate": "Pending",
+            "translator": "Pending",
+            "locator": "Isabel Stunkel, 'Ancient Egyptian Amulets', Heilbrunn Timeline of Art History, The Metropolitan Museum of Art (2019)",
+            "url": "https://www.metmuseum.org/toah/hd/egam/hd_egam.htm"
+          }
+        ],
+        "adaptationNotes": [
+          "Uses the seven-factor framework as analysis rather than proof of ancient efficacy.",
+          "Does not copy an Egyptian amulet or assign unsupported color meanings.",
+          "Prohibits presenting or selling the object as an authentic historical artifact.",
+          "The incantation is original modern wording and is not attributed to the historical source."
+        ],
+        "sourcePassageId": "candidate-egypt-heka-025-where-an-amulet-s-power-came-from",
+        "sourceId": "ancient-egypt-heka-amulets",
+        "sourceCitation": "Isabel Stunkel, 'Ancient Egyptian Amulets', Heilbrunn Timeline of Art History, The Metropolitan Museum of Art (2019)",
+        "sourceUrl": "https://www.metmuseum.org/toah/hd/egam/hd_egam.htm",
+        "similarityGroupId": "seven-factor-talisman-record",
+        "rightsReviewRequired": true,
+        "rightsNotes": "The claimed locator, exact edition or object record, translation provenance, and commercial reuse basis require independent approval before migration.",
+        "tags": [
+          "amulets",
+          "materials",
+          "colour",
+          "faience",
+          "seven-factors",
+          "talisman-record",
+          "dedication"
+        ],
+        "status": "draft",
+        "contentStatus": "draft"
+      }
     }
   ]
 }

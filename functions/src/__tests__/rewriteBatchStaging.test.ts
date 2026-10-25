@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { curriculumConcept, findLexicalDuplicateConcerns } from "../contentSimilarity";
 import { loadContentSeed } from "../contentSeed";
 import { findPracticalLessonViolations } from "../practicalLesson";
 import { createRewriteStagingBatches } from "../rewriteBatchStaging";
@@ -54,7 +55,7 @@ describe("batch 1 editorial artifact", () => {
 
   it("keeps completed proposals as drafts with 250–450-word numbered lessons", () => {
     const completed = packet.entries.filter((entry) => entry.proposedFields !== null);
-    expect(completed).toHaveLength(10);
+    expect(completed).toHaveLength(25);
     for (const entry of completed) {
       const fields = entry.proposedFields!;
       const lesson = String(fields.lesson);
@@ -73,5 +74,8 @@ describe("batch 1 editorial artifact", () => {
         "verified source passage is missing from the editor-owned register",
       ]);
     }
+    expect(findLexicalDuplicateConcerns(completed.map((entry) =>
+      curriculumConcept(entry.id, entry.proposedFields!),
+    ))).toEqual([]);
   });
 });
