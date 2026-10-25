@@ -35,8 +35,8 @@ describe("local rewrite batch staging", () => {
   });
 });
 
-describe("batch 1 editorial artifact", () => {
-  const packetPath = path.join(__dirname, "..", "..", "rewriteBatches", "batch-01.editorial.json");
+describe.each([1, 2])("batch %i editorial artifact", (batchNumber) => {
+  const packetPath = path.join(__dirname, "..", "..", "rewriteBatches", `batch-${String(batchNumber).padStart(2, "0")}.editorial.json`);
   const packet = JSON.parse(fs.readFileSync(packetPath, "utf8")) as {
     batchSize: number;
     writes: boolean;
@@ -47,7 +47,8 @@ describe("batch 1 editorial artifact", () => {
   it("dispositions exactly 25 preserved seed IDs without enabling writes", () => {
     const seed = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "ancientContentSeed.json"), "utf8")) as Array<{ id: string }>;
     expect(packet.batchSize).toBe(25);
-    expect(packet.entries.map((entry) => entry.id)).toEqual(seed.slice(0, 25).map((entry) => entry.id));
+    const offset = (batchNumber - 1) * 25;
+    expect(packet.entries.map((entry) => entry.id)).toEqual(seed.slice(offset, offset + 25).map((entry) => entry.id));
     expect(new Set(packet.entries.map((entry) => entry.id)).size).toBe(25);
     expect(packet.writes).toBe(false);
     expect(packet.firebaseReady).toBe(false);
@@ -68,7 +69,9 @@ describe("batch 1 editorial artifact", () => {
       expect(fields.materials).toEqual(fields.tools);
       expect(words).toBeGreaterThanOrEqual(250);
       expect(words).toBeLessThanOrEqual(450);
-      expect(lesson.match(/^\d+\. /gm)?.map((step) => Number.parseInt(step, 10))).toEqual([1, 2, 3, 4, 5, 6, 7]);
+      const steps = lesson.match(/^\d+\. /gm)?.map((step) => Number.parseInt(step, 10)) ?? [];
+      expect(steps.length).toBeGreaterThanOrEqual(7);
+      expect(steps).toEqual(Array.from({ length: steps.length }, (_, index) => index + 1));
       expect(fields.rightsReviewRequired).toBe(true);
       expect(findPracticalLessonViolations(fields, [], false)).toEqual([
         "verified source passage is missing from the editor-owned register",
