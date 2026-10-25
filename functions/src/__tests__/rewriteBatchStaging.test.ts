@@ -35,7 +35,7 @@ describe("local rewrite batch staging", () => {
   });
 });
 
-describe.each([1, 2])("batch %i editorial artifact", (batchNumber) => {
+describe.each([1, 2, 3])("batch %i editorial artifact", (batchNumber) => {
   const packetPath = path.join(__dirname, "..", "..", "rewriteBatches", `batch-${String(batchNumber).padStart(2, "0")}.editorial.json`);
   const packet = JSON.parse(fs.readFileSync(packetPath, "utf8")) as {
     batchSize: number;
