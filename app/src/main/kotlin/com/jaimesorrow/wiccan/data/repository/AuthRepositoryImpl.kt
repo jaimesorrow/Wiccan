@@ -54,11 +54,11 @@ class AuthRepositoryImpl @Inject constructor(
             trySend(
                 when {
                     snapshot?.exists() != true || user?.uid != uid -> AccountStatus.Initializing
-                    !user.isEmailVerified -> AccountStatus.RequiresEmailVerification
-                    snapshot.getString("firstName").isNullOrBlank() ||
-                        snapshot.getString("lastName").isNullOrBlank() -> AccountStatus.RequiresProfileCompletion
-                    snapshot.getLong("acceptedTermsVersion")?.toInt() != PolicyVersions.TERMS ||
-                        snapshot.getLong("acceptedPrivacyVersion")?.toInt() != PolicyVersions.PRIVACY ->
+                    user?.isEmailVerified != true -> AccountStatus.RequiresEmailVerification
+                    snapshot?.getString("firstName").isNullOrBlank() ||
+                        snapshot?.getString("lastName").isNullOrBlank() -> AccountStatus.RequiresProfileCompletion
+                    snapshot?.getLong("acceptedTermsVersion")?.toInt() != PolicyVersions.TERMS ||
+                        snapshot?.getLong("acceptedPrivacyVersion")?.toInt() != PolicyVersions.PRIVACY ->
                         AccountStatus.RequiresPolicyAcceptance
                     else -> AccountStatus.Ready
                 },
