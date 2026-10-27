@@ -116,6 +116,30 @@ class RootViewModelTest {
     }
 
     @Test
+    fun `unverified email cannot enter a paid account`() = runTest(dispatcher) {
+        repository.setAccountStatus("uid-1", AccountStatus.RequiresEmailVerification)
+        viewModel = RootViewModel(repository, subscription)
+        repository.setAuthState(AuthState.SignedIn("uid-1"))
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(RootState.RequiresEmailVerification, viewModel.rootState.value)
+        repository.setAccountStatus("uid-1", AccountStatus.Ready)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(RootState.SignedIn("uid-1"), viewModel.rootState.value)
+    }
+
+    @Test
+    fun `incomplete profile remains blocked even when subscribed`() = runTest(dispatcher) {
+        repository.setAccountStatus("uid-1", AccountStatus.RequiresProfileCompletion)
+        viewModel = RootViewModel(repository, subscription)
+        repository.setAuthState(AuthState.SignedIn("uid-1"))
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(RootState.RequiresProfileCompletion, viewModel.rootState.value)
+        repository.setAccountStatus("uid-1", AccountStatus.Ready)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(RootState.SignedIn("uid-1"), viewModel.rootState.value)
+    }
+
+    @Test
     fun `holds RequiresPolicyAcceptance when the profile is missing current policy acceptance`() = runTest(dispatcher) {
         repository.setAccountStatus("uid-1", AccountStatus.RequiresPolicyAcceptance)
         viewModel = RootViewModel(repository, subscription)

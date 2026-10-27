@@ -78,10 +78,10 @@ require_grep 'tools:node="remove"' app/src/main/AndroidManifest.xml   'default W
 require_grep 'WorkManager\.initialize\(this, workManagerConfiguration\)'   app/src/main/kotlin/com/jaimesorrow/wiccan/WiccanApplication.kt   'WorkManager uses the Hilt-aware configuration'
 
 require_grep 'const val TERMS = 3' app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/PolicyVersions.kt   'Android uses current Terms version 3'
-require_grep 'const val PRIVACY = 2' app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/PolicyVersions.kt   'Android uses current Privacy version 2'
+require_grep 'const val PRIVACY = 3' app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/PolicyVersions.kt   'Android uses current Privacy version 3'
 require_grep 'CURRENT_TERMS_VERSION = 3' functions/src/policyVersions.ts   'Functions uses current Terms version 3'
-require_grep 'CURRENT_PRIVACY_VERSION = 2' functions/src/policyVersions.ts   'Functions uses current Privacy version 2'
-require_grep 'termsVersion: 3, privacyVersion: 2' scripts/e2e-emulator.mjs   'emulator acceptance uses current policy versions'
+require_grep 'CURRENT_PRIVACY_VERSION = 3' functions/src/policyVersions.ts   'Functions uses current Privacy version 2'
+require_grep 'termsVersion: 3, privacyVersion: 3' scripts/e2e-emulator.mjs   'emulator acceptance uses current policy versions'
 require_grep 'LegalDocumentId\.TERMS' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/auth/SignInScreen.kt   'Terms are reachable before account creation'
 require_grep 'LegalDocumentId\.CONTENT_SAFETY' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/policy/PolicyAcceptanceScreen.kt   'policy gate exposes Content & Safety guidance'
 require_grep 'onTermsClick' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/paywall/PaywallScreen.kt   'paywall exposes Terms beside subscription offer'

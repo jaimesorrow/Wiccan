@@ -31,7 +31,7 @@ class SettingsViewModel @Inject constructor(
     private val wiccanWidgetUpdater: WiccanWidgetUpdater,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(SettingsUiState())
+    private val _state = MutableStateFlow(SettingsUiState(accountEmail = authRepository.currentEmail().orEmpty()))
     val state: StateFlow<SettingsUiState> = _state.asStateFlow()
 
     private val effectChannel = Channel<SettingsUiEffect>(Channel.BUFFERED)
@@ -58,6 +58,12 @@ class SettingsViewModel @Inject constructor(
     fun onEvent(event: SettingsUiEvent) {
         when (event) {
             SettingsUiEvent.SignOutClicked -> signOut()
+            is SettingsUiEvent.FirstNameChanged -> _state.update { it.copy(firstName = event.value) }
+            is SettingsUiEvent.LastNameChanged -> _state.update { it.copy(lastName = event.value) }
+            is SettingsUiEvent.NewEmailChanged -> _state.update { it.copy(newEmail = event.value) }
+            SettingsUiEvent.SaveNameClicked -> saveName()
+            SettingsUiEvent.ChangeEmailClicked -> updateEmail()
+            SettingsUiEvent.ResetPasswordClicked -> resetPassword()
             SettingsUiEvent.DeleteAccountClicked -> _state.update { it.copy(showDeleteConfirmation = true) }
             SettingsUiEvent.CancelDeleteAccount -> _state.update { it.copy(showDeleteConfirmation = false) }
             SettingsUiEvent.ConfirmDeleteAccount -> deleteAccount()
@@ -88,6 +94,63 @@ class SettingsViewModel @Inject constructor(
                     _state.update { it.copy(notificationsEnabled = !enabled) }
                     effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
                 }
+            }
+        }
+    }
+
+    private fun saveName() {
+        val first = state.value.firstName.trim()
+        val last = state.value.lastName.trim()
+        if (first.isBlank() || last.isBlank() || first.length > 60 || last.length > 60) {
+            viewModelScope.launch {
+                effectChannel.send(SettingsUiEffect.ShowMessage("Enter both names (up to 60 characters each)."))
+            }
+            return
+        }
+        if (state.value.isAccountBusy) return
+        _state.update { it.copy(isAccountBusy = true) }
+        viewModelScope.launch {
+            val result = authRepository.completeProfile(first, last)
+            _state.update { it.copy(isAccountBusy = false) }
+            when (result) {
+                is AppResult.Success -> effectChannel.send(SettingsUiEffect.ShowMessage("Profile updated."))
+                is AppResult.Failure -> effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
+            }
+        }
+    }
+
+    private fun updateEmail() {
+        val email = state.value.newEmail.trim()
+        if (email.length > 254 || !email.contains("@") || email.contains(" ")) {
+            viewModelScope.launch { effectChannel.send(SettingsUiEffect.ShowMessage("Enter a valid new email address.")) }
+            return
+        }
+        if (state.value.isAccountBusy) return
+        _state.update { it.copy(isAccountBusy = true) }
+        viewModelScope.launch {
+            val result = authRepository.requestEmailUpdate(email)
+            _state.update { it.copy(isAccountBusy = false) }
+            when (result) {
+                is AppResult.Success -> effectChannel.send(
+                    SettingsUiEffect.ShowMessage("Verify the new address using the link sent by Firebase."),
+                )
+                is AppResult.Failure -> effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
+            }
+        }
+    }
+
+    private fun resetPassword() {
+        val email = state.value.accountEmail
+        if (email.isBlank() || state.value.isAccountBusy) return
+        _state.update { it.copy(isAccountBusy = true) }
+        viewModelScope.launch {
+            val result = authRepository.sendPasswordReset(email)
+            _state.update { it.copy(isAccountBusy = false) }
+            when (result) {
+                is AppResult.Success -> effectChannel.send(
+                    SettingsUiEffect.ShowMessage("If password reset is available, a link will arrive in your inbox."),
+                )
+                is AppResult.Failure -> effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
             }
         }
     }

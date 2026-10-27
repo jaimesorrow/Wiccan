@@ -30,6 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.domain.model.RootState
 import com.jaimesorrow.wiccan.ui.auth.RootViewModel
 import com.jaimesorrow.wiccan.ui.auth.SignInScreen
+import com.jaimesorrow.wiccan.ui.auth.OnboardingScreen
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentScreen
 import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
@@ -117,8 +118,31 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     RootState.SignedOut -> SignInScreen(onOpenLegalDocument = { openLegalDocument = it })
-                    RootState.RequiresPolicyAcceptance ->
-                        PolicyAcceptanceScreen(onOpenLegalDocument = { openLegalDocument = it })
+                    RootState.RequiresEmailVerification, RootState.RequiresProfileCompletion,
+                    RootState.RequiresPolicyAcceptance -> {
+                        if (openAccount) {
+                            SettingsScreen(
+                                accountOnly = true,
+                                onBack = { openAccount = false },
+                                onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
+                                onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
+                                onContentSafetyClick = { openLegalDocument = LegalDocumentId.CONTENT_SAFETY },
+                                viewModel = hiltViewModel(key = "onboarding-account"),
+                            )
+                            BackHandler { openAccount = false }
+                        } else if (rootState == RootState.RequiresPolicyAcceptance) {
+                            PolicyAcceptanceScreen(
+                                onOpenLegalDocument = { openLegalDocument = it },
+                                onAccountClick = { openAccount = true },
+                            )
+                        } else {
+                            OnboardingScreen(
+                                verification = rootState == RootState.RequiresEmailVerification,
+                                onOpenLegalDocument = { openLegalDocument = it },
+                                onAccountClick = { openAccount = true },
+                            )
+                        }
+                    }
                     RootState.Loading, RootState.InitializingProfile -> LoadingIndicator()
                 }
             }

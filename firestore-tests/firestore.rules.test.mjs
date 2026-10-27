@@ -83,8 +83,17 @@ beforeEach(async () => {
 });
 
 function ownerDb() {
-  return environment.authenticatedContext(OWNER).firestore();
+  return environment.authenticatedContext(OWNER, { email_verified: true }).firestore();
 }
+
+describe("email verification gate", () => {
+  it("blocks content and Grimoire reads for unverified accounts, even with an active tier", async () => {
+    const unverified = environment.authenticatedContext(OWNER, { email_verified: false }).firestore();
+    await assertFails(getDoc(doc(unverified, "content/published-free")));
+    await assertFails(getDoc(doc(unverified, HISTORY_PATH)));
+    await assertSucceeds(getDoc(doc(unverified, "users/" + OWNER)));
+  });
+});
 
 describe("delivered-content history used by Grimoire", () => {
   it("keeps legacy history readable without new similarity metadata or renamed keys", async () => {

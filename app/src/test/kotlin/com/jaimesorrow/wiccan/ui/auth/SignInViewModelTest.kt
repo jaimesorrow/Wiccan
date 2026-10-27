@@ -90,6 +90,7 @@ class SignInViewModelTest {
         viewModel.onEvent(SignInUiEvent.ToggleMode)
         viewModel.onEvent(SignInUiEvent.EmailChanged("new@example.com"))
         viewModel.onEvent(SignInUiEvent.PasswordChanged("hunter2"))
+        viewModel.onEvent(SignInUiEvent.ConfirmPasswordChanged("hunter2"))
 
         viewModel.onEvent(SignInUiEvent.SubmitEmailAuth)
         dispatcher.scheduler.advanceUntilIdle()
@@ -116,12 +117,36 @@ class SignInViewModelTest {
     fun forgotPasswordClickedSendsAResetEmailAndEmitsAConfirmationEffect() = runTest {
         viewModel.onEvent(SignInUiEvent.EmailChanged("forgot@example.com"))
 
+        viewModel.onEvent(SignInUiEvent.ForgotPasswordClicked)
+        assertEquals(SignInMode.FORGOT_PASSWORD, viewModel.state.value.mode)
         viewModel.effects.test {
-            viewModel.onEvent(SignInUiEvent.ForgotPasswordClicked)
+            viewModel.onEvent(SignInUiEvent.SubmitPasswordReset)
             assertEquals(SignInUiEffect.PasswordResetEmailSent, awaitItem())
             cancelAndConsumeRemainingEvents()
         }
         assertEquals("forgot@example.com", repository.lastPasswordResetEmail)
+    }
+
+    @Test
+    fun registrationRejectsUnconfirmedPassword() = runTest(dispatcher) {
+        viewModel.onEvent(SignInUiEvent.ToggleMode)
+        viewModel.onEvent(SignInUiEvent.EmailChanged("new@example.com"))
+        viewModel.onEvent(SignInUiEvent.PasswordChanged("hunter2"))
+        viewModel.onEvent(SignInUiEvent.ConfirmPasswordChanged("different"))
+        viewModel.onEvent(SignInUiEvent.SubmitEmailAuth)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals("Passwords do not match.", viewModel.state.value.confirmPasswordError)
+        assertEquals(null, repository.lastCreateAccountEmail)
+    }
+
+    @Test
+    fun passwordVisibilityTogglesWithoutChangingPassword() {
+        viewModel.onEvent(SignInUiEvent.PasswordChanged("secret-pass"))
+        viewModel.onEvent(SignInUiEvent.TogglePasswordVisibility)
+        assertTrue(viewModel.state.value.isPasswordVisible)
+        assertEquals("secret-pass", viewModel.state.value.password)
+        viewModel.onEvent(SignInUiEvent.TogglePasswordVisibility)
+        assertFalse(viewModel.state.value.isPasswordVisible)
     }
 
     @Test
