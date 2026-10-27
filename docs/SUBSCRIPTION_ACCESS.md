@@ -5,9 +5,12 @@ days free, then pay $5.99 per month at the US base price. Google Play supplies
 localized prices and determines trial eligibility. A trial is an active
 subscription, with the same access as a paid period; it is not a separate free plan.
 
-Navigation: sign up / log in → profile initialization → current Terms/Privacy
-acceptance (the existing onboarding) → required subscription → Today / Grimoire /
-Settings. Returning subscribers bypass purchase only after verification. There is
+Navigation: sign up / log in → email verification → first/last name profile completion → current Terms/Privacy
+acceptance → required subscription → Today / Grimoire / Settings.
+Email-password accounts are sent a Firebase verification email after registration; the verification
+screen supports re-sending and explicit rechecking. Google sign-in uses Firebase verified provider credentials.
+User names are stored server-side via the App Check-protected completeOnboardingProfile callable.
+Forgot-password is a dedicated screen using Firebase password reset email, not an in-app password form. Returning subscribers bypass purchase only after verification. There is
 no skip button, free lesson, or second content tier. Links and restored navigation
 state cannot mount the app shell before the root gate grants access.
 
@@ -37,6 +40,11 @@ history is preserved and becomes readable again on renewal.
   purchases. Pending purchases do not unlock anything.
 - The launcher widget opens the gated app without embedding lesson text. A
   launcher may retain its last rendering after the subscription expires.
+
+Returning subscribers whose profiles predate the required name fields will be routed to Complete Profile.
+Prepare migration communications before enforcing this gate. Firestore and the daily-content callable
+also deny access for unverified email tokens. Deploy the Functions, rules and compatible Android app
+as a coordinated rollout after testing.
 
 ## Google Play configuration required before release
 

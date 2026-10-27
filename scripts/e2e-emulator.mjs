@@ -44,6 +44,7 @@ const AUTH = `http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1`;
 const require = createRequire(new URL("../functions/package.json", import.meta.url));
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
+const { getAuth } = require("firebase-admin/auth");
 
 initializeApp({ projectId: PROJECT });
 const db = getFirestore();
@@ -109,7 +110,15 @@ async function newUser() {
       returnSecureToken: true,
     }),
   });
-  return res.json();
+  const created = await res.json();
+  // Verify the dedicated test user and refresh its ID token before requesting content.
+  await getAuth().updateUser(created.localId, { emailVerified: true });
+  const login = await fetch(AUTH + "/accounts:signInWithPassword?key=emulator", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: created.email, password: "password123", returnSecureToken: true }),
+  });
+  return login.json();
 }
 
 async function main() {
