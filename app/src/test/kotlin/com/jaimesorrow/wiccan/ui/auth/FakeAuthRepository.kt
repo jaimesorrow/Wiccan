@@ -72,6 +72,9 @@ class FakeAuthRepository : AuthRepository {
     override suspend fun refreshEmailVerification(): AppResult<Unit> = AppResult.Success(Unit)
     override suspend fun completeProfile(firstName: String, lastName: String): AppResult<Unit> = AppResult.Success(Unit)
 
+    override fun currentEmail(): String? = "test@example.com"
+    override suspend fun requestEmailUpdate(email: String): AppResult<Unit> = AppResult.Success(Unit)
+
     override suspend fun signOut(): AppResult<Unit> {
         signOutCallCount++
         authStateFlow.value = AuthState.SignedOut

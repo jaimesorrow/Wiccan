@@ -170,6 +170,18 @@ class AuthRepositoryImpl @Inject constructor(
         AppResult.Failure(t.toAppError())
     }
 
+    override fun currentEmail(): String? = firebaseAuth.currentUser?.email
+
+    override suspend fun requestEmailUpdate(email: String): AppResult<Unit> = try {
+        val user = firebaseAuth.currentUser
+        if (user == null) AppResult.Failure(AppError.Unauthorized) else {
+            user.verifyBeforeUpdateEmail(email).await()
+            AppResult.Success(Unit)
+        }
+    } catch (t: Throwable) {
+        AppResult.Failure(t.toAppError())
+    }
+
     override suspend fun signOut(): AppResult<Unit> = try {
         firebaseAuth.signOut()
         AppResult.Success(Unit)

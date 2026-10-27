@@ -50,6 +50,8 @@ interface AuthRepository {
     suspend fun sendEmailVerification(): AppResult<Unit>
     suspend fun refreshEmailVerification(): AppResult<Unit>
     suspend fun completeProfile(firstName: String, lastName: String): AppResult<Unit>
+    fun currentEmail(): String?
+    suspend fun requestEmailUpdate(email: String): AppResult<Unit>
 
     suspend fun signOut(): AppResult<Unit>
 
