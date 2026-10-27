@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.text.KeyboardOptions
@@ -278,7 +279,9 @@ private fun PasswordField(state: SignInUiState, onEvent: (SignInUiEvent) -> Unit
         trailingIcon = {
             IconButton(
                 onClick = { onEvent(SignInUiEvent.TogglePasswordVisibility) },
-                modifier = Modifier.testTag("password-visibility-toggle"),
+                modifier = Modifier.testTag("password-visibility-toggle").semantics {
+                    contentDescription = if (state.isPasswordVisible) "Hide password" else "Show password"
+                },
             ) {
                 Canvas(modifier = Modifier.size(24.dp)) {
                     drawOval(

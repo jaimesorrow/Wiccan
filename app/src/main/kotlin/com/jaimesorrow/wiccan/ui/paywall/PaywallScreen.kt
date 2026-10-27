@@ -1,28 +1,10 @@
 package com.jaimesorrow.wiccan.ui.paywall
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -38,10 +20,7 @@ import com.jaimesorrow.wiccan.core.util.findActivity
 import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
 import kotlinx.coroutines.awaitCancellation
 
-/**
- * Required after onboarding. A purchase callback alone never dismisses
- * this screen; the root host waits for server-verified subscription access.
- */
+/** Payment is exclusively Google Play Billing; access is verified by the root gate. */
 @Composable
 fun PaywallScreen(
     modifier: Modifier = Modifier,
@@ -52,102 +31,89 @@ fun PaywallScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbars = remember { SnackbarHostState() }
     val lifecycleOwner = LocalLifecycleOwner.current
-
     LaunchedEffect(lifecycleOwner, viewModel) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             viewModel.refreshOffer()
             awaitCancellation()
         }
     }
-
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is PaywallUiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.error.toUserMessage())
-                PaywallUiEffect.PurchasesRestored -> snackbarHostState.showSnackbar(
-                    "Purchases checked. Access opens when an active subscription is verified."
+                is PaywallUiEffect.ShowSnackbar -> snackbars.showSnackbar(effect.error.toUserMessage())
+                PaywallUiEffect.PurchasesRestored -> snackbars.showSnackbar(
+                    "Purchases checked. Access opens when an active subscription is verified.",
                 )
             }
         }
     }
-
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { insets ->
-        Column(modifier = Modifier.padding(insets).fillMaxSize()) {
-            TextButton(onClick = onAccountClick, modifier = Modifier.padding(start = 16.dp, top = 8.dp)) {
+    Scaffold(modifier = modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbars) }) { insets ->
+        Column(modifier = Modifier.fillMaxSize().padding(insets)) {
+            TextButton(onClick = onAccountClick, modifier = Modifier.padding(start = 16.dp)) {
                 Text("Account & support")
             }
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
                     .padding(horizontal = 32.dp),
-                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
             ) {
                 CrescentGlyph()
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(Modifier.height(20.dp))
                 Text(
-                    text = "Walk the path of Wicca",
+                    "Walk the path of Wicca",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    "Explore candle spells, herbal rituals, cord and knot work, and lunar practices inspired by historical grimoires.",
-                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center,
                 )
-                Spacer(modifier = Modifier.height(28.dp))
-
-                BenefitRow("A guided Wiccan practice to discover each day")
-                Spacer(modifier = Modifier.height(16.dp))
-                BenefitRow("Build your personal Grimoire and revisit everything you learn")
-                Spacer(modifier = Modifier.height(16.dp))
-                BenefitRow("One subscription. Your journey, at your own pace.")
-
-                Spacer(modifier = Modifier.height(40.dp))
-
+                Spacer(Modifier.height(14.dp))
+                Text(
+                    "Discover candle spells, herbal rituals, cord and knot work, and lunar practices " +
+                        "inspired by historical grimoires.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(28.dp))
+                BenefitRow("A new guided Wiccan practice every day")
+                Spacer(Modifier.height(14.dp))
+                BenefitRow("A personal Grimoire filled with your discoveries")
+                Spacer(Modifier.height(14.dp))
+                BenefitRow("One subscription to explore the entire path")
+                Spacer(Modifier.height(18.dp))
+            }
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 if (state.isLoadingPrice) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    CircularProgressIndicator()
                 } else {
                     Text(
-                        text = when {
+                        when {
                             state.price == null -> "Subscription unavailable"
                             state.hasFreeTrial -> "7 days free"
                             else -> "${state.price} / month"
                         },
                         style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onBackground,
                     )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                if (!state.isLoadingPrice && state.price != null) {
                     Text(
-                        text = if (state.hasFreeTrial) {
-                            "Then ${state.price} per month. Auto-renews until canceled."
-                        } else {
-                            "No free trial is available for this Google Play account. Auto-renews until canceled."
+                        when {
+                            state.price == null -> "Connect to Google Play to view your subscription offer."
+                            state.hasFreeTrial -> "Then ${state.price} per month. Auto-renews until canceled."
+                            else -> "${state.price} per month. Trial unavailable for this Play account."
                         },
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
                     )
-                }
-
-                if (!state.isLoadingPrice && state.price == null) {
-                    TextButton(onClick = { viewModel.onEvent(PaywallUiEvent.RetryPriceClicked) }) {
-                        Text("Retry price")
+                    if (state.price == null) {
+                        TextButton(onClick = { viewModel.onEvent(PaywallUiEvent.RetryPriceClicked) }) {
+                            Text("Retry price")
+                        }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(Modifier.height(12.dp))
                 Button(
                     onClick = { context.findActivity()?.let(viewModel::subscribe) },
                     modifier = Modifier.fillMaxWidth(),
@@ -155,42 +121,26 @@ fun PaywallScreen(
                 ) {
                     Text(if (state.hasFreeTrial) "Start My 7-Day Free Trial" else "Continue to Subscription")
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
                 OutlinedButton(
                     onClick = { viewModel.onEvent(PaywallUiEvent.RestorePurchasesClicked) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !state.isRestoring,
-                ) {
-                    Text("Restore Purchases")
-                }
-
-                if (state.isRestoring) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
+                ) { Text("Restore Purchases") }
+                if (state.isRestoring) CircularProgressIndicator()
                 Text(
-                    text = if (state.hasFreeTrial) {
-                        "No charge during the 7-day trial. Google Play automatically charges ${state.price} per month " +
-                            "after the trial unless you cancel before it ends. Cancel anytime in Google Play → " +
-                            "Payments & subscriptions → Subscriptions. Trial eligibility is determined by Google Play."
-                    } else if (state.price != null) {
-                        "Google Play charges ${state.price} when you confirm and every month thereafter until canceled. " +
-                            "Cancel anytime in Google Play → Payments & subscriptions → Subscriptions."
+                    if (state.hasFreeTrial) {
+                        "No charge during the trial. Google Play charges ${state.price} monthly after the trial " +
+                            "unless canceled before it ends. Cancel anytime through Google Play."
                     } else {
-                        "Connect to Google Play to load your subscription offer, or restore an existing subscription."
+                        "Google Play handles payment and automatic renewals. Cancel anytime through Google Play."
                     },
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                 )
-                Row(horizontalArrangement = Arrangement.Center) {
+                Row {
                     TextButton(onClick = onTermsClick) { Text("Terms") }
                     TextButton(onClick = onPrivacyClick) { Text("Privacy") }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
@@ -199,16 +149,7 @@ fun PaywallScreen(
 @Composable
 private fun BenefitRow(text: String) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = "✦",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(start = 12.dp),
-        )
+        Text("✦", color = MaterialTheme.colorScheme.primary)
+        Text(text, modifier = Modifier.padding(start = 12.dp))
     }
 }
