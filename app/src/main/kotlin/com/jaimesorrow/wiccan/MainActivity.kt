@@ -30,6 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.domain.model.RootState
 import com.jaimesorrow.wiccan.ui.auth.RootViewModel
 import com.jaimesorrow.wiccan.ui.auth.SignInScreen
+import com.jaimesorrow.wiccan.ui.auth.OnboardingScreen
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentScreen
 import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
@@ -117,6 +118,14 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     RootState.SignedOut -> SignInScreen(onOpenLegalDocument = { openLegalDocument = it })
+                    RootState.RequiresEmailVerification -> OnboardingScreen(
+                        verification = true,
+                        onOpenLegalDocument = { openLegalDocument = it },
+                    )
+                    RootState.RequiresProfileCompletion -> OnboardingScreen(
+                        verification = false,
+                        onOpenLegalDocument = { openLegalDocument = it },
+                    )
                     RootState.RequiresPolicyAcceptance ->
                         PolicyAcceptanceScreen(onOpenLegalDocument = { openLegalDocument = it })
                     RootState.Loading, RootState.InitializingProfile -> LoadingIndicator()

@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.DocumentSnapshot
 import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.error.toAppError
@@ -20,6 +21,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 
 private const val USERS_COLLECTION = "users"
 private const val GOOGLE_WEB_CLIENT_ID_RESOURCE = "default_web_client_id"
@@ -32,6 +35,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val accountFunctionsDataSource: AccountFunctionsDataSource,
     private val analyticsLogger: AnalyticsLogger,
 ) : AuthRepository {
+    private val verificationRefresh = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
     override fun observeAuthState(): Flow<AuthState> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { auth ->
@@ -43,22 +47,36 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override fun observeAccountStatus(uid: String): Flow<AccountStatus> = callbackFlow {
+        var latestSnapshot: DocumentSnapshot? = null
+        fun publish() {
+            val snapshot = latestSnapshot
+            val user = firebaseAuth.currentUser
+            trySend(
+                when {
+                    snapshot?.exists() != true || user?.uid != uid -> AccountStatus.Initializing
+                    !user.isEmailVerified -> AccountStatus.RequiresEmailVerification
+                    snapshot.getString("firstName").isNullOrBlank() ||
+                        snapshot.getString("lastName").isNullOrBlank() -> AccountStatus.RequiresProfileCompletion
+                    snapshot.getLong("acceptedTermsVersion")?.toInt() != PolicyVersions.TERMS ||
+                        snapshot.getLong("acceptedPrivacyVersion")?.toInt() != PolicyVersions.PRIVACY ->
+                        AccountStatus.RequiresPolicyAcceptance
+                    else -> AccountStatus.Ready
+                },
+            )
+        }
         val registration = firestore.collection(USERS_COLLECTION).document(uid)
             .addSnapshotListener { snapshot, _ ->
-                trySend(
-                    when {
-                        snapshot?.exists() != true -> AccountStatus.Initializing
-                        snapshot.getLong("acceptedTermsVersion")?.toInt() != PolicyVersions.TERMS -> {
-                            AccountStatus.RequiresPolicyAcceptance
-                        }
-                        snapshot.getLong("acceptedPrivacyVersion")?.toInt() != PolicyVersions.PRIVACY -> {
-                            AccountStatus.RequiresPolicyAcceptance
-                        }
-                        else -> AccountStatus.Ready
-                    },
-                )
+                latestSnapshot = snapshot
+                publish()
             }
-        awaitClose { registration.remove() }
+        val idTokenListener = FirebaseAuth.IdTokenListener { publish() }
+        firebaseAuth.addIdTokenListener(idTokenListener)
+        val refreshJob = launch { verificationRefresh.collect { publish() } }
+        awaitClose {
+            refreshJob.cancel()
+            registration.remove()
+            firebaseAuth.removeIdTokenListener(idTokenListener)
+        }
     }
 
     override suspend fun acceptTerms(): AppResult<Unit> = try {
@@ -115,6 +133,31 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun sendPasswordReset(email: String): AppResult<Unit> = try {
         firebaseAuth.sendPasswordResetEmail(email).await()
+        AppResult.Success(Unit)
+    } catch (t: Throwable) {
+        AppResult.Failure(t.toAppError())
+    }
+
+    override suspend fun sendEmailVerification(): AppResult<Unit> = try {
+        val user = firebaseAuth.currentUser ?: return AppResult.Failure(AppError.Unauthorized)
+        if (!user.isEmailVerified) user.sendEmailVerification().await()
+        AppResult.Success(Unit)
+    } catch (t: Throwable) {
+        AppResult.Failure(t.toAppError())
+    }
+
+    override suspend fun refreshEmailVerification(): AppResult<Unit> = try {
+        val user = firebaseAuth.currentUser ?: return AppResult.Failure(AppError.Unauthorized)
+        user.reload().await()
+        user.getIdToken(true).await()
+        verificationRefresh.emit(Unit)
+        AppResult.Success(Unit)
+    } catch (t: Throwable) {
+        AppResult.Failure(t.toAppError())
+    }
+
+    override suspend fun completeProfile(firstName: String, lastName: String): AppResult<Unit> = try {
+        accountFunctionsDataSource.completeProfile(firstName, lastName)
         AppResult.Success(Unit)
     } catch (t: Throwable) {
         AppResult.Failure(t.toAppError())
