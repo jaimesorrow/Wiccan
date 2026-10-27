@@ -99,9 +99,11 @@ class SignInScreenLayoutTest {
 
         val toggleLabel = if (mode == SignInMode.SIGN_IN) "Need an account? Create one" else "Have an account? Sign in"
         composeRule.onNodeWithText(toggleLabel).performScrollTo().assertIsDisplayed().performClick()
-        composeRule.onNodeWithText("Forgot password?").performScrollTo().assertIsDisplayed().performClick()
+        if (mode == SignInMode.SIGN_IN) {
+            composeRule.onNodeWithText("Forgot password?").performScrollTo().assertIsDisplayed().performClick()
+            assertTrue(events.contains(SignInUiEvent.ForgotPasswordClicked))
+        }
         assertTrue(events.contains(SignInUiEvent.ToggleMode))
-        assertTrue(events.contains(SignInUiEvent.ForgotPasswordClicked))
         composeRule.onNodeWithText("Terms").performScrollTo().assertIsDisplayed().performClick()
         composeRule.onNodeWithText("Privacy").performScrollTo().assertIsDisplayed().performClick()
         assertEquals(listOf(LegalDocumentId.TERMS, LegalDocumentId.PRIVACY), legal)

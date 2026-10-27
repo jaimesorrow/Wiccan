@@ -125,6 +125,9 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun createAccountWithEmail(email: String, password: String): AppResult<Unit> = try {
         firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+        // Account creation succeeds even if email delivery is temporarily unavailable;
+        // the verification screen always offers a retry.
+        try { firebaseAuth.currentUser?.sendEmailVerification()?.await() } catch (_: Exception) { }
         analyticsLogger.logSignUpCompleted()
         AppResult.Success(Unit)
     } catch (t: Throwable) {
@@ -139,19 +142,23 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun sendEmailVerification(): AppResult<Unit> = try {
-        val user = firebaseAuth.currentUser ?: return AppResult.Failure(AppError.Unauthorized)
-        if (!user.isEmailVerified) user.sendEmailVerification().await()
-        AppResult.Success(Unit)
+        val user = firebaseAuth.currentUser
+        if (user == null) AppResult.Failure(AppError.Unauthorized) else {
+            if (!user.isEmailVerified) user.sendEmailVerification().await()
+            AppResult.Success(Unit)
+        }
     } catch (t: Throwable) {
         AppResult.Failure(t.toAppError())
     }
 
     override suspend fun refreshEmailVerification(): AppResult<Unit> = try {
-        val user = firebaseAuth.currentUser ?: return AppResult.Failure(AppError.Unauthorized)
-        user.reload().await()
-        user.getIdToken(true).await()
-        verificationRefresh.emit(Unit)
-        AppResult.Success(Unit)
+        val user = firebaseAuth.currentUser
+        if (user == null) AppResult.Failure(AppError.Unauthorized) else {
+            user.reload().await()
+            user.getIdToken(true).await()
+            verificationRefresh.emit(Unit)
+            AppResult.Success(Unit)
+        }
     } catch (t: Throwable) {
         AppResult.Failure(t.toAppError())
     }

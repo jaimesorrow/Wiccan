@@ -93,15 +93,24 @@ fun PaywallScreen(
                 CrescentGlyph()
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "WICCAN",
-                    style = MaterialTheme.typography.displaySmall,
+                    text = "Walk the path of Wicca",
+                    style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    "Explore candle spells, herbal rituals, cord and knot work, and lunar practices inspired by historical grimoires.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(modifier = Modifier.height(28.dp))
 
-                BenefitRow("One subscription for Wiccan. An active trial or subscription is required to enter the app.")
+                BenefitRow("A guided Wiccan practice to discover each day")
                 Spacer(modifier = Modifier.height(16.dp))
-                BenefitRow("A new daily practice and your personal Grimoire of previously delivered lessons")
+                BenefitRow("Build your personal Grimoire and revisit everything you learn")
+                Spacer(modifier = Modifier.height(16.dp))
+                BenefitRow("One subscription. Your journey, at your own pace.")
 
                 Spacer(modifier = Modifier.height(40.dp))
 
@@ -144,7 +153,7 @@ fun PaywallScreen(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !state.isLoadingPrice && state.price != null,
                 ) {
-                    Text(if (state.hasFreeTrial) "Start 7-day free trial" else "Subscribe")
+                    Text(if (state.hasFreeTrial) "Start My 7-Day Free Trial" else "Continue to Subscription")
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
