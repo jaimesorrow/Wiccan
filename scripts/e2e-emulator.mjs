@@ -180,7 +180,7 @@ async function main() {
   ok("renewal restores the same committed assignment", renewed?.result?.id === firstId);
 
   console.log("\n== acceptTerms ==");
-  const terms = await call("acceptTerms", token, { termsVersion: 3, privacyVersion: 2 });
+  const terms = await call("acceptTerms", token, { termsVersion: 3, privacyVersion: 3 });
   ok("acceptTerms succeeds", !terms?.error, JSON.stringify(terms).slice(0, 200));
   ok("users/{uid} exists afterwards", (await db.collection("users").doc(uid).get()).exists);
 
