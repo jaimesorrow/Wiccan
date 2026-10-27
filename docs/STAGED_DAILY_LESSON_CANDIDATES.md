@@ -1,5 +1,7 @@
 # Staged daily lesson candidates
 
+> Superseded for Task 1 review by [FIVE_BOUND_REWRITE_REVIEW.md](FIVE_BOUND_REWRITE_REVIEW.md), which binds five expanded 250–450-word rewrites to existing seed document IDs. This file remains as earlier editorial history and must not be used as an import artifact.
+
 These are concrete editorial drafts, not live lessons. They remain blocked because the production passage register has not received a final human review and the live document IDs/update times are unavailable. They must not be imported, published, or substituted for existing records by title alone.
 
 ## Candidate 1 — Closing a Scrying Session

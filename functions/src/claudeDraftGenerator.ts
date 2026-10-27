@@ -50,6 +50,11 @@ background groundedFacts, model knowledge and attribution to ancient figures
 cannot supply missing instructions, quantities, formulas, dates or provenance.
 If this passage cannot support a safe, performable practice, fail rather than
 inventing one. Do not manufacture practices to fill a category quota.
+Every draft must teach one distinct spell, ritual, technique, or working. Reject
+general history articles, belief summaries, generic affirmations, renamed copies
+of an existing procedure, and repeated visualization exercises. The historical
+passage supplies the technique; the Wiccan framing supplies a clearly labeled
+modern adaptation. Never let the modern framing replace the evidenced method.
 
 FORMAT
 - title: distinct and specific; summary: brief practical focus.
@@ -73,6 +78,11 @@ FORMAT
 - adaptationNotes: document every changed, omitted or reconstructed source
   element, including safer materials, consent and accessibility changes. Never
   call a source-required element optional without recording the adaptation.
+- The complete stored lesson will contain title, tradition, sourceTradition,
+  category, summary, introduction, tools, lesson, incantation or its omission
+  reason, reflection, practice, safetyNote, correspondences, citations, and
+  adaptationNotes. This generator supplies the authored fields; the trusted
+  pipeline binds provenance, citations, draft status, slug, and review metadata.
 - safetyNote: activity-specific precautions and applicable authoritative safety
   references. Do not invent doses, ingredient safety or exposure limits.
 - category and primaryCategoryId: identical, chosen by central technique from

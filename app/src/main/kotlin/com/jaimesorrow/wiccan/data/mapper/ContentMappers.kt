@@ -154,16 +154,20 @@ fun CachedDailyContentEntity.toDomain(): Content = Content(
     adaptationNotes = adaptationNotes.orEmpty(),
     sourcePassageId = sourcePassageId,
     sourceTradition = sourceTradition,
-    citation = if (citationTextTitle == null && citationLocator == null) null else ContentCitation(
-        textTitle = citationTextTitle,
-        manuscriptId = citationManuscriptId,
-        tradition = citationTradition,
-        manuscriptDate = citationManuscriptDate,
-        compositionDate = citationCompositionDate,
-        edition = citationEdition,
-        editionDate = citationEditionDate,
-        translator = citationTranslator,
-        locator = citationLocator,
-        url = citationUrl,
-    ),
+    citation = if (citationTextTitle == null && citationLocator == null) {
+        null
+    } else {
+        ContentCitation(
+            textTitle = citationTextTitle,
+            manuscriptId = citationManuscriptId,
+            tradition = citationTradition,
+            manuscriptDate = citationManuscriptDate,
+            compositionDate = citationCompositionDate,
+            edition = citationEdition,
+            editionDate = citationEditionDate,
+            translator = citationTranslator,
+            locator = citationLocator,
+            url = citationUrl,
+        )
+    },
 )

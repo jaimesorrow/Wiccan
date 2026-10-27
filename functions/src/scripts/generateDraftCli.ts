@@ -18,6 +18,9 @@ import { CONTENT_PROJECT_ID, initializeContentProject } from "./contentProject";
  *   npm run content-agent -- --tier free [--sourceId <id>] [--type spell] [--count 3]
  * Commit drafts to production:
  *   npm run content-agent -- --project wiccan-android --commit --tier free [...]
+ * Operator-controlled continuance (draft creation only; no publication):
+ *   npm run content-agent -- --project wiccan-android --commit --continuous
+ *     --intervalMinutes 1440 [--maxBatches 30] --tier free --passageId <id>
  */
 
 const VALID_TIERS: ReadonlySet<string> = new Set(["free", "premium"]);
@@ -36,6 +39,9 @@ async function main(): Promise<void> {
       count: { type: "string" },
       similarityGroupId: { type: "string" },
       sourceCitation: { type: "string" },
+      continuous: { type: "boolean", default: false },
+      intervalMinutes: { type: "string" },
+      maxBatches: { type: "string" },
     },
     strict: true,
     allowPositionals: false,
@@ -51,6 +57,17 @@ async function main(): Promise<void> {
   const count = args.count !== undefined ? Number(args.count) : undefined;
   if (count !== undefined && (!Number.isInteger(count) || count < 1)) {
     throw new Error("--count must be a positive integer when provided.");
+  }
+  const intervalMinutes = args.intervalMinutes === undefined ? 1440 : Number(args.intervalMinutes);
+  if (!Number.isFinite(intervalMinutes) || intervalMinutes <= 0) {
+    throw new Error("--intervalMinutes must be a positive number.");
+  }
+  const maxBatches = args.maxBatches === undefined ? undefined : Number(args.maxBatches);
+  if (maxBatches !== undefined && (!Number.isInteger(maxBatches) || maxBatches < 1)) {
+    throw new Error("--maxBatches must be a positive integer when provided.");
+  }
+  if (!args.continuous && (args.intervalMinutes !== undefined || args.maxBatches !== undefined)) {
+    throw new Error("--intervalMinutes and --maxBatches require --continuous.");
   }
   if (args.project !== undefined && args.project !== CONTENT_PROJECT_ID) {
     throw new Error(`This content workflow only targets ${CONTENT_PROJECT_ID}; received '${args.project}'.`);
@@ -85,6 +102,9 @@ async function main(): Promise<void> {
       type: args.type ?? "all eligible types",
       passageId: passage.id,
       eligibleSourceIds: eligibleSources.map((source) => source.id),
+      continuous: args.continuous,
+      intervalMinutes: args.continuous ? intervalMinutes : null,
+      maxBatches: args.continuous ? maxBatches ?? null : null,
       nextStep: `Add --project ${CONTENT_PROJECT_ID} --commit to call Claude and create review-required drafts.`,
     }, null, 2));
     return;
@@ -99,23 +119,33 @@ async function main(): Promise<void> {
   const generator = new ClaudeDraftGenerator();
   const repo = new FirestoreContentAdminRepository(getFirestore());
 
-  const results = await generateDrafts(
-    {
-      tier: tier as ContentTier,
-      sourceId: passage.sourceId,
-      passageId: passage.id,
-      type: args.type as ContentType | undefined,
-      count,
-      similarityGroupId: args.similarityGroupId,
-      sourceCitation: args.sourceCitation,
-    },
-    sources,
-    generator,
-    repo,
-    passages,
-  );
-
-  console.log(JSON.stringify(results, null, 2));
+  let batchNumber = 0;
+  let shouldContinue = true;
+  while (shouldContinue) {
+    batchNumber += 1;
+    const results = await generateDrafts(
+      {
+        tier: tier as ContentTier,
+        sourceId: passage.sourceId,
+        passageId: passage.id,
+        type: args.type as ContentType | undefined,
+        count,
+        similarityGroupId: args.similarityGroupId,
+        sourceCitation: args.sourceCitation,
+      },
+      sources,
+      generator,
+      repo,
+      passages,
+    );
+    console.log(JSON.stringify({ batchNumber, contentStatus: "draft", published: false, results }, null, 2));
+    shouldContinue = args.continuous && (maxBatches === undefined || batchNumber < maxBatches);
+    if (!shouldContinue) continue;
+    if (results.length === 0) {
+      throw new Error("Continuance stopped because the batch produced no unique drafts; review source coverage and duplicate constraints.");
+    }
+    await new Promise((resolve) => setTimeout(resolve, intervalMinutes * 60_000));
+  }
 }
 
 main().catch((err) => {
