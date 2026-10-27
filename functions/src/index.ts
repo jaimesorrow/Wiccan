@@ -64,6 +64,10 @@ export const getTodayContent = onCall(CALLABLE_OPTIONS, async (request) => {
     throw new HttpsError("unauthenticated", "Sign-in is required to fetch today's content.");
   }
 
+  if (request.auth?.token.email_verified !== true) {
+    throw new HttpsError("permission-denied", "Verify your email before accessing Wiccan content.");
+  }
+
   // Devices provide their IANA time zone, never a date, user ID, or tier.
   // This also makes a new user's first request local-date correct before
   // asynchronous notification registration has stored a profile zone.
@@ -334,6 +338,27 @@ export const setNotificationsEnabled = onCall(CALLABLE_OPTIONS, async (request) 
  * (see policyVersions.ts) rather than trusting the client's claim.
  * App Check-enforced.
  */
+/** Complete a verified account's profile without granting client Firestore write access. */
+export const completeOnboardingProfile = onCall(CALLABLE_OPTIONS, async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) throw new HttpsError("unauthenticated", "Sign-in is required.");
+  if (request.auth?.token.email_verified !== true) {
+    throw new HttpsError("permission-denied", "Verify your email first.");
+  }
+  const namePattern = /^[^\u0000-\u001f\u007f]{1,60}$/u;
+  const firstName = typeof request.data?.firstName === "string" ? request.data.firstName.trim() : "";
+  const lastName = typeof request.data?.lastName === "string" ? request.data.lastName.trim() : "";
+  if (!namePattern.test(firstName) || !namePattern.test(lastName)) {
+    throw new HttpsError("invalid-argument", "First and last names are required (maximum 60 characters each).");
+  }
+  try {
+    await new FirestoreUserProfileRepository(getFirestore()).completeProfile(uid, firstName, lastName);
+  } catch (err) {
+    logger.error("completeOnboardingProfile failed", { uid, error: (err as Error).message });
+    throw new HttpsError("failed-precondition", "Unable to complete profile at this time.");
+  }
+});
+
 export const acceptTerms = onCall(CALLABLE_OPTIONS, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
