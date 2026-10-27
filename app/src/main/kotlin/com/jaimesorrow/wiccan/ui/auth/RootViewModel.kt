@@ -52,6 +52,8 @@ class RootViewModel @Inject constructor(
                             .flatMapLatest { status ->
                                 when (status) {
                                     AccountStatus.Initializing -> flowOf(RootState.InitializingProfile)
+                                    AccountStatus.RequiresEmailVerification -> flowOf(RootState.RequiresEmailVerification)
+                                    AccountStatus.RequiresProfileCompletion -> flowOf(RootState.RequiresProfileCompletion)
                                     AccountStatus.RequiresPolicyAcceptance -> flowOf(RootState.RequiresPolicyAcceptance)
                                     AccountStatus.Ready -> subscriptionRepository.observeTier()
                                         .map<ContentTier, RootState> { tier ->

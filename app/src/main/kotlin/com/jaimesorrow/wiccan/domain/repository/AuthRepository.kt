@@ -47,6 +47,9 @@ interface AuthRepository {
     suspend fun createAccountWithEmail(email: String, password: String): AppResult<Unit>
 
     suspend fun sendPasswordReset(email: String): AppResult<Unit>
+    suspend fun sendEmailVerification(): AppResult<Unit>
+    suspend fun refreshEmailVerification(): AppResult<Unit>
+    suspend fun completeProfile(firstName: String, lastName: String): AppResult<Unit>
 
     suspend fun signOut(): AppResult<Unit>
 

@@ -14,6 +14,8 @@ sealed interface RootState {
     data object Loading : RootState
     data object SignedOut : RootState
     data object InitializingProfile : RootState
+    data object RequiresEmailVerification : RootState
+    data object RequiresProfileCompletion : RootState
     data object RequiresPolicyAcceptance : RootState
     data class RequiresSubscription(val uid: String) : RootState
     data class SignedIn(val uid: String) : RootState

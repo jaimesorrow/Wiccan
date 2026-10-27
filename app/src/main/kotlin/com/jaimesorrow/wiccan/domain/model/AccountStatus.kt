@@ -11,5 +11,7 @@ sealed interface AccountStatus {
     /** Profile exists, but its accepted policy versions are missing or outdated. */
     data object RequiresPolicyAcceptance : AccountStatus
 
+    data object RequiresEmailVerification : AccountStatus
+    data object RequiresProfileCompletion : AccountStatus
     data object Ready : AccountStatus
 }
