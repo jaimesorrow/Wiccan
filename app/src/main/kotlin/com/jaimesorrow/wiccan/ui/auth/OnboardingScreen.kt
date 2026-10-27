@@ -31,6 +31,7 @@ import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
 fun OnboardingScreen(
     verification: Boolean,
     onOpenLegalDocument: (LegalDocumentId) -> Unit = {},
+    onAccountClick: () -> Unit = {},
     viewModel: OnboardingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -98,6 +99,7 @@ fun OnboardingScreen(
             }
             Spacer(modifier = Modifier.height(18.dp))
             TextButton(onClick = viewModel::signOut, enabled = !state.busy) { Text("Sign Out") }
+            TextButton(onClick = onAccountClick) { Text("Account & support / Delete Account") }
             TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) { Text("Privacy Policy") }
         }
     }

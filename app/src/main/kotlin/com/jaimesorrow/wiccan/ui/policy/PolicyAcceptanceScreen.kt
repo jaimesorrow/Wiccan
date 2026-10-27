@@ -41,6 +41,7 @@ import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
 fun PolicyAcceptanceScreen(
     modifier: Modifier = Modifier,
     onOpenLegalDocument: (LegalDocumentId) -> Unit = {},
+    onAccountClick: () -> Unit = {},
     viewModel: PolicyAcceptanceViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -115,6 +116,8 @@ fun PolicyAcceptanceScreen(
             ) {
                 Text("Continue")
             }
+
+            TextButton(onClick = onAccountClick) { Text("Account & support / Delete Account") }
 
             if (state.isSubmitting) {
                 Spacer(modifier = Modifier.height(12.dp))

@@ -118,16 +118,31 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     RootState.SignedOut -> SignInScreen(onOpenLegalDocument = { openLegalDocument = it })
-                    RootState.RequiresEmailVerification -> OnboardingScreen(
-                        verification = true,
-                        onOpenLegalDocument = { openLegalDocument = it },
-                    )
-                    RootState.RequiresProfileCompletion -> OnboardingScreen(
-                        verification = false,
-                        onOpenLegalDocument = { openLegalDocument = it },
-                    )
-                    RootState.RequiresPolicyAcceptance ->
-                        PolicyAcceptanceScreen(onOpenLegalDocument = { openLegalDocument = it })
+                    RootState.RequiresEmailVerification, RootState.RequiresProfileCompletion,
+                    RootState.RequiresPolicyAcceptance -> {
+                        if (openAccount) {
+                            SettingsScreen(
+                                accountOnly = true,
+                                onBack = { openAccount = false },
+                                onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
+                                onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
+                                onContentSafetyClick = { openLegalDocument = LegalDocumentId.CONTENT_SAFETY },
+                                viewModel = hiltViewModel(key = "onboarding-account"),
+                            )
+                            BackHandler { openAccount = false }
+                        } else if (rootState == RootState.RequiresPolicyAcceptance) {
+                            PolicyAcceptanceScreen(
+                                onOpenLegalDocument = { openLegalDocument = it },
+                                onAccountClick = { openAccount = true },
+                            )
+                        } else {
+                            OnboardingScreen(
+                                verification = rootState == RootState.RequiresEmailVerification,
+                                onOpenLegalDocument = { openLegalDocument = it },
+                                onAccountClick = { openAccount = true },
+                            )
+                        }
+                    }
                     RootState.Loading, RootState.InitializingProfile -> LoadingIndicator()
                 }
             }
