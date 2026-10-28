@@ -111,6 +111,7 @@ async function newUser() {
     }),
   });
   const created = await res.json();
+  const unverifiedToken = created.idToken;
   // Verify the dedicated test user and refresh its ID token before requesting content.
   await getAuth().updateUser(created.localId, { emailVerified: true });
   const login = await fetch(AUTH + "/accounts:signInWithPassword?key=emulator", {
@@ -118,20 +119,29 @@ async function newUser() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email: created.email, password: "password123", returnSecureToken: true }),
   });
-  return login.json();
+  return { ...(await login.json()), unverifiedToken };
 }
 
 async function main() {
   await seed();
 
   console.log("\n== auth ==");
-  const { idToken: token, localId: uid } = await newUser();
+  const { idToken: token, localId: uid, unverifiedToken } = await newUser();
   ok("emulator issues an ID token", !!token);
   console.log(`  uid=${uid}`);
 
   console.log("\n== auth gate ==");
   const anon = await call("getTodayContent", null);
   ok("getTodayContent rejects unauthenticated callers", anon?.error?.status === "UNAUTHENTICATED");
+
+  const unverified = await call("getTodayContent", unverifiedToken);
+  ok("getTodayContent rejects unverified email accounts", unverified?.error?.status === "PERMISSION_DENIED");
+  const unverifiedProfile = await call("completeOnboardingProfile", unverifiedToken, {
+    firstName: "Unverified",
+    lastName: "Account",
+  });
+  ok("profile completion rejects unverified email accounts",
+    unverifiedProfile?.error?.status === "PERMISSION_DENIED");
 
   const probe = await call("getTodayContent", token);
   if (probe?.error?.status === "UNAUTHENTICATED") {
@@ -152,6 +162,19 @@ async function main() {
   await db.collection("users").doc(uid).set({
     tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000,
   }, { merge: true });
+  const invalidProfile = await call("completeOnboardingProfile", token, {
+    firstName: "Line\nBreak",
+    lastName: "Account",
+  });
+  ok("profile completion rejects control characters", invalidProfile?.error?.status === "INVALID_ARGUMENT");
+  const profile = await call("completeOnboardingProfile", token, {
+    firstName: "  Rowan  ",
+    lastName: "Wilde",
+  });
+  ok("verified account can complete its profile", !profile?.error, JSON.stringify(profile).slice(0, 200));
+  const profileDocument = await db.collection("users").doc(uid).get();
+  ok("profile completion trims and stores the names",
+    profileDocument.get("firstName") === "Rowan" && profileDocument.get("lastName") === "Wilde");
   for (const timezone of [null, 7, "", " UTC", "UTC ", "Not/A_Real_Zone", "x".repeat(256)]) {
     const invalid = await call("getTodayContent", token, { timezone });
     ok(`getTodayContent rejects invalid timezone ${JSON.stringify(timezone).slice(0, 60)}`,

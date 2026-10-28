@@ -25,7 +25,7 @@ import { acceptTerms as acceptTermsCore, StalePolicyVersionError } from "./accep
 import { FirestoreSubscriptionRecordRepository } from "./firestoreSubscriptionRecordRepository";
 import { handleRtdnNotification, parseRtdnPurchaseToken } from "./handleRtdn";
 import { FirestoreSystemConfigRepository } from "./firestoreSystemConfigRepository";
-import { parseDeviceToken, parseTimeZone } from "./callableInput";
+import { parseDeviceToken, parseProfileName, parseTimeZone } from "./callableInput";
 import { SubscriptionRequiredError } from "./contentRepositoryPort";
 
 initializeApp();
@@ -345,10 +345,9 @@ export const completeOnboardingProfile = onCall(CALLABLE_OPTIONS, async (request
   if (request.auth?.token.email_verified !== true) {
     throw new HttpsError("permission-denied", "Verify your email first.");
   }
-  const namePattern = /^[^\u0000-\u001f\u007f]{1,60}$/u;
-  const firstName = typeof request.data?.firstName === "string" ? request.data.firstName.trim() : "";
-  const lastName = typeof request.data?.lastName === "string" ? request.data.lastName.trim() : "";
-  if (!namePattern.test(firstName) || !namePattern.test(lastName)) {
+  const firstName = parseProfileName(request.data?.firstName);
+  const lastName = parseProfileName(request.data?.lastName);
+  if (firstName === null || lastName === null) {
     throw new HttpsError("invalid-argument", "First and last names are required (maximum 60 characters each).");
   }
   try {

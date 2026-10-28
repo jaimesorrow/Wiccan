@@ -7,8 +7,14 @@ import { FirestoreSystemConfigRepository } from "../firestoreSystemConfigReposit
 jest.mock("firebase-admin/auth", () => ({ getAuth: jest.fn() }));
 jest.mock("firebase-admin/app-check", () => ({ getAppCheck: jest.fn() }));
 
-function request(timezone: unknown): Parameters<typeof getTodayContent.run>[0] {
-  return { auth: { uid: "timezone-test-user" }, data: { timezone } } as
+function request(
+  timezone: unknown,
+  emailVerified = true,
+): Parameters<typeof getTodayContent.run>[0] {
+  return {
+    auth: { uid: "timezone-test-user", token: { email_verified: emailVerified } },
+    data: { timezone },
+  } as
     Parameters<typeof getTodayContent.run>[0];
 }
 
@@ -36,6 +42,11 @@ describe("getTodayContent callable time-zone validation", () => {
       Parameters<typeof getTodayContent.run>[0];
     await expect(getTodayContent.run(unauthenticated))
       .rejects.toMatchObject({ code: "unauthenticated" });
+  });
+
+  it("requires a verified email before validating the payload", async () => {
+    await expect(getTodayContent.run(request("Not/A_Real_Zone", false)))
+      .rejects.toMatchObject({ code: "permission-denied" });
   });
 
   it("returns permission-denied with a subscription reason before reading assigned content", async () => {

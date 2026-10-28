@@ -2,6 +2,7 @@ import { isValidTimeZone } from "./dateUtils";
 
 export const MAX_DEVICE_TOKEN_LENGTH = 4096;
 export const MAX_TIME_ZONE_LENGTH = 255;
+export const MAX_PROFILE_NAME_LENGTH = 60;
 
 /**
  * Accept only a bounded, non-blank FCM registration token. Rejecting
@@ -28,4 +29,17 @@ export function parseTimeZone(value: unknown): string | null {
     return null;
   }
   return value;
+}
+
+/** Trim and bound a profile name while rejecting ASCII control characters. */
+export function parseProfileName(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  const characters = Array.from(trimmed);
+  if (characters.length === 0 || characters.length > MAX_PROFILE_NAME_LENGTH) return null;
+  if (characters.some((character) => {
+    const codePoint = character.codePointAt(0);
+    return codePoint === undefined || codePoint <= 0x1f || codePoint === 0x7f;
+  })) return null;
+  return trimmed;
 }

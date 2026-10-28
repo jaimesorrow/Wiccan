@@ -1,7 +1,9 @@
 import {
   MAX_DEVICE_TOKEN_LENGTH,
+  MAX_PROFILE_NAME_LENGTH,
   MAX_TIME_ZONE_LENGTH,
   parseDeviceToken,
+  parseProfileName,
   parseTimeZone,
 } from "../callableInput";
 
@@ -34,5 +36,24 @@ describe("parseTimeZone", () => {
 
   it("rejects an oversized time zone before Intl parsing", () => {
     expect(parseTimeZone("x".repeat(MAX_TIME_ZONE_LENGTH + 1))).toBeNull();
+  });
+});
+
+describe("parseProfileName", () => {
+  it.each([
+    ["Morgan", "Morgan"],
+    ["  Ana Mar\u00eda  ", "Ana Mar\u00eda"],
+    ["\ud83e\uddd9", "\ud83e\uddd9"],
+  ])("accepts and trims a valid profile name: %p", (value, expected) => {
+    expect(parseProfileName(value)).toBe(expected);
+  });
+
+  it.each([null, 7, "", "   ", "Line\nBreak", "Delete\u007fCharacter"])(
+    "rejects an invalid profile name: %p",
+    (value) => expect(parseProfileName(value)).toBeNull(),
+  );
+
+  it("rejects a name over the Unicode character limit", () => {
+    expect(parseProfileName("\ud83e\uddd9".repeat(MAX_PROFILE_NAME_LENGTH + 1))).toBeNull();
   });
 });
