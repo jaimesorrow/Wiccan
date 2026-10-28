@@ -27,8 +27,13 @@ class AccountFunctionsDataSource @Inject constructor(
             .await()
     }
 
+    suspend fun sendVerificationEmail() {
+        functions.getHttpsCallable(VERIFICATION_EMAIL_FUNCTION_NAME).call().await()
+    }
+
     private companion object {
         const val DELETE_FUNCTION_NAME = "deleteUserData"
         const val ACCEPT_TERMS_FUNCTION_NAME = "acceptTerms"
+        const val VERIFICATION_EMAIL_FUNCTION_NAME = "sendVerificationEmail"
     }
 }

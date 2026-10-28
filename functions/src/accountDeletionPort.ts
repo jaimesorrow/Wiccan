@@ -16,5 +16,7 @@ export interface AccountDeletionPort {
   cancelActiveSubscription(uid: string): Promise<void>;
   /** The durable subscriptions/{uid} audit record - a separate top-level collection from users/{uid}. */
   deleteSubscriptionRecord(uid: string): Promise<void>;
+  /** Removes the server-only resend throttle timestamp associated with the account. */
+  deleteVerificationEmailRequest(uid: string): Promise<void>;
   deleteAuthAccount(uid: string): Promise<void>;
 }

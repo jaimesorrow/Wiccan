@@ -51,6 +51,8 @@ for fn in getTodayContent verifyPurchase registerDeviceToken unregisterDeviceTok
     fail "${fn} uses production-enforced App Check options"
   fi
 done
+require_grep '\{ \.\.\.CALLABLE_OPTIONS, secrets: \[SMTP_URL\] \}' functions/src/index.ts \
+  'sendVerificationEmail keeps App Check enforcement while binding SMTP_URL'
 
 require_grep 'buildConfigField\("boolean", "USE_FIREBASE_EMULATORS", "false"\)' app/build.gradle.kts   'release builds cannot enable Firebase emulators'
 
