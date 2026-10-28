@@ -1,9 +1,11 @@
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import { parseArgs } from "node:util";
 import { FieldPath, getFirestore } from "firebase-admin/firestore";
-import { approveDraft, validateDraftForPublication } from "../approveDraft";
+import { planDraftApproval, validateDraftForPublication } from "../approveDraft";
 import { FirestoreContentAdminRepository } from "../firestoreContentAdminRepository";
 import type { StoredContent } from "../contentAdminRepositoryPort";
+import { stableJson } from "../practicalLesson";
 import { CONTENT_PROJECT_ID, initializeContentProject } from "./contentProject";
 
 interface PublicationResult {
@@ -20,14 +22,16 @@ async function main(): Promise<void> {
   const { values } = parseArgs({ options: {
     project: { type: "string" }, commit: { type: "boolean", default: false },
     output: { type: "string" }, batchSize: { type: "string", default: "100" },
-    maxRetries: { type: "string", default: "3" },
+    maxRetries: { type: "string", default: "3" }, operator: { type: "string", default: "publish-eligible-cli" },
   }, strict: true, allowPositionals: false });
   if (values.project !== CONTENT_PROJECT_ID) throw new Error(`Explicit --project ${CONTENT_PROJECT_ID} is required.`);
   if (!values.output) throw new Error("--output is required.");
   const batchSize = Number(values.batchSize);
   const maxRetries = Number(values.maxRetries);
+  const operator = values.operator?.trim();
   if (!Number.isInteger(batchSize) || batchSize < 1 || batchSize > 400) throw new Error("--batchSize must be an integer from 1 to 400.");
   if (!Number.isInteger(maxRetries) || maxRetries < 0 || maxRetries > 8) throw new Error("--maxRetries must be an integer from 0 to 8.");
+  if (!operator) throw new Error("--operator must identify the publication operator.");
 
   initializeContentProject(values.project);
   const db = getFirestore();
@@ -55,7 +59,19 @@ async function main(): Promise<void> {
         try {
           // Re-reads and revalidates on every attempt; publish itself is an
           // idempotent transaction, so transient retry cannot double-publish.
-          await approveDraft(document.id, repo);
+          const entry = await planDraftApproval(document.id, repo);
+          const approvalDigest = createHash("sha256").update(stableJson({
+            projectId: CONTENT_PROJECT_ID,
+            operator,
+            entry,
+          })).digest("hex");
+          await repo.publishBatch([{
+            contentId: entry.contentId,
+            expectedUpdateTime: entry.expectedUpdateTime,
+            expectedContentHash: entry.contentHash,
+            operator,
+            approvalDigest,
+          }]);
           results.push({ id: document.id, outcome: "published", attempts: attempt + 1 });
           failure = undefined;
           break;

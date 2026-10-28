@@ -16,10 +16,31 @@ export interface NewDraftContent extends GeneratedDraftFields {
 
 export interface StoredContent extends NewDraftContent {
   status: ContentStatus;
+  createdAt?: unknown;
+  updatedAt?: unknown;
   /** Server-written audit metadata. Older hand-authored drafts may not carry it. */
   generatedBy?: string;
   generationSourceKind?: "historical-grimoire";
   generatedAt?: unknown;
+}
+
+export interface VersionedStoredContent {
+  content: StoredContent;
+  /** Firestore update time encoded as seconds:nanoseconds. */
+  updateTime: string;
+}
+
+export interface PublicationRequest {
+  contentId: string;
+  expectedUpdateTime: string;
+  expectedContentHash: string;
+  operator: string;
+  approvalDigest: string;
+}
+
+export interface PublicationResult {
+  contentId: string;
+  outcome: "published" | "already-published";
 }
 
 /**
@@ -39,7 +60,11 @@ export interface ContentAdminRepositoryPort {
   /** Full stored document, for the pre-publish safety/completeness check in approveDraft. */
   getContent(contentId: string): Promise<StoredContent | null>;
 
-  publish(contentId: string): Promise<void>;
+  /** Read the document together with the version that an approval is bound to. */
+  getVersionedContent(contentId: string): Promise<VersionedStoredContent | null>;
+
+  /** Atomically revalidate and publish a reviewed batch, including immutable audit rows. */
+  publishBatch(requests: PublicationRequest[]): Promise<PublicationResult[]>;
 
   /**
    * True if any existing document (draft or published) already has this
