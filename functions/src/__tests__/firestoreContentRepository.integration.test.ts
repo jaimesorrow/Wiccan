@@ -14,6 +14,7 @@ import { makeContent, makeReviewedLesson } from "../testUtils/fakeContentReposit
 import { FakePlayBillingPort } from "../testUtils/fakePlayBillingPort";
 import { Content } from "../types";
 import { getUserLocalDate } from "../dateUtils";
+import { practicalContentHash } from "../practicalLesson";
 
 // The emulator suite exercises the production repository and real Firestore
 // transactions. Ordinary unit-test runs do not contact a live project.
@@ -38,7 +39,7 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
   });
 
   beforeEach(async () => {
-    for (const name of ["content", "users", "userContentHistory", "userContentUsage", "contentPoolExhaustionEvents"]) {
+    for (const name of ["content", "users", "userContentHistory", "userContentUsage", "contentPoolExhaustionEvents", "contentPublicationAudit"]) {
       const documents = await db.collection(name).listDocuments();
       await Promise.all(documents.map((document) => db.recursiveDelete(document)));
     }
@@ -291,6 +292,51 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
     });
     expect(saved?.generatedAt).toBeDefined();
     expect(typeof saved?.generatedAt?.toDate).toBe("function");
+  });
+
+  it("publishes a reviewed batch atomically and creates immutable audit rows", async () => {
+    const adminRepo = new FirestoreContentAdminRepository(db);
+    const draft = makeContent({ id: "publish-me", type: "spell", status: "draft" });
+    const { id, ...fields } = draft;
+    await db.collection("content").doc(id).set({ ...fields, contentStatus: "draft" });
+    const versioned = await adminRepo.getVersionedContent(id);
+    expect(versioned).not.toBeNull();
+    const result = await adminRepo.publishBatch([{
+      contentId: id,
+      expectedUpdateTime: versioned!.updateTime,
+      expectedContentHash: practicalContentHash(versioned!.content),
+      operator: "editor@example.test",
+      approvalDigest: "a".repeat(64),
+    }]);
+
+    expect(result).toEqual([{ contentId: id, outcome: "published" }]);
+    expect((await db.collection("content").doc(id).get()).data()).toMatchObject({ status: "published", contentStatus: "published" });
+    const audits = await db.collection("contentPublicationAudit").get();
+    expect(audits.docs).toHaveLength(1);
+    expect(audits.docs[0].data()).toMatchObject({
+      contentId: id, previousStatus: "draft", publishedStatus: "published",
+      operator: "editor@example.test", approvalDigest: "a".repeat(64),
+    });
+  });
+
+  it("rejects the whole publication transaction when any approved version is stale", async () => {
+    const adminRepo = new FirestoreContentAdminRepository(db);
+    for (const id of ["fresh", "stale"]) {
+      const { id: ignored, ...fields } = makeContent({ id, type: "spell", status: "draft" });
+      void ignored;
+      await db.collection("content").doc(id).set({ ...fields, contentStatus: "draft" });
+    }
+    const versions = await Promise.all(["fresh", "stale"].map((id) => adminRepo.getVersionedContent(id)));
+    await db.collection("content").doc("stale").update({ title: "Changed after review" });
+    await expect(adminRepo.publishBatch(versions.map((versioned, index) => ({
+      contentId: index === 0 ? "fresh" : "stale",
+      expectedUpdateTime: versioned!.updateTime,
+      expectedContentHash: practicalContentHash(versioned!.content),
+      operator: "editor@example.test",
+      approvalDigest: "b".repeat(64),
+    })))).rejects.toThrow("changed after approval");
+    expect((await db.collection("content").doc("fresh").get()).get("status")).toBe("draft");
+    expect((await db.collection("contentPublicationAudit").get()).size).toBe(0);
   });
 
   it("authorized account deletion cleans both content and similarity reservations", async () => {
