@@ -12,6 +12,7 @@ enum class ContentCategory {
     ALTARS_SACRED_SPACE,
     DIVINATION,
     PROTECTION_CLEANSING_WARDING,
+
     // Read compatibility for delivered Grimoire entries written before the practical taxonomy.
     PROTECTION,
     LOVE_AND_RELATIONSHIPS,
