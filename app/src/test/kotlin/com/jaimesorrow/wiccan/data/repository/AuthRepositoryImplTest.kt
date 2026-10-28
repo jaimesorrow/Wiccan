@@ -3,9 +3,11 @@ package com.jaimesorrow.wiccan.data.repository
 import android.content.Context
 import android.content.res.Resources
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
+import com.jaimesorrow.wiccan.data.remote.AccountFunctionsDataSource
 import com.jaimesorrow.wiccan.data.remote.GoogleCredentialDataSource
 import io.mockk.Called
 import io.mockk.coEvery
@@ -28,6 +30,7 @@ class AuthRepositoryImplTest {
     private val firebaseAuth: FirebaseAuth = mockk()
     private val firestore: FirebaseFirestore = mockk()
     private val googleCredentialDataSource: GoogleCredentialDataSource = mockk()
+    private val accountFunctionsDataSource: AccountFunctionsDataSource = mockk()
     private lateinit var repository: AuthRepositoryImpl
 
     @Before
@@ -39,9 +42,33 @@ class AuthRepositoryImplTest {
             firebaseAuth,
             firestore,
             googleCredentialDataSource,
-            mockk(),
+            accountFunctionsDataSource,
             mockk(),
         )
+    }
+
+    @Test
+    fun `verification email uses the branded callable`() = runTest {
+        val user: FirebaseUser = mockk()
+        every { firebaseAuth.currentUser } returns user
+        every { user.isEmailVerified } returns false
+        coEvery { accountFunctionsDataSource.sendVerificationEmail() } returns Unit
+
+        assertEquals(AppResult.Success(Unit), repository.sendEmailVerification())
+
+        coVerify(exactly = 1) { accountFunctionsDataSource.sendVerificationEmail() }
+        verify(exactly = 0) { user.sendEmailVerification() }
+    }
+
+    @Test
+    fun `verified account does not request another email`() = runTest {
+        val user: FirebaseUser = mockk()
+        every { firebaseAuth.currentUser } returns user
+        every { user.isEmailVerified } returns true
+
+        assertEquals(AppResult.Success(Unit), repository.sendEmailVerification())
+
+        coVerify(exactly = 0) { accountFunctionsDataSource.sendVerificationEmail() }
     }
 
     @Test

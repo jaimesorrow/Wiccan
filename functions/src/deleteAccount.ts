@@ -19,6 +19,7 @@ export async function deleteAccount(uid: string, repo: AccountDeletionPort): Pro
   await repo.deleteUserContentUsage(uid);
   await repo.deleteUserDevices(uid);
   await repo.deleteSubscriptionRecord(uid);
+  await repo.deleteVerificationEmailRequest(uid);
   await repo.deleteUserProfile(uid);
   await repo.deleteAuthAccount(uid);
 }

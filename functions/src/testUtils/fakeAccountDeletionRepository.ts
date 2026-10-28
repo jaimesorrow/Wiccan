@@ -27,6 +27,10 @@ export class FakeAccountDeletionRepository implements AccountDeletionPort {
     this.calls.push(`subscription:${uid}`);
   }
 
+  async deleteVerificationEmailRequest(uid: string): Promise<void> {
+    this.calls.push(`verification-email:${uid}`);
+  }
+
   async deleteAuthAccount(uid: string): Promise<void> {
     this.calls.push(`auth:${uid}`);
   }

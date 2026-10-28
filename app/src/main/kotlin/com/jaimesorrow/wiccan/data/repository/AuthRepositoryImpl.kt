@@ -127,7 +127,7 @@ class AuthRepositoryImpl @Inject constructor(
         firebaseAuth.createUserWithEmailAndPassword(email, password).await()
         // Account creation succeeds even if email delivery is temporarily unavailable;
         // the verification screen always offers a retry.
-        try { firebaseAuth.currentUser?.sendEmailVerification()?.await() } catch (_: Exception) { }
+        try { accountFunctionsDataSource.sendVerificationEmail() } catch (_: Exception) { }
         analyticsLogger.logSignUpCompleted()
         AppResult.Success(Unit)
     } catch (t: Throwable) {
@@ -144,7 +144,7 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun sendEmailVerification(): AppResult<Unit> = try {
         val user = firebaseAuth.currentUser
         if (user == null) AppResult.Failure(AppError.Unauthorized) else {
-            if (!user.isEmailVerified) user.sendEmailVerification().await()
+            if (!user.isEmailVerified) accountFunctionsDataSource.sendVerificationEmail()
             AppResult.Success(Unit)
         }
     } catch (t: Throwable) {

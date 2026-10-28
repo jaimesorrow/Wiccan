@@ -27,7 +27,9 @@ adb shell pm clear com.jaimesorrow.wiccan
 ```
 
 Emulator UI: <http://127.0.0.1:4000>. Ports: auth 9099, functions 5001,
-firestore 8080, pubsub 8085. All twelve functions initialize.
+firestore 8080, pubsub 8085. The emulator logs the mystical verification
+message's one-time action link because local emulators intentionally do not
+deliver real email.
 
 Rebuild (`npm run build`) after editing anything under `functions/src` — the
 emulator serves compiled output from `functions/lib`.
@@ -163,10 +165,44 @@ relationship to the distributed build has not been verified. Re-download
 `onUserCreated` is a v1 Auth trigger (`authV1.user().onCreate`) and
 deploys as a 1st-gen function; no extra console setup.
 
+### Branded verification email
+
+**REPO.** Email account creation and resend now call `sendVerificationEmail`
+instead of Firebase Auth's stock sender. The callable derives the recipient
+from the authenticated user, generates a single-use Firebase action link, rate
+limits requests in `emailVerificationRequests/{uid}`, and sends the
+Wiccan-branded moon-phase HTML/text message. Clients cannot select a recipient,
+read the rate-limit collection, or turn the function into an open relay.
+
+**CONSOLE / CLI.** Production delivery needs an SMTP provider with a verified
+sender domain:
+
+```bash
+# Store the full SMTP connection URL in Secret Manager. Do not put it in .env.
+firebase functions:secrets:set SMTP_URL --project production
+
+# In functions/.env.wiccan-android (gitignored):
+SMTP_FROM=Wiccan <noreply@your-verified-domain.example>
+
+firebase deploy --only functions:sendVerificationEmail --project production
+```
+
+Publish SPF and DKIM records supplied by the SMTP provider, and add a DMARC
+record before production traffic. In Firebase Console → Authentication →
+Settings → Authorized domains, keep the Firebase action-handler domain enabled.
+Password-reset and change-email messages still use Firebase's built-in sender;
+customize those separately under Authentication → Templates so their visible
+name, reply-to address and wording match Wiccan.
+
+No Google Play Console product, OAuth consent-screen, API-key, or Android
+package change is required for the email template. Google Cloud only needs the
+Functions runtime's Secret Manager access, which Firebase grants when the
+secret is bound during deployment.
+
 ## 4. App Check
 
 **CONSOLE.** Register the Android app with **Play Integrity**. Until then a
-real (non-emulator) build gets `UNAUTHENTICATED` on all 8 callables.
+real (non-emulator) build gets `UNAUTHENTICATED` on the protected callables.
 
 For debug builds the app installs the debug provider
 (`app/src/debug/.../DebugAppCheckModule.kt`). Run the debug build once,
@@ -182,6 +218,9 @@ attestation — treat it as a secret and never commit it.
 - `ANTHROPIC_API_KEY` — required by `generateDraft` / `npm run generate-draft`.
 - `ANDROID_PACKAGE_NAME` — **required**, no default. `com.jaimesorrow.wiccan`
   for production; dev/staging must use their own IDs.
+- `SMTP_FROM` — visible From header for the branded verification message. The
+  corresponding `SMTP_URL` is stored with `firebase functions:secrets:set`, not
+  in this file.
 - For deployed Functions, grant the **runtime service account** access to this
   app through Play Console and enable the Android Publisher API. The repository
   uses Application Default Credentials, so a deployed function receives its

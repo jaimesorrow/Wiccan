@@ -112,6 +112,7 @@ async function newUser() {
   });
   const created = await res.json();
   const unverifiedToken = created.idToken;
+  const verificationEmail = await call("sendVerificationEmail", unverifiedToken);
   // Verify the dedicated test user and refresh its ID token before requesting content.
   await getAuth().updateUser(created.localId, { emailVerified: true });
   const login = await fetch(AUTH + "/accounts:signInWithPassword?key=emulator", {
@@ -119,15 +120,19 @@ async function newUser() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email: created.email, password: "password123", returnSecureToken: true }),
   });
-  return { ...(await login.json()), unverifiedToken };
+  return { ...(await login.json()), unverifiedToken, verificationEmail };
 }
 
 async function main() {
   await seed();
 
   console.log("\n== auth ==");
-  const { idToken: token, localId: uid, unverifiedToken } = await newUser();
+  const { idToken: token, localId: uid, unverifiedToken, verificationEmail } = await newUser();
   ok("emulator issues an ID token", !!token);
+  ok("branded verification callable creates a Firebase action link",
+    verificationEmail?.result?.sent === true &&
+    verificationEmail?.result?.devVerificationLink?.includes("oobCode="),
+    JSON.stringify(verificationEmail).slice(0, 200));
   console.log(`  uid=${uid}`);
 
   console.log("\n== auth gate ==");
@@ -244,6 +249,8 @@ async function main() {
   ok("user document is removed", !(await db.collection("users").doc(uid).get()).exists);
   ok("devices subcollection is removed",
     (await db.collection("users").doc(uid).collection("devices").get()).size === 0);
+  ok("verification email throttle is removed",
+    !(await db.collection("emailVerificationRequests").doc(uid).get()).exists);
 
   console.log(`\n===== ${pass} passed, ${fail} failed =====`);
   process.exit(fail ? 1 : 0);
