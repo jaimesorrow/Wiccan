@@ -49,8 +49,8 @@ async function seedArchive() {
 
 test("content requires an authenticated delivery marker; a premium tier alone cannot bypass daily selection", async () => {
   await seedArchive();
-  const alice = environment.authenticatedContext("alice").firestore();
-  const bob = environment.authenticatedContext("bob").firestore();
+  const alice = environment.authenticatedContext("alice", { email_verified: true }).firestore();
+  const bob = environment.authenticatedContext("bob", { email_verified: true }).firestore();
   const signedOut = environment.unauthenticatedContext().firestore();
   await assertSucceeds(getDoc(doc(alice, "content/premium-lesson")));
   await assertFails(getDoc(doc(alice, "content/free-lesson")));
@@ -62,7 +62,7 @@ test("content requires an authenticated delivery marker; a premium tier alone ca
 
 test("clients cannot forge content delivery, ownership, subscription records, or their tier", async () => {
   await seedArchive();
-  const alice = environment.authenticatedContext("alice").firestore();
+  const alice = environment.authenticatedContext("alice", { email_verified: true }).firestore();
   for (const path of ["users/alice", "content/free-lesson", "subscriptions/alice", "purchaseTokens/token-hash",
     "userContentUsage/alice/content/free-lesson"]) {
     await assertFails(setDoc(doc(alice, path), { tier: "premium" }));
