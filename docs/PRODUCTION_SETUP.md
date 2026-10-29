@@ -52,10 +52,13 @@ privacy policy rather than promising removal of every record.
 2. Under the app's **Monetize with Play → Products → Subscriptions**, create
    `wiccan_premium_monthly`. Add an **auto-renewing** base plan (for example ID
    `monthly`) with a **one-month** billing period, set its supported countries and
-   prices, and activate it. The app currently selects a regular base plan without
-   a trial/introductory offer. The previous planning price is USD 5.99/month;
-   choose/confirm your actual prices in Play Console. Google's returned localized
-   price is authoritative in the app.
+   prices, and activate it. Configure a single eligible-new-subscriber offer with
+   one free `P7D`/`P1W` phase followed by the monthly recurring phase. The app
+   prefers that exact seven-day offer when Play reports the account eligible and
+   otherwise selects the regular monthly plan without promising a trial. The
+   previous planning price is USD 5.99/month; choose/confirm the actual base price
+   in Play Console. Google's returned localized price and eligibility are
+   authoritative in the app.
 3. If offering annual subscriptions, create `wiccan_premium_yearly` with an
    auto-renewing **one-year** base plan (for example ID `yearly`). The previous
    planning price is USD 39.99/year. The backend/restoration accepts this product;
@@ -173,10 +176,12 @@ is complete. It distinguishes draft and published lessons and reports missing
 canonical IDs; other existing lessons remain intact. More than 200 live lessons
 is possible when the project already has additional content.
 
-To make a reviewed lesson eligible for delivery, use
+To make one reviewed lesson eligible for delivery, use
 `npm run approve-draft -- --project wiccan-android --contentId <id>` from
-`functions/`. Drafts are not delivered to users. Never batch-publish
-unreviewed content simply to meet a numeric target.
+`functions/`. To validate every draft and publish only those that pass, use
+`npm run publish-eligible -- --project wiccan-android --output <report>` first,
+then repeat with `--commit` and a new report path. Drafts are not delivered to
+users. Never batch-publish unreviewed content simply to meet a numeric target.
 
 ## Production release prerequisites
 

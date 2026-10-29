@@ -61,6 +61,27 @@ npm run compare-content-audits -- \
   --output /secure/path/before-after-report.json
 ```
 
+## Controlled publication
+
+Publication is a separate, fail-closed operation after the migration comparison
+passes. The command scans drafts in document-ID order and writes a mode-0600
+result report. It validates the complete lesson structure, registered passage,
+hash-bound editorial/safety/rights/duplicate review, and potion-disclosure flag.
+The default is a read-only dry run:
+
+```bash
+npm run publish-eligible -- --project wiccan-android \
+  --output /secure/path/publication-dry-run.json
+npm run publish-eligible -- --project wiccan-android --commit \
+  --output /secure/path/publication-apply.json
+```
+
+Commit mode re-reads and revalidates each candidate, retries transient failures,
+and uses an idempotent transaction to set both `status` and `contentStatus` to
+`published` with `publishedAt` and `updatedAt` server timestamps. Blocked drafts
+remain unchanged and their reasons are recorded. Do not edit review flags or the
+source register merely to increase the published count.
+
 The apply path rejects missing IDs, duplicate IDs, non-draft or previously delivered documents, stale update times, protected-field changes, unregistered passages, invalid categories, incomplete reviews, and safety violations. Transaction retries preserve conflict detection. The comparison command fails on added or removed IDs, status changes, delivery-history changes, or content changes outside the reviewed set.
 
 ## Rollback

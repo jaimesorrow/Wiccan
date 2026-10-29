@@ -13,7 +13,7 @@ export class UnsafeContentError extends Error {}
  * generation prompt asked the LLM to do. A prompt instruction is a
  * request, not a guarantee; this is the enforcement point.
  */
-function findSafetyViolations(content: StoredContent, sources: ContentSource[]): string[] {
+export function findSafetyViolations(content: StoredContent, sources: ContentSource[]): string[] {
   const violations: string[] = [];
 
   if (content.title.trim().length === 0) violations.push("title is empty.");
@@ -58,6 +58,18 @@ function findSafetyViolations(content: StoredContent, sources: ContentSource[]):
   return violations;
 }
 
+/** Returns every publication blocker without changing Firestore. */
+export function validateDraftForPublication(
+  content: StoredContent,
+  sources: ContentSource[] = loadContentSources(),
+  passages: SourcePassage[] = loadSourcePassages(),
+): string[] {
+  const practicalViolations = content.type === "lesson" || content.sourcePassageId
+    ? findPracticalLessonViolations(content, passages)
+    : [];
+  return [...findSafetyViolations(content, sources), ...practicalViolations];
+}
+
 /**
  * draft -> published. Idempotent: approving an already-published item is
  * a no-op rather than an error, so a retried call is safe. Refuses to
@@ -78,10 +90,7 @@ export async function approveDraft(
     return;
   }
 
-  const practicalViolations = content.type === "lesson" || content.sourcePassageId
-    ? findPracticalLessonViolations(content, passages)
-    : [];
-  const violations = [...findSafetyViolations(content, sources), ...practicalViolations];
+  const violations = validateDraftForPublication(content, sources, passages);
   if (violations.length > 0) {
     throw new UnsafeContentError(
       `Content '${contentId}' failed the pre-publish safety check: ${violations.join(" ")}`,
