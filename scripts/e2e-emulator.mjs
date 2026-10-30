@@ -44,6 +44,7 @@ const AUTH = `http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1`;
 const require = createRequire(new URL("../functions/package.json", import.meta.url));
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
+const { getAuth } = require("firebase-admin/auth");
 
 initializeApp({ projectId: PROJECT });
 const db = getFirestore();
@@ -109,20 +110,43 @@ async function newUser() {
       returnSecureToken: true,
     }),
   });
-  return res.json();
+  const created = await res.json();
+  const unverifiedToken = created.idToken;
+  const verificationEmail = await call("sendVerificationEmail", unverifiedToken);
+  // Verify the dedicated test user and refresh its ID token before requesting content.
+  await getAuth().updateUser(created.localId, { emailVerified: true });
+  const login = await fetch(AUTH + "/accounts:signInWithPassword?key=emulator", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: created.email, password: "password123", returnSecureToken: true }),
+  });
+  return { ...(await login.json()), unverifiedToken, verificationEmail };
 }
 
 async function main() {
   await seed();
 
   console.log("\n== auth ==");
-  const { idToken: token, localId: uid } = await newUser();
+  const { idToken: token, localId: uid, unverifiedToken, verificationEmail } = await newUser();
   ok("emulator issues an ID token", !!token);
+  ok("branded verification callable creates a Firebase action link",
+    verificationEmail?.result?.sent === true &&
+    verificationEmail?.result?.devVerificationLink?.includes("oobCode="),
+    JSON.stringify(verificationEmail).slice(0, 200));
   console.log(`  uid=${uid}`);
 
   console.log("\n== auth gate ==");
   const anon = await call("getTodayContent", null);
   ok("getTodayContent rejects unauthenticated callers", anon?.error?.status === "UNAUTHENTICATED");
+
+  const unverified = await call("getTodayContent", unverifiedToken);
+  ok("getTodayContent rejects unverified email accounts", unverified?.error?.status === "PERMISSION_DENIED");
+  const unverifiedProfile = await call("completeOnboardingProfile", unverifiedToken, {
+    firstName: "Unverified",
+    lastName: "Account",
+  });
+  ok("profile completion rejects unverified email accounts",
+    unverifiedProfile?.error?.status === "PERMISSION_DENIED");
 
   const probe = await call("getTodayContent", token);
   if (probe?.error?.status === "UNAUTHENTICATED") {
@@ -143,6 +167,19 @@ async function main() {
   await db.collection("users").doc(uid).set({
     tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000,
   }, { merge: true });
+  const invalidProfile = await call("completeOnboardingProfile", token, {
+    firstName: "Line\nBreak",
+    lastName: "Account",
+  });
+  ok("profile completion rejects control characters", invalidProfile?.error?.status === "INVALID_ARGUMENT");
+  const profile = await call("completeOnboardingProfile", token, {
+    firstName: "  Rowan  ",
+    lastName: "Wilde",
+  });
+  ok("verified account can complete its profile", !profile?.error, JSON.stringify(profile).slice(0, 200));
+  const profileDocument = await db.collection("users").doc(uid).get();
+  ok("profile completion trims and stores the names",
+    profileDocument.get("firstName") === "Rowan" && profileDocument.get("lastName") === "Wilde");
   for (const timezone of [null, 7, "", " UTC", "UTC ", "Not/A_Real_Zone", "x".repeat(256)]) {
     const invalid = await call("getTodayContent", token, { timezone });
     ok(`getTodayContent rejects invalid timezone ${JSON.stringify(timezone).slice(0, 60)}`,
@@ -171,7 +208,7 @@ async function main() {
   ok("renewal restores the same committed assignment", renewed?.result?.id === firstId);
 
   console.log("\n== acceptTerms ==");
-  const terms = await call("acceptTerms", token, { termsVersion: 3, privacyVersion: 2 });
+  const terms = await call("acceptTerms", token, { termsVersion: 3, privacyVersion: 3 });
   ok("acceptTerms succeeds", !terms?.error, JSON.stringify(terms).slice(0, 200));
   ok("users/{uid} exists afterwards", (await db.collection("users").doc(uid).get()).exists);
 
@@ -212,6 +249,8 @@ async function main() {
   ok("user document is removed", !(await db.collection("users").doc(uid).get()).exists);
   ok("devices subcollection is removed",
     (await db.collection("users").doc(uid).collection("devices").get()).size === 0);
+  ok("verification email throttle is removed",
+    !(await db.collection("emailVerificationRequests").doc(uid).get()).exists);
 
   console.log(`\n===== ${pass} passed, ${fail} failed =====`);
   process.exit(fail ? 1 : 0);

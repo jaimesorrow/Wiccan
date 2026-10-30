@@ -4,7 +4,8 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function hasSubscription() {
       let user = get(/databases/$(database)/documents/users/$(request.auth.uid));
-      return user.data.tier == 'premium'
+      return request.auth.token.email_verified == true
+        && user.data.tier == 'premium'
         && user.data.get('deletionInProgress', false) != true
         && user.data.get('subscriptionExpiresAtMillis', 0) is number
         && user.data.get('subscriptionExpiresAtMillis', 0) > request.time.toMillis();

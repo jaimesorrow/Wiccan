@@ -19,48 +19,58 @@ import kotlinx.coroutines.launch
 private val EMAIL_PATTERN = Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
 
 @HiltViewModel
-class SignInViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
-) : ViewModel() {
-
+class SignInViewModel @Inject constructor(private val authRepository: AuthRepository) : ViewModel() {
     private val _state = MutableStateFlow(
         SignInUiState(isGoogleSignInAvailable = authRepository.isGoogleSignInAvailable()),
     )
     val state: StateFlow<SignInUiState> = _state.asStateFlow()
-
     private val effectChannel = Channel<SignInUiEffect>(Channel.BUFFERED)
     val effects: Flow<SignInUiEffect> = effectChannel.receiveAsFlow()
 
     fun onEvent(event: SignInUiEvent) {
         when (event) {
             is SignInUiEvent.EmailChanged -> _state.update {
-                it.copy(email = event.value, emailError = null)
+                it.copy(email = event.value, emailError = null, passwordResetSent = false)
             }
             is SignInUiEvent.PasswordChanged -> _state.update {
                 it.copy(password = event.value, passwordError = null)
             }
+            is SignInUiEvent.ConfirmPasswordChanged -> _state.update {
+                it.copy(confirmPassword = event.value, confirmPasswordError = null)
+            }
+            SignInUiEvent.TogglePasswordVisibility -> _state.update {
+                it.copy(isPasswordVisible = !it.isPasswordVisible)
+            }
             SignInUiEvent.ToggleMode -> _state.update {
                 it.copy(
                     mode = if (it.mode == SignInMode.SIGN_IN) SignInMode.CREATE_ACCOUNT else SignInMode.SIGN_IN,
-                    emailError = null,
-                    passwordError = null,
+                    password = "", confirmPassword = "", isPasswordVisible = false,
+                    emailError = null, passwordError = null, confirmPasswordError = null,
                 )
             }
+            SignInUiEvent.BackToSignIn -> _state.update {
+                it.copy(mode = SignInMode.SIGN_IN, password = "", passwordResetSent = false, emailError = null)
+            }
+            SignInUiEvent.ForgotPasswordClicked -> _state.update {
+                it.copy(mode = SignInMode.FORGOT_PASSWORD, password = "", emailError = null, passwordResetSent = false)
+            }
             SignInUiEvent.SubmitEmailAuth -> submitEmailAuth()
-            SignInUiEvent.ForgotPasswordClicked -> sendPasswordReset()
+            SignInUiEvent.SubmitPasswordReset -> sendPasswordReset()
         }
     }
 
     fun onGoogleSignInClick(context: Context) {
+        if (_state.value.isLoading) return
         _state.update { it.copy(isLoading = true) }
-        viewModelScope.launch {
-            handleAuthResult(authRepository.signInWithGoogle(context))
-        }
+        viewModelScope.launch { handleAuthResult(authRepository.signInWithGoogle(context)) }
     }
 
     private fun submitEmailAuth() {
-        val email = _state.value.email.trim()
-        val password = _state.value.password
+        val current = _state.value
+        if (current.isLoading || current.mode == SignInMode.FORGOT_PASSWORD) return
+        val email = current.email.trim()
+        val password = current.password
+        val creating = current.mode == SignInMode.CREATE_ACCOUNT
         val emailError = when {
             email.isBlank() -> "Enter your email address."
             !EMAIL_PATTERN.matches(email) -> "Enter a valid email address."
@@ -71,24 +81,24 @@ class SignInViewModel @Inject constructor(
             password.length < 6 -> "Password must be at least 6 characters."
             else -> null
         }
-
-        if (emailError != null || passwordError != null) {
+        val confirmPasswordError = if (creating && current.confirmPassword != password) "Passwords do not match." else null
+        if (emailError != null || passwordError != null || confirmPasswordError != null) {
             _state.update {
                 it.copy(
                     email = email,
                     emailError = emailError,
                     passwordError = passwordError,
-                    isLoading = false,
+                    confirmPasswordError = confirmPasswordError,
                 )
             }
             return
         }
-
         _state.update { it.copy(email = email, isLoading = true) }
         viewModelScope.launch {
-            val result = when (_state.value.mode) {
-                SignInMode.SIGN_IN -> authRepository.signInWithEmail(email, password)
-                SignInMode.CREATE_ACCOUNT -> authRepository.createAccountWithEmail(email, password)
+            val result = if (creating) {
+                authRepository.createAccountWithEmail(email, password)
+            } else {
+                authRepository.signInWithEmail(email, password)
             }
             handleAuthResult(result)
         }
@@ -96,14 +106,20 @@ class SignInViewModel @Inject constructor(
 
     private fun sendPasswordReset() {
         val email = _state.value.email.trim()
+        if (_state.value.isLoading) return
         if (email.isBlank() || !EMAIL_PATTERN.matches(email)) {
             _state.update { it.copy(email = email, emailError = "Enter a valid email address.") }
             return
         }
-
+        _state.update { it.copy(email = email, isLoading = true) }
         viewModelScope.launch {
-            when (val result = authRepository.sendPasswordReset(email)) {
-                is AppResult.Success -> effectChannel.send(SignInUiEffect.PasswordResetEmailSent)
+            val result = authRepository.sendPasswordReset(email)
+            _state.update { it.copy(isLoading = false) }
+            when (result) {
+                is AppResult.Success -> {
+                    _state.update { it.copy(passwordResetSent = true) }
+                    effectChannel.send(SignInUiEffect.PasswordResetEmailSent)
+                }
                 is AppResult.Failure -> effectChannel.send(SignInUiEffect.ShowSnackbar(result.error))
             }
         }
@@ -111,10 +127,7 @@ class SignInViewModel @Inject constructor(
 
     private suspend fun handleAuthResult(result: AppResult<Unit>) {
         _state.update { it.copy(isLoading = false) }
-        if (result is AppResult.Failure) {
-            effectChannel.send(SignInUiEffect.ShowSnackbar(result.error))
-        }
-        // On success, observeAuthState() (collected at the app root) transitions
-        // the UI away from this screen — no local state change needed here.
+        if (result is AppResult.Failure) effectChannel.send(SignInUiEffect.ShowSnackbar(result.error))
+        // Auth success never unlocks content; the root gating state machine decides.
     }
 }

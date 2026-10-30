@@ -61,6 +61,27 @@ npm run compare-content-audits -- \
   --output /secure/path/before-after-report.json
 ```
 
+## Controlled publication
+
+Publication is a separate, fail-closed operation after the migration comparison
+passes. The command scans drafts in document-ID order and writes a mode-0600
+result report. It validates the complete lesson structure, registered passage,
+hash-bound editorial/safety/rights/duplicate review, and potion-disclosure flag.
+The default is a read-only dry run:
+
+```bash
+npm run publish-eligible -- --project wiccan-android \
+  --output /secure/path/publication-dry-run.json
+npm run publish-eligible -- --project wiccan-android --commit \
+  --output /secure/path/publication-apply.json
+```
+
+Commit mode re-reads and revalidates each candidate, retries transient failures,
+and uses an idempotent transaction to set both `status` and `contentStatus` to
+`published` with `publishedAt` and `updatedAt` server timestamps. Blocked drafts
+remain unchanged and their reasons are recorded. Do not edit review flags or the
+source register merely to increase the published count.
+
 The apply path rejects missing IDs, duplicate IDs, non-draft or previously delivered documents, stale update times, protected-field changes, unregistered passages, invalid categories, incomplete reviews, and safety violations. Transaction retries preserve conflict detection. The comparison command fails on added or removed IDs, status changes, delivery-history changes, or content changes outside the reviewed set.
 
 ## Rollback
@@ -95,4 +116,4 @@ A broad collection-group import is not an acceptable shortcut because the projec
 
 ## Production state
 
-No live audit, backup, dry-run, or content write has completed from this workspace yet because no Firebase or Google Cloud identity is connected. Repository work and staged examples are preparation, not evidence about current production contents.
+Firebase CLI access was connected on 2026-10-25 and a read-only Firestore audit verified 150 root `content` documents, all drafts. A typed local backup was captured with SHA-256 `e3d2b7d4817f3015fe4a576c8855398ca3a4574b3f56ef9cc5e95eb0a9c13e02`. The project listed no Cloud Storage bucket, so private upload, immutable object generation, and emulator restore validation remain incomplete. No content write, publication, rules deployment, or index deployment has occurred. See [LIVE_FIRESTORE_CONTENT_AUDIT_2026-10-25.md](LIVE_FIRESTORE_CONTENT_AUDIT_2026-10-25.md).

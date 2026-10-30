@@ -37,10 +37,19 @@ export class FirestoreContentAdminRepository implements ContentAdminRepositoryPo
   }
 
   async publish(contentId: string): Promise<void> {
-    await this.db.collection(CONTENT_COLLECTION).doc(contentId).update({
-      status: "published",
-      contentStatus: "published",
-      updatedAt: FieldValue.serverTimestamp(),
+    const ref = this.db.collection(CONTENT_COLLECTION).doc(contentId);
+    await this.db.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(ref);
+      if (!snapshot.exists) throw new Error(`Content '${contentId}' no longer exists.`);
+      const status = snapshot.get("status");
+      if (status === "published") return;
+      if (status !== "draft") throw new Error(`Content '${contentId}' is not a publishable draft.`);
+      transaction.update(ref, {
+        status: "published",
+        contentStatus: "published",
+        publishedAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
     });
   }
 

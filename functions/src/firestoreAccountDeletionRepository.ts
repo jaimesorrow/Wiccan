@@ -12,6 +12,7 @@ const DEVICES_SUBCOLLECTION = "devices";
 const SUBSCRIPTIONS_COLLECTION = "subscriptions";
 const PURCHASE_TOKENS_COLLECTION = "purchaseTokens";
 const USER_PURCHASE_TOKENS_COLLECTION = "userPurchaseTokens";
+const EMAIL_VERIFICATION_REQUESTS_COLLECTION = "emailVerificationRequests";
 
 export class FirestoreAccountDeletionRepository implements AccountDeletionPort {
   constructor(
@@ -92,6 +93,10 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionPort {
     const tokenRecords = await this.db.collection(USER_PURCHASE_TOKENS_COLLECTION)
       .doc(uid).collection("tokens").get();
     await this.deleteAll(tokenRecords.docs.map((doc) => doc.ref));
+  }
+
+  async deleteVerificationEmailRequest(uid: string): Promise<void> {
+    await this.db.collection(EMAIL_VERIFICATION_REQUESTS_COLLECTION).doc(uid).delete();
   }
 
   async deleteAuthAccount(uid: string): Promise<void> {

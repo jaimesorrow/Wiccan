@@ -25,8 +25,11 @@ import { acceptTerms as acceptTermsCore, StalePolicyVersionError } from "./accep
 import { FirestoreSubscriptionRecordRepository } from "./firestoreSubscriptionRecordRepository";
 import { handleRtdnNotification, parseRtdnPurchaseToken } from "./handleRtdn";
 import { FirestoreSystemConfigRepository } from "./firestoreSystemConfigRepository";
-import { parseDeviceToken, parseTimeZone } from "./callableInput";
+import { parseDeviceToken, parseProfileName, parseTimeZone } from "./callableInput";
 import { SubscriptionRequiredError } from "./contentRepositoryPort";
+import { defineSecret, defineString } from "firebase-functions/params";
+import nodemailer from "nodemailer";
+import { renderVerificationEmail } from "./verificationEmail";
 
 initializeApp();
 
@@ -49,6 +52,72 @@ function createBillingRepository(): GooglePlayBillingRepository {
 // setting must be pointed at (Monetization setup -> RTDN). This is an
 // operational Play Console step, not something this code provisions.
 const PLAY_RTDN_TOPIC = process.env.PLAY_RTDN_TOPIC ?? "play-rtdn";
+const SMTP_URL = defineSecret("SMTP_URL");
+const SMTP_FROM = defineString("SMTP_FROM", { default: "Wiccan <noreply@wiccan.app>" });
+const VERIFICATION_EMAIL_COOLDOWN_MS = 60_000;
+
+/**
+ * Callable: generates a single-use Firebase verification action and delivers
+ * Wiccan's branded message. The address always comes from the authenticated
+ * user record; callers cannot select a recipient or use this as an open relay.
+ */
+export const sendVerificationEmail = onCall(
+  { ...CALLABLE_OPTIONS, secrets: [SMTP_URL] },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "Sign-in is required to request a verification email.");
+    }
+
+    const user = await getAuth().getUser(uid);
+    if (!user.email) {
+      throw new HttpsError("failed-precondition", "This account has no email address.");
+    }
+    if (user.emailVerified) {
+      return { sent: false, alreadyVerified: true };
+    }
+
+    const now = Date.now();
+    const reservation = getFirestore().collection("emailVerificationRequests").doc(uid);
+    await getFirestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(reservation);
+      const lastSentAtMillis = snapshot.get("lastSentAtMillis");
+      if (typeof lastSentAtMillis === "number" &&
+          now - lastSentAtMillis < VERIFICATION_EMAIL_COOLDOWN_MS) {
+        throw new HttpsError("resource-exhausted", "Please wait before requesting another verification email.");
+      }
+      transaction.set(reservation, { lastSentAtMillis: now });
+    });
+
+    const verificationLink = await getAuth().generateEmailVerificationLink(user.email);
+    const message = renderVerificationEmail(verificationLink, user.displayName);
+
+    if (process.env.FUNCTIONS_EMULATOR === "true") {
+      logger.info("Wiccan verification email preview", {
+        uid,
+        to: user.email,
+        subject: message.subject,
+        verificationLink,
+      });
+      return { sent: true, devVerificationLink: verificationLink };
+    }
+
+    try {
+      const transport = nodemailer.createTransport(SMTP_URL.value());
+      await transport.sendMail({
+        from: SMTP_FROM.value(),
+        to: user.email,
+        subject: message.subject,
+        text: message.text,
+        html: message.html,
+      });
+      return { sent: true };
+    } catch (err) {
+      logger.error("sendVerificationEmail delivery failed", { uid, error: (err as Error).message });
+      throw new HttpsError("unavailable", "The verification email could not be sent. Please try again.");
+    }
+  },
+);
 
 /**
  * Callable: returns the caller's content for today, selecting and
@@ -62,6 +131,10 @@ export const getTodayContent = onCall(CALLABLE_OPTIONS, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to fetch today's content.");
+  }
+
+  if (request.auth?.token.email_verified !== true) {
+    throw new HttpsError("permission-denied", "Verify your email before accessing Wiccan content.");
   }
 
   // Devices provide their IANA time zone, never a date, user ID, or tier.
@@ -334,6 +407,26 @@ export const setNotificationsEnabled = onCall(CALLABLE_OPTIONS, async (request) 
  * (see policyVersions.ts) rather than trusting the client's claim.
  * App Check-enforced.
  */
+/** Complete a verified account's profile without granting client Firestore write access. */
+export const completeOnboardingProfile = onCall(CALLABLE_OPTIONS, async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) throw new HttpsError("unauthenticated", "Sign-in is required.");
+  if (request.auth?.token.email_verified !== true) {
+    throw new HttpsError("permission-denied", "Verify your email first.");
+  }
+  const firstName = parseProfileName(request.data?.firstName);
+  const lastName = parseProfileName(request.data?.lastName);
+  if (firstName === null || lastName === null) {
+    throw new HttpsError("invalid-argument", "First and last names are required (maximum 60 characters each).");
+  }
+  try {
+    await new FirestoreUserProfileRepository(getFirestore()).completeProfile(uid, firstName, lastName);
+  } catch (err) {
+    logger.error("completeOnboardingProfile failed", { uid, error: (err as Error).message });
+    throw new HttpsError("failed-precondition", "Unable to complete profile at this time.");
+  }
+});
+
 export const acceptTerms = onCall(CALLABLE_OPTIONS, async (request) => {
   const uid = request.auth?.uid;
   if (!uid) {

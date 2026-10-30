@@ -16,14 +16,24 @@ class AccountFunctionsDataSource @Inject constructor(
         functions.getHttpsCallable(DELETE_FUNCTION_NAME).call().await()
     }
 
+    suspend fun completeProfile(firstName: String, lastName: String) {
+        functions.getHttpsCallable("completeOnboardingProfile")
+            .call(mapOf("firstName" to firstName, "lastName" to lastName)).await()
+    }
+
     suspend fun acceptTerms(termsVersion: Int, privacyVersion: Int) {
         functions.getHttpsCallable(ACCEPT_TERMS_FUNCTION_NAME)
             .call(mapOf("termsVersion" to termsVersion, "privacyVersion" to privacyVersion))
             .await()
     }
 
+    suspend fun sendVerificationEmail() {
+        functions.getHttpsCallable(VERIFICATION_EMAIL_FUNCTION_NAME).call().await()
+    }
+
     private companion object {
         const val DELETE_FUNCTION_NAME = "deleteUserData"
         const val ACCEPT_TERMS_FUNCTION_NAME = "acceptTerms"
+        const val VERIFICATION_EMAIL_FUNCTION_NAME = "sendVerificationEmail"
     }
 }

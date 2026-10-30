@@ -142,7 +142,7 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.PRIVACY,
         title = "Privacy Policy",
         version = PolicyVersions.PRIVACY,
-        effectiveDate = "October 12, 2026",
+        effectiveDate = "October 27, 2026",
         introduction =
             "This notice explains the information Wiccan handles, why it is used, and the choices " +
                 "available to you. Wiccan does not sell personal data and does not include advertising.",
@@ -150,7 +150,7 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Information handled",
                 listOf(
-                    "Account data: email address, Firebase user ID, sign-in provider, and policy-" +
+                    "Account data: email address, first and last name, Firebase user ID, sign-in provider, and policy-" +
                         "acceptance versions and timestamps.",
                     "Service activity: delivered content IDs, dates, source metadata, daily-use " +
                         "reservations, time zone, notification preference, and registered push token.",

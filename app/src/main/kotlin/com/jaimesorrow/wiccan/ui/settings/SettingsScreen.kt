@@ -19,6 +19,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -65,6 +66,7 @@ fun SettingsScreen(
         viewModel.effects.collect { effect ->
             when (effect) {
                 is SettingsUiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.error.toUserMessage())
+                is SettingsUiEffect.ShowMessage -> snackbarHostState.showSnackbar(effect.message)
             }
         }
     }
@@ -114,7 +116,55 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Account details", style = MaterialTheme.typography.titleLarge)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Email: " + state.accountEmail,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            OutlinedTextField(
+                value = state.firstName,
+                onValueChange = { viewModel.onEvent(SettingsUiEvent.FirstNameChanged(it)) },
+                label = { Text("First name") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = state.lastName,
+                onValueChange = { viewModel.onEvent(SettingsUiEvent.LastNameChanged(it)) },
+                label = { Text("Last name") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+            )
+            OutlinedButton(
+                onClick = { viewModel.onEvent(SettingsUiEvent.SaveNameClicked) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !state.isAccountBusy,
+            ) { Text("Update Name") }
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = state.newEmail,
+                onValueChange = { viewModel.onEvent(SettingsUiEvent.NewEmailChanged(it)) },
+                label = { Text("New email address") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+            )
+            OutlinedButton(
+                onClick = { viewModel.onEvent(SettingsUiEvent.ChangeEmailClicked) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !state.isAccountBusy,
+            ) { Text("Verify New Email") }
+            OutlinedButton(
+                onClick = { viewModel.onEvent(SettingsUiEvent.ResetPasswordClicked) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !state.isAccountBusy,
+            ) { Text("Reset Password by Email") }
+            if (state.isAccountBusy) CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedButton(
                 onClick = { viewModel.onEvent(SettingsUiEvent.SignOutClicked) },
