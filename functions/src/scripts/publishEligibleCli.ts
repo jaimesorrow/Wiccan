@@ -85,7 +85,7 @@ async function main(): Promise<void> {
         reasons: [failure instanceof Error ? failure.message : String(failure)],
       });
     }
-    cursor = snapshot.docs.at(-1);
+    cursor = snapshot.docs[snapshot.docs.length - 1];
     if (snapshot.size < batchSize) break;
   } while (cursor);
 
