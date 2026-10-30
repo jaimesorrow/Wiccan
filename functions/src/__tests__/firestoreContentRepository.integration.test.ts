@@ -293,6 +293,20 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
     expect(typeof saved?.generatedAt?.toDate).toBe("function");
   });
 
+  it("publishes a draft transactionally with compatible status and audit timestamps", async () => {
+    const adminRepo = new FirestoreContentAdminRepository(db);
+    const ref = db.collection("content").doc("publishable");
+    await ref.set({ status: "draft", contentStatus: "draft" });
+
+    await adminRepo.publish(ref.id);
+    await adminRepo.publish(ref.id);
+
+    const saved = (await ref.get()).data();
+    expect(saved).toMatchObject({ status: "published", contentStatus: "published" });
+    expect(typeof saved?.publishedAt?.toDate).toBe("function");
+    expect(typeof saved?.updatedAt?.toDate).toBe("function");
+  });
+
   it("authorized account deletion cleans both content and similarity reservations", async () => {
     const candidate = makeContent({ id: "grouped", similarityGroupId: "group" });
     await seed(candidate);
