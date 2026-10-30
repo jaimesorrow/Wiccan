@@ -18,6 +18,7 @@
     "content-agent": "npm run build && node lib/scripts/generateDraftCli.js",
     "generate-draft": "npm run build && node lib/scripts/generateDraftCli.js",
     "approve-draft": "npm run build && node lib/scripts/approveDraftCli.js",
+    "publish-eligible": "npm run build && node lib/scripts/publishEligibleCli.js",
     "seed-content": "npm run build && node lib/scripts/seedContentCli.js",
     "verify-lessons": "npm run build && node lib/scripts/verifyLessonsCli.js",
     "verify-rewrite-curriculum": "npm run build && node lib/scripts/verifyRewriteCurriculumCli.js",
