@@ -44,7 +44,7 @@
     "@firebase/rules-unit-testing": "^5.0.2",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.6.5",
-    "@types/nodemailer": "^7.0.12",
+    "@types/nodemailer": "^8.0.2",
     "eslint": "^10.13.0",
     "firebase": "^12.19.0",
     "globals": "^17.13.0",
