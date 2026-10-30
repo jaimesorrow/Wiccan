@@ -1,4 +1,4 @@
-import { approveDraft, DraftNotFoundError, UnsafeContentError } from "../approveDraft";
+import { approveDraft as approveDraftWithApproval, DraftNotFoundError, UnsafeContentError } from "../approveDraft";
 import { FakeContentAdminRepository } from "../testUtils/fakeContentAdminRepository";
 import { NewDraftContent } from "../contentAdminRepositoryPort";
 import { ContentSource } from "../contentSource";
@@ -37,6 +37,19 @@ const EARLY_MODERN_SOURCE: ContentSource = {
   era: "early-modern",
 };
 
+function approveDraft(
+  contentId: string,
+  repo: FakeContentAdminRepository,
+  sources?: ContentSource[],
+): Promise<void> {
+  return approveDraftWithApproval(
+    contentId,
+    repo,
+    { operator: "test-editor", approvalDigest: "a".repeat(64) },
+    sources,
+  );
+}
+
 describe("approveDraft", () => {
   it("flips a draft to published", async () => {
     const repo = new FakeContentAdminRepository();
@@ -67,6 +80,15 @@ describe("approveDraft", () => {
     const contentId = await repo.createDraft({ ...BASE_DRAFT, title: "  ", tags: [] });
 
     await expect(approveDraft(contentId, repo)).rejects.toThrow(UnsafeContentError);
+    expect(await repo.getStatus(contentId)).toBe("draft");
+  });
+
+  it("refuses to publish content without creation and modification timestamps", async () => {
+    const repo = new FakeContentAdminRepository();
+    const contentId = await repo.createDraft(BASE_DRAFT);
+    repo.docs.get(contentId)!.updatedAt = undefined;
+
+    await expect(approveDraft(contentId, repo)).rejects.toThrow("updatedAt is missing");
     expect(await repo.getStatus(contentId)).toBe("draft");
   });
 
