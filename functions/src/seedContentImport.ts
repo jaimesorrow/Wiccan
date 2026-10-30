@@ -75,7 +75,13 @@ export async function createMissingSeedContent(db: Firestore, entries: SeedConte
         const violations = findPracticalLessonViolations(entry, passages);
         if (violations.length) throw new Error(`Seed '${entry.id}' needs passage/editorial review before import: ${violations.join("; ")}`);
         const { id, ...fields } = entry;
-        transaction.create(refs[index], { ...fields, status: "draft" });
+        transaction.create(refs[index], {
+          ...fields,
+          status: "draft",
+          contentStatus: "draft",
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        });
         createdIds.push(id);
       });
       return { createdIds, preservedIds, preservedModifiedIds, metadataSyncedIds };

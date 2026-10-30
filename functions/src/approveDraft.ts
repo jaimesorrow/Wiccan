@@ -1,8 +1,10 @@
 import { findPracticalLessonViolations } from "./practicalLesson";
-import { loadSourcePassages } from "./sourcePassages";
+import { loadSourcePassages, nonblank } from "./sourcePassages";
 import type { SourcePassage } from "./sourcePassages";
 import { ContentAdminRepositoryPort, StoredContent } from "./contentAdminRepositoryPort";
+import type { PublicationRequest } from "./contentAdminRepositoryPort";
 import { ContentSource, isLessonGenerationSource, loadContentSources } from "./contentSource";
+import { practicalContentHash } from "./practicalLesson";
 
 export class DraftNotFoundError extends Error {}
 export class UnsafeContentError extends Error {}
@@ -16,10 +18,12 @@ export class UnsafeContentError extends Error {}
 export function findSafetyViolations(content: StoredContent, sources: ContentSource[]): string[] {
   const violations: string[] = [];
 
-  if (content.title.trim().length === 0) violations.push("title is empty.");
-  if (content.intro.trim().length === 0) violations.push("intro is empty.");
-  if (content.body.trim().length === 0) violations.push("body is empty.");
-  if (content.tags.length === 0) violations.push("tags is empty.");
+  if (!nonblank(content.title)) violations.push("title is empty.");
+  if (!nonblank(content.intro)) violations.push("intro is empty.");
+  if (!nonblank(content.body)) violations.push("body is empty.");
+  if (!Array.isArray(content.tags) || content.tags.length === 0) violations.push("tags is empty.");
+  if (content.createdAt == null) violations.push("createdAt is missing.");
+  if (content.updatedAt == null) violations.push("updatedAt is missing.");
   if (content.rightsReviewRequired === true) {
     violations.push("rights review is outstanding; clear rights or rewrite the content before publishing.");
   }
@@ -70,6 +74,29 @@ export function validateDraftForPublication(
   return [...findSafetyViolations(content, sources), ...practicalViolations];
 }
 
+export interface DraftApprovalPlanEntry {
+  contentId: string;
+  expectedUpdateTime: string;
+  contentHash: string;
+}
+
+export async function planDraftApproval(
+  contentId: string,
+  repo: ContentAdminRepositoryPort,
+  sources: ContentSource[] = loadContentSources(),
+  passages: SourcePassage[] = loadSourcePassages(),
+): Promise<DraftApprovalPlanEntry> {
+  const versioned = await repo.getVersionedContent(contentId);
+  if (versioned === null) throw new DraftNotFoundError(`No content document '${contentId}' found.`);
+  const content = versioned.content;
+  if (content.status !== "draft") throw new UnsafeContentError(`Content '${contentId}' is not a draft.`);
+  const violations = validateDraftForPublication(content, sources, passages);
+  if (violations.length > 0) {
+    throw new UnsafeContentError(`Content '${contentId}' failed the pre-publish safety check: ${violations.join(" ")}`);
+  }
+  return { contentId, expectedUpdateTime: versioned.updateTime, contentHash: practicalContentHash(content) };
+}
+
 /**
  * draft -> published. Idempotent: approving an already-published item is
  * a no-op rather than an error, so a retried call is safe. Refuses to
@@ -79,9 +106,13 @@ export function validateDraftForPublication(
 export async function approveDraft(
   contentId: string,
   repo: ContentAdminRepositoryPort,
+  approval: Pick<PublicationRequest, "operator" | "approvalDigest">,
   sources: ContentSource[] = loadContentSources(),
   passages: SourcePassage[] = loadSourcePassages(),
 ): Promise<void> {
+  if (!approval.operator.trim() || !/^[a-f0-9]{64}$/.test(approval.approvalDigest)) {
+    throw new Error("Explicit publication operator and approval digest are required.");
+  }
   const content = await repo.getContent(contentId);
   if (content === null) {
     throw new DraftNotFoundError(`No content document '${contentId}' found.`);
@@ -97,5 +128,12 @@ export async function approveDraft(
     );
   }
 
-  await repo.publish(contentId);
+  const entry = await planDraftApproval(contentId, repo, sources, passages);
+  const request: PublicationRequest = {
+    contentId,
+    expectedUpdateTime: entry.expectedUpdateTime,
+    expectedContentHash: entry.contentHash,
+    ...approval,
+  };
+  await repo.publishBatch([request]);
 }

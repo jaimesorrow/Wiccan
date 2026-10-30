@@ -78,6 +78,7 @@ beforeEach(async () => {
       setDoc(doc(db, `userContentUsage/${OWNER}/similarityGroups/group-hash`), {
         deliveredDate: "2026-10-06",
       }),
+      setDoc(doc(db, "contentPublicationAudit/example"), { contentId: "published-free" }),
     ]);
   });
 });
@@ -184,6 +185,16 @@ describe("server-authoritative usage reservations", () => {
     await assertFails(setDoc(doc(ownerDb(), `userContentUsage/${OWNER}/similarityGroups/new-group`), {
       deliveredDate: "2026-10-07",
     }));
+  });
+});
+
+describe("publication audit isolation", () => {
+  it("rejects all client reads and writes", async () => {
+    const audit = doc(ownerDb(), "contentPublicationAudit/example");
+    await assertFails(getDoc(audit));
+    await assertFails(setDoc(audit, { contentId: "replacement" }));
+    await assertFails(deleteDoc(audit));
+    await assertFails(getDocs(collection(ownerDb(), "contentPublicationAudit")));
   });
 });
 

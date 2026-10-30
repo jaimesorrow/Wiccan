@@ -125,15 +125,15 @@ export function findPracticalSafetyViolations(content: object): string[] {
 export function findPracticalLessonViolations(content: object, passages: SourcePassage[], requireEditorialReview = true): string[] {
   const fields = content as Record<string, unknown>;
   const issues: string[] = [...findPracticalSafetyViolations(content)];
-  for (const key of ["title", "summary", "intro", "body", "reflection", "practice", "safetyNote", "application", "lessonType"] as const) {
-    const alias = key === "intro" ? "introduction" : key === "body" ? "lesson" : key;
-    if (!nonblank(fields[alias] ?? fields[key])) issues.push(`${key} is required`);
+  for (const key of ["title", "slug", "summary", "introduction", "lesson", "reflection", "practice", "safetyNote", "application", "lessonType"] as const) {
+    if (!nonblank(fields[key])) issues.push(`${key} is required`);
   }
+  if (nonblank(fields.slug) && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(fields.slug)) issues.push("slug must be lowercase kebab-case");
   if (!nonblank(fields.reflection) || !fields.reflection.trim().endsWith("?")) issues.push("reflection must be a question");
   if (fields.tradition !== "Wiccan / Modern Witchcraft") issues.push("tradition must identify the lesson as Wiccan / Modern Witchcraft");
   if (!isPracticalCategory(fields.primaryCategoryId)) issues.push("primaryCategoryId must be one of the ten practical categories");
   if (fields.category !== fields.primaryCategoryId) issues.push("category must mirror primaryCategoryId for compatible readers");
-  if (fields.contentStatus !== undefined && fields.contentStatus !== fields.status) issues.push("contentStatus must mirror the preserved legacy status");
+  if (fields.contentStatus !== fields.status) issues.push("contentStatus must mirror the preserved legacy status");
   const secondaryCategoryIds = fields.secondaryCategoryIds;
   if (!Array.isArray(secondaryCategoryIds) || !secondaryCategoryIds.every(isPracticalCategory) || new Set(secondaryCategoryIds).size !== secondaryCategoryIds.length || secondaryCategoryIds.some((categoryId) => categoryId === fields.primaryCategoryId)) issues.push("secondaryCategoryIds must contain distinct practical categories other than the primary");
   if (!(LESSON_TYPES as readonly unknown[]).includes(fields.lessonType)) issues.push("lessonType is unsupported");

@@ -55,13 +55,16 @@ const PASSAGE: SourcePassage = {
 function reviewedLesson(): Record<string, unknown> {
   const content: Record<string, unknown> = {
     title: "A Lamp and Dream Inquiry",
+    slug: "a-lamp-and-dream-inquiry",
     type: "lesson",
     tier: "free",
     tradition: "Wiccan / Modern Witchcraft",
     sourceTradition: PASSAGE.tradition,
     summary: "A source-grounded dream reflection.",
     intro: "This is a modern adaptation of a Roman-period Egyptian lamp inquiry.",
+    introduction: "This is a modern adaptation of a Roman-period Egyptian lamp inquiry.",
     body: "1. Prepare a safe flameless light.\n2. Record the dream and close the inquiry.",
+    lesson: "1. Prepare a safe flameless light.\n2. Record the dream and close the inquiry.",
     reflection: "What did you notice when you treated the dream as material for reflection?",
     practice: "Complete the numbered method once.",
     materials: ["A flameless light", "A notebook"],
@@ -98,6 +101,7 @@ function reviewedLesson(): Record<string, unknown> {
     }],
     rightsReviewRequired: false,
     status: "draft",
+    contentStatus: "draft",
   };
   content.practicalReview = {
     reviewedBy: "lesson editor",
