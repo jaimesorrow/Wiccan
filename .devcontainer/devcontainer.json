@@ -18,6 +18,30 @@
     "GRADLE_USER_HOME": "/home/vscode/.gradle"
   },
   "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "forwardPorts": [
+    4000,
+    5001,
+    8080,
+    8085,
+    9099
+  ],
+  "portsAttributes": {
+    "4000": {
+      "label": "Firebase Emulator UI"
+    },
+    "5001": {
+      "label": "Cloud Functions emulator"
+    },
+    "8080": {
+      "label": "Cloud Firestore emulator"
+    },
+    "8085": {
+      "label": "Pub/Sub emulator"
+    },
+    "9099": {
+      "label": "Firebase Auth emulator"
+    }
+  },
   "customizations": {
     "vscode": {
       "extensions": [
