@@ -42,6 +42,19 @@ currently handled (automated, manual, or not yet built).
   typescript-eslint depend on patched ranges. One low-severity advisory
   remains (GHSA-gcqx-w48m-w2h4, `deepmerge` <=4.3.1, via jest): no patched
   release exists, and it is below CI's `--audit-level=moderate` gate.
+- **Gradle security floors (2026-11-05)**: an OSV scan of the resolved
+  classpaths found Guava 33.6.0-android in the shipped app
+  (GHSA-xxph-c9ww-hj94) and, on the build classpath only, Bouncy Castle
+  1.80.2 (GHSA-9pwp-9qqc-pr26 critical, GHSA-qp49-qgx5-5m26,
+  GHSA-wg6q-6289-32hp), jose4j 0.9.5, jdom2 2.0.6, commons-lang3 3.16.0 and
+  Guava 33.4.0-jre — all pulled in by AGP 9.5.0, the latest stable release.
+  `gradle/libs.versions.toml` now carries security-floor versions applied
+  as dependency constraints: the app's `dependencies { constraints { } }`
+  and the root `buildscript` classpath. Constraints only raise a module that
+  something already requires; they never add one. Dependabot updates these
+  catalog entries like any other. Drop the `build*` floors once an AGP
+  release resolves to patched versions on its own (check with
+  `./gradlew buildEnvironment`).
 - The October 24 refresh also moves `typescript-eslint` to 8.72.0 and
   `body-parser` to 2.4.0. The latter fixes GHSA-27r3-jxmh-p828, a high-severity
   denial-of-service issue in compressed request parsing.
