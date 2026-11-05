@@ -24,6 +24,24 @@ currently handled (automated, manual, or not yet built).
   `typescript-eslint`; and `@types/node` remains on major 22 to model the
   deployed runtime. Revisit those together when their runtime/tooling chain is
   supported rather than overriding peer requirements.
+- **Update (2026-11-05)**: Dependabot has since merged all three of those
+  held majors (#88 `@types/node` 26, #91/#92 Firebase JS 13 and Rules Unit
+  Testing 6). The Firebase JS/rules-testing packages declare
+  `node >=24.12.0` but are dev-only emulator-test tooling, not deployed
+  runtime dependencies; Functions build, tests and lint, plus the Firestore
+  rules/integration suites, all pass on Node 22. `@types/node` 26 no longer
+  models the Node 22 runtime, so the type checker will not catch use of a
+  Node 23+ API — keep that in mind in review until the runtime moves.
+- **Override (2026-11-05)**: GHSA-g3hv-75wg-m249 (`minimatch` <11.0.1) and
+  GHSA-3g3m-2fjr-6pw4 (`glob` <=14.0.1) reach `functions/` through eslint,
+  jest, typescript-eslint and `firebase-admin -> google-gax -> rimraf`; no
+  parent has released a patched range yet, so `functions/package.json`
+  overrides both to `minimatch` 11.0.4 / `glob` 14.0.3. `rimraf` is declared
+  by google-gax/gaxios but never imported by their shipped code, so this does
+  not change deployed behavior. Drop the overrides once eslint, jest and
+  typescript-eslint depend on patched ranges. One low-severity advisory
+  remains (GHSA-gcqx-w48m-w2h4, `deepmerge` <=4.3.1, via jest): no patched
+  release exists, and it is below CI's `--audit-level=moderate` gate.
 - The October 24 refresh also moves `typescript-eslint` to 8.72.0 and
   `body-parser` to 2.4.0. The latter fixes GHSA-27r3-jxmh-p828, a high-severity
   denial-of-service issue in compressed request parsing.
