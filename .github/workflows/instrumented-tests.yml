@@ -1,0 +1,56 @@
+name: Instrumented tests
+
+# Runs androidTest (currently the Room migration test) on a real Android
+# emulator. Kept separate from ci.yml so a slow or flaky emulator boot never
+# blocks the core build gate; it still runs on every PR and push to main.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: instrumented-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  connected-android-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-java@v6.1.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - run: cp app/google-services.ci.json app/google-services.json
+      # Hosted Linux runners support KVM; the emulator needs it to boot.
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      # useFirebaseEmulators skips App Check, disables Analytics/Crashlytics and
+      # points Firebase at local addresses, so CI never talks to production.
+      - run: ./gradlew :app:assembleProdDebug :app:assembleProdDebugAndroidTest -PuseFirebaseEmulators=true
+      - uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          script: ./gradlew :app:connectedProdDebugAndroidTest -PuseFirebaseEmulators=true
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: wiccan-instrumented-test-reports
+          path: |
+            app/build/reports/androidTests/connected/
+            app/build/outputs/androidTest-results/connected/
+          if-no-files-found: warn
+          retention-days: 14

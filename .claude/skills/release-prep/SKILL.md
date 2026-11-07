@@ -49,7 +49,8 @@ must be reported as "not verified in this environment," never as
 passing, unless you actually have one:
 
 - `WiccanDatabaseMigrationTest` executed via `connectedAndroidTest`
-  (compiles clean; never run against real SQLite here).
+  (compiles clean; there is no emulator in this sandbox — check the
+  `Instrumented tests` workflow run on GitHub instead).
 - Deep links (`wiccan://today`, `wiccan://premium`) via `adb`.
 - Auto Backup exclusion behavior (backup → restore → confirm no stale
   session/content).
