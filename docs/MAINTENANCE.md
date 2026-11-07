@@ -38,8 +38,11 @@ currently handled (automated, manual, or not yet built).
   parent has released a patched range yet, so `functions/package.json`
   overrides both to `minimatch` 11.0.4 / `glob` 14.0.3. `rimraf` is declared
   by google-gax/gaxios but never imported by their shipped code, so this does
-  not change deployed behavior. Drop the overrides once eslint, jest and
-  typescript-eslint depend on patched ranges. One low-severity advisory
+  not change deployed behavior. Drop the overrides only once every path
+  above (including firebase-admin -> google-gax/gaxios -> rimraf -> glob)
+  resolves patched versions on its own: remove both overrides, regenerate
+  the lockfile with `npm install`, and confirm
+  `npm audit --audit-level=moderate` still passes. One low-severity advisory
   remains (GHSA-gcqx-w48m-w2h4, `deepmerge` <=4.3.1, via jest): no patched
   release exists, and it is below CI's `--audit-level=moderate` gate.
 - **Gradle security floors (2026-11-05)**: an OSV scan of the resolved
