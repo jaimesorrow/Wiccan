@@ -229,6 +229,6 @@ users' data.
   fake build fallback and is not the production Firebase configuration.
 
 Package and runtime consistency: `python3 scripts/check-toolchain.py`; regression
-checks: `python3 scripts/test-check-toolchain.py`. See
-[the branch integration audit](docs/BRANCH_INTEGRATION_AUDIT.md) for incorporated
-changes and the retained draft package migration.
+checks: `python3 scripts/test-check-toolchain.py`. The branch integration audit
+(`docs/BRANCH_INTEGRATION_AUDIT.md`, retired 2026-11-07; see git history at
+`1894139`) records incorporated changes and the retained draft package migration.

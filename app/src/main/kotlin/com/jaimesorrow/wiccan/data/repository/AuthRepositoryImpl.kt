@@ -1,6 +1,8 @@
 package com.jaimesorrow.wiccan.data.repository
 
 import android.content.Context
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.DocumentSnapshot
@@ -111,6 +113,11 @@ class AuthRepositoryImpl @Inject constructor(
                 analyticsLogger.logSignUpCompleted()
             }
             AppResult.Success(Unit)
+        } catch (_: GetCredentialCancellationException) {
+            AppResult.Failure(AppError.Cancelled)
+        } catch (_: NoCredentialException) {
+            // No Google account on the device; email sign-in remains available.
+            AppResult.Failure(AppError.GoogleSignInUnavailable)
         } catch (t: Throwable) {
             AppResult.Failure(t.toAppError())
         }
