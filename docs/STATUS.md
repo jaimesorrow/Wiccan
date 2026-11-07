@@ -211,3 +211,24 @@ integration tests and the 43-check callable end-to-end run on the emulators.
 
 Still not verifiable here: everything in `docs/RELEASE_CHECKLIST.md` that needs
 a device, a live Firebase project, Play Console or the real upload key.
+
+## App, navigation and Play-readiness audit — 2026-11-07
+
+Every interactive control was traced to its handler: all navigate or act as
+intended, with no dead ends. Fixed: "Contact Support" and "Manage
+Subscription" crashed on devices without an email app/browser
+(`ActivityNotFoundException`); dismissing the Google account picker showed a
+generic error (now silent), and a device with no Google account now points to
+email sign-in; the account screen's back label is now "← Back". Sixteen
+superseded point-in-time reports and `functions/reviewOnly/` were retired
+(copies remain in git history at `1894139`).
+
+`.github/workflows/instrumented-tests.yml` now runs `connectedProdDebugAndroidTest`
+on an API 34 emulator, so `WiccanDatabaseMigrationTest` executes in hosted CI;
+record its first result here once that workflow has run.
+
+Still open for Play submission: live legal/account-deletion URLs (the
+`wiccan.app` placeholders do not resolve), a minimum age in the Terms and an
+18+ target audience, the Advertising ID declaration (`AD_ID` remains in the
+merged manifest via Firebase Analytics), the Data Safety form, and launcher
+icon fallbacks for API 24–25 plus a monochrome layer for themed icons.
