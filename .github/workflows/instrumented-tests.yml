@@ -26,7 +26,12 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - run: cp app/google-services.ci.json app/google-services.json
+      # The prod source set's real config would win over the root copy, and the
+      # instrumented app process auto-initializes Firebase Messaging, so replace
+      # both with the placeholder on this runner. Nothing here is committed.
+      - run: |
+          cp app/google-services.ci.json app/google-services.json
+          cp app/google-services.ci.json app/src/prod/google-services.json
       # Hosted Linux runners support KVM; the emulator needs it to boot.
       - name: Enable KVM
         run: |
@@ -35,7 +40,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       # useFirebaseEmulators skips App Check, disables Analytics/Crashlytics and
-      # points Firebase at local addresses, so CI never talks to production.
+      # points Firebase at local addresses.
       - run: ./gradlew :app:assembleProdDebug :app:assembleProdDebugAndroidTest -PuseFirebaseEmulators=true
       - uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         with:
