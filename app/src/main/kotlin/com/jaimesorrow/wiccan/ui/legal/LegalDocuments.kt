@@ -49,10 +49,37 @@ object WiccanLegalDocuments {
                 "What Wiccan provides",
                 listOf(
                     "Wiccan presents educational, historical, and spiritual-reflection content inspired by ancient grimoires " +
-                        "and related primary sources. It does not guarantee supernatural, health, financial, legal, or other " +
-                        "outcomes.",
+                        "and related primary sources. It is an educational and reflective service; it does not perform, sell, or " +
+                        "deliver magical, spiritual, or other services that produce results. See “No promise or guarantee of " +
+                        "results” below.",
                     "Source citations and editorial notes are provided where available. Historical materials can be " +
                         "incomplete, contested, symbolic, or difficult to translate.",
+                ),
+            ),
+            LegalSection(
+                "No promise or guarantee of results",
+                listOf(
+                    "Wiccan App Inc. does not promise, represent, warrant, or guarantee that any spell, potion, charm, " +
+                        "ritual, ceremony, invocation, incantation, divination, meditation, or other magical, spiritual, " +
+                        "religious, or occult practice described in or suggested by the app (each, a “Practice”) will produce any " +
+                        "result, effect, or outcome of any kind, whether it is performed exactly as described, adapted, repeated, " +
+                        "or combined with any other Practice.",
+                    "Without limiting the paragraph above, Wiccan makes no promise of any supernatural, paranormal, magical, " +
+                        "psychic, or spiritual effect; any physical, medical, psychological, or emotional effect; any change in " +
+                        "luck, fortune, money, employment, love, relationships, fertility, protection, or legal matters; or any " +
+                        "effect on another person, animal, property, place, or event.",
+                    "Practices are provided solely as historical, cultural, literary, and educational material and as prompts " +
+                        "for personal reflection. Wiccan does not claim that any Practice is effective, and no scientific " +
+                        "evidence establishes that one is. Where the app describes a Practice's purpose or the effect a source or " +
+                        "tradition attributed to it, that description reports a historical or traditional claim; it is not a " +
+                        "statement of fact, prediction, or promise by Wiccan App Inc.",
+                    "Any meaning or outcome you attribute to a Practice is your own interpretation. Wiccan App Inc. is not " +
+                        "responsible for any outcome, or absence of an outcome, from performing, attempting, or relying on a " +
+                        "Practice. The absence of any result is not a defect in, or failure of, the service; your subscription " +
+                        "pays for access to educational content, not for any result.",
+                    "Do not rely on any Practice in place of professional advice, medical or mental-health care, legal " +
+                        "process, financial planning, or emergency services, or use a Practice to make decisions about your " +
+                        "health, safety, money, relationships, or legal rights.",
                 ),
             ),
             LegalSection(
@@ -134,9 +161,9 @@ object WiccanLegalDocuments {
                         "or that any content is complete or accurate.",
                     "To the fullest extent permitted by law, Wiccan App Inc. is not liable for indirect, incidental, special, " +
                         "consequential, or punitive damages, or for any injury, loss, or damage arising from your decision to " +
-                        "attempt a practice described in the app. Our total liability for any claim relating to the service is " +
-                        "limited to the greater of the amount you paid for Wiccan in the 12 months before the claim arose or US " +
-                        "\$50.",
+                        "attempt a Practice or from any result, or absence of a result, of a Practice. Our total liability for " +
+                        "any claim relating to the service is limited to the greater of the amount you paid for Wiccan in the 12 " +
+                        "months before the claim arose or US \$50.",
                     "Some places do not allow certain disclaimers or limitations, so parts of this section may not apply to " +
                         "you. Nothing in these Terms limits rights you have under applicable consumer-protection law.",
                 ),
@@ -272,45 +299,53 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.CONTENT_SAFETY,
         title = "Content & Safety",
         version = null,
-        effectiveDate = "October 12, 2026",
+        effectiveDate = "November 7, 2026",
         introduction =
-            "Wiccan treats historical spiritual material as education and reflection. This guidance " +
-                "applies to every lesson, spell, potion, and optional practice in the app.",
+            "Wiccan treats historical spiritual material as education and reflection. This guidance applies to every " +
+                "lesson, spell, potion, and optional practice in the app.",
         sections = listOf(
+            LegalSection(
+                "No promised outcomes",
+                listOf(
+                    "Wiccan does not promise or guarantee that any spell, potion, ritual, ceremony, or other practice will " +
+                        "produce any supernatural, physical, emotional, financial, relational, or other result. Practices are " +
+                        "presented as history and as prompts for reflection; descriptions of what a practice was meant to do " +
+                        "report historical or traditional claims, not facts. The Terms of Service contain the full disclaimer.",
+                ),
+            ),
             LegalSection(
                 "No professional or emergency advice",
                 listOf(
-                    "Content is not medical, mental-health, legal, financial, veterinary, or emergency " +
-                        "advice. It is not a diagnosis or treatment. Seek an appropriate qualified " +
-                        "professional, and contact local emergency services or poison control when needed.",
+                    "Content is not medical, mental-health, legal, financial, veterinary, or emergency advice. It is not a " +
+                        "diagnosis or treatment. Seek an appropriate qualified professional, and contact local emergency services " +
+                        "or poison control when needed.",
                 ),
             ),
             LegalSection(
                 "Materials, fire, and physical safety",
                 listOf(
-                    "Never ingest, inhale, apply, forage, mix, or burn a substance unless you have " +
-                        "independently confirmed that it is safe for the intended use. Avoid unknown " +
-                        "plants, toxic minerals, bodily fluids, unsafe smoke, and hazardous reactions.",
-                    "Use flame-safe surfaces, ventilation, supervision, and local fire rules. Keep " +
-                        "materials away from children and animals. Substitute a written or visual " +
-                        "reflection whenever physical practice creates risk.",
+                    "Never ingest, inhale, apply, forage, mix, or burn a substance unless you have independently confirmed " +
+                        "that it is safe for the intended use. Avoid unknown plants, toxic minerals, bodily fluids, unsafe smoke, " +
+                        "and hazardous reactions.",
+                    "Use flame-safe surfaces, ventilation, supervision, and local fire rules. Keep materials away from " +
+                        "children and animals. Substitute a written or visual reflection whenever physical practice creates risk.",
                 ),
             ),
             LegalSection(
                 "Consent, law, and respect",
                 listOf(
-                    "Do not involve another person, their property, remains, protected sites, wildlife, " +
-                        "or restricted cultural material without permission and lawful authority. Respect " +
-                        "living traditions and do not present a modern adaptation as an authentic reconstruction.",
+                    "Do not involve another person, their property, remains, protected sites, wildlife, or restricted " +
+                        "cultural material without permission and lawful authority. Respect living traditions and do not present " +
+                        "a modern adaptation as an authentic reconstruction.",
                 ),
             ),
             LegalSection(
                 "Editorial standard",
                 listOf(
-                    "AI-assisted drafts can only use vetted ancient-grimoire source records. A human " +
-                        "must review source grounding, duplication, safety, rights, and wording before publication.",
-                    "Report a safety, rights, or accuracy concern through Contact Support. Content may " +
-                        "be corrected or withdrawn while it is reviewed.",
+                    "AI-assisted drafts can only use vetted ancient-grimoire source records. A human must review source " +
+                        "grounding, duplication, safety, rights, and wording before publication.",
+                    "Report a safety, rights, or accuracy concern through Contact Support. Content may be corrected or " +
+                        "withdrawn while it is reviewed.",
                 ),
             ),
         ),

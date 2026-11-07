@@ -1,5 +1,5 @@
 import { Firestore, FieldValue } from "firebase-admin/firestore";
-import { UserProfileRepositoryPort } from "./userProfileRepositoryPort";
+import { AcceptedPolicyVersions, UserProfileRepositoryPort } from "./userProfileRepositoryPort";
 import { assertAccountWriteAllowed } from "./accountWriteGuard";
 
 const USERS_COLLECTION = "users";
@@ -16,6 +16,18 @@ export class FirestoreUserProfileRepository implements UserProfileRepositoryPort
       if (user.exists) return;
       transaction.create(ref, { tier: "free", createdAt: FieldValue.serverTimestamp() });
     });
+  }
+
+  async getAcceptedPolicyVersions(uid: string): Promise<AcceptedPolicyVersions> {
+    const snap = await this.db.collection(USERS_COLLECTION).doc(uid).get();
+    const version = (field: string): number | null => {
+      const value = snap.get(field);
+      return typeof value === "number" ? value : null;
+    };
+    return {
+      termsVersion: version("acceptedTermsVersion"),
+      privacyVersion: version("acceptedPrivacyVersion"),
+    };
   }
 
   async completeProfile(uid: string, firstName: string, lastName: string): Promise<void> {

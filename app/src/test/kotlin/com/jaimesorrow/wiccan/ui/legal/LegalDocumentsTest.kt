@@ -26,6 +26,20 @@ class LegalDocumentsTest {
     }
 
     @Test
+    fun `terms and safety guidance explicitly disclaim any promised result`() {
+        val terms = WiccanLegalDocuments.terms
+        val section = terms.sections.single { it.heading == "No promise or guarantee of results" }.paragraphs.joinToString(" ")
+        listOf(
+            "does not promise, represent, warrant, or guarantee",
+            "spell, potion, charm, ritual, ceremony",
+            "supernatural, paranormal, magical, psychic, or spiritual effect",
+            "not a statement of fact, prediction, or promise",
+            "absence of any result is not a defect",
+        ).forEach { required -> assertTrue("Missing no-results disclaimer: $required", section.contains(required)) }
+        assertTrue(WiccanLegalDocuments.contentSafety.auditText().contains("does not promise or guarantee"))
+    }
+
+    @Test
     fun `privacy covers collected data processors and deletion retention`() {
         val text = WiccanLegalDocuments.privacy.auditText()
         listOf(

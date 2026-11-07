@@ -36,12 +36,16 @@ class PolicyAcceptanceViewModel @Inject constructor(
 
     fun onEvent(event: PolicyAcceptanceUiEvent) {
         when (event) {
-            is PolicyAcceptanceUiEvent.CheckedChanged -> _state.update { it.copy(isChecked = event.checked) }
+            is PolicyAcceptanceUiEvent.AgreementChanged -> _state.update {
+                it.copy(agreed = if (event.checked) it.agreed + event.agreement else it.agreed - event.agreement)
+            }
             PolicyAcceptanceUiEvent.ContinueClicked -> acceptTerms()
         }
     }
 
     private fun acceptTerms() {
+        // The button is disabled until every agreement is checked; this guards the event itself too.
+        if (!_state.value.canContinue) return
         _state.update { it.copy(isSubmitting = true) }
         viewModelScope.launch {
             when (val result = authRepository.acceptTerms()) {

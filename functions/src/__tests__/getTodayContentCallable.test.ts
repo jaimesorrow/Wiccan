@@ -2,6 +2,8 @@ import { MAX_TIME_ZONE_LENGTH } from "../callableInput";
 import { getTodayContent } from "../index";
 import { FirestoreContentRepository } from "../firestoreContentRepository";
 import { FirestoreSystemConfigRepository } from "../firestoreSystemConfigRepository";
+import { FirestoreUserProfileRepository } from "../firestoreUserProfileRepository";
+import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION } from "../policyVersions";
 
 // Calling .run bypasses SDK token verification; no Auth/App Check service is needed.
 jest.mock("firebase-admin/auth", () => ({ getAuth: jest.fn() }));
@@ -52,10 +54,29 @@ describe("getTodayContent callable time-zone validation", () => {
   it("returns permission-denied with a subscription reason before reading assigned content", async () => {
     jest.spyOn(FirestoreSystemConfigRepository.prototype, "getConfig")
       .mockResolvedValue({ dailyContentEnabled: true, notificationsEnabled: true });
+    jest.spyOn(FirestoreUserProfileRepository.prototype, "getAcceptedPolicyVersions")
+      .mockResolvedValue({ termsVersion: CURRENT_TERMS_VERSION, privacyVersion: CURRENT_PRIVACY_VERSION });
     jest.spyOn(FirestoreContentRepository.prototype, "getUserTier").mockResolvedValue("free");
     const history = jest.spyOn(FirestoreContentRepository.prototype, "findTodayDeliveredContentId");
     await expect(getTodayContent.run(request("UTC")))
       .rejects.toMatchObject({ code: "permission-denied", details: { reason: "SUBSCRIPTION_REQUIRED" } });
+    expect(history).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    { termsVersion: null, privacyVersion: null },
+    { termsVersion: CURRENT_TERMS_VERSION - 1, privacyVersion: CURRENT_PRIVACY_VERSION },
+    { termsVersion: CURRENT_TERMS_VERSION, privacyVersion: CURRENT_PRIVACY_VERSION - 1 },
+  ])("refuses content until the current policies are accepted: %p", async (accepted) => {
+    jest.spyOn(FirestoreSystemConfigRepository.prototype, "getConfig")
+      .mockResolvedValue({ dailyContentEnabled: true, notificationsEnabled: true });
+    jest.spyOn(FirestoreUserProfileRepository.prototype, "getAcceptedPolicyVersions").mockResolvedValue(accepted);
+    const tier = jest.spyOn(FirestoreContentRepository.prototype, "getUserTier");
+    const history = jest.spyOn(FirestoreContentRepository.prototype, "findTodayDeliveredContentId");
+
+    await expect(getTodayContent.run(request("UTC")))
+      .rejects.toMatchObject({ code: "failed-precondition", details: { reason: "POLICY_ACCEPTANCE_REQUIRED" } });
+    expect(tier).not.toHaveBeenCalled();
     expect(history).not.toHaveBeenCalled();
   });
 });

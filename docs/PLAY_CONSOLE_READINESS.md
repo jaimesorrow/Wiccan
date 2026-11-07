@@ -151,7 +151,9 @@ Terms/Privacy changes. The operator is Wiccan App Inc.
 Native policy version 4 includes Wiccan-specific terms and disclosures:
 
 - historical, educational, and spiritual-reflection purpose;
-- no guaranteed supernatural outcomes;
+- an explicit “No promise or guarantee of results” section: no spell, potion,
+  ritual, ceremony, or other practice is promised to produce any effect, and
+  descriptions of a practice's purpose report historical claims, not facts;
 - no medical, mental-health, legal, financial, or emergency advice;
 - no ingestion, inhalation, topical use, burning, or mixing of unknown or
   hazardous materials; fire, ventilation, allergy, poison-control, wildlife,
@@ -168,7 +170,7 @@ Placement is intentionally layered:
 | Location | Purpose |
 |---|---|
 | Sign-in / create account | Terms and Privacy are viewable before account creation; copy explains that acceptance follows. |
-| Post-auth policy gate | Blocks the app until the current Terms are accepted and Privacy/Safety are acknowledged. |
+| Post-auth policy gate | Blocks the app until four separate statements are checked (18+, Terms, Privacy, no promised results + Content & Safety); the server also refuses content until the current versions are recorded. |
 | Paywall | Terms and Privacy sit beside the localized recurring price and renewal/cancellation disclosure. |
 | Settings | Permanent access to Terms, Privacy, Content & Safety, support, subscription management, and account deletion. |
 

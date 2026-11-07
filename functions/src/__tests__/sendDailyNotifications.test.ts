@@ -2,6 +2,14 @@ import { sendDailyNotifications } from "../sendDailyNotifications";
 import { FakeContentRepository, makeContent } from "../testUtils/fakeContentRepository";
 import { FakeNotificationUserRepository } from "../testUtils/fakeNotificationUserRepository";
 import { FakeFcmSenderPort } from "../testUtils/fakeFcmSenderPort";
+import { FakeUserProfileRepository } from "../testUtils/fakeUserProfileRepository";
+import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION } from "../policyVersions";
+import { PolicyAcceptanceReader } from "../acceptTerms";
+
+// Every user in these tests has accepted the current policies unless a test says otherwise.
+const ALL_ACCEPTED: PolicyAcceptanceReader = {
+  getAcceptedPolicyVersions: async () => ({ termsVersion: CURRENT_TERMS_VERSION, privacyVersion: CURRENT_PRIVACY_VERSION }),
+};
 
 // UTC devices (the default when no time zone is on file) read local hour 9
 // at this instant - used by every test that isn't specifically exercising
@@ -17,7 +25,7 @@ describe("sendDailyNotifications", () => {
     users.setToken("user-2", "token-2");
     const fcm = new FakeFcmSenderPort();
 
-    const summary = await sendDailyNotifications(users, content, fcm, NINE_AM_UTC);
+    const summary = await sendDailyNotifications(users, content, fcm, ALL_ACCEPTED, NINE_AM_UTC);
 
     expect(summary).toEqual({ attempted: 2, sent: 2, skippedStale: 0, failed: 0 });
     expect(fcm.sentTo).toHaveLength(2);
@@ -36,7 +44,7 @@ describe("sendDailyNotifications", () => {
     const fcm = new FakeFcmSenderPort();
     fcm.respondWith("dead-token", { delivered: false, staleToken: true, error: "not registered" });
 
-    const summary = await sendDailyNotifications(users, content, fcm, NINE_AM_UTC);
+    const summary = await sendDailyNotifications(users, content, fcm, ALL_ACCEPTED, NINE_AM_UTC);
 
     expect(summary).toEqual({ attempted: 1, sent: 0, skippedStale: 1, failed: 0 });
     expect(users.cleared).toEqual([{ uid: "user-1", token: "dead-token" }]);
@@ -50,7 +58,7 @@ describe("sendDailyNotifications", () => {
     const fcm = new FakeFcmSenderPort();
     fcm.respondWith("flaky-token", { delivered: false, staleToken: false, error: "quota exceeded" });
 
-    const summary = await sendDailyNotifications(users, content, fcm, NINE_AM_UTC);
+    const summary = await sendDailyNotifications(users, content, fcm, ALL_ACCEPTED, NINE_AM_UTC);
 
     expect(summary).toEqual({ attempted: 1, sent: 0, skippedStale: 0, failed: 1 });
     expect(users.cleared).toEqual([]);
@@ -64,7 +72,7 @@ describe("sendDailyNotifications", () => {
     users.setToken("user-1", "tablet-token");
     const fcm = new FakeFcmSenderPort();
 
-    const summary = await sendDailyNotifications(users, content, fcm, NINE_AM_UTC);
+    const summary = await sendDailyNotifications(users, content, fcm, ALL_ACCEPTED, NINE_AM_UTC);
 
     expect(summary).toEqual({ attempted: 2, sent: 2, skippedStale: 0, failed: 0 });
     expect(fcm.sentTo.map((s) => s.token).sort()).toEqual(["phone-token", "tablet-token"]);
@@ -81,7 +89,7 @@ describe("sendDailyNotifications", () => {
     const fcm = new FakeFcmSenderPort();
     fcm.respondWith("dead-token", { delivered: false, staleToken: true, error: "not registered" });
 
-    const summary = await sendDailyNotifications(users, content, fcm, NINE_AM_UTC);
+    const summary = await sendDailyNotifications(users, content, fcm, ALL_ACCEPTED, NINE_AM_UTC);
 
     expect(summary).toEqual({ attempted: 2, sent: 1, skippedStale: 1, failed: 0 });
     expect(users.cleared).toEqual([{ uid: "user-1", token: "dead-token" }]);
@@ -100,7 +108,7 @@ describe("sendDailyNotifications", () => {
     users.setToken("user-la", "la-token", "America/Los_Angeles");
     const fcm = new FakeFcmSenderPort();
 
-    const summary = await sendDailyNotifications(users, content, fcm, NINE_AM_UTC);
+    const summary = await sendDailyNotifications(users, content, fcm, ALL_ACCEPTED, NINE_AM_UTC);
 
     expect(summary).toEqual({ attempted: 1, sent: 1, skippedStale: 0, failed: 0 });
     expect(fcm.sentTo.map((s) => s.token)).toEqual(["utc-token"]);
@@ -115,7 +123,7 @@ describe("sendDailyNotifications", () => {
     await users.setNotificationsEnabled("user-2", "disabled-token", false);
     const fcm = new FakeFcmSenderPort();
 
-    const summary = await sendDailyNotifications(users, content, fcm, NINE_AM_UTC);
+    const summary = await sendDailyNotifications(users, content, fcm, ALL_ACCEPTED, NINE_AM_UTC);
 
     expect(summary).toEqual({ attempted: 1, sent: 1, skippedStale: 0, failed: 0 });
     expect(fcm.sentTo.map((s) => s.token)).toEqual(["enabled-token"]);
@@ -141,8 +149,8 @@ describe("sendDailyNotifications", () => {
     // the other's own 9am that only the intended device is picked up per
     // call - the same "9am-local, not a shared instant" behavior this
     // whole feature exists for.
-    await sendDailyNotifications(users, content, fcm, new Date("2026-09-10T20:00:00.000Z")); // 9am Pacific/Midway
-    await sendDailyNotifications(users, content, fcm, new Date("2026-09-10T21:00:00.000Z")); // 9am Pacific/Auckland
+    await sendDailyNotifications(users, content, fcm, ALL_ACCEPTED, new Date("2026-09-10T20:00:00.000Z")); // 9am Pacific/Midway
+    await sendDailyNotifications(users, content, fcm, ALL_ACCEPTED, new Date("2026-09-10T21:00:00.000Z")); // 9am Pacific/Auckland
 
     const westEntry = content.history.find((h) => h.userId === "user-west");
     const eastEntry = content.history.find((h) => h.userId === "user-east");
@@ -158,7 +166,7 @@ describe("sendDailyNotifications", () => {
     users.setToken("user-2", "token-2");
     const fcm = new FakeFcmSenderPort();
 
-    const summary = await sendDailyNotifications(users, content, fcm, NINE_AM_UTC);
+    const summary = await sendDailyNotifications(users, content, fcm, ALL_ACCEPTED, NINE_AM_UTC);
 
     expect(summary).toEqual({ attempted: 2, sent: 0, skippedStale: 0, failed: 2 });
     expect(fcm.sentTo).toHaveLength(0);
@@ -172,8 +180,26 @@ describe("sendDailyNotifications", () => {
     users.setToken("user-1", "token-1");
     const fcm = new FakeFcmSenderPort();
 
-    const summary = await sendDailyNotifications(users, content, fcm, NINE_AM_UTC);
+    const summary = await sendDailyNotifications(users, content, fcm, ALL_ACCEPTED, NINE_AM_UTC);
 
     expect(summary).toEqual({ attempted: 1, sent: 0, skippedStale: 0, failed: 1 });
+  });
+
+  it("skips users who have not accepted the current policies, selecting nothing for them", async () => {
+    const content = new FakeContentRepository();
+    content.content = [makeContent({ id: "c1" })];
+    const users = new FakeNotificationUserRepository();
+    users.setToken("accepted", "token-a");
+    users.setToken("stale", "token-s");
+    users.setToken("never", "token-n");
+    const profiles = new FakeUserProfileRepository();
+    await profiles.acceptTerms("accepted", CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION);
+    await profiles.acceptTerms("stale", CURRENT_TERMS_VERSION - 1, CURRENT_PRIVACY_VERSION);
+    const fcm = new FakeFcmSenderPort();
+
+    const summary = await sendDailyNotifications(users, content, fcm, profiles, NINE_AM_UTC);
+
+    expect(summary).toEqual({ attempted: 1, sent: 1, skippedStale: 0, failed: 0 });
+    expect(fcm.sentTo.map((sent) => sent.token)).toEqual(["token-a"]);
   });
 });

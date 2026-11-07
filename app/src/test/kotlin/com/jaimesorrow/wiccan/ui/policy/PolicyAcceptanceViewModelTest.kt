@@ -36,18 +36,45 @@ class PolicyAcceptanceViewModelTest {
         Dispatchers.resetMain()
     }
 
-    @Test
-    fun `CheckedChanged updates the checkbox state`() {
-        viewModel.onEvent(PolicyAcceptanceUiEvent.CheckedChanged(true))
-        assertTrue(viewModel.state.value.isChecked)
+    private fun agreeToAll() {
+        PolicyAgreement.entries.forEach { viewModel.onEvent(PolicyAcceptanceUiEvent.AgreementChanged(it, true)) }
+    }
 
-        viewModel.onEvent(PolicyAcceptanceUiEvent.CheckedChanged(false))
-        assertFalse(viewModel.state.value.isChecked)
+    @Test
+    fun `AgreementChanged toggles each agreement independently`() {
+        viewModel.onEvent(PolicyAcceptanceUiEvent.AgreementChanged(PolicyAgreement.ADULT, true))
+        assertEquals(setOf(PolicyAgreement.ADULT), viewModel.state.value.agreed)
+
+        viewModel.onEvent(PolicyAcceptanceUiEvent.AgreementChanged(PolicyAgreement.ADULT, false))
+        assertTrue(viewModel.state.value.agreed.isEmpty())
+    }
+
+    @Test
+    fun `Continue is blocked until every agreement is checked`() = runTest(dispatcher) {
+        PolicyAgreement.entries.forEach { missing ->
+            PolicyAgreement.entries.forEach {
+                viewModel.onEvent(PolicyAcceptanceUiEvent.AgreementChanged(it, it != missing))
+            }
+            assertFalse("Continue enabled without $missing", viewModel.state.value.canContinue)
+            viewModel.onEvent(PolicyAcceptanceUiEvent.ContinueClicked)
+            dispatcher.scheduler.advanceUntilIdle()
+            assertEquals("Accepted without $missing", 0, repository.acceptTermsCallCount)
+        }
+
+        viewModel.onEvent(PolicyAcceptanceUiEvent.AgreementChanged(PolicyAgreement.entries.last(), true))
+        assertTrue(viewModel.state.value.canContinue)
+    }
+
+    @Test
+    fun `the no-guarantee acknowledgement is one of the required agreements`() {
+        assertTrue(PolicyAgreement.NO_GUARANTEE in PolicyAgreement.entries)
+        assertTrue(PolicyAgreement.NO_GUARANTEE.label().contains("does not promise or guarantee any result"))
+        assertTrue(PolicyAgreement.ADULT.label().contains("18"))
     }
 
     @Test
     fun `ContinueClicked accepts terms and clears submitting on success`() = runTest(dispatcher) {
-        viewModel.onEvent(PolicyAcceptanceUiEvent.CheckedChanged(true))
+        agreeToAll()
         viewModel.onEvent(PolicyAcceptanceUiEvent.ContinueClicked)
         dispatcher.scheduler.advanceUntilIdle()
 
@@ -58,7 +85,7 @@ class PolicyAcceptanceViewModelTest {
     @Test
     fun `a failed acceptance forwards the repository's error and clears submitting`() = runTest(dispatcher) {
         repository.acceptTermsResult = AppResult.Failure(AppError.Network)
-        viewModel.onEvent(PolicyAcceptanceUiEvent.CheckedChanged(true))
+        agreeToAll()
 
         viewModel.effects.test {
             viewModel.onEvent(PolicyAcceptanceUiEvent.ContinueClicked)

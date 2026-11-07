@@ -239,9 +239,21 @@ Terms of Service and Privacy Policy are now version 4, naming the operator
 18+ age requirement, disclaimers/limitation of liability and governing law;
 Privacy adds the Android advertising ID (collected by Firebase Analytics,
 not used for ads), concrete Analytics/Crashlytics retention, a children
-section, U.S. state privacy rights, and the deletion URL. The policy gate's
-checkbox now also confirms the user is 18 or older; existing accounts are
-re-prompted because both versions changed.
+section, U.S. state privacy rights, and the deletion URL. Terms also carry an
+explicit “No promise or guarantee of results” section (no spell, potion,
+ritual, ceremony or other practice is promised to produce any effect;
+descriptions of a practice's purpose report historical claims, not facts),
+mirrored in Content & Safety. Existing accounts are re-prompted because both
+versions changed.
+
+Onboarding now requires four separate acknowledgements before Continue
+enables: 18 or older, the Terms, the Privacy Policy, and that Wiccan promises
+no result from any practice (with the Content & Safety guidance). Acceptance
+is also enforced on the server: `getTodayContent` returns
+`failed-precondition` / `POLICY_ACCEPTANCE_REQUIRED` and the daily
+notification job skips users until the current Terms and Privacy versions are
+recorded, so a modified client cannot skip the gate. The emulator callable
+run (45 checks) covers the refusal, a stale-version rejection and acceptance.
 
 `hosting/` publishes the same text at `https://wiccan-android.web.app`
 (`/terms`, `/privacy`, `/content-safety`, `/delete-account`) via Firebase

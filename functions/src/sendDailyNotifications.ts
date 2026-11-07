@@ -4,6 +4,7 @@ import { selectTodayContent } from "./getTodayContent";
 import { NotificationUserRepositoryPort } from "./notificationUserRepositoryPort";
 import { FcmSenderPort } from "./fcmSenderPort";
 import { getUserLocalDate, getUserLocalHour } from "./dateUtils";
+import { hasAcceptedCurrentPolicies, PolicyAcceptanceReader } from "./acceptTerms";
 
 /** The local hour every device should get its "your content is ready" push. */
 export const TARGET_LOCAL_HOUR = 9;
@@ -48,6 +49,10 @@ function titleForType(type: ContentType): string {
  * idempotent per uid+day), so multiple devices for the same user are told
  * about the same selection, not separate draws.
  *
+ * Users who have not accepted the current Terms/Privacy versions are left
+ * out entirely: no content is selected or announced for them until they
+ * accept in the app, matching getTodayContent's server-side gate.
+ *
  * One device's failure (empty content pool, transient FCM error) never
  * stops the batch; a permanently invalid token is cleared so future runs
  * skip it instead of retrying forever.
@@ -63,12 +68,26 @@ export async function sendDailyNotifications(
   users: NotificationUserRepositoryPort,
   content: ContentRepositoryPort,
   fcm: FcmSenderPort,
+  policies: PolicyAcceptanceReader,
   now: Date = new Date(),
 ): Promise<NotificationSendSummary> {
   const allDevices = await users.listDevicesWithToken();
-  const recipients = allDevices.filter(
+  const due = allDevices.filter(
     (device) => device.notificationsEnabled && getUserLocalHour(device.timeZone, now) === TARGET_LOCAL_HOUR,
   );
+  const accepted = new Map<string, Promise<boolean>>();
+  const acceptedFor = (uid: string): Promise<boolean> => {
+    let result = accepted.get(uid);
+    if (!result) {
+      result = hasAcceptedCurrentPolicies(uid, policies).catch(() => false);
+      accepted.set(uid, result);
+    }
+    return result;
+  };
+  const recipients = [];
+  for (const device of due) {
+    if (await acceptedFor(device.uid)) recipients.push(device);
+  }
   const summary: NotificationSendSummary = {
     attempted: recipients.length,
     sent: 0,
