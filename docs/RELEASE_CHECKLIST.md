@@ -108,7 +108,7 @@ compilation and 16 KB alignment pass. Release lint reports zero errors and
 
 ## Needs a real device/emulator (not verified here)
 
-- [ ] `WiccanDatabaseMigrationTest` (Room migration 1→2) actually run via `connectedAndroidTest` — compiles clean here; `.github/workflows/instrumented-tests.yml` now runs it on an API 34 emulator. Check this once that workflow is green.
+- [x] `WiccanDatabaseMigrationTest` (Room migrations 1→2, 1→4, 2→4) run via `connectedProdDebugAndroidTest` — `.github/workflows/instrumented-tests.yml` runs it on an API 34 emulator on every PR; first green run 2026-11-07 (Actions run 42383365512). Recheck that workflow before each release.
 - [ ] Deep links (`wiccan://today`, `wiccan://premium`) via `adb shell am start -a android.intent.action.VIEW -d "wiccan://today"`.
 - [ ] Auto Backup exclusions (`data_extraction_rules.xml`/`backup_rules.xml`): back up a real install, restore it, confirm no stale session/content survives.
 - [ ] A real Play Billing sandbox purchase, to confirm `verifyPurchase`'s acknowledgement/expiry field shapes behave as expected against a live purchase (they compile clean against `@googleapis/androidpublisher`'s real types, but have never been exercised against a real purchase).

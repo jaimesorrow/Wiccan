@@ -80,7 +80,6 @@ found the following. Each is now addressed as noted:
 - **Visual/typography redesign** — local build/test/lint and six JVM palette specimens pass; real-device app screens, transitions and actual font appearance still need review before release.
 - **Billing runtime validation** — 9.1.0 is integrated with the modernized toolchain and local unit tests pass; live purchases, acknowledgement, restore and RTDN still need Play/Firebase verification.
 - `PolicyUrls` (Terms, Privacy, account deletion) and `SUPPORT_EMAIL` are placeholders — no real hosted pages exist yet.
-- `WiccanDatabaseMigrationTest` compiles clean but has never run against a real SQLite engine — no emulator here.
 - `handlePlayRtdn`, `verifyPurchase`'s field shapes, and the `users/{uid}/devices` collection-group query have never been exercised against a real Play Console / Firebase project.
 - `dev`/`staging` product flavors exist but need their own real `google-services.json` (from their own real Firebase projects) before they'll build.
 - The production Firebase client config identifies `wiccan-android` and includes its verified web OAuth client ID. Build/signing-certificate matching, device sign-in, live Firebase/Play flows and release setup remain unverified.
@@ -224,8 +223,9 @@ superseded point-in-time reports and `functions/reviewOnly/` were retired
 (copies remain in git history at `1894139`).
 
 `.github/workflows/instrumented-tests.yml` now runs `connectedProdDebugAndroidTest`
-on an API 34 emulator, so `WiccanDatabaseMigrationTest` executes in hosted CI;
-record its first result here once that workflow has run.
+on an API 34 emulator. Its first run (Actions run 42383365512, PR #111 head
+`0252801`) passed: the emulator booted and all three `WiccanDatabaseMigrationTest`
+cases (1→2, 1→4, 2→4) ran green against a real SQLite engine.
 
 Still open for Play submission: live legal/account-deletion URLs (the
 `wiccan.app` placeholders do not resolve), a minimum age in the Terms and an
