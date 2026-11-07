@@ -102,7 +102,7 @@ fun PolicyAcceptanceScreen(
                     onCheckedChange = { viewModel.onEvent(PolicyAcceptanceUiEvent.CheckedChanged(it)) },
                 )
                 Text(
-                    text = "I agree to the Terms of Service and acknowledge the Privacy Policy and safety guidance",
+                    text = "I am 18 or older, agree to the Terms of Service, and acknowledge the Privacy Policy and safety guidance",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                 )

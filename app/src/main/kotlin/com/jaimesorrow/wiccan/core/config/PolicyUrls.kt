@@ -1,21 +1,16 @@
 package com.jaimesorrow.wiccan.core.config
 
 /**
- * Centralized public legal/support destinations. Native policy documents are
- * always available in the app; these URLs are still required for the Play
- * listing and external account-deletion request path.
- *
- * TODO(release): these are placeholders. Replace with the real hosted
- * pages/address before any Play submission - Play explicitly rejects
- * listings with placeholder legal URLs, and the Data Safety section
- * requires a publicly accessible account-deletion request page reachable
- * without installing the app (the in-app delete-account flow in Settings
- * satisfies the in-app half of that requirement; ACCOUNT_DELETION_URL is
- * the other half, entered into Play Console's Data Safety form).
+ * Public legal/support destinations. Native policy documents are always
+ * available in the app; these URLs are entered in Play Console (store
+ * listing privacy policy, Data Safety account-deletion URL). The pages are
+ * served by Firebase Hosting from `hosting/` in the production project and
+ * mirror [com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments] exactly;
+ * deploy with `firebase deploy --only hosting --project production`.
  */
 object PolicyUrls {
-    const val TERMS_OF_SERVICE = "https://wiccan.app/terms"
-    const val PRIVACY_POLICY = "https://wiccan.app/privacy"
-    const val ACCOUNT_DELETION_URL = "https://wiccan.app/delete-account"
-    const val SUPPORT_EMAIL = "support@wiccan.app"
+    const val TERMS_OF_SERVICE = "https://wiccan-android.web.app/terms"
+    const val PRIVACY_POLICY = "https://wiccan-android.web.app/privacy"
+    const val ACCOUNT_DELETION_URL = "https://wiccan-android.web.app/delete-account"
+    const val SUPPORT_EMAIL = "com.wiccan.app@gmail.com"
 }

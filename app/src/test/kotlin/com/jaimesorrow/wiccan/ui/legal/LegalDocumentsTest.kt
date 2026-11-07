@@ -1,6 +1,8 @@
 package com.jaimesorrow.wiccan.ui.legal
 
+import com.jaimesorrow.wiccan.core.config.PolicyUrls
 import com.jaimesorrow.wiccan.domain.model.PolicyVersions
+import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -45,6 +47,68 @@ class LegalDocumentsTest {
             .forEach { required -> assertTrue("Missing safety guidance: $required", text.contains(required, true)) }
     }
 
+    @Test
+    fun `policies identify the operator adult audience and contact`() {
+        val terms = WiccanLegalDocuments.terms.auditText()
+        val privacy = WiccanLegalDocuments.privacy.auditText()
+        listOf(terms, privacy).forEach { text ->
+            assertTrue(text.contains(OPERATOR))
+            assertTrue(text.contains(PolicyUrls.SUPPORT_EMAIL))
+            assertTrue(text.contains(PolicyUrls.ACCOUNT_DELETION_URL))
+        }
+        assertTrue(terms.contains("at least 18 years old"))
+        assertTrue(privacy.contains("advertising ID"))
+    }
+
+    @Test
+    fun `hosted pages mirror the native documents word for word`() {
+        mapOf(
+            "terms" to WiccanLegalDocuments.terms,
+            "privacy" to WiccanLegalDocuments.privacy,
+            "content-safety" to WiccanLegalDocuments.contentSafety,
+        ).forEach { (page, document) ->
+            val hosted = hostedText(page)
+            val expected = buildList {
+                add(document.title)
+                add("Effective ${document.effectiveDate}")
+                document.version?.let { add("Version $it") }
+                add(document.introduction)
+                document.sections.forEach { section ->
+                    add(section.heading)
+                    addAll(section.paragraphs)
+                }
+            }
+            expected.forEach { line ->
+                assertTrue("hosting/$page.html is missing: $line", hosted.contains(line.normalized()))
+            }
+        }
+    }
+
+    @Test
+    fun `every public policy URL has a hosted page`() {
+        listOf(PolicyUrls.TERMS_OF_SERVICE, PolicyUrls.PRIVACY_POLICY, PolicyUrls.ACCOUNT_DELETION_URL).forEach { url ->
+            val page = url.substringAfterLast('/')
+            assertTrue("No hosted page for $url", hostingFile("$page.html").isFile)
+        }
+        val deletion = hostedText("delete-account")
+        assertTrue(deletion.contains(PolicyUrls.SUPPORT_EMAIL))
+        assertTrue(deletion.contains(OPERATOR))
+    }
+
+    private fun hostingFile(name: String): File =
+        listOf(File("../hosting", name), File("hosting", name)).firstOrNull { it.exists() } ?: File("../hosting", name)
+
+    private fun hostedText(page: String): String = hostingFile("$page.html").readText()
+        .replace(Regex("<[^>]+>"), "")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", "\"")
+        .replace("&#x27;", "'")
+        .replace("&amp;", "&")
+        .normalized()
+
+    private fun String.normalized(): String = trim().replace(Regex("\\s+"), " ")
+
     private fun LegalDocument.auditText(): String = buildString {
         append(title)
         append(' ')
@@ -57,5 +121,9 @@ class LegalDocumentsTest {
                 append(it)
             }
         }
+    }
+
+    private companion object {
+        const val OPERATOR = "Wiccan App Inc."
     }
 }

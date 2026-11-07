@@ -79,7 +79,7 @@ found the following. Each is now addressed as noted:
 
 - **Visual/typography redesign** — local build/test/lint and six JVM palette specimens pass; real-device app screens, transitions and actual font appearance still need review before release.
 - **Billing runtime validation** — 9.1.0 is integrated with the modernized toolchain and local unit tests pass; live purchases, acknowledgement, restore and RTDN still need Play/Firebase verification.
-- `PolicyUrls` (Terms, Privacy, account deletion) and `SUPPORT_EMAIL` are placeholders — no real hosted pages exist yet.
+- Policy pages (Terms, Privacy, Content & Safety, account deletion) are written in `hosting/` but not yet deployed — run `firebase deploy --only hosting --project production`, then confirm each `PolicyUrls` link loads.
 - `handlePlayRtdn`, `verifyPurchase`'s field shapes, and the `users/{uid}/devices` collection-group query have never been exercised against a real Play Console / Firebase project.
 - `dev`/`staging` product flavors exist but need their own real `google-services.json` (from their own real Firebase projects) before they'll build.
 - The production Firebase client config identifies `wiccan-android` and includes its verified web OAuth client ID. Build/signing-certificate matching, device sign-in, live Firebase/Play flows and release setup remain unverified.
@@ -227,8 +227,27 @@ on an API 34 emulator. Its first run (Actions run 42383365512, PR #111 head
 `0252801`) passed: the emulator booted and all three `WiccanDatabaseMigrationTest`
 cases (1→2, 1→4, 2→4) ran green against a real SQLite engine.
 
-Still open for Play submission: live legal/account-deletion URLs (the
-`wiccan.app` placeholders do not resolve), a minimum age in the Terms and an
-18+ target audience, the Advertising ID declaration (`AD_ID` remains in the
+Still open for Play submission: deploying the new policy pages (below), the
+18+ target-audience selection in Play Console, the Advertising ID declaration (`AD_ID` remains in the
 merged manifest via Firebase Analytics), the Data Safety form, and launcher
 icon fallbacks for API 24–25 plus a monochrome layer for themed icons.
+
+## Public policy pages — 2026-11-07
+
+Terms of Service and Privacy Policy are now version 4, naming the operator
+(Wiccan App Inc.) and contact (`com.wiccan.app@gmail.com`). Terms add an
+18+ age requirement, disclaimers/limitation of liability and governing law;
+Privacy adds the Android advertising ID (collected by Firebase Analytics,
+not used for ads), concrete Analytics/Crashlytics retention, a children
+section, U.S. state privacy rights, and the deletion URL. The policy gate's
+checkbox now also confirms the user is 18 or older; existing accounts are
+re-prompted because both versions changed.
+
+`hosting/` publishes the same text at `https://wiccan-android.web.app`
+(`/terms`, `/privacy`, `/content-safety`, `/delete-account`) via Firebase
+Hosting with a restrictive CSP. `LegalDocumentsTest` fails if any hosted page
+drifts from the in-app text or a `PolicyUrls` link has no page. Not yet
+deployed: no authenticated Firebase access exists in this sandbox. The
+governing-law clause names the state of incorporation generically; replace it
+with the actual state, and have a qualified reviewer approve the text before
+release.
