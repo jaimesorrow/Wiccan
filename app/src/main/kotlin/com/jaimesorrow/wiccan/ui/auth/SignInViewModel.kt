@@ -44,8 +44,12 @@ class SignInViewModel @Inject constructor(private val authRepository: AuthReposi
             SignInUiEvent.ToggleMode -> _state.update {
                 it.copy(
                     mode = if (it.mode == SignInMode.SIGN_IN) SignInMode.CREATE_ACCOUNT else SignInMode.SIGN_IN,
-                    password = "", confirmPassword = "", isPasswordVisible = false,
-                    emailError = null, passwordError = null, confirmPasswordError = null,
+                    password = "",
+                    confirmPassword = "",
+                    isPasswordVisible = false,
+                    emailError = null,
+                    passwordError = null,
+                    confirmPasswordError = null,
                 )
             }
             SignInUiEvent.BackToSignIn -> _state.update {

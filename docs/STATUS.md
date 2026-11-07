@@ -180,3 +180,33 @@ tests. CI/release actions now use their supported Node 24 runtimes; app builds
 still use Java 17 and Functions use Node 22. The UUID advisory inherited through
 Gaxios is resolved with a targeted override. A fresh locked Functions install,
 build, all 98 tests and lint pass locally; `npm audit` reports zero vulnerabilities.
+
+## Build and security audit — 2026-11-05
+
+Full CI matrix reproduced locally on `main` (`1894139`) with the CI toolchains
+(Java 17 + Android SDK 37 for the app, Node 22 for Functions, Java 21 for the
+Firestore emulator). Two CI gates were red on `main` and are fixed here:
+
+- `ktlintCheck` failed with 22 formatting violations in auth/onboarding code;
+  fixed with `ktlintFormat` (no behavior change).
+- `npm audit --audit-level=moderate` in `functions/` failed on new `minimatch`
+  and `glob` advisories; resolved with targeted overrides (see
+  `docs/MAINTENANCE.md`). One low-severity `deepmerge` advisory has no fix.
+
+An OSV scan of the resolved Gradle classpaths found one high advisory in the
+shipped app (Guava) and six on AGP 9.5.0's build classpath (including a
+critical Bouncy Castle advisory); catalog-managed constraints now raise all of
+them, and a re-scan reports none. `WiccanDatabase` v5's schema export is now
+committed; the v4 export was never committed and cannot be regenerated without
+rebuilding the commit that introduced it.
+
+Verified after the fixes: structural/toolchain regression scripts and 44
+release-preflight checks; ktlint, 153 unit tests, debug APK with emulator
+routing, androidTest compilation, release bundle, release lint and 16KB
+alignment; a bundle signed with a throwaway key passes `jarsigner -verify`;
+the release dex contains Play Integrity App Check and no debug provider;
+Functions build, 315 tests and lint; 21 Firestore rules tests, 21 repository
+integration tests and the 43-check callable end-to-end run on the emulators.
+
+Still not verifiable here: everything in `docs/RELEASE_CHECKLIST.md` that needs
+a device, a live Firebase project, Play Console or the real upload key.
