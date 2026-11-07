@@ -133,7 +133,7 @@ Credential Manager context. CI reads the Functions Node runtime declaration
 and cancels superseded runs. Draft PR #42's safe Node/locked-install fixes
 and adapted package/toolchain gate pass 21 regression tests; its namespace/flavor
 migration branch is retained for widget upgrade and installation-identity work. See
-[BRANCH_INTEGRATION_AUDIT.md](BRANCH_INTEGRATION_AUDIT.md).
+`BRANCH_INTEGRATION_AUDIT.md` (retired 2026-11-07; git history at `1894139`).
 
 The run driver installs API 37.0 / Build Tools 37.0.0, reuses an existing
 SDK manager and preserves local properties. It handles fresh checkouts and
@@ -156,8 +156,9 @@ The proposed consolidation combines #40/#41 and aligns all Android flavors,
 Kotlin packages and namespace with Firebase's `com.jaimesorrow.wiccan`.
 Node 22 now agrees across deployment, CI, local selection and lock metadata.
 Configuration/preflight checks and the hosted production build matrix pass;
-upgrade-device checks remain outstanding. See [PR_RECONCILIATION.md](PR_RECONCILIATION.md)
-for the complete PR/branch inventory and explicitly unmerged proposals.
+upgrade-device checks remain outstanding. The complete PR/branch inventory and
+explicitly unmerged proposals were in `PR_RECONCILIATION.md` (retired 2026-11-07;
+git history at `1894139`).
 
 ## PR #42 conflict reconciliation
 
