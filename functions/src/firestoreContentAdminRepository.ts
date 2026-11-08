@@ -5,6 +5,7 @@ import type { PublicationRequest, PublicationResult, VersionedStoredContent } fr
 import { practicalContentHash } from "./practicalLesson";
 
 const CONTENT_COLLECTION = "content";
+const ORIGINALITY_RESERVATIONS_COLLECTION = "contentOriginalityReservations";
 const PUBLICATION_AUDIT_COLLECTION = "contentPublicationAudit";
 export const CONTENT_GENERATOR_ID = "ancient-grimoire-content-agent";
 export const CONTENT_GENERATION_SOURCE_KIND = "historical-grimoire";
@@ -25,6 +26,42 @@ export class FirestoreContentAdminRepository implements ContentAdminRepositoryPo
       updatedAt: FieldValue.serverTimestamp(),
     });
     return doc.id;
+  }
+
+  async createDraftWithOriginalityReservations(draft: NewDraftContent, reservationKeys: string[]): Promise<string> {
+    if (reservationKeys.length === 0 || new Set(reservationKeys).size !== reservationKeys.length) {
+      throw new Error("Originality reservations must be a non-empty unique list.");
+    }
+    const contentRef = this.db.collection(CONTENT_COLLECTION).doc();
+    const reservationRefs = reservationKeys.map((key) =>
+      this.db.collection(ORIGINALITY_RESERVATIONS_COLLECTION).doc(key));
+    await this.db.runTransaction(async (transaction) => {
+      const existing = await transaction.getAll(...reservationRefs);
+      const collision = existing.find((snapshot) => snapshot.exists);
+      if (collision) throw new Error(`Originality reservation collision: ${collision.id}`);
+      transaction.create(contentRef, {
+        ...draft,
+        rightsReviewRequired: true,
+        status: "draft" satisfies ContentStatus,
+        contentStatus: "draft" satisfies ContentStatus,
+        generatedBy: CONTENT_GENERATOR_ID,
+        generationSourceKind: CONTENT_GENERATION_SOURCE_KIND,
+        generatedAt: FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+      reservationRefs.forEach((ref, index) => transaction.create(ref, {
+        contentId: contentRef.id,
+        reservationKey: reservationKeys[index],
+        createdAt: FieldValue.serverTimestamp(),
+      }));
+    });
+    return contentRef.id;
+  }
+
+  async listOriginalityInventory() {
+    const snapshot = await this.db.collection(CONTENT_COLLECTION).get();
+    return snapshot.docs.map((document) => ({ id: document.id, fields: document.data() }));
   }
 
   async getStatus(contentId: string): Promise<ContentStatus | null> {

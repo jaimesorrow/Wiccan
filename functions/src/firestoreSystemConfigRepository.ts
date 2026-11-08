@@ -1,5 +1,6 @@
 import { Firestore } from "firebase-admin/firestore";
 import { SystemConfig, SystemConfigPort } from "./systemConfigPort";
+import { clampBatchSize } from "./contentAgent";
 
 const SYSTEM_CONFIG_COLLECTION = "systemConfig";
 const GLOBAL_CONFIG_DOC = "global";
@@ -12,6 +13,8 @@ export class FirestoreSystemConfigRepository implements SystemConfigPort {
     return {
       dailyContentEnabled: doc.get("dailyContentEnabled") !== false,
       notificationsEnabled: doc.get("notificationsEnabled") !== false,
+      contentGenerationEnabled: doc.get("contentGenerationEnabled") === true,
+      contentGenerationBatchSize: clampBatchSize(doc.get("contentGenerationBatchSize")),
     };
   }
 }

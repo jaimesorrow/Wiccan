@@ -12,6 +12,9 @@ sealed class AppError {
     object NoNewLesson : AppError()
     object SubscriptionRequired : AppError()
     object GoogleSignInUnavailable : AppError()
+
+    /** The user dismissed a system flow (e.g. the account picker); screens show nothing. */
+    object Cancelled : AppError()
     data class PurchaseVerificationFailed(val reason: String? = null) : AppError()
     data class Unknown(val message: String? = null) : AppError()
 }

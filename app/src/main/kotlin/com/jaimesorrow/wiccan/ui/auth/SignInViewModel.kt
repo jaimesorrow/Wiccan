@@ -3,6 +3,7 @@ package com.jaimesorrow.wiccan.ui.auth
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,8 +45,12 @@ class SignInViewModel @Inject constructor(private val authRepository: AuthReposi
             SignInUiEvent.ToggleMode -> _state.update {
                 it.copy(
                     mode = if (it.mode == SignInMode.SIGN_IN) SignInMode.CREATE_ACCOUNT else SignInMode.SIGN_IN,
-                    password = "", confirmPassword = "", isPasswordVisible = false,
-                    emailError = null, passwordError = null, confirmPasswordError = null,
+                    password = "",
+                    confirmPassword = "",
+                    isPasswordVisible = false,
+                    emailError = null,
+                    passwordError = null,
+                    confirmPasswordError = null,
                 )
             }
             SignInUiEvent.BackToSignIn -> _state.update {
@@ -127,7 +132,9 @@ class SignInViewModel @Inject constructor(private val authRepository: AuthReposi
 
     private suspend fun handleAuthResult(result: AppResult<Unit>) {
         _state.update { it.copy(isLoading = false) }
-        if (result is AppResult.Failure) effectChannel.send(SignInUiEffect.ShowSnackbar(result.error))
+        if (result is AppResult.Failure && result.error !is AppError.Cancelled) {
+            effectChannel.send(SignInUiEffect.ShowSnackbar(result.error))
+        }
         // Auth success never unlocks content; the root gating state machine decides.
     }
 }

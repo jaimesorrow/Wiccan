@@ -1,190 +1,162 @@
-# Wiccan — Practical Lesson and Grimoire Templates
+# Wiccan practical lesson and Grimoire templates
 
-Updated: October 20, 2026
+Updated: November 7, 2026
 
-Use this authoring target for the existing drafts and future lessons. It follows the October 19 Practical Magic Content and App Update Plan. Square brackets mark content to fill from inspected sources; remove optional sections only when their omission is justified in the editorial record.
+## Canonical lesson template
 
-## 1. Editorial basis
+The existing Firestore aliases remain readable during migration: `intro/introduction`, `body/lesson`, `materials/tools`, and `status/contentStatus`. New authoring uses the canonical names below. Existing document IDs and timestamps are preserved.
 
-Every lesson teaches one distinct, performable Wiccan or witchcraft practice traceable to an inspected passage in an identifiable ancient grimoire or magical manuscript. Verify both ancient-source eligibility and Wiccan/witchcraft scope. Preserve the source's actual tradition and distinguish contemporary Wiccan applications from its historical identity.
-
-Inspect the passage before writing. Retain exact locators, manuscript/catalogue identity, dating evidence, edition/translator, accessible location, and commercial-use rights findings. A broad museum overview, invented ritual with an attached citation, or an Original content attribution does not satisfy this requirement.
-
-Use original, serious, clear explanatory prose. Identify source-supported instructions, uncertain evidence, and every modern adaptation. Do not invent missing materials, quantities, correspondences, timing, formulas, or an ancient Wiccan lineage. Hold practices that cannot be adapted safely while preserving their documented central method.
-
-## 2. User-facing Lesson of the Day template
-
-```text
-LESSON OF THE DAY
-
-[Distinct title naming the actual practice]
-[Brief summary of the method and its spiritual or symbolic purpose]
-
-Tradition: [Actual historical source tradition]
-Contemporary application: [Wiccan/witchcraft application and adaptation, if applicable]
-Category: [One practical category]
-Secondary categories: [Optional; same approved list]
-Time: [Honest practical estimate, when useful; identify prescribed timing separately]
-
-INTRODUCTION
-[Two or three sentences explaining what the reader will perform and the
-specific teaching focus. Keep historical context concise.]
-
-TOOLS AND MATERIALS
-[Documented materials and quantities, if the passage provides them.]
-[Clearly identify modern safety substitutions and what they change.]
-[Use no-tools wording only when the supported method needs none.]
-
-TIMING AND CORRESPONDENCES (when supported)
-[State the passage's actual requirements and references.]
-[Label modern associations or adaptations explicitly.]
-[Omit this section when the source supplies none and no reviewed adaptation applies.]
-
-THE LESSON — NUMBERED METHOD
-[Approximately 250–450 words across the main explanation and method.
-Do not pad incomplete evidence to meet the range.]
-
-[Briefly explain the documented purpose and basis for the method.]
-
-1. [Preparation that the passage actually prescribes, or labeled modern safety preparation.]
-2. [First source-supported operation; clear enough to carry out.]
-3. [Remaining documented operations in their actual order.]
-[Continue only for steps the evidence supports.]
-
-[Explain documented closing actions, if any. Identify modern cleanup,
-storage, or disposal guidance separately. Keep departures from the source visible.]
-
-INCANTATION OR FORMULA (source-dependent)
-[Include only when the passage supports a formula suitable for this lesson.]
-[Use a legally reusable excerpt with exact attribution, or identify a paraphrase.]
-[If absent, omit this section and record the editorial reason. Do not invent a rhyme.]
-
-REFLECTION
-[One question specific to this practice and the reader's experience?]
-
-PRACTICE
-[One concise completion or observation prompt referring to the method above.]
-
-SAFETY NOTE
-[Activity-specific precautions for the materials and route of use.]
-[Address relevant flame, smoke, plants, oils, water, stones, cords,
-allergies, pets, children, or health concerns.]
-[State whether a preparation is non-ingestible and how it may be used.]
-
-SOURCE AND ADAPTATION NOTES
-[Text title; manuscript/catalogue reference; historical origin and dating.]
-[Exact chapter, page, column, folio, line, or spell number inspected.]
-[Edition, translator/editor, publication date, and accessible source link.]
-[Rights/attribution information appropriate for display.]
-[Explain documented instructions, uncertainty, and modern changes.]
-
-POTION SAFETY DISCLOSURE (when required)
-[Render the shared disclosure from settings/disclosures.potionSafetyDisclosure
-when requiresPotionDisclosure is true, alongside the preparation-specific safety note.]
+```json
+{
+  "id": "stable-document-id",
+  "title": "Distinct practical title",
+  "slug": "distinct-practical-title",
+  "tradition": "Modern Wiccan practice",
+  "summary": "What the user will learn and perform.",
+  "introduction": "Purpose, context, and any necessary historical distinction.",
+  "lesson": "A complete sequential guided method.",
+  "incantation": "Optional original spoken passage or empty string.",
+  "reflection": "One experience-specific question?",
+  "practice": "One small follow-up action.",
+  "safetyNote": "Activity-specific precautions and consent guidance.",
+  "primaryCategoryId": "cord-knot-work",
+  "secondaryCategoryIds": ["altars-sacred-space"],
+  "lessonType": "guided-practice",
+  "requiresPotionDisclosure": false,
+  "difficulty": "accessible",
+  "durationMinutes": 20,
+  "tools": [{
+    "name": "Natural-fiber cord",
+    "quantity": "1 piece",
+    "required": true,
+    "substitution": "Cotton yarn or another safely handled fiber"
+  }],
+  "correspondences": {
+    "elements": [],
+    "colors": [],
+    "herbs": [],
+    "stones": [],
+    "moonPhases": [],
+    "days": [],
+    "symbols": []
+  },
+  "tags": [],
+  "citations": [],
+  "contentStatus": "draft",
+  "createdAt": "server timestamp",
+  "updatedAt": "server timestamp"
+}
 ```
 
-The numbered method is the core lesson. The separate Practice section is a completion prompt, not a substitute for the main instructions. The same detail template applies to spells, potions, Today, and saved Grimoire entries; adapt the type label.
+Difficulty is descriptive metadata only and never gates access or asks the user for an experience level. During compatibility migration the current app may continue omitting it.
 
-Omit unsupported timing or formulas rather than supplying conventional occult details. Label a shortened, flameless, substituted, or otherwise changed practice as an adaptation and explain its effect on the source method. Hold the lesson when the adaptation removes its defining technique.
+## Example lesson
 
-## 3. Nine practical categories
-
-Choose exactly one primary category by the technique taught. Optional secondary categories use this same list.
-
-| Display name | Target ID |
-| --- | --- |
-| Candle Magic | `candle-magic` |
-| Herbs & Botanicals | `herbs-botanicals` |
-| Potions & Infusions | `potions-infusions` |
-| Crystals & Stones | `crystals-stones` |
-| Cord & Knot Magic | `cord-knot-magic` |
-| Moon Magic & Timing | `moon-phases-timing` |
-| Elemental Magic | `elemental-magic` |
-| Altars & Sacred Space | `altars-sacred-space` |
-| Divination | `divination` |
-
-Protection, love, cleansing, abundance, and similar aims may remain as optional intention tags. Remove the old intention-based navigation groups. Do not convert a legacy intention category by a single lookup: inspect the actual supported method. Keep categories empty when qualifying source material has not been verified.
-
-## 4. Editorial record and compatibility
-
-These are authoring targets, not a claim that the current Android app or deployed Firestore already supports them. Extend the existing `content` contract compatibly; do not create a competing collection by default.
-
-```text
-id: [preserve existing document ID]
-type: lesson | spell | potion
-tier: free | premium
-title: [distinct practice title]
-slug: [stable readable slug]
-tradition: [actual source tradition]
-summary: [brief method and purpose]
-introduction: [context and focus]
-tools: [documented materials; explicitly labeled adaptations]
-lesson: [source-grounded explanation and numbered method]
-incantation: [source-supported formula or paraphrase; otherwise null]
-reflection: [one question]
-practice: [one completion or observation prompt]
-safetyNote: [specific precautions; required wherever relevant]
-primaryCategoryId: [exactly one of the nine target IDs]
-secondaryCategoryIds: [optional list from the same nine IDs]
-lessonType: [approved type; validate against the reviewed implementation enum]
-requiresPotionDisclosure: [boolean under the established project policy]
-durationMinutes: [honest estimate when applicable]
-correspondences: [only sourced or explicitly labeled adaptations]
-tags: [method and optional intention tags]
-citations: [structured source records; finalize the shape during schema review]
-contentStatus: draft
-createdAt: [preserve original creation metadata]
-updatedAt: [change only when the record changes]
-
-Retain:
-sourceId, sourceCitation, sourceUrl,
-rightsReviewRequired, rightsNotes, similarityGroupId,
-editorial annotations, curriculum placement, and unrelated metadata.
+```json
+{
+  "id": "threshold-grounding-calm-home",
+  "title": "Threshold Grounding for a Calm Home",
+  "slug": "threshold-grounding-for-a-calm-home",
+  "tradition": "Modern Wiccan cord practice",
+  "summary": "Create a three-knot cord as a reminder to leave outside tension at the threshold and enter your home with deliberate care.",
+  "introduction": "Thresholds symbolically separate one space from another. This modern Wiccan practice uses a cord as a physical reminder to pause and choose how you enter your home. It does not control events or other people.",
+  "lesson": "1. Choose a quiet place near the doorway where you can work without blocking the entrance. Cut a piece of cord approximately the length of your forearm and take three slow breaths.\n2. For the first knot, name what you are ready to leave outside and breathe out as you tie it.\n3. For the second knot, name a quality you want to practice inside your home, such as patience, rest, honesty, or calm.\n4. For the third knot, choose one action that supports that quality, such as lowering your voice before a difficult conversation or pausing before entering.\n5. Repeat the incantation once. Place the cord on a safe dish, hook, or shelf near the entrance where it cannot become a tripping, choking, or fire hazard.\n6. When you return home, look at the cord and repeat the action represented by the third knot.",
+  "incantation": "At this threshold, I arrive. I release what need not enter. With steady breath and chosen care, I make this home a place of peace.",
+  "reflection": "What did you choose to leave outside, and which action can make your chosen quality visible at home?",
+  "practice": "For seven days, pause at the threshold, take one breath, and record one sentence in your Grimoire about the action you chose.",
+  "safetyNote": "Keep cords away from children and animals. Do not hang the cord across a doorway, near a flame, or where it could catch on clothing. This reflective practice does not guarantee changes in other people or outside circumstances.",
+  "primaryCategoryId": "cord-knot-work",
+  "secondaryCategoryIds": ["altars-sacred-space"],
+  "lessonType": "guided-practice",
+  "requiresPotionDisclosure": false,
+  "difficulty": "accessible",
+  "durationMinutes": 20,
+  "tools": [
+    {
+      "name": "Natural-fiber cord",
+      "quantity": "Approximately the length of the user's forearm",
+      "required": true,
+      "substitution": "Cotton yarn or another safely handled fiber"
+    },
+    {
+      "name": "Small dish or storage hook",
+      "quantity": "1",
+      "required": false,
+      "substitution": "A drawer or shelf near the entrance"
+    }
+  ],
+  "correspondences": {
+    "elements": ["Earth"],
+    "colors": ["Brown", "Green", "White"],
+    "herbs": [],
+    "stones": [],
+    "moonPhases": [],
+    "days": [],
+    "symbols": ["Threshold", "Three knots", "Circle of home"]
+  },
+  "tags": ["grounding", "calm", "home", "threshold", "cord", "mindfulness"],
+  "citations": [],
+  "contentStatus": "draft",
+  "createdAt": "server timestamp",
+  "updatedAt": "server timestamp"
+}
 ```
 
-Map legacy `intro`, `body`, `materials`, and `status` deliberately to the new names, while keeping old documents readable. Define which representation is authoritative before implementing dual fields. Keep source/rights decisions intact. Document absent incantations, unresolved passages, scope decisions, and adaptation reviews in the editorial record; proposed new metadata names require schema review.
+This example is original modern practice and makes no historical claim. If an editor adds historical, botanical, scientific, medical, or material-safety claims, each claim needs a verified citation. The source-bound production generator continues to require its reviewed passage record.
 
-Do not require difficulty or experience labels. Keep free/premium access independent.
+## Lesson screen
 
-Set `requiresPotionDisclosure = true` for potion, tea, bath, oil, spray, jar, and skin-contact lesson types under the established project policy. The shared text comes from `settings/disclosures`, field `potionSafetyDisclosure`; do not replace it with per-lesson text or omit specific precautions.
+Today and Grimoire use one shared renderer in this order:
 
-## 5. Source and publication review
+1. Small theme-aware emblem and optional Lesson of the Day label.
+2. Lesson type, title, tradition, category chips, duration, and tool count.
+3. Summary and introduction.
+4. Tools.
+5. Guided Lesson.
+6. Incantation when present.
+7. Reflection and follow-up Practice.
+8. Safety Note.
+9. Populated Correspondences.
+10. Sources and Citations when present.
+11. Shared potion disclosure when required.
+12. Saved-to-Grimoire status and personal reflection action.
 
-A draft is ready for editorial acceptance only after all applicable checks pass:
+Optional fields render no empty cards and never show `null`. The layout scrolls, supports 320dp width and enlarged fonts, uses semantic Material 3 colors across all six palettes, and exposes accessible headings and descriptions.
 
-- The editor inspected the exact passage and verified its ancient dating, edition/translation, accessible location, and commercial-use rights.
-- The practice passes Wiccan/witchcraft scope review with accurate attribution and explicit adaptations.
-- One distinct method is sufficient to perform the practice; historical explanation supports the instructions.
-- The primary category matches the method, not an intention or incidental object.
-- Source fidelity, missing evidence, supported formulas, adaptations, reflection, and practical completion are checked.
-- Activity-specific safety and shared potion disclosure are correct. Verify specialist guidance rather than inventing doses or safety claims.
-- No essential-oil ingestion, coercive targeting, unsupported medical claims, or guaranteed outcomes are introduced.
-- Wording and central concept have been compared with other lessons. A changed color, ingredient, or intention alone does not make a new lesson.
+## Grimoire
 
-Keep unresolved items blocked for review. A populated citation or a passing structural validator does not prove historical accuracy or publication readiness.
+The former user-facing Library is named **Grimoire**. It is the permanent archive of lessons received through daily assignment. Assignment and saving are idempotent; the same user, lesson, and local date never create duplicate history.
 
-All migrated records remain drafts. Production writes require a verified inventory, secure backup with restore instructions, a reviewed change set, conflict protection, and approval. Publication and rules/Functions deployments are separate actions.
+Header copy:
 
-## 6. Grimoire template
+> Every lesson you receive is kept here for you to revisit, reflect on, and practice again.
 
-The user-facing collection is **Grimoire**, with **Timeline** and **Categories** views.
+Grimoire supports title/tool/tag/category search, practical-category filters, read/reflection state, and newest/oldest/title/category sorting. Cards show title, practical category, tradition, short summary, received date, duration, read state, and reflection state. Cards use a small method icon rather than repeating the full logo.
 
-Each delivered-entry row contains:
+Empty state:
 
-- Title and content type.
-- Practical primary category when reviewed and available.
-- Source tradition.
-- Date delivered.
-- A link to the same complete detail layout used by Today.
+> Your Grimoire is waiting. Your first daily lesson will be added here automatically after it is received.
 
-Timeline sorts newest first. Categories groups received entries under the nine practical categories with collapsible sections. Retired categories require a compatible, reviewed migration or fallback presentation; saved entries must remain reachable.
+No-results state:
 
-Do not rewrite stored history merely to rename the UI. Preserve content IDs, delivery dates, source/similarity metadata, curriculum order, and account ownership. Keep one trusted daily assignment stable across retries, devices, widgets, and notifications. Exclude previously delivered IDs and editorial similarity groups; show an explicit exhausted state without recycling old lessons.
+> No lessons match these filters. Try another category or clear your filters.
 
-Empty copy: "Your Grimoire is empty. Open Today to receive your first lesson."
+The detail view reuses the canonical lesson renderer. User history and reflection state remain separate from canonical lesson content:
 
-## 7. Implementation state — October 20, 2026
+```json
+{
+  "userId": "authenticated-user-id",
+  "lessonId": "stable-lesson-id",
+  "assignedLocalDate": "YYYY-MM-DD",
+  "receivedAt": "server timestamp",
+  "firstOpenedAt": null,
+  "lastOpenedAt": null,
+  "completedAt": null,
+  "reflectionText": "",
+  "reflectionUpdatedAt": null
+}
+```
 
-The checked-in seed at commit `3ea0f2c6cbed90b8dc353d85b9126122ca73b31d` has 296 draft records: 200 lessons, 59 spells, and 37 potions. It still uses the eight legacy intention categories. Structured reflection and practice are already separate fields in the current code; the older template's snapshot caveat is obsolete.
+## Migration and publication
 
-The nine-category practical schema and this complete source-verification template still require coordinated implementation in the generator, validators, importer, Kotlin mapping/models, Room, and shared Compose detail UI. Updating this template does not rewrite or publish database content.
+Do not rewrite production content from this template. First back up the inventory, map aliases and legacy category IDs, validate every record, preview the exact changes, preserve document IDs and curriculum order, and keep migrated records as drafts. Publication remains a separate reviewed operation.
