@@ -162,8 +162,11 @@ export function conceptSignature(lesson: CanonicalLesson): ConceptSignature {
   const whole = neutralize([lesson.title, lesson.summary, lesson.introduction, lesson.lesson, lesson.practice].join(" ").toLowerCase());
   const required = lesson.tools.filter((tool) => tool.required);
   const toolNames = (required.length ? required : lesson.tools).map((tool) => toolHead(tool.name)).filter(Boolean);
-  const purpose = [...new Set(lesson.tags.flatMap((tag) => conceptTokens(tag)))]
-    .filter((token) => !toolNames.includes(token) && token !== "count").sort();
+  const purpose = [...new Set(conceptTokens(neutralize([
+    lesson.title, lesson.summary, lesson.introduction, lesson.practice,
+  ].join(" "))))]
+    .filter((token) => !toolNames.includes(token) && !RITUAL_VERB_SET.has(token) && !["count", "colour", "herb", "stone"].includes(token))
+    .sort();
   return {
     primaryMethod: lesson.primaryCategoryId,
     secondaryMethods: [...lesson.secondaryCategoryIds].sort(),
@@ -378,19 +381,23 @@ export function scorePair(space: TfIdfSpace, a: IndexedLesson, b: IndexedLesson)
 
 /** Areas in which the candidate differs from another lesson (novelty requirement). */
 export function distinctAreas(space: TfIdfSpace, a: IndexedLesson, b: IndexedLesson, scores: PairScores): string[] {
+  const listDiffers = (left: string[], right: string[]) =>
+    (left.length > 0 || right.length > 0) && jaccard(left, right) < 0.5;
+  const leftPurpose = a.signature.intendedPurpose.split(" ").filter(Boolean);
+  const rightPurpose = b.signature.intendedPurpose.split(" ").filter(Boolean);
   const areas: Array<[boolean, string]> = [
     [a.signature.primaryMethod !== b.signature.primaryMethod, "Uses a different core method"],
     [scores.ritualActionSimilarity < 0.5, "Uses a different ritual action sequence"],
     [a.signature.primaryTool !== b.signature.primaryTool, "Teaches a different practical skill"],
     [a.signature.setting !== b.signature.setting, "Takes place in a different setting"],
     [a.signature.symbolicStructure !== b.signature.symbolicStructure, "Has a different symbolic structure"],
-    [jaccard(a.signature.supportingTools, b.signature.supportingTools) < 0.5, "Uses tools differently"],
+    [listDiffers(a.signature.supportingTools, b.signature.supportingTools), "Uses tools differently"],
     [a.signature.timing !== b.signature.timing, "Has different timing"],
     [space.cosine(a.tokens.reflection, b.tokens.reflection) < 0.5, "Takes a different reflection approach"],
     [space.cosine(a.tokens.practice, b.tokens.practice) < 0.5, "Has a different follow-up practice"],
-    [jaccard(a.safetyConcerns, b.safetyConcerns) < 0.5, "Introduces different safety considerations"],
+    [listDiffers(a.safetyConcerns, b.safetyConcerns), "Introduces different safety considerations"],
     [space.cosine(a.tokens.introduction, b.tokens.introduction) < 0.5, "Draws on different context"],
-    [jaccard(a.signature.intendedPurpose.split(" "), b.signature.intendedPurpose.split(" ")) < 0.5, "Practices a different behavior or purpose"],
+    [listDiffers(leftPurpose, rightPurpose), "Practices a different behavior or purpose"],
   ];
   return areas.filter(([different]) => different).map(([, label]) => label);
 }

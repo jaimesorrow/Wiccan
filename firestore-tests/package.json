@@ -7,7 +7,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "test": "npx --yes firebase-tools@15.34.1 emulators:exec --project demo-wiccan --config ../firebase.json --only firestore \"node --test firestore.rules.test.mjs && npm --prefix ../functions test -- --runInBand firestoreContentRepository.integration.test.ts\"",
+    "test": "npx --yes firebase-tools@15.34.1 emulators:exec --project demo-wiccan --config ../firebase.json --only firestore \"node --test firestore.rules.test.mjs && npm --prefix ../functions test -- --runInBand firestoreContentRepository.integration.test.ts firestoreContentAgentState.integration.test.ts\"",
     "test:rules": "npx --yes firebase-tools@15.34.1 emulators:exec --project demo-wiccan --config ../firebase.json --only firestore \"node --test firestore.rules.test.mjs\""
   },
   "devDependencies": {

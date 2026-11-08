@@ -90,9 +90,11 @@ describe("lesson duplicate detection", () => {
 
   it("derives a concept signature from the content, not the tags", () => {
     const signature = conceptSignature(base);
+    const retagged = conceptSignature({ ...base, tags: ["completely", "different"] });
     expect(signature.primaryMethod).toBe("cord-knot-work");
     expect(signature.primaryTool).toBe("cord");
     expect(signature.setting).toBe("home entrance");
     expect(ritualActions(base.lesson)).toEqual(expect.arrayContaining([expect.stringMatching(/^knot /)]));
+    expect(retagged.intendedPurpose).toBe(signature.intendedPurpose);
   });
 });

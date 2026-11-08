@@ -22,6 +22,8 @@ import {
 const OWNER = "owner";
 const OTHER = "other";
 const HISTORY_PATH = `userContentHistory/${OWNER}_2026-10-06`;
+const CURRENT_POLICIES = { acceptedTermsVersion: 4, acceptedPrivacyVersion: 4 };
+const ACTIVE_SUBSCRIBER = { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000, ...CURRENT_POLICIES };
 const LEGACY_HISTORY = {
   userId: OWNER,
   contentId: "historical-lesson",
@@ -59,8 +61,8 @@ beforeEach(async () => {
         userId: OTHER,
         contentId: "another-users-lesson",
       }),
-      setDoc(doc(db, `users/${OWNER}`), { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 }),
-      setDoc(doc(db, `users/${OTHER}`), { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 }),
+      setDoc(doc(db, `users/${OWNER}`), { ...ACTIVE_SUBSCRIBER }),
+      setDoc(doc(db, `users/${OTHER}`), { ...ACTIVE_SUBSCRIBER }),
       setDoc(doc(db, "content/published-free"), { status: "published", tier: "free" }),
       setDoc(doc(db, "content/published-premium"), { status: "published", tier: "premium" }),
       setDoc(doc(db, "content/unreserved-published"), { status: "published", tier: "free" }),
@@ -79,6 +81,9 @@ beforeEach(async () => {
         deliveredDate: "2026-10-06",
       }),
       setDoc(doc(db, "contentPublicationAudit/example"), { contentId: "published-free" }),
+      setDoc(doc(db, "contentAgentState/scheduler"), { cursor: 3 }),
+      setDoc(doc(db, "contentGenerationRuns/example"), { status: "completed" }),
+      setDoc(doc(db, "contentOriginalityReservations/example"), { contentId: "published-free" }),
     ]);
   });
 });
@@ -198,6 +203,18 @@ describe("publication audit isolation", () => {
   });
 });
 
+describe("content agent isolation", () => {
+  it("rejects all client access to generator state, run reports and reservations", async () => {
+    for (const path of ["contentAgentState/scheduler", "contentGenerationRuns/example", "contentOriginalityReservations/example"]) {
+      const ref = doc(ownerDb(), path);
+      await assertFails(getDoc(ref));
+      await assertFails(setDoc(ref, { cursor: 0 }));
+      await assertFails(deleteDoc(ref));
+      await assertFails(getDocs(collection(ownerDb(), path.split("/")[0])));
+    }
+  });
+});
+
 describe("delivered published-content read policy", () => {
   for (const fields of [
     { tier: "free", subscriptionExpiresAtMillis: Date.now() + 3_600_000 },
@@ -205,6 +222,9 @@ describe("delivered published-content read policy", () => {
     { tier: "premium" },
     { tier: "premium", subscriptionExpiresAtMillis: "2099" },
     { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000, deletionInProgress: true },
+    { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 },
+    { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: 3 },
+    { ...ACTIVE_SUBSCRIBER, acceptedPrivacyVersion: 3 },
   ]) {
     it(`blocks all lesson and history access for inactive profiles ${JSON.stringify(fields)}`, async () => {
       await environment.withSecurityRulesDisabled(async (context) => {

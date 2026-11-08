@@ -28,7 +28,7 @@ Do not invent a ritual, quotation, translation, date, locator, lineage, formula,
 If both gates pass, draft one lesson. Preserve the source's actual tradition and describe the contemporary Wiccan application separately. Keep historical instructions, scholarly uncertainty, modern adaptation, and safety changes visibly distinct.
 
 Use exactly one primary category, chosen by the central documented technique:
-candle-magic; herbs-botanicals; potions-infusions; crystals-stones; cord-knot-magic; moon-phases-timing; elemental-magic; altars-sacred-space; divination; protection-cleansing-warding.
+candle-spells; herbal-rituals; cord-knot-work; lunar-practices; charms-talismans; crystals-stones; divination; altars-sacred-space; elemental-practices; potions-infusions.
 Secondary categories are optional and use the same list. Never add a category merely because a material appears incidentally. Do not invent candle colors, lunar timing, elemental correspondences, or ingredient meanings.
 
 Return a JSON object with:

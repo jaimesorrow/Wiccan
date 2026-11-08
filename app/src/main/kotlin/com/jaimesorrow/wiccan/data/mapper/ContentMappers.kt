@@ -12,6 +12,7 @@ import com.jaimesorrow.wiccan.domain.model.ContentType
 @Suppress("UNCHECKED_CAST")
 fun Map<String, Any?>.toContent(): Content {
     val structuredCitation = (this["citations"] as? List<Map<String, Any?>>)?.firstOrNull()
+    val toolNames = (this["tools"] ?: this["materials"]).toToolNames()
     return Content(
         id = this["id"] as? String ?: error("Missing 'id' in content payload"),
         type = ContentType.valueOf((this["type"] as? String ?: error("Missing 'type' in content payload")).uppercase()),
@@ -25,7 +26,7 @@ fun Map<String, Any?>.toContent(): Content {
         body = ((this["lesson"] ?: this["body"]) as? String).orEmpty(),
         reflection = this["reflection"] as? String,
         practice = this["practice"] as? String,
-        materials = (this["tools"] ?: this["materials"]) as? List<String>,
+        materials = toolNames.ifEmpty { null },
         safetyNote = this["safetyNote"] as? String,
         tags = (this["tags"] as? List<String>).orEmpty(),
         status = ContentStatus.valueOf(((this["contentStatus"] ?: this["status"]) as? String ?: "published").uppercase()),
@@ -41,7 +42,7 @@ fun Map<String, Any?>.toContent(): Content {
         requiresPotionDisclosure = this["requiresPotionDisclosure"] as? Boolean ?: false,
         potionSafetyDisclosure = this["potionSafetyDisclosure"] as? String,
         durationMinutes = (this["durationMinutes"] as? Number)?.toInt(),
-        tools = (this["tools"] as? List<String>) ?: (this["materials"] as? List<String>).orEmpty(),
+        tools = toolNames,
         incantation = this["incantation"] as? String,
         incantationOmissionReason = this["incantationOmissionReason"] as? String,
         timing = this["timing"] as? String,
@@ -53,6 +54,16 @@ fun Map<String, Any?>.toContent(): Content {
         citation = structuredCitation?.toCitation(),
     )
 }
+
+private fun Any?.toToolNames(): List<String> = (this as? List<*>)
+    .orEmpty()
+    .mapNotNull { value ->
+        when (value) {
+            is String -> value
+            is Map<*, *> -> value["name"] as? String
+            else -> null
+        }?.trim()?.takeIf { it.isNotEmpty() }
+    }
 
 private fun Map<String, Any?>.toCitation(): ContentCitation = ContentCitation(
     textTitle = this["textTitle"] as? String,

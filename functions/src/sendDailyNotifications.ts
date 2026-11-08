@@ -4,6 +4,7 @@ import { selectTodayContent } from "./getTodayContent";
 import { NotificationUserRepositoryPort } from "./notificationUserRepositoryPort";
 import { FcmSenderPort } from "./fcmSenderPort";
 import { getUserLocalDate, getUserLocalHour } from "./dateUtils";
+import { hasAcceptedCurrentPolicies, PolicyAcceptanceReader } from "./acceptTerms";
 
 /** The local hour every device should get its "your content is ready" push. */
 export const TARGET_LOCAL_HOUR = 9;
@@ -48,6 +49,10 @@ function titleForType(type: ContentType): string {
  * idempotent per uid+day), so multiple devices for the same user are told
  * about the same selection, not separate draws.
  *
+ * Users who have not accepted the current Terms/Privacy versions are left
+ * out entirely: no content is selected or announced for them until they
+ * accept in the app, matching getTodayContent's server-side gate.
+ *
  * One device's failure (empty content pool, transient FCM error) never
  * stops the batch; a permanently invalid token is cleared so future runs
  * skip it instead of retrying forever.
@@ -63,17 +68,38 @@ export async function sendDailyNotifications(
   users: NotificationUserRepositoryPort,
   content: ContentRepositoryPort,
   fcm: FcmSenderPort,
+  policies: PolicyAcceptanceReader,
   now: Date = new Date(),
 ): Promise<NotificationSendSummary> {
   const allDevices = await users.listDevicesWithToken();
-  const recipients = allDevices.filter(
+  const due = allDevices.filter(
     (device) => device.notificationsEnabled && getUserLocalHour(device.timeZone, now) === TARGET_LOCAL_HOUR,
   );
+  // Fail closed: a user whose acceptance can't be read gets nothing, but the
+  // lookup failure is counted as a failed attempt so an outage stays visible.
+  const lookups = new Map<string, Promise<"accepted" | "not-accepted" | "lookup-failed">>();
+  const policyStatus = (uid: string) => {
+    let status = lookups.get(uid);
+    if (!status) {
+      status = hasAcceptedCurrentPolicies(uid, policies)
+        .then((ok): "accepted" | "not-accepted" => (ok ? "accepted" : "not-accepted"))
+        .catch((): "lookup-failed" => "lookup-failed");
+      lookups.set(uid, status);
+    }
+    return status;
+  };
+  const recipients = [];
+  let lookupFailures = 0;
+  for (const device of due) {
+    const status = await policyStatus(device.uid);
+    if (status === "accepted") recipients.push(device);
+    else if (status === "lookup-failed") lookupFailures++;
+  }
   const summary: NotificationSendSummary = {
-    attempted: recipients.length,
+    attempted: recipients.length + lookupFailures,
     sent: 0,
     skippedStale: 0,
-    failed: 0,
+    failed: lookupFailures,
   };
 
   for (const device of recipients) {

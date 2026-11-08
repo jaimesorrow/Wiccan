@@ -41,6 +41,8 @@ describe("lesson validation", () => {
     expect(bad("This spell is guaranteed to bring a new job within a week.")).toEqual(expect.arrayContaining([expect.stringMatching(/guaranteed/)]));
     expect(bad("Use it to make him love you again.")).toEqual(expect.arrayContaining([expect.stringMatching(/coercive/)]));
     expect(bad("This ritual cures anxiety.")).toEqual(expect.arrayContaining([expect.stringMatching(/medical/)]));
+    expect(bad("Perform the working without their consent.")).toEqual(expect.arrayContaining([expect.stringMatching(/coercive/)]));
+    expect(bad("This spell is guaranteed to bring a new job with no effort.")).toEqual(expect.arrayContaining([expect.stringMatching(/guaranteed/)]));
   });
 
   it("allows negated outcome language", () => {
@@ -59,10 +61,49 @@ describe("lesson validation", () => {
     ]));
   });
 
+  it("detects plural hazard materials", () => {
+    const lesson = thresholdGrounding();
+    const issues = messages({
+      ...lesson,
+      lesson: `${lesson.lesson}\n\nLight three candles beside dried herbs.`,
+      safetyNote: "Keep cords away from children and pets.",
+    });
+    expect(issues).toEqual(expect.arrayContaining([expect.stringMatching(/address fire/), expect.stringMatching(/address allergies/)]));
+  });
+
   it("requires consent wording when another person could be affected", () => {
     const lesson = thresholdGrounding();
     expect(messages({ ...lesson, practice: `${lesson.practice} You may make a second cord for a friend.` }))
       .toEqual(expect.arrayContaining([expect.stringMatching(/consent/)]));
+    expect(messages({
+      ...lesson,
+      practice: `${lesson.practice} You may make a second cord for a friend.`,
+      safetyNote: `${lesson.safetyNote} Consent is not required.`,
+    })).toEqual(expect.arrayContaining([expect.stringMatching(/consent/)]));
+  });
+
+  it("requires affirmative food-safety review for a consumable preparation", () => {
+    const lesson = thresholdGrounding();
+    const potion = { ...lesson, lessonType: "potion" as const, requiresPotionDisclosure: true, primaryCategoryId: "potions-infusions" as const };
+    expect(messages({ ...potion, safetyNote: `${lesson.safetyNote} This preparation is not food-safe.` }))
+      .toEqual(expect.arrayContaining([expect.stringMatching(/Ritual use only/)]));
+    expect(messages({ ...potion, safetyNote: `${lesson.safetyNote} A separate spoon is food-safe.` }))
+      .toEqual(expect.arrayContaining([expect.stringMatching(/Ritual use only/)]));
+  });
+
+  it("reports malformed runtime shapes instead of throwing", () => {
+    const malformed = {
+      ...thresholdGrounding(),
+      lesson: null,
+      tools: null,
+      tags: null,
+      secondaryCategoryIds: null,
+      citations: [null],
+    } as unknown as CanonicalLesson;
+    expect(() => validateLesson(malformed)).not.toThrow();
+    expect(messages(malformed)).toEqual(expect.arrayContaining([
+      expect.stringMatching(/schema:lesson/), expect.stringMatching(/schema:tools/), expect.stringMatching(/schema:citations/),
+    ]));
   });
 
   it("rejects citations that do not say which claim they support, and invented lineage", () => {
@@ -103,6 +144,17 @@ describe("legacy compatibility mapping", () => {
     expect(toCanonicalLesson("a", { title: "x", category: "candle-magic" }).lesson.primaryCategoryId).toBe("candle-spells");
     expect(toCanonicalLesson("b", { title: "Knot release", body: "Tie a cord.", category: "BanishingAndRelease" }).lesson.primaryCategoryId).toBe("cord-knot-work");
     expect(inferCategoryFromText("Light the taper candle")).toBe("candle-spells");
+  });
+
+  it("preserves citation textTitle and leaves a missing tradition empty", () => {
+    const mapped = toCanonicalLesson("citation", {
+      title: "Citation mapping",
+      category: "divination",
+      citations: [{ textTitle: "Primary text", institution: "Archive", accessedAt: "2026-11-08", usageNote: "Supports the date." }],
+    }).lesson;
+    expect(mapped.citations[0].title).toBe("Primary text");
+    expect(mapped.tradition).toBe("");
+    expect(validateLesson(mapped)).toEqual(expect.arrayContaining([expect.objectContaining({ field: "tradition" })]));
   });
 
   it("treats a potion-type legacy record as requiring the disclosure", () => {

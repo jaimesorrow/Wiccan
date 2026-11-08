@@ -56,6 +56,14 @@ of an existing procedure, and repeated visualization exercises. The historical
 passage supplies the technique; the Wiccan framing supplies a clearly labeled
 modern adaptation. Never let the modern framing replace the evidenced method.
 
+EXCLUDED EXISTING CONCEPTS
+${JSON.stringify(request.excludedConcepts ?? [], null, 2)}
+Do not reproduce, paraphrase, reorder, recolor, re-ingredient, or rename any
+excluded concept. A changed tool, intention, moon phase, room, number of knots,
+incantation, or correspondence does not create a new lesson when the practical
+action sequence and learning objective remain the same. If the evidence cannot
+support a genuinely distinct method, fail instead of returning a variation.
+
 FORMAT
 - title: distinct and specific; summary: brief practical focus.
 - intro: purpose and preparation, with concise historical context.

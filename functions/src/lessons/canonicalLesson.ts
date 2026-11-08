@@ -138,7 +138,7 @@ function mapCorrespondences(value: unknown): LessonCorrespondences {
 function mapCitations(fields: Record<string, unknown>, issues: string[]): LessonCitation[] {
   if (Array.isArray(fields.citations) && fields.citations.length) {
     return (fields.citations as Record<string, unknown>[]).map((c) => ({
-      title: str(c.title), author: str(c.author ?? c.institution), edition: str(c.edition) || undefined,
+      title: str(c.title ?? c.textTitle), author: str(c.author ?? c.institution), edition: str(c.edition) || undefined,
       url: str(c.url) || undefined, accessedAt: str(c.accessedAt), usageNote: str(c.usageNote),
       rightsNote: str(c.rightsNote ?? c.rights) || undefined,
     }));
@@ -186,7 +186,7 @@ export function toCanonicalLesson(id: string, fields: Record<string, unknown>): 
     id,
     title,
     slug: str(fields.slug) || slugify(title),
-    tradition: str(fields.tradition) || "Modern Wiccan practice",
+    tradition: str(fields.tradition),
     summary,
     introduction,
     lesson,

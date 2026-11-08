@@ -24,7 +24,8 @@ function main(): void {
   const seen: IndexedLesson[] = [...others];
   for (const draft of drafts) {
     // A rewrite legitimately replaces its own legacy record (same ID); compare it against everything else.
-    const comparable = seen.filter((item) => item.lesson.id !== draft.lesson.id && item.lesson.id !== `${draft.lesson.id}#rewrite`);
+    const comparable = seen.filter((item) => item.source === "repo:lessons/drafts" ||
+      (item.lesson.id !== draft.lesson.id && item.lesson.id !== `${draft.lesson.id}#rewrite`));
     const report = checkDuplicates(draft, comparable);
     if (report.status !== "accepted-draft") {
       duplicates++;

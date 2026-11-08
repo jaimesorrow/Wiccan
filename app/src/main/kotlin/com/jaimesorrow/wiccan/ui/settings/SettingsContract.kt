@@ -14,6 +14,7 @@ data class SettingsUiState(
     val showDeleteConfirmation: Boolean = false,
     val tier: ContentTier = ContentTier.FREE,
     val notificationsEnabled: Boolean = true,
+    val shareAnalytics: Boolean = false,
     val themeMode: WiccanThemeMode = WiccanThemeMode.DEFAULT,
 )
 
@@ -29,6 +30,7 @@ sealed class SettingsUiEvent {
     data object ConfirmDeleteAccount : SettingsUiEvent()
     data object CancelDeleteAccount : SettingsUiEvent()
     data class NotificationsToggled(val enabled: Boolean) : SettingsUiEvent()
+    data class ShareAnalyticsToggled(val share: Boolean) : SettingsUiEvent()
     data class ThemeModeSelected(val mode: WiccanThemeMode) : SettingsUiEvent()
 }
 

@@ -21,7 +21,12 @@ import { FirestoreUserProfileRepository } from "./firestoreUserProfileRepository
 import { createUserProfileOnSignUp } from "./createUserProfile";
 import { FirestoreAccountDeletionRepository } from "./firestoreAccountDeletionRepository";
 import { deleteAccount } from "./deleteAccount";
-import { acceptTerms as acceptTermsCore, StalePolicyVersionError } from "./acceptTerms";
+import {
+  acceptTerms as acceptTermsCore,
+  assertCurrentPoliciesAccepted,
+  PolicyAcceptanceRequiredError,
+  StalePolicyVersionError,
+} from "./acceptTerms";
 import { FirestoreSubscriptionRecordRepository } from "./firestoreSubscriptionRecordRepository";
 import { handleRtdnNotification, parseRtdnPurchaseToken } from "./handleRtdn";
 import { FirestoreSystemConfigRepository } from "./firestoreSystemConfigRepository";
@@ -30,6 +35,12 @@ import { SubscriptionRequiredError } from "./contentRepositoryPort";
 import { defineSecret, defineString } from "firebase-functions/params";
 import nodemailer from "nodemailer";
 import { renderVerificationEmail } from "./verificationEmail";
+import { runContentAgentCycle } from "./contentAgent";
+import { FirestoreContentAgentStateRepository } from "./firestoreContentAgentStateRepository";
+import { ClaudeDraftGenerator } from "./claudeDraftGenerator";
+import { FirestoreContentAdminRepository } from "./firestoreContentAdminRepository";
+import { loadContentSources } from "./contentSource";
+import { loadSourcePassages } from "./sourcePassages";
 
 initializeApp();
 
@@ -55,6 +66,7 @@ const PLAY_RTDN_TOPIC = process.env.PLAY_RTDN_TOPIC ?? "play-rtdn";
 const SMTP_URL = defineSecret("SMTP_URL");
 const SMTP_FROM = defineString("SMTP_FROM", { default: "Wiccan <noreply@wiccan.app>" });
 const VERIFICATION_EMAIL_COOLDOWN_MS = 60_000;
+const ANTHROPIC_API_KEY = defineSecret("ANTHROPIC_API_KEY");
 
 /**
  * Callable: generates a single-use Firebase verification action and delivers
@@ -152,6 +164,10 @@ export const getTodayContent = onCall(CALLABLE_OPTIONS, async (request) => {
       throw new HttpsError("unavailable", "Daily content is temporarily unavailable.");
     }
 
+    // Server-side half of the onboarding agreement gate: no content until the
+    // current Terms and Privacy versions are recorded as accepted.
+    await assertCurrentPoliciesAccepted(uid, new FirestoreUserProfileRepository(getFirestore()));
+
     const repo = new FirestoreContentRepository(getFirestore());
     const timezone = resolveTimeZone(requestedTimeZone ?? await repo.getUserTimeZone(uid));
     const deliveredDate = getUserLocalDate(timezone, now);
@@ -169,6 +185,9 @@ export const getTodayContent = onCall(CALLABLE_OPTIONS, async (request) => {
   } catch (err) {
     if (err instanceof HttpsError) {
       throw err;
+    }
+    if (err instanceof PolicyAcceptanceRequiredError) {
+      throw new HttpsError("failed-precondition", err.message, { reason: "POLICY_ACCEPTANCE_REQUIRED" });
     }
     if (err instanceof ContentPoolExhaustedError) {
       throw new HttpsError("resource-exhausted", "No new lessons remain. Your previous lessons are available in Grimoire.", {
@@ -477,9 +496,49 @@ export const sendDailyNotificationsJob = onSchedule("every 1 hours", async () =>
   const repo = new FirestoreContentRepository(getFirestore());
   const users = new FirestoreNotificationUserRepository(getFirestore());
   const fcm = new FirebaseFcmSender(getMessaging());
-  const summary = await sendDailyNotifications(users, repo, fcm);
+  const profiles = new FirestoreUserProfileRepository(getFirestore());
+  const summary = await sendDailyNotifications(users, repo, fcm, profiles);
   logger.info("sendDailyNotifications complete", summary);
 });
+
+/**
+ * Daily continuous content agent: writes up to `contentGenerationBatchSize`
+ * duplicate-screened, review-required drafts from the next verified source
+ * passage in rotation (see contentAgent.ts). It never publishes; drafts go
+ * through approve-draft review like any other draft.
+ *
+ * Off unless systemConfig/global.contentGenerationEnabled is exactly true.
+ * Each run transactionally claims its rotation slot (keyed by the schedule
+ * tick, with a lease against overlapping runs) and writes a
+ * contentGenerationRuns report. No retries: a failed run is recorded and the
+ * next day's run moves on to the next passage.
+ */
+export const generateContentDraftsJob = onSchedule(
+  { schedule: "every day 04:00", timeZone: "UTC", secrets: [ANTHROPIC_API_KEY], timeoutSeconds: 1800, retryCount: 0 },
+  async (event) => {
+    const db = getFirestore();
+    const config = await new FirestoreSystemConfigRepository(db).getConfig();
+    if (!config.contentGenerationEnabled) {
+      logger.info("generateContentDrafts skipped: contentGenerationEnabled is not true in systemConfig/global");
+      return;
+    }
+    // One run identity per scheduled tick, so a duplicate delivery of the same tick is skipped.
+    const runId = `run-${(event.scheduleTime || new Date().toISOString()).replace(/[^0-9A-Za-z]/g, "")}`;
+    const report = await runContentAgentCycle({
+      runId,
+      settings: { enabled: true, batchSize: config.contentGenerationBatchSize },
+      passages: loadSourcePassages(),
+      sources: loadContentSources(),
+      generator: new ClaudeDraftGenerator(),
+      repo: new FirestoreContentAdminRepository(db),
+      state: new FirestoreContentAgentStateRepository(db),
+      now: new Date(),
+    });
+    const summary = { ...report, accepted: report.accepted.length, rejected: report.rejected.length };
+    if (report.status === "failed") logger.error("generateContentDrafts failed", summary);
+    else logger.info("generateContentDrafts complete", summary);
+  },
+);
 
 /**
  * 1st-gen Auth trigger: creates users/{uid} the moment a new Firebase Auth

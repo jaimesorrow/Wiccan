@@ -58,6 +58,11 @@ class ContentMappersTest {
     @Test
     fun `all proposed practical category ids remain readable`() {
         val expected = mapOf(
+            "candle-spells" to ContentCategory.CANDLE_SPELLS,
+            "herbal-rituals" to ContentCategory.HERBAL_RITUALS,
+            "cord-knot-work" to ContentCategory.CORD_KNOT_WORK,
+            "lunar-practices" to ContentCategory.LUNAR_PRACTICES,
+            "charms-talismans" to ContentCategory.CHARMS_TALISMANS,
             "candle-magic" to ContentCategory.CANDLE_MAGIC,
             "herbs-botanicals" to ContentCategory.HERBS_BOTANICALS,
             "potions-infusions" to ContentCategory.POTIONS_INFUSIONS,
@@ -67,12 +72,29 @@ class ContentMappersTest {
             "elemental-magic" to ContentCategory.ELEMENTAL_MAGIC,
             "altars-sacred-space" to ContentCategory.ALTARS_SACRED_SPACE,
             "divination" to ContentCategory.DIVINATION,
+            "elemental-practices" to ContentCategory.ELEMENTAL_PRACTICES,
             "protection-cleansing-warding" to ContentCategory.PROTECTION_CLEANSING_WARDING,
         )
 
         expected.forEach { (wireValue, category) ->
             assertEquals(category, (lesson + ("primaryCategoryId" to wireValue)).toContent().category)
         }
+    }
+
+    @Test
+    fun `canonical tool objects are projected to readable tool names`() {
+        val content = (
+            lesson + mapOf(
+                "primaryCategoryId" to "cord-knot-work",
+                "tools" to listOf(
+                    mapOf("name" to "Natural-fiber cord", "quantity" to "1 length", "required" to true),
+                    mapOf("name" to "Journal", "required" to false),
+                ),
+            )
+            ).toContent()
+
+        assertEquals(listOf("Natural-fiber cord", "Journal"), content.tools)
+        assertEquals(listOf("Natural-fiber cord", "Journal"), content.materials)
     }
 
     @Test

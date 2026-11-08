@@ -2,9 +2,20 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Current Terms/Privacy versions. Keep equal to CURRENT_TERMS_VERSION /
+    // CURRENT_PRIVACY_VERSION in functions/src/policyVersions.ts and the app's
+    // PolicyVersions (scripts/release-preflight.sh checks all three).
+    function acceptedCurrentPolicies(user) {
+      return user.data.get('acceptedTermsVersion', 0) == 4
+        && user.data.get('acceptedPrivacyVersion', 0) == 4;
+    }
+    // Content and Grimoire reads need a verified, active subscriber who has
+    // accepted the current policies; the profile itself stays readable so
+    // the app can show the policy gate and account deletion.
     function hasSubscription() {
       let user = get(/databases/$(database)/documents/users/$(request.auth.uid));
       return request.auth.token.email_verified == true
+        && acceptedCurrentPolicies(user)
         && user.data.tier == 'premium'
         && user.data.get('deletionInProgress', false) != true
         && user.data.get('subscriptionExpiresAtMillis', 0) is number
@@ -84,6 +95,21 @@ service cloud.firestore {
 
     // Immutable operator audit rows written transactionally with publication.
     match /contentPublicationAudit/{auditId} {
+      allow read, write: if false;
+    }
+
+    // Generator-only uniqueness reservations. The Admin SDK creates these
+    // atomically with a draft so concurrent agents cannot commit twins.
+    match /contentOriginalityReservations/{reservationId} {
+      allow read, write: if false;
+    }
+
+    // Scheduled content agent state and run reports (generateContentDraftsJob).
+    // Admin SDK only; operators read them in the console.
+    match /contentAgentState/{doc} {
+      allow read, write: if false;
+    }
+    match /contentGenerationRuns/{runId} {
       allow read, write: if false;
     }
 
