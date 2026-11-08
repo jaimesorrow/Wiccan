@@ -1,91 +1,67 @@
-# Wiccan — Content Voice and Practical Lesson Standard
+# Wiccan content voice and practical lesson standard
 
-Updated: October 20, 2026
+Updated: November 7, 2026
 
-This is the editorial target for existing draft rewrites and future lessons, spells, potions, authoring prompts, validators, and shared detail screens. It supersedes the older historical-overview examples, intention categories, and optional standalone reflection exercises in earlier documentation and skill summaries.
+This is the editorial standard for daily lessons, the content generator, validators, migrations, and the shared Today/Grimoire detail screen.
 
-The complete fill-in template and ten-category table are in [Practical Lesson and Grimoire Templates](PRACTICAL_MAGIC_LESSON_TEMPLATE.md). Updating these documents does not establish that the live database, generator, validators, or Android schema already implement the target.
+## Narrative
 
-## Source and scope
+Wiccan teaches practical modern Wiccan practice. Each daily lesson guides one specific activity: a candle spell, herbal ritual, cord or knot practice, lunar practice, charm, crystal working, divination exercise, altar practice, elemental practice, or ritual preparation.
 
-Every daily entry must teach one distinct magical practice traceable to an inspected passage in an identifiable ancient, medieval, or early-modern grimoire or magical primary-source manuscript. Verify both pre-modern-source eligibility and Wiccan/witchcraft scope. Set `tradition` to `Wiccan / Modern Witchcraft`, preserve the actual historical tradition in `sourceTradition`, and label the contemporary application as an adaptation.
+Historical grimoires and magical manuscripts may provide inspiration or context only after the exact passage, edition, rights, and factual claim have been verified. Preserve the source's real tradition. Never call an ancient or pre-modern practice Wicca, imply an ancient Wiccan lineage, or create a ritual first and attach a citation afterward.
 
-Inspect the passage before authoring. Keep its title, manuscript/catalogue identity, documented origin and dating evidence, exact locator, edition and translator/editor, accessible source location, and commercial-use rights findings. Distinguish manuscript date, estimated composition date, and modern edition/translation date. Do not infer antiquity from legendary attribution or treat all historical works as ancient.
-
-An old text does not establish rights to a modern translation or image. A broad catalogue overview, an AI summary, or a populated citation field does not prove passage verification. Do not generate a method first and attach a source afterward.
-
-If source evidence, dating, scope, rights, or a safe faithful adaptation is unresolved, retain a blocked draft and record the reason. Do not fabricate a source, rebrand an unrelated practice, invent an ancient Wiccan lineage, or substitute an unrelated exercise to fill a numeric or category quota.
-
-## Voice
-
-Use clear, original, mature, inclusive explanatory prose. Explain the specific practice substantively. Qualify historical claims, keep uncertainty visible, and frame magical associations as spiritual or symbolic practice.
-
-Exclude theatrical prose, fake antiquated English, stage magic, party activities, free-standing self-help presented as sourced spells, coercive targeting, fear-based claims, invented provenance, guaranteed outcomes, and unsupported medical claims.
+Lessons use original, warm, mature, inclusive prose. They are mystical but clear, practical rather than theatrical, and accessible without becoming childish. Magical results are framed as spiritual, symbolic, devotional, meditative, or intention-focused practice. Never guarantee supernatural, romantic, medical, financial, or legal outcomes.
 
 ## Required lesson hierarchy
 
-1. Distinct title and brief summary.
-2. `Wiccan / Modern Witchcraft` lesson tradition plus the actual source tradition, origin and dating; clearly identified contemporary application.
-3. Exactly one practical primary category; optional valid secondary categories.
-4. Introduction explaining what the reader will perform.
-5. Tools/materials and any source-supported timing or correspondences; label adaptations.
-6. Main lesson, approximately 250–450 words, centered on a coherent numbered method.
-7. Source-supported incantation or formula when appropriate.
-8. One specific reflection question.
-9. One concise practice/completion prompt pointing back to the method.
-10. Activity-specific safety note.
-11. Exact source, edition/translation, rights, uncertainty and adaptation notes.
-12. Shared potion disclosure when required.
+1. Type, distinct title, tradition, and practical category chips.
+2. Brief summary of what the user will learn and perform.
+3. Introduction with only the context necessary to understand the practice.
+4. Tools and honest substitutions.
+5. Complete numbered guided method with preparation, performance, closure, and safe handling.
+6. Optional original incantation, clearly distinguished from historical quotations.
+7. One experience-specific reflection question.
+8. One small follow-up practice.
+9. Activity-specific safety note.
+10. Populated correspondences only when supported or clearly labeled as modern associations.
+11. Citations for historical, scientific, botanical, material-safety, or medical claims.
+12. Shared potion disclosure whenever `requiresPotionDisclosure` is true.
 
-The numbered method is the core lesson. Give enough detail to perform it without a second article. Include documented preparation and sequence; explain documented closing when present and label modern cleanup/storage/disposal guidance. Do not invent ceremonial opening or closing steps.
-
-Do not pad sparse evidence to meet a word range. Do not add conventional colors, moon phases, ingredients, quantities, invocations, or correspondences absent from the evidence. Label any reviewed modern addition clearly.
-
-A formula is source-dependent. Use only suitable, legally reusable wording with attribution, or an identified paraphrase. Omit the section when the source supplies none and record the editorial reason. An original rhyme is not mandatory.
+Do not turn the lesson into a general history article. The numbered practice is the core. Omit optional sections cleanly when they do not apply.
 
 ## Practical categories
 
-Use a flat list:
+New content uses exactly one primary method-based category:
 
-- Candle Magic — `candle-magic`
-- Herbs & Botanicals — `herbs-botanicals`
-- Potions & Infusions — `potions-infusions`
+- Candle Spells — `candle-spells`
+- Herbal Rituals — `herbal-rituals`
+- Cord & Knot Work — `cord-knot-work`
+- Lunar Practices — `lunar-practices`
+- Charms & Talismans — `charms-talismans`
 - Crystals & Stones — `crystals-stones`
-- Cord & Knot Magic — `cord-knot-magic`
-- Moon Magic & Timing — `moon-phases-timing`
-- Elemental Magic — `elemental-magic`
-- Altars & Sacred Space — `altars-sacred-space`
 - Divination — `divination`
-- Protection, Cleansing & Warding — `protection-cleansing-warding`
+- Altars & Sacred Space — `altars-sacred-space`
+- Elemental Practices — `elemental-practices`
+- Potions & Infusions — `potions-infusions`
 
-Choose by the actual source-supported technique. Protection, love, cleansing, abundance and other aims can be optional tags. Retire the intention navigation groups. Review legacy categories per record; do not map an old intention to a new technique automatically. Keep unsupported category slots empty.
+Grounding, protection, cleansing, confidence, rest, abundance, love, and similar purposes are tags, not primary navigation categories. Legacy IDs remain readable during migration but are not valid choices for newly generated lessons.
 
-## Safety and disclosure
+## Safety and consent
 
-Keep practices self-directed or consent-based. Identify a preparation's permitted route of use and favor non-ingestible preparations during the rewrite. Do not turn unsafe historical recipes into modern instructions.
+Keep practices self-directed or explicitly consent-based. Reject coercive love work, attempts to control another person, fear-based claims, medical treatment claims, and certainty about another person's thoughts or the future.
 
-Provide relevant precautions for flame, smoke, botanicals, oils, stones, water, cords, allergies, children and pets. Avoid essential-oil ingestion, tight bindings, cords near flames, hazardous unattended materials, invented doses, and unsupported ingredient-safety claims. Verify specialized guidance against authoritative sources during actual lesson preparation. Treat unresolved activity risks as review blockers.
+Add specific precautions for flame, smoke, ventilation, plants, oils, skin contact, baths, water, stones, cords, allergies, pregnancy or nursing, medications, children, animals, sharp tools, outdoor collection, storage, and disposal when relevant.
 
-Under the established project policy, potion, tea, bath, oil, spray, jar and skin-contact lesson types require `requiresPotionDisclosure = true`. Render `settings/disclosures.potionSafetyDisclosure` in addition to the lesson-specific safety note.
+Never recommend ingesting essential oils. Clearly label non-food preparations: `Ritual use only. Do not consume.` Any potion, tea, bath, oil, spray, jar, or skin-contact lesson sets `requiresPotionDisclosure = true` and renders `settings/disclosures.potionSafetyDisclosure` alongside its specific safety note.
 
-## Data and compatibility
+## Originality
 
-Preserve document IDs, creation metadata, legitimate source/rights decisions, similarity identities, editorial annotations, curriculum placement, and delivered history. Keep the existing `content` collection compatible unless a reviewed architecture decision requires otherwise.
+A changed title, color, crystal, herb, moon phase, room, number of knots, incantation, paragraph order, or intention does not make a new lesson. Compare the practical method, action sequence, tools, setting, symbolic structure, follow-up practice, wording, source passage, and similarity group.
 
-The current legacy contract includes `intro`, `body`, `materials`, `category`, and `status`. Structured reflection and practice already exist. The authoring target adds the practical fields described in the linked template, including `sourceTradition`, `summary`, `primaryCategoryId`, `lessonType`, `requiresPotionDisclosure`, and structured citations. Deliberately map aliases such as `intro/introduction`, `body/lesson`, `materials/tools`, and `status/contentStatus`. Finalize new metadata shapes in schema review rather than silently inventing serializers.
+The generator inventories all draft and published records available to it. It screens every candidate against that inventory and candidates accepted earlier in the same run. Exact title, slug, authored-content, and concept fingerprints are atomically reserved before a draft is created. A failed screen remains rejected; the generator creates a genuinely different concept or stops when the safe concept pool is exhausted.
 
-Implement the target across generation, validation, import, Kotlin models/mapping, Room/caching, shared Compose detail rendering and meaningful regression tests before live content migration. Do not bury new structured sections in `body` to avoid the migration. Remove difficulty and experience gates while preserving free/premium access.
+## Status and publication
 
-## Grimoire and artwork
+Generated lessons are drafts requiring human source, safety, rights, scope, and duplicate review. The generator cannot publish. Firestore publication, migration, rules deployment, Functions deployment, and Android release remain separate operator actions.
 
-Use **Grimoire**, with Timeline and Categories views. Today and received entries use the same full detail layout. Preserve saved entries during category transitions, stable assignment ownership/dates, no-repeat reservations, similarity exclusions, and clear exhausted/empty states.
-
-Use restrained Wiccan line-art within the existing six-palette system. Preserve accessibility, themes, widgets, notifications, subscriptions, privacy, and account deletion.
-
-## Review and migration
-
-Review distinct central technique and sequence as well as wording. Changing only a color, ingredient, or intention does not establish a new lesson.
-
-Before live content changes: verify the inventory, create a secure backup with restore instructions, prepare reviewed drafts and a per-record before/after report, preview against current document versions, and obtain approval for the concrete change set. Apply only approved fields with conflict protection and unchanged-record skips.
-
-All migrated content remains draft. Source verification, scope, rights, safety and editorial approval are separate from structural validation. Publication, Cloud Functions deployment, and Firestore rules deployment remain separate actions.
+Preserve document IDs, creation metadata, delivered history, legitimate source decisions, similarity identities, and editorial annotations. Do not delete or merge existing content automatically.

@@ -1,5 +1,6 @@
 import { ContentStatus, ContentTier, ContentType } from "./types";
 import { GeneratedDraftFields } from "./draftGenerationPort";
+import type { GenerationInventoryRecord } from "./generationOriginality";
 
 export interface NewDraftContent extends GeneratedDraftFields {
   type: ContentType;
@@ -54,6 +55,16 @@ export interface ContentAdminRepositoryPort {
    * source-kind, and server-timestamp audit metadata. Returns the new document's id.
    */
   createDraft(draft: NewDraftContent): Promise<string>;
+
+  /**
+   * Creates a draft and its uniqueness reservations in one transaction. A
+   * reservation collision means another generator already accepted the same
+   * normalized title, slug, authored content, or practical concept.
+   */
+  createDraftWithOriginalityReservations(draft: NewDraftContent, reservationKeys: string[]): Promise<string>;
+
+  /** Complete draft/published inventory used before every generation batch. */
+  listOriginalityInventory(): Promise<GenerationInventoryRecord[]>;
 
   getStatus(contentId: string): Promise<ContentStatus | null>;
 
