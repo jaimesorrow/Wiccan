@@ -25,7 +25,8 @@ The November 7, 2026 standard (`docs/CONTENT_VOICE_AND_LESSON_STANDARD.md`) teac
 Every narrative v2 entry follows the same rules:
 
 - The document ID, seed order, `sourceId`, `similarityGroupId` and `draft` status are preserved.
-- User-facing text is original modern practice with no historical claims. `citations` is empty, and the unverified source locator, URL, tradition and passage fields are removed.
+- User-facing text is original modern practice with no historical claims. The unverified historical citations, source locator, URL, tradition and passage fields are removed, which leaves `citations` empty for now.
+- Removing historical attribution does not waive the standard's other citation rule. Botanical, material-safety and similar claims in a lesson, such as plant allergies, infusion spoilage or which stones tolerate water, need verified references added during editorial review, before migration.
 - The entry uses one current method category, with intentions moved to tags.
 - Each lesson has a 250–450-word numbered method of at least seven steps.
 - The batch test requires each record's only `findPracticalLessonViolations` issue to be the expected missing-passage blocker.
