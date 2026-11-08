@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan.ui.settings
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -31,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -43,6 +45,7 @@ import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
 import com.jaimesorrow.wiccan.ui.theme.description
 import com.jaimesorrow.wiccan.ui.theme.displayName
+import kotlinx.coroutines.launch
 
 /**
  * Account settings and the restricted account/support surface available
@@ -61,6 +64,16 @@ fun SettingsScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    // Devices without an email client or browser must not crash on these links.
+    fun openExternal(intent: Intent, unavailableMessage: String) {
+        try {
+            context.startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+            scope.launch { snackbarHostState.showSnackbar(unavailableMessage) }
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
@@ -110,7 +123,7 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.Top,
         ) {
             Spacer(modifier = Modifier.height(32.dp))
-            if (accountOnly) TextButton(onClick = onBack) { Text("← Subscription") }
+            if (accountOnly) TextButton(onClick = onBack) { Text("← Back") }
             Text(
                 if (accountOnly) "Account & support" else "Settings",
                 style = MaterialTheme.typography.headlineMedium,
@@ -175,7 +188,12 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
             OutlinedButton(
-                onClick = { context.startActivity(manageSubscriptionIntent()) },
+                onClick = {
+                    openExternal(
+                        manageSubscriptionIntent(),
+                        "Open Google Play to manage your subscription.",
+                    )
+                },
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Manage Subscription")
@@ -244,7 +262,14 @@ fun SettingsScreen(
                 TextButton(onClick = onContentSafetyClick) {
                     Text("Content & Safety", style = MaterialTheme.typography.labelSmall)
                 }
-                TextButton(onClick = { context.startActivity(supportEmailIntent()) }) {
+                TextButton(
+                    onClick = {
+                        openExternal(
+                            supportEmailIntent(),
+                            "No email app found. Contact ${PolicyUrls.SUPPORT_EMAIL}.",
+                        )
+                    },
+                ) {
                     Text("Contact Support", style = MaterialTheme.typography.labelSmall)
                 }
             }

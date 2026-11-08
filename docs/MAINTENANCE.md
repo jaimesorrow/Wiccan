@@ -24,6 +24,40 @@ currently handled (automated, manual, or not yet built).
   `typescript-eslint`; and `@types/node` remains on major 22 to model the
   deployed runtime. Revisit those together when their runtime/tooling chain is
   supported rather than overriding peer requirements.
+- **Update (2026-11-05)**: Dependabot has since merged all three of those
+  held majors (#88 `@types/node` 26, #91/#92 Firebase JS 13 and Rules Unit
+  Testing 6). The Firebase JS/rules-testing packages declare
+  `node >=24.12.0` but are dev-only emulator-test tooling, not deployed
+  runtime dependencies; Functions build, tests and lint, plus the Firestore
+  rules/integration suites, all pass on Node 22. `@types/node` 26 no longer
+  models the Node 22 runtime, so the type checker will not catch use of a
+  Node 23+ API — keep that in mind in review until the runtime moves.
+- **Override (2026-11-05)**: GHSA-g3hv-75wg-m249 (`minimatch` <11.0.1) and
+  GHSA-3g3m-2fjr-6pw4 (`glob` <=14.0.1) reach `functions/` through eslint,
+  jest, typescript-eslint and `firebase-admin -> google-gax -> rimraf`; no
+  parent has released a patched range yet, so `functions/package.json`
+  overrides both to `minimatch` 11.0.4 / `glob` 14.0.3. `rimraf` is declared
+  by google-gax/gaxios but never imported by their shipped code, so this does
+  not change deployed behavior. Drop the overrides only once every path
+  above (including firebase-admin -> google-gax/gaxios -> rimraf -> glob)
+  resolves patched versions on its own: remove both overrides, regenerate
+  the lockfile with `npm install`, and confirm
+  `npm audit --audit-level=moderate` still passes. One low-severity advisory
+  remains (GHSA-gcqx-w48m-w2h4, `deepmerge` <=4.3.1, via jest): no patched
+  release exists, and it is below CI's `--audit-level=moderate` gate.
+- **Gradle security floors (2026-11-05)**: an OSV scan of the resolved
+  classpaths found Guava 33.6.0-android in the shipped app
+  (GHSA-xxph-c9ww-hj94) and, on the build classpath only, Bouncy Castle
+  1.80.2 (GHSA-9pwp-9qqc-pr26 critical, GHSA-qp49-qgx5-5m26,
+  GHSA-wg6q-6289-32hp), jose4j 0.9.5, jdom2 2.0.6, commons-lang3 3.16.0 and
+  Guava 33.4.0-jre — all pulled in by AGP 9.5.0, the latest stable release.
+  `gradle/libs.versions.toml` now carries security-floor versions applied
+  as dependency constraints: the app's `dependencies { constraints { } }`
+  and the root `buildscript` classpath. Constraints only raise a module that
+  something already requires; they never add one. Dependabot updates these
+  catalog entries like any other. Drop the `build*` floors once an AGP
+  release resolves to patched versions on its own (check with
+  `./gradlew buildEnvironment`).
 - The October 24 refresh also moves `typescript-eslint` to 8.72.0 and
   `body-parser` to 2.4.0. The latter fixes GHSA-27r3-jxmh-p828, a high-severity
   denial-of-service issue in compressed request parsing.

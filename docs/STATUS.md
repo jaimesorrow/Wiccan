@@ -80,7 +80,6 @@ found the following. Each is now addressed as noted:
 - **Visual/typography redesign** — local build/test/lint and six JVM palette specimens pass; real-device app screens, transitions and actual font appearance still need review before release.
 - **Billing runtime validation** — 9.1.0 is integrated with the modernized toolchain and local unit tests pass; live purchases, acknowledgement, restore and RTDN still need Play/Firebase verification.
 - `PolicyUrls` (Terms, Privacy, account deletion) and `SUPPORT_EMAIL` are placeholders — no real hosted pages exist yet.
-- `WiccanDatabaseMigrationTest` compiles clean but has never run against a real SQLite engine — no emulator here.
 - `handlePlayRtdn`, `verifyPurchase`'s field shapes, and the `users/{uid}/devices` collection-group query have never been exercised against a real Play Console / Firebase project.
 - `dev`/`staging` product flavors exist but need their own real `google-services.json` (from their own real Firebase projects) before they'll build.
 - The production Firebase client config identifies `wiccan-android` and includes its verified web OAuth client ID. Build/signing-certificate matching, device sign-in, live Firebase/Play flows and release setup remain unverified.
@@ -133,7 +132,7 @@ Credential Manager context. CI reads the Functions Node runtime declaration
 and cancels superseded runs. Draft PR #42's safe Node/locked-install fixes
 and adapted package/toolchain gate pass 21 regression tests; its namespace/flavor
 migration branch is retained for widget upgrade and installation-identity work. See
-[BRANCH_INTEGRATION_AUDIT.md](BRANCH_INTEGRATION_AUDIT.md).
+`BRANCH_INTEGRATION_AUDIT.md` (retired 2026-11-07; git history at `1894139`).
 
 The run driver installs API 37.0 / Build Tools 37.0.0, reuses an existing
 SDK manager and preserves local properties. It handles fresh checkouts and
@@ -156,8 +155,9 @@ The proposed consolidation combines #40/#41 and aligns all Android flavors,
 Kotlin packages and namespace with Firebase's `com.jaimesorrow.wiccan`.
 Node 22 now agrees across deployment, CI, local selection and lock metadata.
 Configuration/preflight checks and the hosted production build matrix pass;
-upgrade-device checks remain outstanding. See [PR_RECONCILIATION.md](PR_RECONCILIATION.md)
-for the complete PR/branch inventory and explicitly unmerged proposals.
+upgrade-device checks remain outstanding. The complete PR/branch inventory and
+explicitly unmerged proposals were in `PR_RECONCILIATION.md` (retired 2026-11-07;
+git history at `1894139`).
 
 ## PR #42 conflict reconciliation
 
@@ -180,3 +180,55 @@ tests. CI/release actions now use their supported Node 24 runtimes; app builds
 still use Java 17 and Functions use Node 22. The UUID advisory inherited through
 Gaxios is resolved with a targeted override. A fresh locked Functions install,
 build, all 98 tests and lint pass locally; `npm audit` reports zero vulnerabilities.
+
+## Build and security audit — 2026-11-05
+
+Full CI matrix reproduced locally on `main` (`1894139`) with the CI toolchains
+(Java 17 + Android SDK 37 for the app, Node 22 for Functions, Java 21 for the
+Firestore emulator). Two CI gates were red on `main` and are fixed here:
+
+- `ktlintCheck` failed with 22 formatting violations in auth/onboarding code;
+  fixed with `ktlintFormat` (no behavior change).
+- `npm audit --audit-level=moderate` in `functions/` failed on new `minimatch`
+  and `glob` advisories; resolved with targeted overrides (see
+  `docs/MAINTENANCE.md`). One low-severity `deepmerge` advisory has no fix.
+
+An OSV scan of the resolved Gradle classpaths found one high advisory in the
+shipped app (Guava) and six on AGP 9.5.0's build classpath (including a
+critical Bouncy Castle advisory); catalog-managed constraints now raise all of
+them, and a re-scan reports none. `WiccanDatabase` v5's schema export is now
+committed; the v4 export was never committed and cannot be regenerated without
+rebuilding the commit that introduced it.
+
+Verified after the fixes: structural/toolchain regression scripts and 44
+release-preflight checks; ktlint, 153 unit tests, debug APK with emulator
+routing, androidTest compilation, release bundle, release lint and 16KB
+alignment; a bundle signed with a throwaway key passes `jarsigner -verify`;
+the release dex contains Play Integrity App Check and no debug provider;
+Functions build, 315 tests and lint; 21 Firestore rules tests, 21 repository
+integration tests and the 43-check callable end-to-end run on the emulators.
+
+Still not verifiable here: everything in `docs/RELEASE_CHECKLIST.md` that needs
+a device, a live Firebase project, Play Console or the real upload key.
+
+## App, navigation and Play-readiness audit — 2026-11-07
+
+Every interactive control was traced to its handler: all navigate or act as
+intended, with no dead ends. Fixed: "Contact Support" and "Manage
+Subscription" crashed on devices without an email app/browser
+(`ActivityNotFoundException`); dismissing the Google account picker showed a
+generic error (now silent), and a device with no Google account now points to
+email sign-in; the account screen's back label is now "← Back". Sixteen
+superseded point-in-time reports and `functions/reviewOnly/` were retired
+(copies remain in git history at `1894139`).
+
+`.github/workflows/instrumented-tests.yml` now runs `connectedProdDebugAndroidTest`
+on an API 34 emulator. Its first run (Actions run 42383365512, PR #111 head
+`0252801`) passed: the emulator booted and all three `WiccanDatabaseMigrationTest`
+cases (1→2, 1→4, 2→4) ran green against a real SQLite engine.
+
+Still open for Play submission: live legal/account-deletion URLs (the
+`wiccan.app` placeholders do not resolve), a minimum age in the Terms and an
+18+ target audience, the Advertising ID declaration (`AD_ID` remains in the
+merged manifest via Firebase Analytics), the Data Safety form, and launcher
+icon fallbacks for API 24–25 plus a monochrome layer for themed icons.
