@@ -23,7 +23,8 @@ The November 7, 2026 standard (`docs/CONTENT_VOICE_AND_LESSON_STANDARD.md`) teac
 | 02 | Narrative v2 complete (`disposition: narrative_v2_rewrite_complete_editorial_review_pending`) |
 | 03 | Narrative v2 complete (`disposition: narrative_v2_rewrite_complete_editorial_review_pending`) |
 | 04 | Narrative v2 complete (`disposition: narrative_v2_rewrite_complete_editorial_review_pending`) |
-| 05–12 | Earlier source-adaptation proposals; narrative v2 pending |
+| 05 | Narrative v2 complete (`disposition: narrative_v2_rewrite_complete_editorial_review_pending`) |
+| 06–12 | Earlier source-adaptation proposals; narrative v2 pending |
 
 Every narrative v2 entry follows the same rules:
 
