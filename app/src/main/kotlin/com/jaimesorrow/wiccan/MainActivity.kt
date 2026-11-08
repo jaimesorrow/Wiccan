@@ -9,7 +9,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,6 +35,7 @@ import com.jaimesorrow.wiccan.domain.model.RootState
 import com.jaimesorrow.wiccan.ui.auth.OnboardingScreen
 import com.jaimesorrow.wiccan.ui.auth.RootViewModel
 import com.jaimesorrow.wiccan.ui.auth.SignInScreen
+import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentScreen
 import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
@@ -170,6 +175,10 @@ private fun LoadingIndicator() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            WiccanFullLogo(width = 160.dp)
+            Spacer(modifier = Modifier.height(24.dp))
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        }
     }
 }

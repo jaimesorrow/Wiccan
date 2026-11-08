@@ -1,6 +1,7 @@
 package com.jaimesorrow.wiccan.ui
 
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -26,7 +27,7 @@ class AppLaunchSmokeTest {
 
     private fun waitForText(text: String) {
         composeRule.waitUntil(timeoutMillis = 15_000) {
-            composeRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodes(hasText(text) or hasContentDescription(text)).fetchSemanticsNodes().isNotEmpty()
         }
     }
 
@@ -65,7 +66,7 @@ class AppLaunchSmokeTest {
     }
 
     private companion object {
-        /** The brand heading at the top of the sign-in screen; present in every sign-in mode. */
-        const val SIGN_IN_ANCHOR = "W I C C A N"
+        /** The full Wiccan logo at the top of the sign-in screen; present in every sign-in mode. */
+        const val SIGN_IN_ANCHOR = "Wiccan"
     }
 }
