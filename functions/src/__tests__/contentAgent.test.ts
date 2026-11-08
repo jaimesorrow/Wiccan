@@ -57,14 +57,16 @@ function harness(overrides: Partial<{ settings: ContentAgentSettings; passages: 
   const generator = overrides.generator ?? new FakeDraftGenerationPort();
   const repo = new FakeContentAdminRepository();
   const state = new FakeContentAgentState();
-  const run = () => runContentAgentCycle({
+  let tick = 0;
+  const run = (runId = `run-${++tick}`, now = new Date(NOW.getTime() + tick * 86_400_000)) => runContentAgentCycle({
+    runId,
     settings: overrides.settings ?? ON,
     passages: overrides.passages ?? PASSAGES,
     sources: SOURCES,
     generator,
     repo,
     state,
-    now: NOW,
+    now,
   });
   return { generator, repo, state, run };
 }
@@ -88,7 +90,6 @@ describe("runContentAgentCycle", () => {
       expect(generator.calls).toHaveLength(0);
       expect(repo.docs.size).toBe(0);
       expect(state.runs).toEqual([report]);
-      expect(state.cursor).toBe(0);
     }
   });
 
@@ -133,6 +134,46 @@ describe("runContentAgentCycle", () => {
     expect(second.rejected.every((rejection) => rejection.status === "rejected-duplicate")).toBe(true);
     expect(repo.docs.size).toBe(1);
     expect(state.cursor).toBe(2);
+  });
+
+  it("skips a duplicate delivery of the same scheduled run", async () => {
+    const { generator, state, run } = harness({ settings: { enabled: true, batchSize: 1 } });
+    const first = await run("run-20261108T040000Z", NOW);
+    const callsAfterFirst = generator.calls.length;
+    const duplicate = await run("run-20261108T040000Z", NOW);
+    expect(first.status).toBe("completed");
+    expect(duplicate.status).toBe("skipped");
+    expect(generator.calls).toHaveLength(callsAfterFirst);
+    expect(state.runs).toEqual([first]);
+    expect(state.cursor).toBe(1);
+  });
+
+  it("skips an overlapping run while another run holds the lease", async () => {
+    const { generator, state, run } = harness();
+    await state.claimSlot("run-in-progress", NOW, 60 * 60_000);
+    const overlapping = await run("run-overlap", new Date(NOW.getTime() + 60_000));
+    expect(overlapping.status).toBe("skipped");
+    expect(generator.calls).toHaveLength(0);
+    expect(state.cursor).toBe(1);
+  });
+
+  it("reports drafts saved before a mid-batch failure", async () => {
+    class FailsOnSecondCall extends FakeDraftGenerationPort {
+      override async generateDraft(request: DraftGenerationRequest): Promise<GeneratedDraftFields> {
+        if (this.calls.length >= 1) {
+          this.calls.push(request);
+          throw new Error("rate limited");
+        }
+        return super.generateDraft(request);
+      }
+    }
+    const { repo, state, run } = harness({ generator: new FailsOnSecondCall() });
+    const report = await run();
+    expect(report).toMatchObject({ status: "failed", error: "rate limited", attempts: 2 });
+    expect(report.accepted).toHaveLength(1);
+    expect(repo.docs.get(report.accepted[0].contentId)?.status).toBe("draft");
+    expect(state.runs).toEqual([report]);
+    expect(state.lease).toBeNull();
   });
 
   it("records a failed run and moves on when generation throws", async () => {

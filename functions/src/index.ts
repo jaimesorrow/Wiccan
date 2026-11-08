@@ -495,19 +495,24 @@ export const sendDailyNotificationsJob = onSchedule("every 1 hours", async () =>
  * through approve-draft review like any other draft.
  *
  * Off unless systemConfig/global.contentGenerationEnabled is exactly true.
- * Each run writes a contentGenerationRuns report. No retries: a failed run
- * is recorded and the next day's run moves on to the next passage.
+ * Each run transactionally claims its rotation slot (keyed by the schedule
+ * tick, with a lease against overlapping runs) and writes a
+ * contentGenerationRuns report. No retries: a failed run is recorded and the
+ * next day's run moves on to the next passage.
  */
 export const generateContentDraftsJob = onSchedule(
   { schedule: "every day 04:00", timeZone: "UTC", secrets: [ANTHROPIC_API_KEY], timeoutSeconds: 1800, retryCount: 0 },
-  async () => {
+  async (event) => {
     const db = getFirestore();
     const config = await new FirestoreSystemConfigRepository(db).getConfig();
     if (!config.contentGenerationEnabled) {
       logger.info("generateContentDrafts skipped: contentGenerationEnabled is not true in systemConfig/global");
       return;
     }
+    // One run identity per scheduled tick, so a duplicate delivery of the same tick is skipped.
+    const runId = `run-${(event.scheduleTime || new Date().toISOString()).replace(/[^0-9A-Za-z]/g, "")}`;
     const report = await runContentAgentCycle({
+      runId,
       settings: { enabled: true, batchSize: config.contentGenerationBatchSize },
       passages: loadSourcePassages(),
       sources: loadContentSources(),

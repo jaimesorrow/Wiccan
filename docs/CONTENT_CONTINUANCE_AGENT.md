@@ -59,6 +59,8 @@ The CLI's `--continuous` mode is an explicitly supervised process. It stops when
 - Each run takes the next slot in a fixed rotation: every verified passage on the `free` tier, then every passage again on `premium`. It then calls the same `generateDraftBatch` as the CLI with `contentGenerationBatchSize` drafts (1–5, default 3). Every candidate gets the full-inventory duplicate screen and the atomic reservations described above.
 - Only passages with no `findPassageViolations` issues and an approved generation source are used. With none, the run records `no-verified-passages` and makes no model call.
 - Each run writes a report to `contentGenerationRuns`: status (`completed`, `exhausted`, `failed`, or `no-verified-passages`), passage, tier, accepted drafts, rejected candidates with reasons and closest matches, and attempts. The cursor in `contentAgentState/scheduler` always advances, so an exhausted or failing passage cannot stall the rotation.
+- Each run first claims its slot in a Firestore transaction, keyed by its scheduled tick (`contentGenerationRuns/run-<scheduleTime>`), and takes a 35-minute lease. A duplicate delivery of the same tick, or an overlapping run while the lease is live, is skipped without any model call.
+- If a run fails midway, its report still lists the drafts it already saved and the model calls it made. Those drafts remain ordinary drafts for review.
 - Retries are off. A failed run is recorded and the next day moves on.
 - It creates drafts only. Publication still requires `approve-draft`, and there is no automatic publication path.
 
