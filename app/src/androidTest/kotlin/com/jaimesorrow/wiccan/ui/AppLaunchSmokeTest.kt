@@ -1,6 +1,7 @@
 package com.jaimesorrow.wiccan.ui
 
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -30,6 +31,13 @@ class AppLaunchSmokeTest {
         }
     }
 
+    /** The sign-in logo specifically: the startup loading screen also shows the logo. */
+    private fun waitForSignIn() {
+        composeRule.waitUntil(timeoutMillis = 15_000) {
+            composeRule.onAllNodes(hasTestTag(SIGN_IN_LOGO_TAG)).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
     private fun clickButton(text: String) {
         val node = composeRule.onNode(hasText(text) and hasClickAction())
         runCatching { node.performScrollTo() }
@@ -39,7 +47,7 @@ class AppLaunchSmokeTest {
 
     @Test
     fun launchesToSignInWithItsActions() {
-        waitForText(SIGN_IN_ANCHOR)
+        waitForSignIn()
         composeRule.onNode(hasText("Terms") and hasClickAction()).assertExists()
         composeRule.onNode(hasText("Privacy") and hasClickAction()).assertExists()
         val submit = composeRule.onAllNodes((hasText("Sign In") or hasText("Create Account")) and hasClickAction())
@@ -48,24 +56,24 @@ class AppLaunchSmokeTest {
 
     @Test
     fun signInTermsLinkOpensTermsAndBackReturns() {
-        waitForText(SIGN_IN_ANCHOR)
+        waitForSignIn()
         clickButton("Terms")
         waitForText("No promise or guarantee of results")
         clickButton("← Back")
-        waitForText(SIGN_IN_ANCHOR)
+        waitForSignIn()
     }
 
     @Test
     fun signInPrivacyLinkOpensPrivacyAndSystemBackReturns() {
-        waitForText(SIGN_IN_ANCHOR)
+        waitForSignIn()
         clickButton("Privacy")
         composeRule.onNodeWithText("Privacy Policy").assertExists()
         Espresso.pressBack()
-        waitForText(SIGN_IN_ANCHOR)
+        waitForSignIn()
     }
 
     private companion object {
-        /** The brand heading at the top of the sign-in screen; present in every sign-in mode. */
-        const val SIGN_IN_ANCHOR = "W I C C A N"
+        /** Test tag of the full Wiccan logo on the sign-in screen; present in every sign-in mode. */
+        const val SIGN_IN_LOGO_TAG = "auth-logo"
     }
 }

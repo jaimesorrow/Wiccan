@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
+import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
-import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
 
 /**
  * Blocking agreement gate shown whenever the signed-in user hasn't yet
@@ -74,7 +74,7 @@ fun PolicyAcceptanceScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            CrescentGlyph()
+            WiccanEmblem(size = 56.dp)
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = "Before you continue",
