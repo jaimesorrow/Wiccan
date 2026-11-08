@@ -83,20 +83,16 @@ class LegalDocumentsTest {
             "privacy" to WiccanLegalDocuments.privacy,
             "content-safety" to WiccanLegalDocuments.contentSafety,
         ).forEach { (page, document) ->
-            val hosted = hostedText(page)
             val expected = buildList {
                 add(document.title)
-                add("Effective ${document.effectiveDate}")
-                document.version?.let { add("Version $it") }
+                add("Effective ${document.effectiveDate}" + (document.version?.let { " · Version $it" } ?: ""))
                 add(document.introduction)
                 document.sections.forEach { section ->
                     add(section.heading)
                     addAll(section.paragraphs)
                 }
-            }
-            expected.forEach { line ->
-                assertTrue("hosting/$page.html is missing: $line", hosted.contains(line.normalized()))
-            }
+            }.joinToString(" ").normalized()
+            assertEquals("hosting/$page.html <main> differs from the in-app text", expected, hostedMainText(page))
         }
     }
 
@@ -114,7 +110,16 @@ class LegalDocumentsTest {
     private fun hostingFile(name: String): File =
         listOf(File("../hosting", name), File("hosting", name)).firstOrNull { it.exists() } ?: File("../hosting", name)
 
-    private fun hostedText(page: String): String = hostingFile("$page.html").readText()
+    private fun hostedMainText(page: String): String {
+        val html = hostingFile("$page.html").readText()
+        val main = Regex("<main>(.*)</main>", RegexOption.DOT_MATCHES_ALL).find(html)?.groupValues?.get(1)
+            ?: error("hosting/$page.html has no <main>")
+        return main.decodedText()
+    }
+
+    private fun hostedText(page: String): String = hostingFile("$page.html").readText().decodedText()
+
+    private fun String.decodedText(): String = this
         .replace(Regex("<[^>]+>"), "")
         .replace("&lt;", "<")
         .replace("&gt;", ">")

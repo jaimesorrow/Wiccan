@@ -5,6 +5,7 @@ import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.ui.auth.FakeAuthRepository
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.every
@@ -37,6 +38,7 @@ class PolicyAcceptanceViewModelTest {
         repository = FakeAuthRepository()
         consentManager = mockk(relaxed = true)
         every { consentManager.consent } returns flowOf(false)
+        coEvery { consentManager.setConsent(any()) } returns true
         viewModel = PolicyAcceptanceViewModel(repository, consentManager)
     }
 
@@ -147,5 +149,27 @@ class PolicyAcceptanceViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
 
         coVerify(exactly = 0) { consentManager.setConsent(any()) }
+    }
+
+    @Test
+    fun `a late stored value never overrides the user's own analytics choice`() = runTest(dispatcher) {
+        every { consentManager.consent } returns flowOf(true)
+        val returning = PolicyAcceptanceViewModel(repository, consentManager)
+        returning.onEvent(PolicyAcceptanceUiEvent.ShareAnalyticsChanged(false))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertFalse(returning.state.value.shareAnalytics)
+    }
+
+    @Test
+    fun `a failed analytics save still accepts the policies and tells the user`() = runTest(dispatcher) {
+        coEvery { consentManager.setConsent(any()) } returns false
+        agreeToAll()
+        viewModel.effects.test {
+            viewModel.onEvent(PolicyAcceptanceUiEvent.ContinueClicked)
+            assertTrue(awaitItem() is PolicyAcceptanceUiEffect.ShowSnackbar)
+            cancelAndConsumeRemainingEvents()
+        }
+        assertEquals(1, repository.acceptTermsCallCount)
     }
 }

@@ -75,10 +75,7 @@ class SettingsViewModel @Inject constructor(
             SettingsUiEvent.CancelDeleteAccount -> _state.update { it.copy(showDeleteConfirmation = false) }
             SettingsUiEvent.ConfirmDeleteAccount -> deleteAccount()
             is SettingsUiEvent.NotificationsToggled -> toggleNotifications(event.enabled)
-            is SettingsUiEvent.ShareAnalyticsToggled -> {
-                _state.update { it.copy(shareAnalytics = event.share) }
-                viewModelScope.launch { analyticsConsentManager.setConsent(event.share) }
-            }
+            is SettingsUiEvent.ShareAnalyticsToggled -> toggleShareAnalytics(event.share)
             is SettingsUiEvent.ThemeModeSelected -> selectThemeMode(event.mode)
         }
     }
@@ -90,6 +87,19 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             themePreferences.setThemeMode(mode)
             wiccanWidgetUpdater.updateAll()
+        }
+    }
+
+    private fun toggleShareAnalytics(share: Boolean) {
+        _state.update { it.copy(shareAnalytics = share) }
+        viewModelScope.launch {
+            if (!analyticsConsentManager.setConsent(share)) {
+                // Withdrawal still took effect for this session; the switch shows what is saved.
+                _state.update { it.copy(shareAnalytics = !share) }
+                effectChannel.send(
+                    SettingsUiEffect.ShowMessage("Your analytics choice couldn't be saved. Please try again."),
+                )
+            }
         }
     }
 

@@ -22,6 +22,8 @@ import {
 const OWNER = "owner";
 const OTHER = "other";
 const HISTORY_PATH = `userContentHistory/${OWNER}_2026-10-06`;
+const CURRENT_POLICIES = { acceptedTermsVersion: 4, acceptedPrivacyVersion: 4 };
+const ACTIVE_SUBSCRIBER = { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000, ...CURRENT_POLICIES };
 const LEGACY_HISTORY = {
   userId: OWNER,
   contentId: "historical-lesson",
@@ -59,8 +61,8 @@ beforeEach(async () => {
         userId: OTHER,
         contentId: "another-users-lesson",
       }),
-      setDoc(doc(db, `users/${OWNER}`), { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 }),
-      setDoc(doc(db, `users/${OTHER}`), { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 }),
+      setDoc(doc(db, `users/${OWNER}`), { ...ACTIVE_SUBSCRIBER }),
+      setDoc(doc(db, `users/${OTHER}`), { ...ACTIVE_SUBSCRIBER }),
       setDoc(doc(db, "content/published-free"), { status: "published", tier: "free" }),
       setDoc(doc(db, "content/published-premium"), { status: "published", tier: "premium" }),
       setDoc(doc(db, "content/unreserved-published"), { status: "published", tier: "free" }),
@@ -205,6 +207,9 @@ describe("delivered published-content read policy", () => {
     { tier: "premium" },
     { tier: "premium", subscriptionExpiresAtMillis: "2099" },
     { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000, deletionInProgress: true },
+    { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 },
+    { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: 3 },
+    { ...ACTIVE_SUBSCRIBER, acceptedPrivacyVersion: 3 },
   ]) {
     it(`blocks all lesson and history access for inactive profiles ${JSON.stringify(fields)}`, async () => {
       await environment.withSecurityRulesDisabled(async (context) => {

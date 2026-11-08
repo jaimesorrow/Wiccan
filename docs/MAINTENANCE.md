@@ -204,7 +204,10 @@ currently handled (automated, manual, or not yet built).
   before they can continue. The server enforces the same versions:
   `getTodayContent` refuses content and `sendDailyNotifications` skips users
   whose recorded acceptance is not current (`assertCurrentPoliciesAccepted`
-  in `functions/src/acceptTerms.ts`).
+  in `functions/src/acceptTerms.ts`). Firestore rules carry the same numbers
+  (`acceptedCurrentPolicies` in `firestore.rules`) so Grimoire reads also
+  require current acceptance; bump all three together —
+  `scripts/release-preflight.sh` checks they match.
 
 ## Environments
 

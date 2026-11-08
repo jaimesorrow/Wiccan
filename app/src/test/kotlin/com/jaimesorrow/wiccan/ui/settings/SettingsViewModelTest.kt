@@ -54,6 +54,7 @@ class SettingsViewModelTest {
         every { themePreferences.themeMode } returns flowOf(WiccanThemeMode.DEFAULT)
         consentManager = mockk(relaxed = true)
         every { consentManager.consent } returns flowOf(false)
+        coEvery { consentManager.setConsent(any()) } returns true
         val analyticsLogger: AnalyticsLogger = mockk(relaxed = true)
         viewModel = SettingsViewModel(
             repository,

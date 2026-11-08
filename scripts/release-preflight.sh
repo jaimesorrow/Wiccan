@@ -84,6 +84,8 @@ require_grep 'const val PRIVACY = 4' app/src/main/kotlin/com/jaimesorrow/wiccan/
 require_grep 'CURRENT_TERMS_VERSION = 4' functions/src/policyVersions.ts   'Functions uses current Terms version 4'
 require_grep 'CURRENT_PRIVACY_VERSION = 4' functions/src/policyVersions.ts   'Functions uses current Privacy version 4'
 require_grep 'termsVersion: 4, privacyVersion: 4' scripts/e2e-emulator.mjs   'emulator acceptance uses current policy versions'
+require_grep "acceptedTermsVersion', 0\) == 4" firestore.rules   'Firestore rules require current Terms version 4'
+require_grep "acceptedPrivacyVersion', 0\) == 4" firestore.rules   'Firestore rules require current Privacy version 4'
 require_grep 'LegalDocumentId\.TERMS' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/auth/SignInScreen.kt   'Terms are reachable before account creation'
 require_grep 'LegalDocumentId\.CONTENT_SAFETY' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/policy/PolicyAcceptanceScreen.kt   'policy gate exposes Content & Safety guidance'
 require_grep 'onTermsClick' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/paywall/PaywallScreen.kt   'paywall exposes Terms beside subscription offer'

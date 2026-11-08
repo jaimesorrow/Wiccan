@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -56,7 +57,10 @@ class SettingsScreenButtonsTest {
         coEvery { notifications.unregisterToken() } returns AppResult.Success(Unit)
         consent = mockk(relaxed = true)
         every { consent.consent } returns consentFlow
-        coEvery { consent.setConsent(any()) } answers { consentFlow.value = firstArg() }
+        coEvery { consent.setConsent(any()) } answers {
+            consentFlow.value = firstArg()
+            true
+        }
     }
 
     private fun launch(accountOnly: Boolean = false) {
@@ -145,9 +149,8 @@ class SettingsScreenButtonsTest {
     @Test
     fun `notifications switch updates the server preference`() {
         launch()
-        composeRule.onNodeWithText("Daily Notifications").performScrollTo()
-        val switch = composeRule.onAllNodes(isToggleable())[0]
-        switch.assertIsOn().performClick()
+        val switch = composeRule.onNode(isToggleable() and hasText("Daily Notifications"))
+        switch.performScrollTo().assertIsOn().performClick()
         composeRule.waitForIdle()
         coVerify { notifications.setNotificationsEnabled(false) }
     }
@@ -155,9 +158,8 @@ class SettingsScreenButtonsTest {
     @Test
     fun `analytics switch is off by default and records consent`() {
         launch()
-        composeRule.onNodeWithText("Usage analytics & crash reports").performScrollTo()
-        val switch = composeRule.onAllNodes(isToggleable())[1]
-        switch.assertIsOff().performClick()
+        val switch = composeRule.onNode(isToggleable() and hasText("Usage analytics & crash reports"))
+        switch.performScrollTo().assertIsOff().performClick()
         composeRule.waitForIdle()
         coVerify { consent.setConsent(true) }
         switch.assertIsOn()

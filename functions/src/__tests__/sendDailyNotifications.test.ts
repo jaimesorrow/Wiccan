@@ -202,4 +202,24 @@ describe("sendDailyNotifications", () => {
     expect(summary).toEqual({ attempted: 1, sent: 1, skippedStale: 0, failed: 0 });
     expect(fcm.sentTo.map((sent) => sent.token)).toEqual(["token-a"]);
   });
+
+  it("counts a failed policy lookup as a failed attempt and sends nothing to that user", async () => {
+    const content = new FakeContentRepository();
+    content.content = [makeContent({ id: "c1" })];
+    const users = new FakeNotificationUserRepository();
+    users.setToken("ok", "token-ok");
+    users.setToken("unreadable", "token-x");
+    const policies: PolicyAcceptanceReader = {
+      getAcceptedPolicyVersions: async (uid) => {
+        if (uid === "unreadable") throw new Error("firestore unavailable");
+        return { termsVersion: CURRENT_TERMS_VERSION, privacyVersion: CURRENT_PRIVACY_VERSION };
+      },
+    };
+    const fcm = new FakeFcmSenderPort();
+
+    const summary = await sendDailyNotifications(users, content, fcm, policies, NINE_AM_UTC);
+
+    expect(summary).toEqual({ attempted: 2, sent: 1, skippedStale: 0, failed: 1 });
+    expect(fcm.sentTo.map((sent) => sent.token)).toEqual(["token-ok"]);
+  });
 });

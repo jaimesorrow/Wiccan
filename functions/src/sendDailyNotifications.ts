@@ -75,24 +75,31 @@ export async function sendDailyNotifications(
   const due = allDevices.filter(
     (device) => device.notificationsEnabled && getUserLocalHour(device.timeZone, now) === TARGET_LOCAL_HOUR,
   );
-  const accepted = new Map<string, Promise<boolean>>();
-  const acceptedFor = (uid: string): Promise<boolean> => {
-    let result = accepted.get(uid);
-    if (!result) {
-      result = hasAcceptedCurrentPolicies(uid, policies).catch(() => false);
-      accepted.set(uid, result);
+  // Fail closed: a user whose acceptance can't be read gets nothing, but the
+  // lookup failure is counted as a failed attempt so an outage stays visible.
+  const lookups = new Map<string, Promise<"accepted" | "not-accepted" | "lookup-failed">>();
+  const policyStatus = (uid: string) => {
+    let status = lookups.get(uid);
+    if (!status) {
+      status = hasAcceptedCurrentPolicies(uid, policies)
+        .then((ok): "accepted" | "not-accepted" => (ok ? "accepted" : "not-accepted"))
+        .catch((): "lookup-failed" => "lookup-failed");
+      lookups.set(uid, status);
     }
-    return result;
+    return status;
   };
   const recipients = [];
+  let lookupFailures = 0;
   for (const device of due) {
-    if (await acceptedFor(device.uid)) recipients.push(device);
+    const status = await policyStatus(device.uid);
+    if (status === "accepted") recipients.push(device);
+    else if (status === "lookup-failed") lookupFailures++;
   }
   const summary: NotificationSendSummary = {
-    attempted: recipients.length,
+    attempted: recipients.length + lookupFailures,
     sent: 0,
     skippedStale: 0,
-    failed: 0,
+    failed: lookupFailures,
   };
 
   for (const device of recipients) {
