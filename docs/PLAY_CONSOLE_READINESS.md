@@ -17,7 +17,7 @@ truthfully completed from the repository:
 
 - deploy the policy pages (`firebase deploy --only hosting --project production`)
   and confirm `https://wiccan-android.web.app/terms`, `/privacy` and
-  `/delete-account` load; monitor `com.wiccan.app@gmail.com`, which the app,
+  `/delete-account` load; monitor `wiccan.android.app@gmail.com`, which the app,
   policies and deletion page name as the support and privacy contact;
 - select the **18+** target audience in Play Console (Terms v4 requires users
   to be 18 or older, and the policy gate asks them to confirm it);

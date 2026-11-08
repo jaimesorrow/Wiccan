@@ -12,5 +12,5 @@ object PolicyUrls {
     const val TERMS_OF_SERVICE = "https://wiccan-android.web.app/terms"
     const val PRIVACY_POLICY = "https://wiccan-android.web.app/privacy"
     const val ACCOUNT_DELETION_URL = "https://wiccan-android.web.app/delete-account"
-    const val SUPPORT_EMAIL = "com.wiccan.app@gmail.com"
+    const val SUPPORT_EMAIL = "wiccan.android.app@gmail.com"
 }

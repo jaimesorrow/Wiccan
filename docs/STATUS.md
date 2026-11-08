@@ -235,7 +235,7 @@ icon fallbacks for API 24–25 plus a monochrome layer for themed icons.
 ## Public policy pages — 2026-11-07
 
 Terms of Service and Privacy Policy are now version 4, naming the operator
-(Wiccan App Inc.) and contact (`com.wiccan.app@gmail.com`). Terms add an
+(Wiccan App Inc.) and contact (`wiccan.android.app@gmail.com`). Terms add an
 18+ age requirement, disclaimers/limitation of liability and governing law;
 Privacy adds the Android advertising ID (collected by Firebase Analytics,
 not used for ads), concrete Analytics/Crashlytics retention, a children

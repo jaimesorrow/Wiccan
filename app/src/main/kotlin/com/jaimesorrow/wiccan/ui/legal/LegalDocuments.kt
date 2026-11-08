@@ -179,7 +179,7 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Contact and account deletion",
                 listOf(
-                    "Wiccan is operated by Wiccan App Inc.. For questions, email com.wiccan.app@gmail.com or use Contact " +
+                    "Wiccan is operated by Wiccan App Inc.. For questions, email wiccan.android.app@gmail.com or use Contact " +
                         "Support in Settings.",
                     "You may delete your account in Settings → Delete Account, or request deletion without the app at " +
                         "https://wiccan-android.web.app/delete-account.",
@@ -265,7 +265,7 @@ object WiccanLegalDocuments {
                 listOf(
                     "Wiccan is intended only for adults 18 and older and is not directed to children. We do not knowingly " +
                         "collect personal information from anyone under 18. If you believe a minor has created an account, email " +
-                        "com.wiccan.app@gmail.com and we will delete it.",
+                        "wiccan.android.app@gmail.com and we will delete it.",
                 ),
             ),
             LegalSection(
@@ -276,8 +276,8 @@ object WiccanLegalDocuments {
                         "out of its sale, sharing for targeted advertising, or profiling. Wiccan does not sell personal " +
                         "information, share it for cross-context behavioral advertising, or use it for profiling with legal or " +
                         "similarly significant effects.",
-                    "To make a request, email com.wiccan.app@gmail.com from the address on your account. We will verify the " +
-                        "request against your account and respond within 45 days. If we decline a request, you may appeal by " +
+                    "To make a request, email wiccan.android.app@gmail.com from the address on your account. We will verify " +
+                        "the request against your account and respond within 45 days. If we decline a request, you may appeal by " +
                         "replying to our response. We will not discriminate against you for exercising these rights.",
                 ),
             ),
@@ -287,7 +287,7 @@ object WiccanLegalDocuments {
                     "You can disable daily notifications, sign out, manage your subscription in Google Play, and delete your " +
                         "account in Settings.",
                     "Wiccan is operated by Wiccan App Inc.. For access, correction, privacy, or deletion questions, email " +
-                        "com.wiccan.app@gmail.com or use Contact Support in Settings.",
+                        "wiccan.android.app@gmail.com or use Contact Support in Settings.",
                     "When this policy changes materially, it receives a new version and the app asks you to review it before " +
                         "continuing.",
                 ),
