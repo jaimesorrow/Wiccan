@@ -82,10 +82,10 @@ class SignInScreenLayoutTest {
         }
         val prefix = "build/outputs/roborazzi/wiccan-auth-${mode.name.lowercase()}-${(fontScale * 100).toInt()}"
         composeRule.onRoot().captureRoboImage(filePath = "$prefix-top.png")
-        val glyph = composeRule.onNodeWithTag("auth-crescent").fetchSemanticsNode().boundsInRoot
+        val glyph = composeRule.onNodeWithTag("auth-brand-emblem").fetchSemanticsNode().boundsInRoot
         val bitmap = requireNotNull(BitmapFactory.decodeFile("$prefix-top.png"))
         assertEquals(
-            "Decorative glyph must not clear the screen background",
+            "Approved brand emblem must not clear the screen background",
             255,
             Color.alpha(bitmap.getPixel(glyph.center.x.toInt(), glyph.center.y.toInt())),
         )

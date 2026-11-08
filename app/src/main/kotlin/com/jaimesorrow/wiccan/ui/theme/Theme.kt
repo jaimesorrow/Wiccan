@@ -3,6 +3,7 @@ package com.jaimesorrow.wiccan.ui.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -31,16 +32,23 @@ fun WiccanTheme(
     content: @Composable () -> Unit,
 ) {
     val today = rememberCurrentDate()
+    val isSystemDark = isSystemInDarkTheme()
     val colorScheme = rememberWiccanColorScheme(
         themeMode = themeMode,
-        isSystemInDarkTheme = isSystemInDarkTheme(),
+        isSystemInDarkTheme = isSystemDark,
         today = today,
     )
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = WiccanTypography,
-        content = content,
-    )
+    CompositionLocalProvider(
+        LocalWiccanBrandColors provides WiccanBrandColors(
+            brandGold = resolveWiccanPalette(themeMode, isSystemDark, today).brandGold,
+        ),
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = WiccanTypography,
+            content = content,
+        )
+    }
 }
 
 @Composable
