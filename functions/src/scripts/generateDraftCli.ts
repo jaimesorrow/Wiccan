@@ -4,7 +4,7 @@ import { parseArgs } from "node:util";
 import { isLessonGenerationSource, loadContentSources } from "../contentSource";
 import { ClaudeDraftGenerator } from "../claudeDraftGenerator";
 import { FirestoreContentAdminRepository } from "../firestoreContentAdminRepository";
-import { generateDrafts } from "../generateDraft";
+import { generateDraftBatch } from "../generateDraft";
 import { ContentTier, ContentType } from "../types";
 import { CONTENT_PROJECT_ID, initializeContentProject } from "./contentProject";
 
@@ -15,7 +15,7 @@ import { CONTENT_PROJECT_ID, initializeContentProject } from "./contentProject";
  * Session 17's lockdown of content generation/approval.
  *
  * Preview (no API call or write):
- *   npm run content-agent -- --tier free [--sourceId <id>] [--type spell] [--count 3]
+ *   npm run content-agent -- --dry-run --tier free [--sourceId <id>] [--type spell] [--count 3]
  * Commit drafts to production:
  *   npm run content-agent -- --project wiccan-android --commit --tier free [...]
  * Operator-controlled continuance (draft creation only; no publication):
@@ -32,6 +32,7 @@ async function main(): Promise<void> {
     options: {
       project: { type: "string" },
       commit: { type: "boolean", default: false },
+      "dry-run": { type: "boolean", default: false },
       tier: { type: "string" },
       sourceId: { type: "string" },
       passageId: { type: "string" },
@@ -75,6 +76,7 @@ async function main(): Promise<void> {
   if (args.commit && args.project !== CONTENT_PROJECT_ID) {
     throw new Error(`Explicit --project ${CONTENT_PROJECT_ID} is required when --commit is used.`);
   }
+  if (args.commit && args["dry-run"]) throw new Error("--dry-run and --commit cannot be used together.");
 
   const passages = loadSourcePassages();
   const passage = passages.find((candidate) => candidate.id === args.passageId);
@@ -123,7 +125,7 @@ async function main(): Promise<void> {
   let shouldContinue = true;
   while (shouldContinue) {
     batchNumber += 1;
-    const results = await generateDrafts(
+    const batch = await generateDraftBatch(
       {
         tier: tier as ContentTier,
         sourceId: passage.sourceId,
@@ -138,10 +140,13 @@ async function main(): Promise<void> {
       repo,
       passages,
     );
-    console.log(JSON.stringify({ batchNumber, contentStatus: "draft", published: false, results }, null, 2));
+    console.log(JSON.stringify({ batchNumber, contentStatus: "draft", published: false, ...batch }, null, 2));
+    if (batch.exhausted) {
+      throw new Error(`Generation stopped after ${batch.attempts} attempts because only ${batch.accepted.length} distinct drafts passed.`);
+    }
     shouldContinue = args.continuous && (maxBatches === undefined || batchNumber < maxBatches);
     if (!shouldContinue) continue;
-    if (results.length === 0) {
+    if (batch.accepted.length === 0) {
       throw new Error("Continuance stopped because the batch produced no unique drafts; review source coverage and duplicate constraints.");
     }
     await new Promise((resolve) => setTimeout(resolve, intervalMinutes * 60_000));

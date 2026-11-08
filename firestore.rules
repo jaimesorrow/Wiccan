@@ -87,6 +87,12 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Generator-only uniqueness reservations. The Admin SDK creates these
+    // atomically with a draft so concurrent agents cannot commit twins.
+    match /contentOriginalityReservations/{reservationId} {
+      allow read, write: if false;
+    }
+
     // Shared safety copy is readable only by signed-in users. All edits remain
     // Admin SDK/console operations; lesson rendering never accepts client text.
     match /settings/disclosures {
