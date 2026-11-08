@@ -28,9 +28,9 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.domain.model.RootState
+import com.jaimesorrow.wiccan.ui.auth.OnboardingScreen
 import com.jaimesorrow.wiccan.ui.auth.RootViewModel
 import com.jaimesorrow.wiccan.ui.auth.SignInScreen
-import com.jaimesorrow.wiccan.ui.auth.OnboardingScreen
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentScreen
 import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments

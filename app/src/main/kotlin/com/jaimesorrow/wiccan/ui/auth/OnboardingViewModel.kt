@@ -26,8 +26,12 @@ class OnboardingViewModel @Inject constructor(
     private val _state = MutableStateFlow(OnboardingUiState())
     val state: StateFlow<OnboardingUiState> = _state.asStateFlow()
 
-    fun setFirstName(value: String) { _state.update { it.copy(firstName = value, notice = null) } }
-    fun setLastName(value: String) { _state.update { it.copy(lastName = value, notice = null) } }
+    fun setFirstName(value: String) {
+        _state.update { it.copy(firstName = value, notice = null) }
+    }
+    fun setLastName(value: String) {
+        _state.update { it.copy(lastName = value, notice = null) }
+    }
     fun resendVerification() = perform(
         { authRepository.sendEmailVerification() },
         "If verification is pending, a new email has been sent.",
@@ -58,8 +62,11 @@ class OnboardingViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     busy = false,
-                    notice = if (result is AppResult.Success) successMessage else
-                        "Unable to complete this action. Check your connection and try again.",
+                    notice = if (result is AppResult.Success) {
+                        successMessage
+                    } else {
+                        "Unable to complete this action. Check your connection and try again."
+                    },
                 )
             }
         }
