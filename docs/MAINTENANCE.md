@@ -189,7 +189,12 @@ currently handled (automated, manual, or not yet built).
 - `systemConfig/global` (Firestore, no client access — `firestore.rules`) holds two ops-only emergency flags, both fail-open (default `true`, i.e. normal operation, if the doc or field doesn't exist):
   - `dailyContentEnabled` — stops `getTodayContent` (the interactive callable) and `sendDailyNotificationsJob` (which also selects content) from serving any content at all. Flip to `false` if a bad content batch needs to be pulled from delivery immediately.
   - `notificationsEnabled` — stops just the daily push job, independent of content selection (e.g. an FCM incident). Flip to `false` to silence the hourly job without touching `getTodayContent`.
-- To flip either: edit the `systemConfig/global` document directly in the Firebase Console (or via the Admin SDK) — there is no CLI script for this, since it's meant to be a rare, deliberate, auditable manual action, not an automated one.
+- Two more fields control the scheduled content agent (`generateContentDraftsJob`, daily 04:00 UTC). These are **opt-in**: generation spends Anthropic API budget and writes drafts, so it fails closed.
+  - `contentGenerationEnabled` — the agent runs only when this is exactly `true`. Missing or anything else means off.
+  - `contentGenerationBatchSize` — drafts requested per run, clamped to 1–5 (default 3). Each draft gets at most five attempts, so a run makes at most 25 model calls.
+  - The agent needs the `ANTHROPIC_API_KEY` secret (`firebase functions:secrets:set ANTHROPIC_API_KEY`) before the functions deploy, and at least one fully verified passage in `functions/sourcePassages.json`. Without one, each run records `no-verified-passages` and generates nothing.
+  - Run reports land in `contentGenerationRuns`, and the rotation cursor in `contentAgentState/scheduler`. Both are Admin-SDK-only. The agent never publishes; drafts go through `approve-draft` as usual.
+- To flip any of these: edit the `systemConfig/global` document directly in the Firebase Console (or via the Admin SDK) — there is no CLI script for this, since it's meant to be a rare, deliberate, auditable manual action, not an automated one.
 - `FirestoreSystemConfigRepository`/`FakeSystemConfigRepository` (`functions/src/systemConfigPort.ts`) are the read path; nothing in this codebase writes to `systemConfig/global` — creating/editing it is an operator action, not a code path.
 
 ## Policy versions
