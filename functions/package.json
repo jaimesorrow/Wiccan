@@ -29,7 +29,9 @@
     "backup-content": "npm run build && node lib/scripts/backupContentCli.js",
     "upload-content-backup": "npm run build && node lib/scripts/uploadContentBackupCli.js",
     "restore-test-content-backup": "npm run build && node lib/scripts/restoreTestContentBackupCli.js",
-    "rollback-content": "npm run build && node lib/scripts/rollbackContentCli.js"
+    "rollback-content": "npm run build && node lib/scripts/rollbackContentCli.js",
+    "content:validate": "npm run build && node lib/scripts/contentValidateCli.js",
+    "content:duplicates": "npm run build && node lib/scripts/contentDuplicatesCli.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

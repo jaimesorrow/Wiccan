@@ -82,6 +82,22 @@ class ContentMappersTest {
     }
 
     @Test
+    fun `canonical tool objects are projected to readable tool names`() {
+        val content = (
+            lesson + mapOf(
+                "primaryCategoryId" to "cord-knot-work",
+                "tools" to listOf(
+                    mapOf("name" to "Natural-fiber cord", "quantity" to "1 length", "required" to true),
+                    mapOf("name" to "Journal", "required" to false),
+                ),
+            )
+            ).toContent()
+
+        assertEquals(listOf("Natural-fiber cord", "Journal"), content.tools)
+        assertEquals(listOf("Natural-fiber cord", "Journal"), content.materials)
+    }
+
+    @Test
     fun `existing history remains readable through Grimoire rename without replacing its keys`() {
         val row = mapOf<String, Any?>(
             "contentId" to "legacy-lesson",
