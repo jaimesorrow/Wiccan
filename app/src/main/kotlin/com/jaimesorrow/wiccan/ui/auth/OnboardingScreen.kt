@@ -24,8 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
-import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
 
 @Composable
 fun OnboardingScreen(
@@ -42,7 +42,7 @@ fun OnboardingScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            CrescentGlyph()
+            WiccanFullLogo(width = 150.dp)
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 if (verification) "Confirm your path." else "Make this journey yours.",

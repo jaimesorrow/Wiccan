@@ -275,3 +275,20 @@ data and deletes unsent crash reports. Privacy lists consent as the legal basis
 for analytics. Still open for a worldwide launch: a non-EU operator serving EU
 users may need an EU/UK representative (GDPR Art. 27). Have a qualified
 reviewer approve the text before release.
+
+## Brand identity — 2026-11-08
+
+The two approved identities from the owner's brand kit (`brand/source/`) are
+implemented without redesign: the gold seal (no lettering) is the adaptive
+launcher icon (108dp layers, emblem inside the 66dp safe zone, no baked mask,
+Midnight Blue background), the Android 13+ themed monochrome icon, legacy
+API 24–25 icons and the splash icon; the full logo (thinner emblem + WICCAN
+wordmark) appears on sign-in, onboarding, paywall and the loading screen; the
+compact seal heads the policy gate and lesson content. Both render in all six
+palettes (gold on dark, dark primary on Light/Ivory; see
+`brand/exports/previews/six_palette_brand_render.png`). Google Play icon
+(512×512 RGBA, Midnight Blue) and feature graphic (1024×500) are prepared in
+`brand/exports/google-play/` but not uploaded. Open: a higher-resolution full
+logo source for large marketing exports, owner confirmation of the extracted
+full logo, and **trademark review of the WICCAN name and marks by qualified
+counsel before launch** (brand approval is not legal clearance).
