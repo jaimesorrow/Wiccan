@@ -146,6 +146,11 @@ ksp {
 }
 
 dependencies {
+    constraints {
+        implementation(libs.guava.android) {
+            because("GHSA-xxph-c9ww-hj94: Guava < 33.7.2 deserialization memory exhaustion")
+        }
+    }
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.lifecycle.runtime.ktx)

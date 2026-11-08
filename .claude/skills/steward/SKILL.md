@@ -45,9 +45,10 @@ just the one that happens to compile first.
   session, or Android emulator/device exists in this sandbox. Never invent a
   project ID, API key, or credential to make something "work"; check the
   registered client config and report integration limits honestly.
-- `WiccanDatabaseMigrationTest` and any Android instrumented test compile
-  here but have never executed against a real device — don't report them
-  as "passing," only as "compiles clean."
+- `WiccanDatabaseMigrationTest` and any Android instrumented test only
+  compile in this sandbox — report them as "compiles clean" here. They
+  execute on an emulator in the `Instrumented tests` GitHub workflow; cite
+  that run's result, never a local claim.
 - There is no way to capture a real on-device screenshot here. Visual
   changes are validated via the `@Preview` composables in
   `ui/theme/WiccanThemePreviews.kt` (or new previews alongside a changed
