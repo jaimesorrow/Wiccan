@@ -29,7 +29,8 @@ The November 7, 2026 standard (`docs/CONTENT_VOICE_AND_LESSON_STANDARD.md`) teac
 | 08 | Narrative v2 complete, seed-only (`disposition: narrative_v2_rewrite_complete_seed_only_create_or_omit_review_pending`) |
 | 09 | Narrative v2 complete, seed-only (`disposition: narrative_v2_rewrite_complete_seed_only_create_or_omit_review_pending`) |
 | 10 | Narrative v2 complete, seed-only (`disposition: narrative_v2_rewrite_complete_seed_only_create_or_omit_review_pending`) |
-| 11–12 | Earlier source-adaptation proposals; narrative v2 pending |
+| 11 | Narrative v2 complete, seed-only (`disposition: narrative_v2_rewrite_complete_seed_only_create_or_omit_review_pending`) |
+| 12 | Earlier source-adaptation proposals; narrative v2 pending |
 
 Batches 07–12 hold seed records that were not observed in the live Firestore inventory (`sourceKind: checked-in-seed-not-observed-live`). Their rewrites keep that blocker and use a separate disposition, because whether each record should be created or omitted still needs approval.
 
