@@ -38,6 +38,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          # Cache the Gradle wrapper distribution and dependencies so a slow or
+          # unavailable services.gradle.org does not fail the job before tests run.
+          cache: 'gradle'
       # Keep the fake root config as a build fallback. The checked-in
       # app/src/prod/google-services.json takes precedence for prod variants
       # and supplies their registered wiccan-android Firebase configuration.
