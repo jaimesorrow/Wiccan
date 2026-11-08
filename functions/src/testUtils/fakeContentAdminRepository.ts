@@ -5,6 +5,7 @@ import { practicalContentHash } from "../practicalLesson";
 
 export class FakeContentAdminRepository implements ContentAdminRepositoryPort {
   docs = new Map<string, StoredContent>();
+  originalityReservations = new Set<string>();
   private nextId = 1;
   private versions = new Map<string, number>();
 
@@ -13,6 +14,18 @@ export class FakeContentAdminRepository implements ContentAdminRepositoryPort {
     this.docs.set(id, { ...draft, status: "draft", createdAt: new Date(), updatedAt: new Date() });
     this.versions.set(id, 1);
     return id;
+  }
+
+  async createDraftWithOriginalityReservations(draft: NewDraftContent, reservationKeys: string[]): Promise<string> {
+    const collision = reservationKeys.find((key) => this.originalityReservations.has(key));
+    if (collision) throw new Error(`Originality reservation collision: ${collision}`);
+    const id = await this.createDraft(draft);
+    reservationKeys.forEach((key) => this.originalityReservations.add(key));
+    return id;
+  }
+
+  async listOriginalityInventory() {
+    return [...this.docs.entries()].map(([id, fields]) => ({ id, fields: { ...fields } }));
   }
 
   async getStatus(contentId: string): Promise<ContentStatus | null> {
