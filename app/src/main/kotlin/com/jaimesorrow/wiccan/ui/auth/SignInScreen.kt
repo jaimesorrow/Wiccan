@@ -15,8 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
@@ -42,7 +43,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -116,8 +116,11 @@ internal fun SignInScreenContent(
                 Text("W I C C A N", style = MaterialTheme.typography.labelLarge, color = scheme.primary)
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = if (state.mode == SignInMode.FORGOT_PASSWORD) "Find your way back." else
-                        stringResource(R.string.auth_intro_headline),
+                    text = if (state.mode == SignInMode.FORGOT_PASSWORD) {
+                        "Find your way back."
+                    } else {
+                        stringResource(R.string.auth_intro_headline)
+                    },
                     style = MaterialTheme.typography.headlineMedium,
                     color = scheme.onBackground,
                     modifier = Modifier.fillMaxWidth().semantics { heading() },
@@ -152,7 +155,9 @@ internal fun SignInScreenContent(
                     Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         when (state.mode) {
                             SignInMode.SIGN_IN, SignInMode.CREATE_ACCOUNT -> AuthFields(
-                                state, onEvent, onGoogleSignInClick,
+                                state,
+                                onEvent,
+                                onGoogleSignInClick,
                             )
                             SignInMode.FORGOT_PASSWORD -> RecoveryFields(state, onEvent)
                         }

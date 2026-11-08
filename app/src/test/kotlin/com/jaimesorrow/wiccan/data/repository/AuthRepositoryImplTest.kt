@@ -2,6 +2,8 @@ package com.jaimesorrow.wiccan.data.repository
 
 import android.content.Context
 import android.content.res.Resources
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
@@ -118,5 +120,33 @@ class AuthRepositoryImplTest {
             googleCredentialDataSource.requestGoogleIdToken(activityContext, "configured-client.apps.googleusercontent.com")
         }
         verify { firebaseAuth wasNot Called }
+    }
+
+    @Test
+    fun `dismissing the Google account picker is reported as cancelled`() = runTest {
+        configureGoogleClient()
+        coEvery { googleCredentialDataSource.requestGoogleIdToken(activityContext, any()) } throws
+            GetCredentialCancellationException()
+
+        assertEquals(AppResult.Failure(AppError.Cancelled), repository.signInWithGoogle(activityContext))
+        verify { firebaseAuth wasNot Called }
+    }
+
+    @Test
+    fun `a device without a Google account falls back to email sign-in`() = runTest {
+        configureGoogleClient()
+        coEvery { googleCredentialDataSource.requestGoogleIdToken(activityContext, any()) } throws
+            NoCredentialException()
+
+        assertEquals(
+            AppResult.Failure(AppError.GoogleSignInUnavailable),
+            repository.signInWithGoogle(activityContext),
+        )
+        verify { firebaseAuth wasNot Called }
+    }
+
+    private fun configureGoogleClient() {
+        every { resources.getIdentifier("default_web_client_id", "string", "com.jaimesorrow.wiccan") } returns 1
+        every { appContext.getString(1) } returns "configured-client.apps.googleusercontent.com"
     }
 }

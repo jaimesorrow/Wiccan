@@ -3,14 +3,15 @@
 The results below belong to the pre-migration integration branch merged in PR #43.
 PR #42's requested Firebase package migration is now on main via `b13dc64b`.
 The historical local builds do not validate the migrated package tree. The
-later hosted validation below does verify its automated build matrix. See
-[PR_RECONCILIATION.md](PR_RECONCILIATION.md) for the package audit and device limits.
+later hosted validation below does verify its automated build matrix. The package
+audit and device limits were in `PR_RECONCILIATION.md` (retired 2026-11-07; see
+git history at `1894139`).
 
 Validated `codex/integrate-branches-2026-10-02` against main commit
 `6e2e2b33f0a2813d4ff7dd6eb2bd9696d6764eaf`, including merged PRs #40
 and #41. All 36 merged PRs are present; the branch audit preserves the
 remaining historical heads and carries forward the useful missing changes.
-See [BRANCH_INTEGRATION_AUDIT.md](BRANCH_INTEGRATION_AUDIT.md). The branch
+See `BRANCH_INTEGRATION_AUDIT.md` (retired 2026-11-07; git history at `1894139`). The branch
 retains the Gradle 9 / AGP 9 / Kotlin 2.4 / Billing 9 modernization. This records automated build results,
 not release approval or completion of every planned product feature.
 
