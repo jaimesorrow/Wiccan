@@ -53,7 +53,12 @@ describe("getTodayContent callable time-zone validation", () => {
 
   it("returns permission-denied with a subscription reason before reading assigned content", async () => {
     jest.spyOn(FirestoreSystemConfigRepository.prototype, "getConfig")
-      .mockResolvedValue({ dailyContentEnabled: true, notificationsEnabled: true });
+      .mockResolvedValue({
+        dailyContentEnabled: true,
+        notificationsEnabled: true,
+        contentGenerationEnabled: false,
+        contentGenerationBatchSize: 3,
+      });
     jest.spyOn(FirestoreUserProfileRepository.prototype, "getAcceptedPolicyVersions")
       .mockResolvedValue({ termsVersion: CURRENT_TERMS_VERSION, privacyVersion: CURRENT_PRIVACY_VERSION });
     jest.spyOn(FirestoreContentRepository.prototype, "getUserTier").mockResolvedValue("free");
@@ -69,7 +74,12 @@ describe("getTodayContent callable time-zone validation", () => {
     { termsVersion: CURRENT_TERMS_VERSION, privacyVersion: CURRENT_PRIVACY_VERSION - 1 },
   ])("refuses content until the current policies are accepted: %p", async (accepted) => {
     jest.spyOn(FirestoreSystemConfigRepository.prototype, "getConfig")
-      .mockResolvedValue({ dailyContentEnabled: true, notificationsEnabled: true });
+      .mockResolvedValue({
+        dailyContentEnabled: true,
+        notificationsEnabled: true,
+        contentGenerationEnabled: false,
+        contentGenerationBatchSize: 3,
+      });
     jest.spyOn(FirestoreUserProfileRepository.prototype, "getAcceptedPolicyVersions").mockResolvedValue(accepted);
     const tier = jest.spyOn(FirestoreContentRepository.prototype, "getUserTier");
     const history = jest.spyOn(FirestoreContentRepository.prototype, "findTodayDeliveredContentId");
