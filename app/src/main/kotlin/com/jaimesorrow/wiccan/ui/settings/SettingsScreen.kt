@@ -236,6 +236,30 @@ fun SettingsScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+                    Text(
+                        text = "Usage analytics & crash reports",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    Text(
+                        text = "Optional. Helps improve Wiccan; never used for ads.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Switch(
+                    checked = state.shareAnalytics,
+                    onCheckedChange = { viewModel.onEvent(SettingsUiEvent.ShareAnalyticsToggled(it)) },
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
             OutlinedButton(
                 onClick = { viewModel.onEvent(SettingsUiEvent.DeleteAccountClicked) },
                 modifier = Modifier.fillMaxWidth(),

@@ -262,9 +262,16 @@ drifts from the in-app text or a `PolicyUrls` link has no page. Not yet
 deployed: no authenticated Firebase access exists in this sandbox. Terms are
 governed by Alaska law, keeping users' mandatory local consumer protections and
 home-court rights; Privacy adds GDPR/UK legal bases, worldwide rights, a
-30-day response window and the transfer basis. Open for a worldwide launch:
-Firebase Analytics (with the advertising ID) is on by default, but EEA/UK rules
-generally require consent before non-essential analytics, so add a consent
-prompt or disable analytics collection for those users; a non-EU operator
-serving EU users may also need an EU/UK representative (GDPR Art. 27). Have a
-qualified reviewer approve the text before release.
+30-day response window and the transfer basis.
+
+Analytics and crash reporting are now opt-in worldwide. The merged release
+manifest disables Firebase Analytics and Crashlytics collection and denies
+every consent-mode signal by default (verified: all six values `false`);
+`AnalyticsConsentManager` enables collection only after the user checks the
+optional box on the agreement screen or turns on "Usage analytics & crash
+reports" in Settings. Ad storage, ad user data and ad personalization stay
+denied even after opt-in. Withdrawing consent resets the Analytics instance
+data and deletes unsent crash reports. Privacy lists consent as the legal basis
+for analytics. Still open for a worldwide launch: a non-EU operator serving EU
+users may need an EU/UK representative (GDPR Art. 27). Have a qualified
+reviewer approve the text before release.

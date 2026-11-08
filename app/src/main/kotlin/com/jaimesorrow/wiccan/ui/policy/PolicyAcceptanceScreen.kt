@@ -110,6 +110,19 @@ fun PolicyAcceptanceScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Optional",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            AgreementRow(
+                text = SHARE_ANALYTICS_LABEL,
+                checked = state.shareAnalytics,
+                onCheckedChange = { viewModel.onEvent(PolicyAcceptanceUiEvent.ShareAnalyticsChanged(it)) },
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = { viewModel.onEvent(PolicyAcceptanceUiEvent.ContinueClicked) },
@@ -128,6 +141,9 @@ fun PolicyAcceptanceScreen(
         }
     }
 }
+
+internal const val SHARE_ANALYTICS_LABEL =
+    "Share usage analytics and crash reports to help improve Wiccan. Not required; change it anytime in Settings."
 
 /** Statement the user must check for each required agreement. */
 internal fun PolicyAgreement.label(): String = when (this) {

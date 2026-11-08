@@ -2,6 +2,7 @@ package com.jaimesorrow.wiccan.ui.policy
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,6 +28,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class PolicyAcceptanceViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    private val analyticsConsentManager: AnalyticsConsentManager,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(PolicyAcceptanceUiState())
@@ -34,11 +37,20 @@ class PolicyAcceptanceViewModel @Inject constructor(
     private val effectChannel = Channel<PolicyAcceptanceUiEffect>(Channel.BUFFERED)
     val effects: Flow<PolicyAcceptanceUiEffect> = effectChannel.receiveAsFlow()
 
+    init {
+        // A returning user re-accepting updated policies keeps their earlier analytics choice.
+        viewModelScope.launch {
+            val stored = analyticsConsentManager.consent.first()
+            _state.update { it.copy(shareAnalytics = stored) }
+        }
+    }
+
     fun onEvent(event: PolicyAcceptanceUiEvent) {
         when (event) {
             is PolicyAcceptanceUiEvent.AgreementChanged -> _state.update {
                 it.copy(agreed = if (event.checked) it.agreed + event.agreement else it.agreed - event.agreement)
             }
+            is PolicyAcceptanceUiEvent.ShareAnalyticsChanged -> _state.update { it.copy(shareAnalytics = event.share) }
             PolicyAcceptanceUiEvent.ContinueClicked -> acceptTerms()
         }
     }
@@ -48,6 +60,7 @@ class PolicyAcceptanceViewModel @Inject constructor(
         if (!_state.value.canContinue) return
         _state.update { it.copy(isSubmitting = true) }
         viewModelScope.launch {
+            analyticsConsentManager.setConsent(_state.value.shareAnalytics)
             when (val result = authRepository.acceptTerms()) {
                 is AppResult.Success -> _state.update { it.copy(isSubmitting = false) }
                 is AppResult.Failure -> {

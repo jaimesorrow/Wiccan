@@ -91,9 +91,9 @@ Recommended rows for the current build:
 | Email address | Yes | No* | Required for email auth; Google account choice is optional | Account management, app functionality, security |
 | User IDs | Yes | No* | Required | Account management, app functionality, fraud prevention/security |
 | Purchase history | Yes | No* | Optional (only subscribers/restores) | App functionality, account management, fraud prevention/security |
-| App interactions | Yes | No* | Required by current analytics setup | Analytics, app functionality |
-| Crash logs | Yes | No* | Required by current Crashlytics setup | Analytics, app functionality |
-| Diagnostics | Yes | No* | Required by current Crashlytics/App Check setup | Analytics, fraud prevention/security |
+| App interactions | Yes | No* | **Optional** — Firebase Analytics runs only after opt-in (onboarding or Settings) | Analytics |
+| Crash logs | Yes | No* | **Optional** — Crashlytics runs only after opt-in | Analytics, app functionality |
+| Diagnostics | Yes | No* | **Optional** — Crashlytics diagnostics only after opt-in | Analytics, app functionality |
 | Device or other IDs | Yes | No* | FCM/App Check identifiers are handled by current SDKs | App functionality, security, developer communications |
 | Precise/approximate location | No | No | Not collected | — |
 | Contacts, messages, photos/videos, audio, files | No | No | Not collected | — |

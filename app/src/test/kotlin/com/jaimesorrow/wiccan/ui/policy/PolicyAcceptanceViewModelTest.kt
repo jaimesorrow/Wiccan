@@ -1,11 +1,17 @@
 package com.jaimesorrow.wiccan.ui.policy
 
 import app.cash.turbine.test
+import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.ui.auth.FakeAuthRepository
+import io.mockk.coVerify
+import io.mockk.coVerifyOrder
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -22,13 +28,16 @@ class PolicyAcceptanceViewModelTest {
 
     private val dispatcher = StandardTestDispatcher()
     private lateinit var repository: FakeAuthRepository
+    private lateinit var consentManager: AnalyticsConsentManager
     private lateinit var viewModel: PolicyAcceptanceViewModel
 
     @Before
     fun setUp() {
         Dispatchers.setMain(dispatcher)
         repository = FakeAuthRepository()
-        viewModel = PolicyAcceptanceViewModel(repository)
+        consentManager = mockk(relaxed = true)
+        every { consentManager.consent } returns flowOf(false)
+        viewModel = PolicyAcceptanceViewModel(repository, consentManager)
     }
 
     @After
@@ -95,5 +104,48 @@ class PolicyAcceptanceViewModelTest {
             cancelAndConsumeRemainingEvents()
         }
         assertFalse(viewModel.state.value.isSubmitting)
+    }
+
+    @Test
+    fun `analytics sharing is optional and off by default`() = runTest(dispatcher) {
+        dispatcher.scheduler.advanceUntilIdle()
+        assertFalse(viewModel.state.value.shareAnalytics)
+
+        agreeToAll()
+        assertTrue(viewModel.state.value.canContinue)
+        viewModel.onEvent(PolicyAcceptanceUiEvent.ContinueClicked)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        coVerify(exactly = 1) { consentManager.setConsent(false) }
+        assertEquals(1, repository.acceptTermsCallCount)
+    }
+
+    @Test
+    fun `opting in records consent before accepting the policies`() = runTest(dispatcher) {
+        agreeToAll()
+        viewModel.onEvent(PolicyAcceptanceUiEvent.ShareAnalyticsChanged(true))
+        viewModel.onEvent(PolicyAcceptanceUiEvent.ContinueClicked)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        coVerifyOrder { consentManager.setConsent(true) }
+        assertEquals(1, repository.acceptTermsCallCount)
+    }
+
+    @Test
+    fun `a returning user's earlier opt-in is pre-selected`() = runTest(dispatcher) {
+        every { consentManager.consent } returns flowOf(true)
+        val returning = PolicyAcceptanceViewModel(repository, consentManager)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertTrue(returning.state.value.shareAnalytics)
+    }
+
+    @Test
+    fun `no consent is recorded while a required agreement is missing`() = runTest(dispatcher) {
+        viewModel.onEvent(PolicyAcceptanceUiEvent.ShareAnalyticsChanged(true))
+        viewModel.onEvent(PolicyAcceptanceUiEvent.ContinueClicked)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        coVerify(exactly = 0) { consentManager.setConsent(any()) }
     }
 }

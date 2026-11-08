@@ -1,6 +1,7 @@
 package com.jaimesorrow.wiccan.ui.settings
 
 import app.cash.turbine.test
+import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
@@ -39,6 +40,7 @@ class SettingsViewModelTest {
     private lateinit var notificationRepository: NotificationRepository
     private lateinit var themePreferences: ThemePreferences
     private lateinit var wiccanWidgetUpdater: WiccanWidgetUpdater
+    private lateinit var consentManager: AnalyticsConsentManager
     private lateinit var viewModel: SettingsViewModel
 
     @Before
@@ -50,6 +52,8 @@ class SettingsViewModelTest {
         themePreferences = mockk(relaxed = true)
         wiccanWidgetUpdater = mockk(relaxed = true)
         every { themePreferences.themeMode } returns flowOf(WiccanThemeMode.DEFAULT)
+        consentManager = mockk(relaxed = true)
+        every { consentManager.consent } returns flowOf(false)
         val analyticsLogger: AnalyticsLogger = mockk(relaxed = true)
         viewModel = SettingsViewModel(
             repository,
@@ -58,7 +62,23 @@ class SettingsViewModelTest {
             notificationRepository,
             themePreferences,
             wiccanWidgetUpdater,
+            consentManager,
         )
+    }
+
+    @Test
+    fun `analytics switch reflects the stored choice and records changes`() = runTest(dispatcher) {
+        dispatcher.scheduler.advanceUntilIdle()
+        assertFalse(viewModel.state.value.shareAnalytics)
+
+        viewModel.onEvent(SettingsUiEvent.ShareAnalyticsToggled(true))
+        dispatcher.scheduler.advanceUntilIdle()
+        assertTrue(viewModel.state.value.shareAnalytics)
+        coVerify { consentManager.setConsent(true) }
+
+        viewModel.onEvent(SettingsUiEvent.ShareAnalyticsToggled(false))
+        dispatcher.scheduler.advanceUntilIdle()
+        coVerify { consentManager.setConsent(false) }
     }
 
     @After
@@ -185,6 +205,7 @@ class SettingsViewModelTest {
             notificationRepository,
             themePreferences,
             wiccanWidgetUpdater,
+            consentManager,
         )
         dispatcher.scheduler.advanceUntilIdle()
 

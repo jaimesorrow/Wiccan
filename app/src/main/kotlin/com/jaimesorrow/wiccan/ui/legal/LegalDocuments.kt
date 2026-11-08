@@ -212,10 +212,14 @@ object WiccanLegalDocuments {
                         "notification preference, and registered push token.",
                     "Purchase data: product ID, entitlement and renewal state, expiry, purchase token, and pseudonymous " +
                         "account/token hashes used to prevent purchase fraud and replay.",
-                    "Diagnostics and analytics: app interactions, device/app information, crash reports, and integrity " +
-                        "signals handled through Firebase Analytics, Crashlytics, App Check, and Play Integrity. Where your " +
-                        "device allows it, Firebase Analytics may also collect the Android advertising ID; Wiccan uses it only " +
-                        "for analytics measurement, never for advertising. You can reset or delete it in your device's Google or " +
+                    "Security signals: App Check and Play Integrity attestations, used on every request to protect the " +
+                        "service from fraud and abuse.",
+                    "Optional analytics and crash reports: app interactions and device/app information through Firebase " +
+                        "Analytics, and crash reports through Crashlytics, are collected only if you opt in during onboarding or " +
+                        "in Settings, and you can turn them off at any time. While analytics is on and your device allows it, " +
+                        "Firebase Analytics may also collect the Android advertising ID; Wiccan uses it only for analytics " +
+                        "measurement, never for advertising, and tells Google that ad storage, ad user data, and ad " +
+                        "personalization are denied. You can reset or delete the advertising ID in your device's Google or " +
                         "privacy settings.",
                     "The app does not request precise location, contacts, photos, camera, microphone, or health permissions. " +
                         "A device time-zone identifier is not used to infer precise location.",
@@ -225,8 +229,8 @@ object WiccanLegalDocuments {
                 "Why information is used",
                 listOf(
                     "Information is used to authenticate accounts, avoid repeating daily content, show archive history, " +
-                        "deliver requested notifications, verify subscription access, prevent fraud, enforce security, diagnose " +
-                        "failures, understand app performance, and meet legal or platform obligations.",
+                        "deliver requested notifications, verify subscription access, prevent fraud, enforce security, meet legal " +
+                        "or platform obligations, and, only if you opt in, diagnose crashes and understand app performance.",
                 ),
             ),
             LegalSection(
@@ -235,8 +239,9 @@ object WiccanLegalDocuments {
                     "Where the GDPR, UK GDPR, Swiss law, or a similar law applies, Wiccan relies on these legal bases: " +
                         "performance of its contract with you, to create and secure your account, deliver the daily content and " +
                         "notifications you request, and provide your subscription; legitimate interests, to prevent fraud and " +
-                        "abuse, keep the service secure, diagnose crashes, and understand app performance, balanced against your " +
-                        "rights; and legal obligations, such as tax and accounting records and responding to lawful requests.",
+                        "abuse and keep the service secure, balanced against your rights; your consent, for usage analytics and " +
+                        "crash reports, which you can withdraw at any time in Settings; and legal obligations, such as tax and " +
+                        "accounting records and responding to lawful requests.",
                     "You may object at any time to processing based on legitimate interests by emailing " +
                         "wiccan.android.app@gmail.com.",
                 ),
@@ -307,8 +312,8 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Your choices and contact",
                 listOf(
-                    "You can disable daily notifications, sign out, manage your subscription in Google Play, and delete your " +
-                        "account in Settings.",
+                    "In Settings you can disable daily notifications, turn usage analytics and crash reports on or off, sign " +
+                        "out, and delete your account. Manage your subscription in Google Play.",
                     "Wiccan is operated by Jaime Sorrow, an individual developer based in Alaska, United States, who is " +
                         "responsible for (the “controller” of) your personal information. For access, correction, privacy, or " +
                         "deletion questions, email wiccan.android.app@gmail.com or use Contact Support in Settings.",

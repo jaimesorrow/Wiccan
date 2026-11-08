@@ -72,6 +72,8 @@ class LegalDocumentsTest {
         }
         assertTrue(terms.contains("at least 18 years old"))
         assertTrue(privacy.contains("advertising ID"))
+        assertTrue(privacy.contains("collected only if you opt in"))
+        assertTrue(privacy.contains("your consent, for usage analytics and crash reports"))
     }
 
     @Test
