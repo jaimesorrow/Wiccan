@@ -9,6 +9,11 @@
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "22"
+    },
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "17",
+      "additionalVersions": "21",
+      "jdkDistro": "ms"
     }
   },
   "remoteUser": "vscode",
