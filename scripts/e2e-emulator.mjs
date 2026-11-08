@@ -158,9 +158,23 @@ async function main() {
     process.exit(2);
   }
 
-  console.log("\n== getTodayContent ==");
-  ok("signed-in account without a subscription is denied", probe?.error?.status === "PERMISSION_DENIED",
+  console.log("\n== policy acceptance gate ==");
+  ok("content is refused until the current policies are accepted",
+    probe?.error?.status === "FAILED_PRECONDITION" && probe?.error?.details?.reason === "POLICY_ACCEPTANCE_REQUIRED",
     JSON.stringify(probe).slice(0, 200));
+  // Emulator-only fixture: the profile document onUserCreated writes in
+  // production. The Auth trigger does not fire in this emulator run.
+  await db.collection("users").doc(uid).set({ tier: "free" }, { merge: true });
+  const staleTerms = await call("acceptTerms", token, { termsVersion: 3, privacyVersion: 4 });
+  ok("acceptTerms rejects an outdated version", staleTerms?.error?.status === "FAILED_PRECONDITION");
+  const terms = await call("acceptTerms", token, { termsVersion: 4, privacyVersion: 4 });
+  ok("acceptTerms succeeds", !terms?.error, JSON.stringify(terms).slice(0, 200));
+  ok("users/{uid} exists afterwards", (await db.collection("users").doc(uid).get()).exists);
+
+  console.log("\n== getTodayContent ==");
+  const unsubscribed = await call("getTodayContent", token);
+  ok("signed-in account without a subscription is denied", unsubscribed?.error?.status === "PERMISSION_DENIED",
+    JSON.stringify(unsubscribed).slice(0, 200));
   const forged = await call("getTodayContent", token, { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 });
   ok("client entitlement fields cannot bypass subscription verification", forged?.error?.status === "PERMISSION_DENIED");
   // Emulator-only fixture, not a production entitlement or a Play sandbox purchase.
@@ -206,11 +220,6 @@ async function main() {
   await db.collection("users").doc(uid).update({ subscriptionExpiresAtMillis: Date.now() + 3_600_000 });
   const renewed = await call("getTodayContent", token);
   ok("renewal restores the same committed assignment", renewed?.result?.id === firstId);
-
-  console.log("\n== acceptTerms ==");
-  const terms = await call("acceptTerms", token, { termsVersion: 3, privacyVersion: 3 });
-  ok("acceptTerms succeeds", !terms?.error, JSON.stringify(terms).slice(0, 200));
-  ok("users/{uid} exists afterwards", (await db.collection("users").doc(uid).get()).exists);
 
   console.log("\n== device registration and preferences ==");
   const fcm = "e2e-fcm-token";

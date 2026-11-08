@@ -79,7 +79,7 @@ found the following. Each is now addressed as noted:
 
 - **Visual/typography redesign** — local build/test/lint and six JVM palette specimens pass; real-device app screens, transitions and actual font appearance still need review before release.
 - **Billing runtime validation** — 9.1.0 is integrated with the modernized toolchain and local unit tests pass; live purchases, acknowledgement, restore and RTDN still need Play/Firebase verification.
-- `PolicyUrls` (Terms, Privacy, account deletion) and `SUPPORT_EMAIL` are placeholders — no real hosted pages exist yet.
+- Policy pages (Terms, Privacy, Content & Safety, account deletion) are written in `hosting/` but not yet deployed — run `firebase deploy --only hosting --project production`, then confirm each `PolicyUrls` link loads.
 - `handlePlayRtdn`, `verifyPurchase`'s field shapes, and the `users/{uid}/devices` collection-group query have never been exercised against a real Play Console / Firebase project.
 - `dev`/`staging` product flavors exist but need their own real `google-services.json` (from their own real Firebase projects) before they'll build.
 - The production Firebase client config identifies `wiccan-android` and includes its verified web OAuth client ID. Build/signing-certificate matching, device sign-in, live Firebase/Play flows and release setup remain unverified.
@@ -227,8 +227,51 @@ on an API 34 emulator. Its first run (Actions run 42383365512, PR #111 head
 `0252801`) passed: the emulator booted and all three `WiccanDatabaseMigrationTest`
 cases (1→2, 1→4, 2→4) ran green against a real SQLite engine.
 
-Still open for Play submission: live legal/account-deletion URLs (the
-`wiccan.app` placeholders do not resolve), a minimum age in the Terms and an
-18+ target audience, the Advertising ID declaration (`AD_ID` remains in the
+Still open for Play submission: deploying the new policy pages (below), the
+18+ target-audience selection in Play Console, the Advertising ID declaration (`AD_ID` remains in the
 merged manifest via Firebase Analytics), the Data Safety form, and launcher
 icon fallbacks for API 24–25 plus a monochrome layer for themed icons.
+
+## Public policy pages — 2026-11-07
+
+Terms of Service and Privacy Policy are now version 4, naming the operator
+(Jaime Sorrow, an individual developer in Alaska) and contact (`wiccan.android.app@gmail.com`). Terms add an
+18+ age requirement, disclaimers/limitation of liability and governing law;
+Privacy adds the Android advertising ID (collected by Firebase Analytics,
+not used for ads), concrete Analytics/Crashlytics retention, a children
+section, U.S. state privacy rights, and the deletion URL. Terms also carry an
+explicit “No promise or guarantee of results” section (no spell, potion,
+ritual, ceremony or other practice is promised to produce any effect;
+descriptions of a practice's purpose report historical claims, not facts),
+mirrored in Content & Safety. Existing accounts are re-prompted because both
+versions changed.
+
+Onboarding now requires four separate acknowledgements before Continue
+enables: 18 or older, the Terms, the Privacy Policy, and that Wiccan promises
+no result from any practice (with the Content & Safety guidance). Acceptance
+is also enforced on the server: `getTodayContent` returns
+`failed-precondition` / `POLICY_ACCEPTANCE_REQUIRED` and the daily
+notification job skips users until the current Terms and Privacy versions are
+recorded, so a modified client cannot skip the gate. The emulator callable
+run (45 checks) covers the refusal, a stale-version rejection and acceptance.
+
+`hosting/` publishes the same text at `https://wiccan-android.web.app`
+(`/terms`, `/privacy`, `/content-safety`, `/delete-account`) via Firebase
+Hosting with a restrictive CSP. `LegalDocumentsTest` fails if any hosted page
+drifts from the in-app text or a `PolicyUrls` link has no page. Not yet
+deployed: no authenticated Firebase access exists in this sandbox. Terms are
+governed by Alaska law, keeping users' mandatory local consumer protections and
+home-court rights; Privacy adds GDPR/UK legal bases, worldwide rights, a
+30-day response window and the transfer basis.
+
+Analytics and crash reporting are now opt-in worldwide. The merged release
+manifest disables Firebase Analytics and Crashlytics collection and denies
+every consent-mode signal by default (verified: all six values `false`);
+`AnalyticsConsentManager` enables collection only after the user checks the
+optional box on the agreement screen or turns on "Usage analytics & crash
+reports" in Settings. Ad storage, ad user data and ad personalization stay
+denied even after opt-in. Withdrawing consent resets the Analytics instance
+data and deletes unsent crash reports. Privacy lists consent as the legal basis
+for analytics. Still open for a worldwide launch: a non-EU operator serving EU
+users may need an EU/UK representative (GDPR Art. 27). Have a qualified
+reviewer approve the text before release.

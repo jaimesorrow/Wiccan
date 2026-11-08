@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,7 +37,8 @@ import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
 /**
  * Blocking agreement gate shown whenever the signed-in user hasn't yet
  * accepted the current Terms of Service/Privacy Policy. Continue is
- * disabled until the checkbox is checked; on success, [PolicyAcceptanceViewModel]
+ * disabled until every [PolicyAgreement] is checked (18+, Terms, Privacy,
+ * and the no-guaranteed-results/safety acknowledgement); on success, [PolicyAcceptanceViewModel]
  * does no navigation of its own - the root observer moves on once the
  * server records the acceptance.
  */
@@ -64,7 +69,8 @@ fun PolicyAcceptanceScreen(
             modifier = Modifier
                 .padding(insets)
                 .fillMaxSize()
-                .padding(horizontal = 32.dp),
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 32.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -77,7 +83,7 @@ fun PolicyAcceptanceScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Please review and agree to our policies to keep using Wiccan.",
+                text = "Please review each document and confirm every statement below to keep using Wiccan.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -96,23 +102,32 @@ fun PolicyAcceptanceScreen(
             }
             Spacer(modifier = Modifier.height(4.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Checkbox(
-                    checked = state.isChecked,
-                    onCheckedChange = { viewModel.onEvent(PolicyAcceptanceUiEvent.CheckedChanged(it)) },
-                )
-                Text(
-                    text = "I agree to the Terms of Service and acknowledge the Privacy Policy and safety guidance",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
+            PolicyAgreement.entries.forEach { agreement ->
+                AgreementRow(
+                    text = agreement.label(),
+                    checked = agreement in state.agreed,
+                    onCheckedChange = { viewModel.onEvent(PolicyAcceptanceUiEvent.AgreementChanged(agreement, it)) },
                 )
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Optional",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            AgreementRow(
+                text = SHARE_ANALYTICS_LABEL,
+                checked = state.shareAnalytics,
+                onCheckedChange = { viewModel.onEvent(PolicyAcceptanceUiEvent.ShareAnalyticsChanged(it)) },
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = { viewModel.onEvent(PolicyAcceptanceUiEvent.ContinueClicked) },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = state.isChecked && !state.isSubmitting,
+                enabled = state.canContinue,
             ) {
                 Text("Continue")
             }
@@ -124,5 +139,38 @@ fun PolicyAcceptanceScreen(
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         }
+    }
+}
+
+internal const val SHARE_ANALYTICS_LABEL =
+    "Share usage analytics and crash reports to help improve Wiccan. Not required; change it anytime in Settings."
+
+/** Statement the user must check for each required agreement. */
+internal fun PolicyAgreement.label(): String = when (this) {
+    PolicyAgreement.ADULT -> "I am 18 years of age or older."
+    PolicyAgreement.TERMS -> "I have read and agree to the Terms of Service."
+    PolicyAgreement.PRIVACY -> "I have read and acknowledge the Privacy Policy."
+    PolicyAgreement.NO_GUARANTEE ->
+        "I understand that Wiccan does not promise or guarantee any result from any spell, potion, ritual, " +
+            "ceremony, or other practice, and I have read the Content & Safety guidance."
+}
+
+@Composable
+private fun AgreementRow(text: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .toggleable(value = checked, role = Role.Checkbox, onValueChange = onCheckedChange),
+    ) {
+        Checkbox(checked = checked, onCheckedChange = null)
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier
+                .weight(1f)
+                .padding(vertical = 8.dp),
+        )
     }
 }

@@ -2,6 +2,7 @@ package com.jaimesorrow.wiccan.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.data.local.ThemePreferences
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
@@ -29,6 +30,7 @@ class SettingsViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository,
     private val themePreferences: ThemePreferences,
     private val wiccanWidgetUpdater: WiccanWidgetUpdater,
+    private val analyticsConsentManager: AnalyticsConsentManager,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsUiState(accountEmail = authRepository.currentEmail().orEmpty()))
@@ -46,6 +48,11 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             notificationRepository.notificationsEnabled.collect { enabled ->
                 _state.update { it.copy(notificationsEnabled = enabled) }
+            }
+        }
+        viewModelScope.launch {
+            analyticsConsentManager.consent.collect { share ->
+                _state.update { it.copy(shareAnalytics = share) }
             }
         }
         viewModelScope.launch {
@@ -68,6 +75,7 @@ class SettingsViewModel @Inject constructor(
             SettingsUiEvent.CancelDeleteAccount -> _state.update { it.copy(showDeleteConfirmation = false) }
             SettingsUiEvent.ConfirmDeleteAccount -> deleteAccount()
             is SettingsUiEvent.NotificationsToggled -> toggleNotifications(event.enabled)
+            is SettingsUiEvent.ShareAnalyticsToggled -> toggleShareAnalytics(event.share)
             is SettingsUiEvent.ThemeModeSelected -> selectThemeMode(event.mode)
         }
     }
@@ -79,6 +87,19 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             themePreferences.setThemeMode(mode)
             wiccanWidgetUpdater.updateAll()
+        }
+    }
+
+    private fun toggleShareAnalytics(share: Boolean) {
+        _state.update { it.copy(shareAnalytics = share) }
+        viewModelScope.launch {
+            if (!analyticsConsentManager.setConsent(share)) {
+                // Withdrawal still took effect for this session; the switch shows what is saved.
+                _state.update { it.copy(shareAnalytics = !share) }
+                effectChannel.send(
+                    SettingsUiEffect.ShowMessage("Your analytics choice couldn't be saved. Please try again."),
+                )
+            }
         }
     }
 

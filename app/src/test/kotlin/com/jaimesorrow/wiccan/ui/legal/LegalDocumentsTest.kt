@@ -1,6 +1,8 @@
 package com.jaimesorrow.wiccan.ui.legal
 
+import com.jaimesorrow.wiccan.core.config.PolicyUrls
 import com.jaimesorrow.wiccan.domain.model.PolicyVersions
+import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -21,6 +23,20 @@ class LegalDocumentsTest {
         assertTrue(text.contains("Google Play", ignoreCase = true))
         assertTrue(text.contains("medical", ignoreCase = true))
         assertTrue(text.contains("AI assistance", ignoreCase = true))
+    }
+
+    @Test
+    fun `terms and safety guidance explicitly disclaim any promised result`() {
+        val terms = WiccanLegalDocuments.terms
+        val section = terms.sections.single { it.heading == "No promise or guarantee of results" }.paragraphs.joinToString(" ")
+        listOf(
+            "does not promise, represent, warrant, or guarantee",
+            "spell, potion, charm, ritual, ceremony",
+            "supernatural, paranormal, magical, psychic, or spiritual effect",
+            "not a statement of fact, prediction, or promise",
+            "absence of any result is not a defect",
+        ).forEach { required -> assertTrue("Missing no-results disclaimer: $required", section.contains(required)) }
+        assertTrue(WiccanLegalDocuments.contentSafety.auditText().contains("does not promise or guarantee"))
     }
 
     @Test
@@ -45,6 +61,75 @@ class LegalDocumentsTest {
             .forEach { required -> assertTrue("Missing safety guidance: $required", text.contains(required, true)) }
     }
 
+    @Test
+    fun `policies identify the operator adult audience and contact`() {
+        val terms = WiccanLegalDocuments.terms.auditText()
+        val privacy = WiccanLegalDocuments.privacy.auditText()
+        listOf(terms, privacy).forEach { text ->
+            assertTrue(text.contains(OPERATOR))
+            assertTrue(text.contains(PolicyUrls.SUPPORT_EMAIL))
+            assertTrue(text.contains(PolicyUrls.ACCOUNT_DELETION_URL))
+        }
+        assertTrue(terms.contains("at least 18 years old"))
+        assertTrue(privacy.contains("advertising ID"))
+        assertTrue(privacy.contains("collected only if you opt in"))
+        assertTrue(privacy.contains("your consent, for usage analytics and crash reports"))
+    }
+
+    @Test
+    fun `hosted pages mirror the native documents word for word`() {
+        mapOf(
+            "terms" to WiccanLegalDocuments.terms,
+            "privacy" to WiccanLegalDocuments.privacy,
+            "content-safety" to WiccanLegalDocuments.contentSafety,
+        ).forEach { (page, document) ->
+            val expected = buildList {
+                add(document.title)
+                add("Effective ${document.effectiveDate}" + (document.version?.let { " · Version $it" } ?: ""))
+                add(document.introduction)
+                document.sections.forEach { section ->
+                    add(section.heading)
+                    addAll(section.paragraphs)
+                }
+            }.joinToString(" ").normalized()
+            assertEquals("hosting/$page.html <main> differs from the in-app text", expected, hostedMainText(page))
+        }
+    }
+
+    @Test
+    fun `every public policy URL has a hosted page`() {
+        listOf(PolicyUrls.TERMS_OF_SERVICE, PolicyUrls.PRIVACY_POLICY, PolicyUrls.ACCOUNT_DELETION_URL).forEach { url ->
+            val page = url.substringAfterLast('/')
+            assertTrue("No hosted page for $url", hostingFile("$page.html").isFile)
+        }
+        val deletion = hostedText("delete-account")
+        assertTrue(deletion.contains(PolicyUrls.SUPPORT_EMAIL))
+        assertTrue(deletion.contains(OPERATOR))
+    }
+
+    private fun hostingFile(name: String): File =
+        listOf(File("../hosting", name), File("hosting", name)).firstOrNull { it.exists() } ?: File("../hosting", name)
+
+    private fun hostedMainText(page: String): String {
+        val html = hostingFile("$page.html").readText()
+        val main = Regex("<main>(.*)</main>", RegexOption.DOT_MATCHES_ALL).find(html)?.groupValues?.get(1)
+            ?: error("hosting/$page.html has no <main>")
+        return main.decodedText()
+    }
+
+    private fun hostedText(page: String): String = hostingFile("$page.html").readText().decodedText()
+
+    private fun String.decodedText(): String = this
+        .replace(Regex("<[^>]+>"), "")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", "\"")
+        .replace("&#x27;", "'")
+        .replace("&amp;", "&")
+        .normalized()
+
+    private fun String.normalized(): String = trim().replace(Regex("\\s+"), " ")
+
     private fun LegalDocument.auditText(): String = buildString {
         append(title)
         append(' ')
@@ -57,5 +142,9 @@ class LegalDocumentsTest {
                 append(it)
             }
         }
+    }
+
+    private companion object {
+        const val OPERATOR = "Jaime Sorrow"
     }
 }

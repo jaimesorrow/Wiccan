@@ -8,6 +8,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -36,6 +37,49 @@ private val bottomNavItems = listOf(
     BottomNavItem(WiccanDestinations.SETTINGS, "Settings"),
 )
 
+/** What a settings destination needs from navigation. */
+internal data class SettingsLinks(
+    val accountOnly: Boolean,
+    val onBack: () -> Unit,
+    val onTermsClick: () -> Unit,
+    val onPrivacyClick: () -> Unit,
+    val onContentSafetyClick: () -> Unit,
+)
+
+/**
+ * The composable shown for each destination. Production wires the real
+ * Hilt-backed screens; navigation tests wire lightweight stand-ins so the
+ * real routes, callbacks, back behavior and deep links can be exercised
+ * without Firebase.
+ */
+internal class WiccanNavScreens(
+    val today: @Composable (onOpenGrimoire: () -> Unit) -> Unit,
+    val archive: @Composable (onNavigateToDetail: (String) -> Unit) -> Unit,
+    val settings: @Composable (links: SettingsLinks) -> Unit,
+    val archiveDetail: @Composable (contentId: String, onBack: () -> Unit) -> Unit,
+    val legalDocument: @Composable (documentId: LegalDocumentId, onBack: () -> Unit) -> Unit,
+)
+
+private fun productionScreens(settingsViewModel: SettingsViewModel) = WiccanNavScreens(
+    today = { onOpenGrimoire -> TodayScreen(onOpenGrimoire = onOpenGrimoire) },
+    archive = { onNavigateToDetail -> ArchiveScreen(onNavigateToDetail = onNavigateToDetail) },
+    settings = { links ->
+        SettingsScreen(
+            viewModel = settingsViewModel,
+            accountOnly = links.accountOnly,
+            onBack = links.onBack,
+            onTermsClick = links.onTermsClick,
+            onPrivacyClick = links.onPrivacyClick,
+            onContentSafetyClick = links.onContentSafetyClick,
+        )
+    },
+    // ArchiveDetailViewModel reads the contentId from SavedStateHandle itself.
+    archiveDetail = { _, onBack -> ArchiveDetailScreen(onBack = onBack) },
+    legalDocument = { documentId, onBack ->
+        LegalDocumentScreen(document = WiccanLegalDocuments.get(documentId), onBack = onBack)
+    },
+)
+
 /**
  * The signed-in app shell: bottom navigation across the three primary
  * destinations (Today, Grimoire, Settings), with Paywall and
@@ -49,7 +93,29 @@ fun WiccanAppShell(
     startOnPaywall: Boolean = false,
     settingsViewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    val navController = rememberNavController()
+    val screens = remember(settingsViewModel) { productionScreens(settingsViewModel) }
+    WiccanAppShellContent(
+        screens = screens,
+        navController = rememberNavController(),
+        modifier = modifier,
+        startOnPaywall = startOnPaywall,
+    )
+}
+
+@Composable
+internal fun WiccanAppShellContent(
+    screens: WiccanNavScreens,
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    startOnPaywall: Boolean = false,
+) {
+    fun settingsLinks(accountOnly: Boolean, onBack: () -> Unit) = SettingsLinks(
+        accountOnly = accountOnly,
+        onBack = onBack,
+        onTermsClick = { navController.navigate(WiccanDestinations.TERMS) },
+        onPrivacyClick = { navController.navigate(WiccanDestinations.PRIVACY) },
+        onContentSafetyClick = { navController.navigate(WiccanDestinations.CONTENT_SAFETY) },
+    )
 
     Scaffold(
         modifier = modifier,
@@ -65,22 +131,13 @@ fun WiccanAppShell(
                 WiccanDestinations.TODAY,
                 deepLinks = listOf(navDeepLink { uriPattern = WiccanDeepLinks.TODAY_URI }),
             ) {
-                TodayScreen(onOpenGrimoire = { navController.navigate(WiccanDestinations.ARCHIVE) })
+                screens.today { navController.navigate(WiccanDestinations.ARCHIVE) }
             }
             composable(WiccanDestinations.ARCHIVE) {
-                ArchiveScreen(
-                    onNavigateToDetail = { contentId ->
-                        navController.navigate(WiccanDestinations.archiveDetail(contentId))
-                    },
-                )
+                screens.archive { contentId -> navController.navigate(WiccanDestinations.archiveDetail(contentId)) }
             }
             composable(WiccanDestinations.SETTINGS) {
-                SettingsScreen(
-                    viewModel = settingsViewModel,
-                    onTermsClick = { navController.navigate(WiccanDestinations.TERMS) },
-                    onPrivacyClick = { navController.navigate(WiccanDestinations.PRIVACY) },
-                    onContentSafetyClick = { navController.navigate(WiccanDestinations.CONTENT_SAFETY) },
-                )
+                screens.settings(settingsLinks(accountOnly = false, onBack = {}))
             }
             composable(
                 WiccanDestinations.PAYWALL,
@@ -88,50 +145,22 @@ fun WiccanAppShell(
             ) {
                 // Existing widget links remain valid. Subscribers manage
                 // their subscription here; everyone else is held at root.
-                SettingsScreen(
-                    viewModel = settingsViewModel,
-                    accountOnly = true,
-                    onBack = { navController.popBackStackIfPossible() },
-                    onTermsClick = { navController.navigate(WiccanDestinations.TERMS) },
-                    onPrivacyClick = { navController.navigate(WiccanDestinations.PRIVACY) },
-                    onContentSafetyClick = { navController.navigate(WiccanDestinations.CONTENT_SAFETY) },
-                )
+                screens.settings(settingsLinks(accountOnly = true, onBack = { navController.popBackStackIfPossible() }))
             }
             composable(WiccanDestinations.ARCHIVE_DETAIL_ROUTE) {
-                // contentId itself is read from SavedStateHandle inside ArchiveDetailViewModel;
-                // it's declared here only so this destination's argument name is documented.
-                requireNotNull(it.arguments?.getString(ARCHIVE_DETAIL_CONTENT_ID_ARG))
-                ArchiveDetailScreen(onBack = { navController.popBackStackIfPossible() })
+                val contentId = requireNotNull(it.arguments?.getString(ARCHIVE_DETAIL_CONTENT_ID_ARG))
+                screens.archiveDetail(contentId) { navController.popBackStackIfPossible() }
             }
-            legalDocument(
-                route = WiccanDestinations.TERMS,
-                documentId = LegalDocumentId.TERMS,
-                navController = navController,
-            )
-            legalDocument(
-                route = WiccanDestinations.PRIVACY,
-                documentId = LegalDocumentId.PRIVACY,
-                navController = navController,
-            )
-            legalDocument(
-                route = WiccanDestinations.CONTENT_SAFETY,
-                documentId = LegalDocumentId.CONTENT_SAFETY,
-                navController = navController,
-            )
+            listOf(
+                WiccanDestinations.TERMS to LegalDocumentId.TERMS,
+                WiccanDestinations.PRIVACY to LegalDocumentId.PRIVACY,
+                WiccanDestinations.CONTENT_SAFETY to LegalDocumentId.CONTENT_SAFETY,
+            ).forEach { (route, documentId) ->
+                composable(route) {
+                    screens.legalDocument(documentId) { navController.popBackStackIfPossible() }
+                }
+            }
         }
-    }
-}
-
-private fun androidx.navigation.NavGraphBuilder.legalDocument(
-    route: String,
-    documentId: LegalDocumentId,
-    navController: NavHostController,
-) {
-    composable(route) {
-        LegalDocumentScreen(
-            document = WiccanLegalDocuments.get(documentId),
-            onBack = { navController.popBackStackIfPossible() },
-        )
     }
 }
 

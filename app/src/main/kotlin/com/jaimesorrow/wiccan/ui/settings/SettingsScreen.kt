@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -202,18 +203,22 @@ fun SettingsScreen(
             if (!accountOnly) {
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .toggleable(
+                            value = state.notificationsEnabled,
+                            role = Role.Switch,
+                            onValueChange = { viewModel.onEvent(SettingsUiEvent.NotificationsToggled(it)) },
+                        ),
                     horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = "Daily Notifications",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onBackground,
                     )
-                    Switch(
-                        checked = state.notificationsEnabled,
-                        onCheckedChange = { viewModel.onEvent(SettingsUiEvent.NotificationsToggled(it)) },
-                    )
+                    Switch(checked = state.notificationsEnabled, onCheckedChange = null)
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -233,6 +238,33 @@ fun SettingsScreen(
                     selected = state.themeMode,
                     onSelected = { viewModel.onEvent(SettingsUiEvent.ThemeModeSelected(it)) },
                 )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .toggleable(
+                        value = state.shareAnalytics,
+                        role = Role.Switch,
+                        onValueChange = { viewModel.onEvent(SettingsUiEvent.ShareAnalyticsToggled(it)) },
+                    ),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+                    Text(
+                        text = "Usage analytics & crash reports",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    Text(
+                        text = "Optional. Helps improve Wiccan; never used for ads.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Switch(checked = state.shareAnalytics, onCheckedChange = null)
             }
 
             Spacer(modifier = Modifier.height(24.dp))

@@ -21,7 +21,12 @@ import { FirestoreUserProfileRepository } from "./firestoreUserProfileRepository
 import { createUserProfileOnSignUp } from "./createUserProfile";
 import { FirestoreAccountDeletionRepository } from "./firestoreAccountDeletionRepository";
 import { deleteAccount } from "./deleteAccount";
-import { acceptTerms as acceptTermsCore, StalePolicyVersionError } from "./acceptTerms";
+import {
+  acceptTerms as acceptTermsCore,
+  assertCurrentPoliciesAccepted,
+  PolicyAcceptanceRequiredError,
+  StalePolicyVersionError,
+} from "./acceptTerms";
 import { FirestoreSubscriptionRecordRepository } from "./firestoreSubscriptionRecordRepository";
 import { handleRtdnNotification, parseRtdnPurchaseToken } from "./handleRtdn";
 import { FirestoreSystemConfigRepository } from "./firestoreSystemConfigRepository";
@@ -159,6 +164,10 @@ export const getTodayContent = onCall(CALLABLE_OPTIONS, async (request) => {
       throw new HttpsError("unavailable", "Daily content is temporarily unavailable.");
     }
 
+    // Server-side half of the onboarding agreement gate: no content until the
+    // current Terms and Privacy versions are recorded as accepted.
+    await assertCurrentPoliciesAccepted(uid, new FirestoreUserProfileRepository(getFirestore()));
+
     const repo = new FirestoreContentRepository(getFirestore());
     const timezone = resolveTimeZone(requestedTimeZone ?? await repo.getUserTimeZone(uid));
     const deliveredDate = getUserLocalDate(timezone, now);
@@ -176,6 +185,9 @@ export const getTodayContent = onCall(CALLABLE_OPTIONS, async (request) => {
   } catch (err) {
     if (err instanceof HttpsError) {
       throw err;
+    }
+    if (err instanceof PolicyAcceptanceRequiredError) {
+      throw new HttpsError("failed-precondition", err.message, { reason: "POLICY_ACCEPTANCE_REQUIRED" });
     }
     if (err instanceof ContentPoolExhaustedError) {
       throw new HttpsError("resource-exhausted", "No new lessons remain. Your previous lessons are available in Grimoire.", {
@@ -484,7 +496,8 @@ export const sendDailyNotificationsJob = onSchedule("every 1 hours", async () =>
   const repo = new FirestoreContentRepository(getFirestore());
   const users = new FirestoreNotificationUserRepository(getFirestore());
   const fcm = new FirebaseFcmSender(getMessaging());
-  const summary = await sendDailyNotifications(users, repo, fcm);
+  const profiles = new FirestoreUserProfileRepository(getFirestore());
+  const summary = await sendDailyNotifications(users, repo, fcm, profiles);
   logger.info("sendDailyNotifications complete", summary);
 });
 

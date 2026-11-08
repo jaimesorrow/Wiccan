@@ -254,10 +254,11 @@ fails rather than silently shipping to production.
 
 ## Still outstanding after all of the above
 
-- `PolicyUrls` (`app/src/main/kotlin/com/jaimesorrow/wiccan/core/config/PolicyUrls.kt`)
-  points at unhosted `wiccan.app` URLs. Play rejects listings with
-  placeholder legal URLs, and the Data Safety form needs a publicly
-  reachable account-deletion page.
+- The policy pages in `hosting/` (`PolicyUrls`:
+  `https://wiccan-android.web.app/terms`, `/privacy`, `/delete-account`) must
+  be deployed before Play submission: `firebase deploy --only hosting --project production`
+  (a full `firebase deploy --project production` also includes them). Open
+  each URL afterwards to confirm it loads.
 - `handlePlayRtdn` and `verifyPurchase`'s field shapes have never run
   against a real Play Console — they need a real purchase token, which no
   emulator can mint.
