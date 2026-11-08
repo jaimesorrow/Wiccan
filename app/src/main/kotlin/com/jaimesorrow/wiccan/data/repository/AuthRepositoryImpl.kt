@@ -1,10 +1,12 @@
 package com.jaimesorrow.wiccan.data.repository
 
 import android.content.Context
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
 import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.error.toAppError
@@ -19,10 +21,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 private const val USERS_COLLECTION = "users"
 private const val GOOGLE_WEB_CLIENT_ID_RESOURCE = "default_web_client_id"
@@ -111,6 +113,11 @@ class AuthRepositoryImpl @Inject constructor(
                 analyticsLogger.logSignUpCompleted()
             }
             AppResult.Success(Unit)
+        } catch (_: GetCredentialCancellationException) {
+            AppResult.Failure(AppError.Cancelled)
+        } catch (_: NoCredentialException) {
+            // No Google account on the device; email sign-in remains available.
+            AppResult.Failure(AppError.GoogleSignInUnavailable)
         } catch (t: Throwable) {
             AppResult.Failure(t.toAppError())
         }
@@ -127,7 +134,9 @@ class AuthRepositoryImpl @Inject constructor(
         firebaseAuth.createUserWithEmailAndPassword(email, password).await()
         // Account creation succeeds even if email delivery is temporarily unavailable;
         // the verification screen always offers a retry.
-        try { accountFunctionsDataSource.sendVerificationEmail() } catch (_: Exception) { }
+        try {
+            accountFunctionsDataSource.sendVerificationEmail()
+        } catch (_: Exception) { }
         analyticsLogger.logSignUpCompleted()
         AppResult.Success(Unit)
     } catch (t: Throwable) {
@@ -143,7 +152,9 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun sendEmailVerification(): AppResult<Unit> = try {
         val user = firebaseAuth.currentUser
-        if (user == null) AppResult.Failure(AppError.Unauthorized) else {
+        if (user == null) {
+            AppResult.Failure(AppError.Unauthorized)
+        } else {
             if (!user.isEmailVerified) accountFunctionsDataSource.sendVerificationEmail()
             AppResult.Success(Unit)
         }
@@ -153,7 +164,9 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun refreshEmailVerification(): AppResult<Unit> = try {
         val user = firebaseAuth.currentUser
-        if (user == null) AppResult.Failure(AppError.Unauthorized) else {
+        if (user == null) {
+            AppResult.Failure(AppError.Unauthorized)
+        } else {
             user.reload().await()
             user.getIdToken(true).await()
             verificationRefresh.emit(Unit)
@@ -174,7 +187,9 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun requestEmailUpdate(email: String): AppResult<Unit> = try {
         val user = firebaseAuth.currentUser
-        if (user == null) AppResult.Failure(AppError.Unauthorized) else {
+        if (user == null) {
+            AppResult.Failure(AppError.Unauthorized)
+        } else {
             user.verifyBeforeUpdateEmail(email).await()
             AppResult.Success(Unit)
         }
