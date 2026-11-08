@@ -1,15 +1,54 @@
-# Historical-grimoire content continuance agent
+# Duplicate-safe Wiccan content agent
 
-The existing operator-run agent uses the same practical narrative as the rewrite packets. It accepts only a fully reviewed pre-modern passage, asks for one distinct performable Wiccan/Modern Witchcraft adaptation, emits the ten-category schema, labels original incantations and all modern changes, applies shared safety validation, and creates drafts only. Trusted code binds source tradition, structured citation, slug, provenance, rights-review requirement, and `draft` status; the model cannot set approvals or publication eligibility.
+The content agent generates review-required drafts only. It cannot publish, overwrite, merge, or delete lessons. The CLI is preview-only unless an operator supplies both `--project wiccan-android` and `--commit`.
 
-The CLI remains preview-only unless an operator supplies both `--project wiccan-android` and `--commit`. Continuous draft generation is available as an operator-controlled process:
+## Before generation
+
+The agent loads every available draft and published content record and normalizes titles, slugs, summaries, instructions, tools, categories, correspondences, and follow-up practices. It reduces common surface synonyms such as string/thread/yarn to cord and charm/talisman/amulet to a shared comparison form.
+
+Each record receives a concept signature containing:
+
+- Primary and secondary methods
+- Intended purpose
+- Primary and supporting tools
+- Ordered ritual actions
+- Setting and timing
+- Symbolic structure
+- Incantation theme
+- Follow-up action
+
+The Claude request receives a compact list of relevant excluded concepts. Deterministic screening after generation remains authoritative; the model cannot certify its own originality.
+
+## Rejection rules
+
+The agent rejects exact or near matches involving normalized title, slug, authored content, concept signature, summary, instruction sequence, ritual actions, or an existing similarity group. Default rejection thresholds are:
+
+- Title: `0.85`
+- Summary: `0.82`
+- Instructions: `0.78`
+- Concept signature: `0.80`
+- Ritual actions: `0.75`
+
+Changing only wording, ingredients, colors, moon phase, room, tool subtype, incantation, or intention does not establish a new concept.
+
+Accepted candidates enter the in-memory inventory immediately, preventing duplicates within one batch. Firestore creation atomically reserves hashes for normalized title, slug, authored content, and practical concept. Concurrent agents cannot commit the same accepted concept.
+
+Every committed CLI batch reports accepted drafts, rejected candidates, attempts, exhaustion, closest matches, similarity scores, concept signatures, and rejection reasons. The agent makes at most five attempts per requested draft and stops honestly when it cannot produce the requested distinct count.
+
+## Operation
+
+Preview configuration without an API call or write:
 
 ```bash
-npm run content-agent -- --project wiccan-android --commit --continuous \
-  --intervalMinutes 1440 --maxBatches 30 --tier free \
-  --passageId <approved-passage-id>
+npm run content-agent -- --dry-run --tier free --passageId <approved-passage-id> --count 10
 ```
 
-Omit `--maxBatches` only for a deliberately supervised long-running process. Every cycle reports `contentStatus: draft` and `published: false`. A cycle that creates no unique-titled drafts stops rather than repeatedly spending API quota. No Cloud Scheduler job or autonomous publication path is enabled by this change.
+Create drafts after the preview and source review:
 
-Continuous generation cannot run until the source registry contains an eligible reviewed passage and the operator supplies the API key and production credentials. This is an evidence gate, not a generator fallback: the agent must stop instead of inventing a source or technique.
+```bash
+npm run content-agent -- --project wiccan-android --commit --tier free --passageId <approved-passage-id> --count 10
+```
+
+Continuous generation remains an explicitly supervised process. It stops when a batch is exhausted or produces no accepted draft. No scheduler or automatic publication path is enabled.
+
+Historical claims still require a fully reviewed passage record. If evidence, rights, safety, or scope is unresolved, the agent stops instead of inventing a source, claim, method, quantity, formula, or citation.
