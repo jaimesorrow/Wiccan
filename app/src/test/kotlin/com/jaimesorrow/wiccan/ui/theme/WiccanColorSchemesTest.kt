@@ -29,6 +29,14 @@ class WiccanColorSchemesTest {
     }
 
     @Test
+    fun `every palette exposes the approved brand gold`() {
+        val approvedGold = androidx.compose.ui.graphics.Color(0xFFE8BC61)
+        WiccanPalette.entries.forEach { palette ->
+            assertEquals(approvedGold, palette.brandGold)
+        }
+    }
+
+    @Test
     fun `no palette reuses Material's default jarring red for error`() {
         val materialRed = androidx.compose.ui.graphics.Color(0xFFB3261E)
         WiccanPalette.entries.forEach { palette ->

@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 internal object WiccanPaletteColors {
     object NearBlack {
+        val BrandGold = Color(0xFFE8BC61)
         val Background = Color(0xFF0A0810)
         val Surface = Color(0xFF14101C)
         val SurfaceVariant = Color(0xFF1E1826)
@@ -28,6 +29,7 @@ internal object WiccanPaletteColors {
         val OnErrorContainer = Color(0xFFF2DCD4)
     }
     object MidnightBlue {
+        val BrandGold = Color(0xFFE8BC61)
         val Background = Color(0xFF0B132B)
         val Surface = Color(0xFF111C3A)
         val SurfaceVariant = Color(0xFF1C2A4A)
@@ -52,6 +54,7 @@ internal object WiccanPaletteColors {
         val OnErrorContainer = Color(0xFFF4DED6)
     }
     object RoyalPlum {
+        val BrandGold = Color(0xFFE8BC61)
         val Background = Color(0xFF1B0E24)
         val Surface = Color(0xFF241530)
         val SurfaceVariant = Color(0xFF32203F)
@@ -76,6 +79,7 @@ internal object WiccanPaletteColors {
         val OnErrorContainer = Color(0xFFF7DCE0)
     }
     object DeepForest {
+        val BrandGold = Color(0xFFE8BC61)
         val Background = Color(0xFF0A1710)
         val Surface = Color(0xFF102019)
         val SurfaceVariant = Color(0xFF17301F)
@@ -100,6 +104,7 @@ internal object WiccanPaletteColors {
         val OnErrorContainer = Color(0xFFF5E1CE)
     }
     object WarmEarth {
+        val BrandGold = Color(0xFFE8BC61)
         val Background = Color(0xFF1C140E)
         val Surface = Color(0xFF261C13)
         val SurfaceVariant = Color(0xFF33261A)
@@ -124,6 +129,7 @@ internal object WiccanPaletteColors {
         val OnErrorContainer = Color(0xFFF5DDD0)
     }
     object LightIvory {
+        val BrandGold = Color(0xFFE8BC61)
         val Background = Color(0xFFFAF7F1)
         val Surface = Color(0xFFF4EEE3)
         val SurfaceVariant = Color(0xFFEAE1D2)
@@ -148,3 +154,13 @@ internal object WiccanPaletteColors {
         val OnErrorContainer = Color(0xFF3A140C)
     }
 }
+
+internal val WiccanPalette.brandGold: Color
+    get() = when (this) {
+        WiccanPalette.NEAR_BLACK -> WiccanPaletteColors.NearBlack.BrandGold
+        WiccanPalette.MIDNIGHT_BLUE -> WiccanPaletteColors.MidnightBlue.BrandGold
+        WiccanPalette.ROYAL_PLUM -> WiccanPaletteColors.RoyalPlum.BrandGold
+        WiccanPalette.DEEP_FOREST -> WiccanPaletteColors.DeepForest.BrandGold
+        WiccanPalette.WARM_EARTH -> WiccanPaletteColors.WarmEarth.BrandGold
+        WiccanPalette.LIGHT_IVORY -> WiccanPaletteColors.LightIvory.BrandGold
+    }

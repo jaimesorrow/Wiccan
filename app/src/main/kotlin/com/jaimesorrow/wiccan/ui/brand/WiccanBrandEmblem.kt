@@ -4,9 +4,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
+import com.jaimesorrow.wiccan.ui.theme.LocalWiccanBrandColors
 import com.wiccan.app.R
 
 /**
@@ -17,9 +17,9 @@ import com.wiccan.app.R
 @Composable
 fun WiccanBrandEmblem(modifier: Modifier = Modifier) {
     val color = if (MaterialTheme.colorScheme.background.luminance() > 0.5f) {
-        Color(0xFF7C6A48)
+        MaterialTheme.colorScheme.primary
     } else {
-        Color(0xFFE8BC61)
+        LocalWiccanBrandColors.current.brandGold
     }
     Icon(
         painter = painterResource(id = R.drawable.ic_launcher_foreground),
