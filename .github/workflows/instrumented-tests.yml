@@ -26,6 +26,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          # Cache the Gradle wrapper distribution and dependencies so a slow or
+          # unavailable services.gradle.org does not fail the job before tests run.
+          cache: 'gradle'
       # The prod source set's real config would win over the root copy, and the
       # instrumented app process auto-initializes Firebase Messaging, so replace
       # both with the placeholder on this runner. Nothing here is committed.
