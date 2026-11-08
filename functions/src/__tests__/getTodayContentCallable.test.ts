@@ -51,7 +51,12 @@ describe("getTodayContent callable time-zone validation", () => {
 
   it("returns permission-denied with a subscription reason before reading assigned content", async () => {
     jest.spyOn(FirestoreSystemConfigRepository.prototype, "getConfig")
-      .mockResolvedValue({ dailyContentEnabled: true, notificationsEnabled: true });
+      .mockResolvedValue({
+        dailyContentEnabled: true,
+        notificationsEnabled: true,
+        contentGenerationEnabled: false,
+        contentGenerationBatchSize: 3,
+      });
     jest.spyOn(FirestoreContentRepository.prototype, "getUserTier").mockResolvedValue("free");
     const history = jest.spyOn(FirestoreContentRepository.prototype, "findTodayDeliveredContentId");
     await expect(getTodayContent.run(request("UTC")))

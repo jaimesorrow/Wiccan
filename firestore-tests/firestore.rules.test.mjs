@@ -79,6 +79,9 @@ beforeEach(async () => {
         deliveredDate: "2026-10-06",
       }),
       setDoc(doc(db, "contentPublicationAudit/example"), { contentId: "published-free" }),
+      setDoc(doc(db, "contentAgentState/scheduler"), { cursor: 3 }),
+      setDoc(doc(db, "contentGenerationRuns/example"), { status: "completed" }),
+      setDoc(doc(db, "contentOriginalityReservations/example"), { contentId: "published-free" }),
     ]);
   });
 });
@@ -195,6 +198,18 @@ describe("publication audit isolation", () => {
     await assertFails(setDoc(audit, { contentId: "replacement" }));
     await assertFails(deleteDoc(audit));
     await assertFails(getDocs(collection(ownerDb(), "contentPublicationAudit")));
+  });
+});
+
+describe("content agent isolation", () => {
+  it("rejects all client access to generator state, run reports and reservations", async () => {
+    for (const path of ["contentAgentState/scheduler", "contentGenerationRuns/example", "contentOriginalityReservations/example"]) {
+      const ref = doc(ownerDb(), path);
+      await assertFails(getDoc(ref));
+      await assertFails(setDoc(ref, { cursor: 0 }));
+      await assertFails(deleteDoc(ref));
+      await assertFails(getDocs(collection(ownerDb(), path.split("/")[0])));
+    }
   });
 });
 
