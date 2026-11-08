@@ -8,6 +8,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -171,8 +172,10 @@ private fun MainActivity.EdgeToEdgeEffect(colorScheme: ColorScheme = MaterialThe
 
 @Composable
 private fun LoadingIndicator() {
+    // Paint the palette background: the window behind is the fixed dark splash
+    // colour, which would hide the Light/Ivory logo.
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
