@@ -6,8 +6,8 @@
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
-    <!-- AndroidX SplashScreen theme: same dark background, the existing
-         crescent glyph, default (fade) exit transition. Switches to
+    <!-- AndroidX SplashScreen theme: same dark background, the approved
+         Wiccan seal, default (fade) exit transition. Switches to
          Theme.Wiccan once installSplashScreen() dismisses it. -->
     <style name="Theme.Wiccan.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/window_background</item>
