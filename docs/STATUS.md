@@ -235,7 +235,7 @@ icon fallbacks for API 24–25 plus a monochrome layer for themed icons.
 ## Public policy pages — 2026-11-07
 
 Terms of Service and Privacy Policy are now version 4, naming the operator
-(Wiccan App Inc.) and contact (`wiccan.android.app@gmail.com`). Terms add an
+(Jaime Sorrow, an individual developer in Alaska) and contact (`wiccan.android.app@gmail.com`). Terms add an
 18+ age requirement, disclaimers/limitation of liability and governing law;
 Privacy adds the Android advertising ID (collected by Firebase Analytics,
 not used for ads), concrete Analytics/Crashlytics retention, a children
@@ -259,7 +259,12 @@ run (45 checks) covers the refusal, a stale-version rejection and acceptance.
 (`/terms`, `/privacy`, `/content-safety`, `/delete-account`) via Firebase
 Hosting with a restrictive CSP. `LegalDocumentsTest` fails if any hosted page
 drifts from the in-app text or a `PolicyUrls` link has no page. Not yet
-deployed: no authenticated Firebase access exists in this sandbox. The
-governing-law clause names the state of incorporation generically; replace it
-with the actual state, and have a qualified reviewer approve the text before
-release.
+deployed: no authenticated Firebase access exists in this sandbox. Terms are
+governed by Alaska law, keeping users' mandatory local consumer protections and
+home-court rights; Privacy adds GDPR/UK legal bases, worldwide rights, a
+30-day response window and the transfer basis. Open for a worldwide launch:
+Firebase Analytics (with the advertising ID) is on by default, but EEA/UK rules
+generally require consent before non-essential analytics, so add a consent
+prompt or disable analytics collection for those users; a non-EU operator
+serving EU users may also need an EU/UK representative (GDPR Art. 27). Have a
+qualified reviewer approve the text before release.

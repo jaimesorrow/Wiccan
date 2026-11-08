@@ -138,6 +138,6 @@ class LegalDocumentsTest {
     }
 
     private companion object {
-        const val OPERATOR = "Wiccan App Inc."
+        const val OPERATOR = "Jaime Sorrow"
     }
 }

@@ -144,7 +144,7 @@ The public pages live in `hosting/` (Firebase Hosting, production project):
 Content & Safety are word-for-word copies of `WiccanLegalDocuments`;
 `LegalDocumentsTest` fails if they drift, so change both together and bump
 `PolicyVersions` (app and `functions/src/policyVersions.ts`) for material
-Terms/Privacy changes. The operator is Wiccan App Inc.
+Terms/Privacy changes. The operator is Jaime Sorrow (individual developer, Alaska); Terms are governed by Alaska law.
 
 ## Terms, user responsibilities, and screen placement
 

@@ -41,9 +41,9 @@ object WiccanLegalDocuments {
         version = PolicyVersions.TERMS,
         effectiveDate = "November 7, 2026",
         introduction =
-            "These Terms of Service (“Terms”) are an agreement between you and Wiccan App Inc. (“Wiccan,” “we,” or " +
-                "“us”) and govern your use of the Wiccan app and related services. By accepting them, you agree to use " +
-                "the app responsibly and in accordance with applicable law.",
+            "These Terms of Service (“Terms”) are an agreement between you and Jaime Sorrow (“Wiccan,” “we,” or “us”) " +
+                "and govern your use of the Wiccan app and related services. By accepting them, you agree to use the app " +
+                "responsibly and in accordance with applicable law.",
         sections = listOf(
             LegalSection(
                 "What Wiccan provides",
@@ -59,11 +59,11 @@ object WiccanLegalDocuments {
             LegalSection(
                 "No promise or guarantee of results",
                 listOf(
-                    "Wiccan App Inc. does not promise, represent, warrant, or guarantee that any spell, potion, charm, " +
-                        "ritual, ceremony, invocation, incantation, divination, meditation, or other magical, spiritual, " +
-                        "religious, or occult practice described in or suggested by the app (each, a “Practice”) will produce any " +
-                        "result, effect, or outcome of any kind, whether it is performed exactly as described, adapted, repeated, " +
-                        "or combined with any other Practice.",
+                    "Jaime Sorrow does not promise, represent, warrant, or guarantee that any spell, potion, charm, ritual, " +
+                        "ceremony, invocation, incantation, divination, meditation, or other magical, spiritual, religious, or " +
+                        "occult practice described in or suggested by the app (each, a “Practice”) will produce any result, " +
+                        "effect, or outcome of any kind, whether it is performed exactly as described, adapted, repeated, or " +
+                        "combined with any other Practice.",
                     "Without limiting the paragraph above, Wiccan makes no promise of any supernatural, paranormal, magical, " +
                         "psychic, or spiritual effect; any physical, medical, psychological, or emotional effect; any change in " +
                         "luck, fortune, money, employment, love, relationships, fertility, protection, or legal matters; or any " +
@@ -72,8 +72,8 @@ object WiccanLegalDocuments {
                         "for personal reflection. Wiccan does not claim that any Practice is effective, and no scientific " +
                         "evidence establishes that one is. Where the app describes a Practice's purpose or the effect a source or " +
                         "tradition attributed to it, that description reports a historical or traditional claim; it is not a " +
-                        "statement of fact, prediction, or promise by Wiccan App Inc.",
-                    "Any meaning or outcome you attribute to a Practice is your own interpretation. Wiccan App Inc. is not " +
+                        "statement of fact, prediction, or promise by Jaime Sorrow.",
+                    "Any meaning or outcome you attribute to a Practice is your own interpretation. Jaime Sorrow is not " +
                         "responsible for any outcome, or absence of an outcome, from performing, attempting, or relying on a " +
                         "Practice. The absence of any result is not a defect in, or failure of, the service; your subscription " +
                         "pays for access to educational content, not for any result.",
@@ -85,8 +85,9 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Eligibility and your account",
                 listOf(
-                    "You must be at least 18 years old to create an account or use Wiccan. By accepting these Terms, you " +
-                        "confirm that you are 18 or older and legally able to enter this agreement where you live.",
+                    "You must be at least 18 years old, or the age of majority where you live if that is higher, to create an " +
+                        "account or use Wiccan. By accepting these Terms, you confirm that you meet this age requirement and are " +
+                        "legally able to enter this agreement where you live.",
                     "Keep your sign-in credentials secure, provide accurate account information, and tell support promptly if " +
                         "you believe your account was misused.",
                 ),
@@ -155,11 +156,11 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Disclaimers and limitation of liability",
                 listOf(
-                    "Wiccan is provided “as is” and “as available.” To the fullest extent permitted by law, Wiccan App Inc. " +
+                    "Wiccan is provided “as is” and “as available.” To the fullest extent permitted by law, Jaime Sorrow " +
                         "disclaims all warranties, express or implied, including merchantability, fitness for a particular " +
                         "purpose, and non-infringement, and does not promise that the service will be uninterrupted, error-free, " +
                         "or that any content is complete or accurate.",
-                    "To the fullest extent permitted by law, Wiccan App Inc. is not liable for indirect, incidental, special, " +
+                    "To the fullest extent permitted by law, Jaime Sorrow is not liable for indirect, incidental, special, " +
                         "consequential, or punitive damages, or for any injury, loss, or damage arising from your decision to " +
                         "attempt a Practice or from any result, or absence of a result, of a Practice. Our total liability for " +
                         "any claim relating to the service is limited to the greater of the amount you paid for Wiccan in the 12 " +
@@ -169,17 +170,21 @@ object WiccanLegalDocuments {
                 ),
             ),
             LegalSection(
-                "Governing law",
+                "Governing law and disputes",
                 listOf(
-                    "These Terms are governed by the laws of the United States and of the state in which Wiccan App Inc. is " +
-                        "incorporated, without regard to conflict-of-law rules. If you live outside the United States, the " +
-                        "mandatory consumer protections of your country of residence still apply.",
+                    "These Terms are governed by the laws of the State of Alaska, United States, and applicable U.S. federal " +
+                        "law, without regard to conflict-of-law rules. The state and federal courts located in Alaska have " +
+                        "jurisdiction over disputes relating to these Terms or the service.",
+                    "If you are a consumer living outside Alaska, including outside the United States, you keep the " +
+                        "protection of the mandatory consumer laws of the place where you live, and you may also bring a claim in " +
+                        "the courts where you live if those laws allow it. Before starting a formal dispute, please email " +
+                        "wiccan.android.app@gmail.com so we can try to resolve it informally.",
                 ),
             ),
             LegalSection(
                 "Contact and account deletion",
                 listOf(
-                    "Wiccan is operated by Wiccan App Inc.. For questions, email wiccan.android.app@gmail.com or use Contact " +
+                    "Wiccan is operated by Jaime Sorrow. For questions, email wiccan.android.app@gmail.com or use Contact " +
                         "Support in Settings.",
                     "You may delete your account in Settings → Delete Account, or request deletion without the app at " +
                         "https://wiccan-android.web.app/delete-account.",
@@ -194,7 +199,7 @@ object WiccanLegalDocuments {
         version = PolicyVersions.PRIVACY,
         effectiveDate = "November 7, 2026",
         introduction =
-            "This Privacy Policy explains what information Wiccan App Inc. (“Wiccan,” “we,” or “us”) handles when you " +
+            "This Privacy Policy explains what information Jaime Sorrow (“Wiccan,” “we,” or “us”) handles when you " +
                 "use the Wiccan Android app, why it is used, and the choices available to you. Wiccan does not sell " +
                 "personal data and does not show advertising.",
         sections = listOf(
@@ -222,6 +227,18 @@ object WiccanLegalDocuments {
                     "Information is used to authenticate accounts, avoid repeating daily content, show archive history, " +
                         "deliver requested notifications, verify subscription access, prevent fraud, enforce security, diagnose " +
                         "failures, understand app performance, and meet legal or platform obligations.",
+                ),
+            ),
+            LegalSection(
+                "Legal bases (EEA, UK, Switzerland, and similar laws)",
+                listOf(
+                    "Where the GDPR, UK GDPR, Swiss law, or a similar law applies, Wiccan relies on these legal bases: " +
+                        "performance of its contract with you, to create and secure your account, deliver the daily content and " +
+                        "notifications you request, and provide your subscription; legitimate interests, to prevent fraud and " +
+                        "abuse, keep the service secure, diagnose crashes, and understand app performance, balanced against your " +
+                        "rights; and legal obligations, such as tax and accounting records and responding to lawful requests.",
+                    "You may object at any time to processing based on legitimate interests by emailing " +
+                        "wiccan.android.app@gmail.com.",
                 ),
             ),
             LegalSection(
@@ -256,29 +273,35 @@ object WiccanLegalDocuments {
                 listOf(
                     "Wiccan uses transport encryption, Firebase security rules, server-authoritative writes, App Check, Play " +
                         "Integrity, and restricted administrator workflows. No security method can guarantee absolute protection.",
-                    "Google services may process information in countries outside your own, subject to their safeguards and " +
-                        "applicable transfer requirements.",
+                    "Wiccan is operated from the United States, and Google services may process information in the United " +
+                        "States and other countries outside your own. Transfers of personal data from the EEA, UK, or Switzerland " +
+                        "rely on the safeguards in Google's data processing terms, such as the EU-U.S. Data Privacy Framework and " +
+                        "Standard Contractual Clauses.",
                 ),
             ),
             LegalSection(
                 "Children",
                 listOf(
-                    "Wiccan is intended only for adults 18 and older and is not directed to children. We do not knowingly " +
-                        "collect personal information from anyone under 18. If you believe a minor has created an account, email " +
-                        "wiccan.android.app@gmail.com and we will delete it.",
+                    "Wiccan is intended only for adults (18 or older, or the age of majority where they live if higher) and " +
+                        "is not directed to children. We do not knowingly collect personal information from anyone under 18. If " +
+                        "you believe a minor has created an account, email wiccan.android.app@gmail.com and we will delete it.",
                 ),
             ),
             LegalSection(
                 "Your privacy rights",
                 listOf(
-                    "Depending on where you live, including California and other U.S. states with privacy laws, you may have " +
-                        "the right to know, access, correct, delete, or receive a copy of your personal information, and to opt " +
-                        "out of its sale, sharing for targeted advertising, or profiling. Wiccan does not sell personal " +
-                        "information, share it for cross-context behavioral advertising, or use it for profiling with legal or " +
-                        "similarly significant effects.",
+                    "Depending on where you live, you may have rights over your personal information. In the European " +
+                        "Economic Area, the United Kingdom, and Switzerland, these include access, correction, deletion, " +
+                        "restriction, objection to processing based on legitimate interests, data portability, and withdrawing " +
+                        "any consent you gave. Residents of California and other U.S. states with privacy laws, Canada, Brazil, " +
+                        "Australia, and other countries may have similar rights, including the right to know what is collected " +
+                        "and to opt out of its sale, sharing for targeted advertising, or profiling.",
+                    "Wiccan does not sell personal information, share it for cross-context behavioral advertising, or use it " +
+                        "for profiling with legal or similarly significant effects.",
                     "To make a request, email wiccan.android.app@gmail.com from the address on your account. We will verify " +
-                        "the request against your account and respond within 45 days. If we decline a request, you may appeal by " +
-                        "replying to our response. We will not discriminate against you for exercising these rights.",
+                        "the request against your account and respond within 30 days. If we decline a request, you may appeal by " +
+                        "replying to our response. We will not discriminate against you for exercising these rights. If you are " +
+                        "in the EEA, UK, or Switzerland, you may also complain to your local data-protection authority.",
                 ),
             ),
             LegalSection(
@@ -286,8 +309,9 @@ object WiccanLegalDocuments {
                 listOf(
                     "You can disable daily notifications, sign out, manage your subscription in Google Play, and delete your " +
                         "account in Settings.",
-                    "Wiccan is operated by Wiccan App Inc.. For access, correction, privacy, or deletion questions, email " +
-                        "wiccan.android.app@gmail.com or use Contact Support in Settings.",
+                    "Wiccan is operated by Jaime Sorrow, an individual developer based in Alaska, United States, who is " +
+                        "responsible for (the “controller” of) your personal information. For access, correction, privacy, or " +
+                        "deletion questions, email wiccan.android.app@gmail.com or use Contact Support in Settings.",
                     "When this policy changes materially, it receives a new version and the app asks you to review it before " +
                         "continuing.",
                 ),
