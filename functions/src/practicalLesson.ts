@@ -3,11 +3,19 @@ import { citationForPassage, findPassageViolations, nonblank } from "./sourcePas
 import type { SourcePassage } from "./sourcePassages";
 
 export const PRACTICAL_CATEGORIES = [
-  "candle-magic", "herbs-botanicals", "potions-infusions", "crystals-stones",
-  "cord-knot-magic", "moon-phases-timing", "elemental-magic", "altars-sacred-space", "divination",
-  "protection-cleansing-warding",
+  "candle-spells", "herbal-rituals", "cord-knot-work", "lunar-practices",
+  "charms-talismans", "crystals-stones", "divination", "altars-sacred-space",
+  "elemental-practices", "potions-infusions",
 ] as const;
 export type PracticalCategory = (typeof PRACTICAL_CATEGORIES)[number];
+/** Read/migration compatibility only. New generation must use PRACTICAL_CATEGORIES. */
+export const LEGACY_PRACTICAL_CATEGORIES = [
+  "candle-magic", "herbs-botanicals", "cord-knot-magic", "moon-phases-timing",
+  "elemental-magic", "protection-cleansing-warding",
+] as const;
+export type LegacyPracticalCategory = (typeof LEGACY_PRACTICAL_CATEGORIES)[number];
+export type AcceptedPracticalCategory = PracticalCategory | LegacyPracticalCategory;
+export const ACCEPTED_PRACTICAL_CATEGORIES = [...PRACTICAL_CATEGORIES, ...LEGACY_PRACTICAL_CATEGORIES] as const;
 export const LESSON_TYPES = ["candle", "botanical", "potion", "tea", "bath", "oil", "spray", "jar", "skin-contact", "stone", "cord", "lunar", "elemental", "altar", "divination", "tool-light"] as const;
 export const DISCLOSURE_TYPES: ReadonlySet<string> = new Set(["potion", "tea", "bath", "oil", "spray", "jar", "skin-contact"]);
 export interface PracticalReview {
@@ -47,8 +55,8 @@ export interface PracticalLessonFields {
   contentStatus?: "draft" | "published";
 }
 
-export function isPracticalCategory(value: unknown): value is PracticalCategory {
-  return typeof value === "string" && (PRACTICAL_CATEGORIES as readonly string[]).includes(value);
+export function isPracticalCategory(value: unknown): value is AcceptedPracticalCategory {
+  return typeof value === "string" && (ACCEPTED_PRACTICAL_CATEGORIES as readonly string[]).includes(value);
 }
 export function requiresDisclosure(content: Record<string, unknown>): boolean {
   return content.type === "potion" || (typeof content.lessonType === "string" && DISCLOSURE_TYPES.has(content.lessonType));
@@ -131,7 +139,7 @@ export function findPracticalLessonViolations(content: object, passages: SourceP
   if (nonblank(fields.slug) && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(fields.slug)) issues.push("slug must be lowercase kebab-case");
   if (!nonblank(fields.reflection) || !fields.reflection.trim().endsWith("?")) issues.push("reflection must be a question");
   if (fields.tradition !== "Wiccan / Modern Witchcraft") issues.push("tradition must identify the lesson as Wiccan / Modern Witchcraft");
-  if (!isPracticalCategory(fields.primaryCategoryId)) issues.push("primaryCategoryId must be one of the ten practical categories");
+  if (!isPracticalCategory(fields.primaryCategoryId)) issues.push("primaryCategoryId must be a current practical category or a recognized legacy category");
   if (fields.category !== fields.primaryCategoryId) issues.push("category must mirror primaryCategoryId for compatible readers");
   if (fields.contentStatus !== fields.status) issues.push("contentStatus must mirror the preserved legacy status");
   const secondaryCategoryIds = fields.secondaryCategoryIds;

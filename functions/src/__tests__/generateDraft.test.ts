@@ -97,7 +97,7 @@ describe("generateDrafts", () => {
     expect(doc?.tradition).toBe("Wiccan / Modern Witchcraft");
     expect(doc?.sourceTradition).toBe("Ancient ritual tradition");
     expect(doc?.reflection).toBe("What does this historical evidence help you notice?");
-    expect(doc?.practice).toBe("Complete the numbered method once.");
+    expect(doc?.practice).toBe("Record one visual detail from the marked token.");
     expect(doc?.sourceCitation).toBe("Tablet II, lines 4–8");
     expect(doc?.rightsNotes).toBe("Public domain test edition.");
     expect(doc?.rightsReviewRequired).toBe(true);
@@ -127,7 +127,7 @@ describe("generateDrafts", () => {
       sourceUrl: "https://example.org/ancient-text",
       rightsNotes: "Public domain test edition.",
       reflection: "What does this historical evidence help you notice?",
-      practice: "Complete the numbered method once.",
+      practice: "Record one visual detail from the marked token.",
     });
   });
 
@@ -168,7 +168,7 @@ describe("generateDrafts", () => {
     });
     expect(repo.docs.get(results[0].contentId)).toMatchObject({
       reflection: "What does this historical evidence help you notice?",
-      practice: "Complete the numbered method once.",
+      practice: "Record one visual detail from the marked token.",
       status: "draft",
     });
   });
@@ -275,7 +275,7 @@ describe("generateDrafts", () => {
     expect(repo.docs.size).toBe(1);
   });
 
-  it("skips only the duplicate-titled attempts within a batch, keeping the rest", async () => {
+  it("retries duplicate-titled attempts until the requested unique count is reached", async () => {
     const generator = new FakeDraftGenerationPort();
     const repo = new FakeContentAdminRepository();
     await repo.createDraft({
@@ -301,6 +301,6 @@ describe("generateDrafts", () => {
       repo,
     );
 
-    expect(results.map((r) => r.title)).toEqual(["Generated spell #1", "Generated spell #3"]);
+    expect(results.map((r) => r.title)).toEqual(["Generated spell #1", "Generated spell #3", "Generated spell #4"]);
   });
 });

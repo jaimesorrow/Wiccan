@@ -29,6 +29,15 @@ export interface DraftGenerationRequest {
   groundedFacts: string[];
   /** Exact editor-inspected passage, never a source inferred after generation. */
   passage?: SourcePassage;
+  /** Compact concept summaries the model must not reproduce or merely rename. */
+  excludedConcepts?: Array<{
+    id: string;
+    title: string;
+    primaryMethod: string;
+    intendedPurpose: string;
+    ritualActions: string[];
+    followUpAction: string;
+  }>;
 }
 
 /**
