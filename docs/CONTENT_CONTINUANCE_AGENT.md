@@ -49,6 +49,24 @@ Create drafts after the preview and source review:
 npm run content-agent -- --project wiccan-android --commit --tier free --passageId <approved-passage-id> --count 10
 ```
 
-Continuous generation remains an explicitly supervised process. It stops when a batch is exhausted or produces no accepted draft. No scheduler or automatic publication path is enabled.
+The CLI's `--continuous` mode is an explicitly supervised process. It stops when a batch is exhausted or produces no accepted draft.
+
+## Scheduled agent
+
+`generateContentDraftsJob` (`functions/src/index.ts` → `contentAgent.ts`) is the unattended form of the same pipeline. It runs daily at 04:00 UTC and is **off by default**.
+
+- It runs only when `systemConfig/global.contentGenerationEnabled` is exactly `true`.
+- Each run takes the next slot in a fixed rotation: every verified passage on the `free` tier, then every passage again on `premium`. It then calls the same `generateDraftBatch` as the CLI with `contentGenerationBatchSize` drafts (1–5, default 3). Every candidate gets the full-inventory duplicate screen and the atomic reservations described above.
+- Only passages with no `findPassageViolations` issues and an approved generation source are used. With none, the run records `no-verified-passages` and makes no model call.
+- Each run writes a report to `contentGenerationRuns`: status (`completed`, `exhausted`, `failed`, or `no-verified-passages`), passage, tier, accepted drafts, rejected candidates with reasons and closest matches, and attempts. The cursor in `contentAgentState/scheduler` always advances, so an exhausted or failing passage cannot stall the rotation.
+- Retries are off. A failed run is recorded and the next day moves on.
+- It creates drafts only. Publication still requires `approve-draft`, and there is no automatic publication path.
+
+Enable it in four steps:
+
+1. Add and verify passages.
+2. Set the secret: `firebase functions:secrets:set ANTHROPIC_API_KEY`.
+3. Deploy the functions.
+4. Set `contentGenerationEnabled: true` on `systemConfig/global` in the console. Set it back to `false`, or delete it, to stop the agent.
 
 Historical claims still require a fully reviewed passage record. If evidence, rights, safety, or scope is unresolved, the agent stops instead of inventing a source, claim, method, quantity, formula, or citation.
