@@ -63,6 +63,8 @@ class ContentRepositoryImpl @Inject constructor(
                     dao.clearForUser(userId)
                     AppError.NoNewLesson
                 }
+                "POLICY_ACCEPTANCE_REQUIRED" ->
+                    AppError.Unknown("Review and accept the current Terms of Service and Privacy Policy to continue.")
                 "ASSIGNED_CONTENT_UNAVAILABLE" ->
                     AppError.Unknown("Today's assigned content is temporarily unavailable.")
                 else -> t.toAppError()

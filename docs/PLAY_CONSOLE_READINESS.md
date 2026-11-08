@@ -15,10 +15,12 @@ the final public documents.
 disclosures are implemented, but the following owner/Console work cannot be
 truthfully completed from the repository:
 
-- replace `wiccan.app` placeholder legal/deletion URLs and
-  `support@wiccan.app` with real, public, monitored destinations;
-- identify the legal developer/operator and privacy contact in the hosted policy;
-- confirm the recommended **18+** target-audience selection and regional terms;
+- deploy the policy pages (`firebase deploy --only hosting --project production`)
+  and confirm `https://wiccan-android.web.app/terms`, `/privacy` and
+  `/delete-account` load; monitor `wiccan.android.app@gmail.com`, which the app,
+  policies and deletion page name as the support and privacy contact;
+- select the **18+** target audience in Play Console (Terms v4 requires users
+  to be 18 or older, and the policy gate asks them to confirm it);
 - complete Data Safety, content-rating, app-access, ads, and health declarations;
 - provide a reusable reviewer account plus free review access to premium content;
 - configure the subscription products, Play Developer API, RTDN, app signing,
@@ -89,9 +91,9 @@ Recommended rows for the current build:
 | Email address | Yes | No* | Required for email auth; Google account choice is optional | Account management, app functionality, security |
 | User IDs | Yes | No* | Required | Account management, app functionality, fraud prevention/security |
 | Purchase history | Yes | No* | Optional (only subscribers/restores) | App functionality, account management, fraud prevention/security |
-| App interactions | Yes | No* | Required by current analytics setup | Analytics, app functionality |
-| Crash logs | Yes | No* | Required by current Crashlytics setup | Analytics, app functionality |
-| Diagnostics | Yes | No* | Required by current Crashlytics/App Check setup | Analytics, fraud prevention/security |
+| App interactions | Yes | No* | **Optional** — Firebase Analytics runs only after opt-in (onboarding or Settings) | Analytics |
+| Crash logs | Yes | No* | **Optional** — Crashlytics runs only after opt-in | Analytics, app functionality |
+| Diagnostics | Yes | No* | **Optional** — Crashlytics diagnostics only after opt-in | Analytics, app functionality |
 | Device or other IDs | Yes | No* | FCM/App Check identifiers are handled by current SDKs | App functionality, security, developer communications |
 | Precise/approximate location | No | No | Not collected | — |
 | Contacts, messages, photos/videos, audio, files | No | No | Not collected | — |
@@ -105,7 +107,8 @@ than copying the answer blindly.
 Additional form answers:
 
 - **Encrypted in transit:** Yes, for the app/Firebase/Play paths in this repo.
-- **Users can request deletion:** Yes, after the public web request page is live.
+- **Users can request deletion:** Yes — in app (Settings → Delete Account) and at
+  `https://wiccan-android.web.app/delete-account` once hosting is deployed.
 - **Independent security review:** Do not claim one unless a qualifying review
   has actually been completed and remains valid.
 - **Data sale:** No.
@@ -132,15 +135,25 @@ auto-renewal. If Play cancellation fails, deletion stops so the user can retry;
 it does not silently remove the local account while billing continues. Once
 confirmed, it deletes delivery history, usage reservations, devices, subscription
 records, profile, and Firebase Auth account. Limited pseudonymous purchase-token
-and account hashes may remain for anti-fraud/anti-replay purposes. The hosted
-policy must state the purpose and retention basis for those hashes.
+and account hashes may remain for anti-fraud/anti-replay purposes; the Privacy
+Policy and deletion page state that purpose and that they are kept only as long
+as needed to stop a purchase being reused on another account.
+
+The public pages live in `hosting/` (Firebase Hosting, production project):
+`/terms`, `/privacy`, `/content-safety`, `/delete-account`. Terms, Privacy and
+Content & Safety are word-for-word copies of `WiccanLegalDocuments`;
+`LegalDocumentsTest` fails if they drift, so change both together and bump
+`PolicyVersions` (app and `functions/src/policyVersions.ts`) for material
+Terms/Privacy changes. The operator is Jaime Sorrow (individual developer, Alaska); Terms are governed by Alaska law.
 
 ## Terms, user responsibilities, and screen placement
 
-Native policy version 2 includes Wiccan-specific terms and disclosures:
+Native policy version 4 includes Wiccan-specific terms and disclosures:
 
 - historical, educational, and spiritual-reflection purpose;
-- no guaranteed supernatural outcomes;
+- an explicit “No promise or guarantee of results” section: no spell, potion,
+  ritual, ceremony, or other practice is promised to produce any effect, and
+  descriptions of a practice's purpose report historical claims, not facts;
 - no medical, mental-health, legal, financial, or emergency advice;
 - no ingestion, inhalation, topical use, burning, or mixing of unknown or
   hazardous materials; fire, ventilation, allergy, poison-control, wildlife,
@@ -157,7 +170,7 @@ Placement is intentionally layered:
 | Location | Purpose |
 |---|---|
 | Sign-in / create account | Terms and Privacy are viewable before account creation; copy explains that acceptance follows. |
-| Post-auth policy gate | Blocks the app until the current Terms are accepted and Privacy/Safety are acknowledged. |
+| Post-auth policy gate | Blocks the app until four separate statements are checked (18+, Terms, Privacy, no promised results + Content & Safety); the server also refuses content until the current versions are recorded. |
 | Paywall | Terms and Privacy sit beside the localized recurring price and renewal/cancellation disclosure. |
 | Settings | Permanent access to Terms, Privacy, Content & Safety, support, subscription management, and account deletion. |
 

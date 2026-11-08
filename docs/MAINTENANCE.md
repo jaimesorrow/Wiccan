@@ -206,7 +206,13 @@ currently handled (automated, manual, or not yet built).
   `functions/src/acceptTerms.ts`). **Bump the relevant constant whenever
   the actual hosted Terms/Privacy page changes materially** — that's what
   forces already-signed-in users back through the acceptance screen
-  before they can continue.
+  before they can continue. The server enforces the same versions:
+  `getTodayContent` refuses content and `sendDailyNotifications` skips users
+  whose recorded acceptance is not current (`assertCurrentPoliciesAccepted`
+  in `functions/src/acceptTerms.ts`). Firestore rules carry the same numbers
+  (`acceptedCurrentPolicies` in `firestore.rules`) so Grimoire reads also
+  require current acceptance; bump all three together —
+  `scripts/release-preflight.sh` checks they match.
 
 ## Environments
 

@@ -5,6 +5,7 @@ import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.appcheck.AppCheckProviderInstaller
 import com.jaimesorrow.wiccan.worker.DailyContentWorker
 import com.jaimesorrow.wiccan.worker.WiccanWorkerFactory
@@ -12,6 +13,10 @@ import com.wiccan.app.BuildConfig
 import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 @HiltAndroidApp
 class WiccanApplication : Application(), Configuration.Provider {
@@ -21,6 +26,11 @@ class WiccanApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var appCheckProviderInstaller: AppCheckProviderInstaller
+
+    @Inject
+    lateinit var analyticsConsentManager: AnalyticsConsentManager
+
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     override val workManagerConfiguration: Configuration
         get() = wiccanWorkerFactory.workManagerConfiguration
@@ -42,6 +52,10 @@ class WiccanApplication : Application(), Configuration.Provider {
         // explicitly before the first getInstance() call below.
         WorkManager.initialize(this, workManagerConfiguration)
         scheduleDailyContentRefresh()
+
+        // Analytics/Crashlytics start disabled in the manifest; turn them on
+        // only if this user opted in.
+        applicationScope.launch { analyticsConsentManager.applyStoredConsent() }
     }
 
     private fun scheduleDailyContentRefresh() {
