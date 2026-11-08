@@ -2,6 +2,11 @@ package com.jaimesorrow.wiccan.domain.model
 
 /** The Grimoire grouping for a piece of content, chosen at generation time. */
 enum class ContentCategory {
+    CANDLE_SPELLS,
+    HERBAL_RITUALS,
+    CORD_KNOT_WORK,
+    LUNAR_PRACTICES,
+    CHARMS_TALISMANS,
     CANDLE_MAGIC,
     HERBS_BOTANICALS,
     POTIONS_INFUSIONS,
@@ -11,6 +16,7 @@ enum class ContentCategory {
     ELEMENTAL_MAGIC,
     ALTARS_SACRED_SPACE,
     DIVINATION,
+    ELEMENTAL_PRACTICES,
     PROTECTION_CLEANSING_WARDING,
 
     // Read compatibility for delivered Grimoire entries written before the practical taxonomy.
@@ -27,6 +33,11 @@ enum class ContentCategory {
     companion object {
         /** Parses practical kebab-case IDs and legacy PascalCase values from Firestore. */
         fun fromWireValue(value: String): ContentCategory = when (value) {
+            "candle-spells" -> CANDLE_SPELLS
+            "herbal-rituals" -> HERBAL_RITUALS
+            "cord-knot-work" -> CORD_KNOT_WORK
+            "lunar-practices" -> LUNAR_PRACTICES
+            "charms-talismans" -> CHARMS_TALISMANS
             "candle-magic" -> CANDLE_MAGIC
             "herbs-botanicals" -> HERBS_BOTANICALS
             "potions-infusions" -> POTIONS_INFUSIONS
@@ -36,6 +47,7 @@ enum class ContentCategory {
             "elemental-magic" -> ELEMENTAL_MAGIC
             "altars-sacred-space" -> ALTARS_SACRED_SPACE
             "divination" -> DIVINATION
+            "elemental-practices" -> ELEMENTAL_PRACTICES
             "protection-cleansing-warding" -> PROTECTION_CLEANSING_WARDING
             "Protection" -> PROTECTION
             "LoveAndRelationships" -> LOVE_AND_RELATIONSHIPS

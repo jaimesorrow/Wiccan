@@ -6,6 +6,11 @@ import { ContentSource, isLessonGenerationSource } from "./contentSource";
 import { ContentTier, ContentType } from "./types";
 import { DraftGenerationPort } from "./draftGenerationPort";
 import { ContentAdminRepositoryPort } from "./contentAdminRepositoryPort";
+import {
+  generationConceptSignature,
+  screenGeneratedCandidate,
+} from "./generationOriginality";
+import type { GenerationOriginalityReport } from "./generationOriginality";
 
 export interface GenerateDraftRequest {
   tier: ContentTier;
@@ -28,6 +33,21 @@ export interface GeneratedDraftSummary {
   sourceId: string;
   type: ContentType;
   title: string;
+  originality: GenerationOriginalityReport;
+}
+
+export interface RejectedGeneratedDraft {
+  title: string;
+  status: "rejected-duplicate";
+  reasons: string[];
+  closestMatch: GenerationOriginalityReport["closestMatch"];
+}
+
+export interface GeneratedDraftBatchResult {
+  accepted: GeneratedDraftSummary[];
+  rejected: RejectedGeneratedDraft[];
+  attempts: number;
+  exhausted: boolean;
 }
 
 export class InvalidGenerationRequestError extends Error {}
@@ -86,21 +106,18 @@ function buildEligiblePairs(
  * claims. This prevents "ancient teaching" from becoming invented lineage
  * or generic modern occult material presented as history.
  *
- * A generated draft whose title exactly matches an existing document
- * (draft or published) is not persisted - the LLM occasionally proposes
- * the same signature title for the same source/type pair, and silently
- * storing both would leave two indistinguishable-looking entries in the
- * pool. The returned array only ever contains drafts actually written, so
- * a shorter-than-requested result means one or more duplicates were
- * skipped; the operator can re-run for the remainder.
+ * Every candidate is screened against the complete content inventory and
+ * candidates accepted earlier in this batch. Title, slug, authored-content,
+ * and concept hashes are then reserved atomically with the draft write so a
+ * concurrent generator cannot commit an equivalent candidate.
  */
-export async function generateDrafts(
+export async function generateDraftBatch(
   request: GenerateDraftRequest,
   sources: ContentSource[],
   generator: DraftGenerationPort,
   repo: ContentAdminRepositoryPort,
   passages: SourcePassage[] = loadSourcePassages(),
-): Promise<GeneratedDraftSummary[]> {
+): Promise<GeneratedDraftBatchResult> {
   const count = request.count ?? 1;
   if (!Number.isInteger(count) || count < 1 || count > 100) {
     throw new InvalidGenerationRequestError("count must be an integer between 1 and 100.");
@@ -120,10 +137,32 @@ export async function generateDrafts(
   if (request.sourceId && request.sourceId !== passage.sourceId) throw new InvalidGenerationRequestError("Source and passage identities disagree.");
   if (request.sourceCitation && request.sourceCitation !== passage.locator) throw new InvalidGenerationRequestError("Citation must match the inspected passage locator.");
   const pairs = buildEligiblePairs(sources, passage.sourceId, request.type);
-  const results: GeneratedDraftSummary[] = [];
+  const accepted: GeneratedDraftSummary[] = [];
+  const rejected: RejectedGeneratedDraft[] = [];
+  const inventory = await repo.listOriginalityInventory();
+  const maximumAttempts = Math.max(count * 5, count);
+  let attempts = 0;
 
-  for (let i = 0; i < count; i++) {
-    const pair = pairs[i % pairs.length];
+  while (accepted.length < count && attempts < maximumAttempts) {
+    const pair = pairs[attempts % pairs.length];
+    attempts += 1;
+    const relevantExcludedConcepts = inventory
+      .filter((record) => {
+        const fields = record.fields;
+        return fields.sourcePassageId === passage.id || fields.lessonType === request.type || fields.type === pair.type;
+      })
+      .slice(-50)
+      .map((record) => {
+        const signature = generationConceptSignature(record.fields);
+        return {
+          id: record.id,
+          title: typeof record.fields.title === "string" ? record.fields.title : "",
+          primaryMethod: signature.primaryMethod,
+          intendedPurpose: signature.intendedPurpose,
+          ritualActions: signature.ritualActions,
+          followUpAction: signature.followUpAction,
+        };
+      });
     const generated = await generator.generateDraft({
       passage,
       type: pair.type,
@@ -133,11 +172,8 @@ export async function generateDrafts(
       sourceReference: pair.source.sourceReference,
       summary: pair.source.summary,
       groundedFacts: pair.source.groundedFacts,
+      excludedConcepts: relevantExcludedConcepts,
     });
-
-    if (await repo.titleExists(generated.title)) {
-      continue;
-    }
 
     const draft: NewDraftContent = {
       ...generated,
@@ -161,13 +197,46 @@ export async function generateDrafts(
     };
     // The model cannot certify its own output, even if an adapter returns extra keys.
     delete draft.practicalReview;
+    const originality = screenGeneratedCandidate(draft as unknown as Record<string, unknown>, inventory);
+    if (!originality.accepted) {
+      rejected.push({
+        title: generated.title,
+        status: "rejected-duplicate",
+        reasons: originality.rejectionReasons,
+        closestMatch: originality.closestMatch,
+      });
+      continue;
+    }
     // Validate the exact stored shape; the repository adds the authoritative legacy status atomically.
     const violations = findPracticalLessonViolations({ ...draft, status: "draft" }, passages, false);
     if (violations.length) throw new InvalidGeneratedDraftError(violations.join("; "));
-    const contentId = await repo.createDraft(draft);
+    let contentId: string;
+    try {
+      contentId = await repo.createDraftWithOriginalityReservations(draft, originality.reservationKeys);
+    } catch (error) {
+      if (!(error instanceof Error) || !error.message.startsWith("Originality reservation collision:")) throw error;
+      rejected.push({
+        title: generated.title,
+        status: "rejected-duplicate",
+        reasons: [error.message],
+        closestMatch: originality.closestMatch,
+      });
+      continue;
+    }
 
-    results.push({ contentId, sourceId: pair.source.id, type: pair.type, title: generated.title });
+    inventory.push({ id: contentId, fields: { ...draft, status: "draft" } });
+    accepted.push({ contentId, sourceId: pair.source.id, type: pair.type, title: generated.title, originality });
   }
 
-  return results;
+  return { accepted, rejected, attempts, exhausted: accepted.length < count };
+}
+
+export async function generateDrafts(
+  request: GenerateDraftRequest,
+  sources: ContentSource[],
+  generator: DraftGenerationPort,
+  repo: ContentAdminRepositoryPort,
+  passages: SourcePassage[] = loadSourcePassages(),
+): Promise<GeneratedDraftSummary[]> {
+  return (await generateDraftBatch(request, sources, generator, repo, passages)).accepted;
 }
