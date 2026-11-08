@@ -8,6 +8,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -188,5 +189,18 @@ class SignInViewModelTest {
             assertTrue(effect is SignInUiEffect.ShowSnackbar)
             cancelAndConsumeRemainingEvents()
         }
+    }
+
+    @Test
+    fun cancellingGoogleSignInShowsNoErrorAndClearsLoading() = runTest(dispatcher) {
+        repository.googleResult = AppResult.Failure(AppError.Cancelled)
+        val context = mockk<Context>()
+
+        viewModel.effects.test {
+            viewModel.onGoogleSignInClick(context)
+            advanceUntilIdle()
+            expectNoEvents()
+        }
+        assertFalse(viewModel.state.value.isLoading)
     }
 }
