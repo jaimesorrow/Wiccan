@@ -36,7 +36,7 @@ datastorePreferences = "1.3.0"
 # Applied as constraints, so they only raise modules something already pulls in.
 guavaAndroid = "33.7.2-android"
 buildGuava = "33.7.2-jre"
-buildBouncyCastle = "1.85"
+buildBouncyCastle = "1.86"
 buildCommonsLang3 = "3.18.0"
 buildJose4j = "0.9.6"
 buildJdom2 = "2.0.6.1"
