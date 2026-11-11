@@ -38,7 +38,7 @@ guavaAndroid = "33.7.2-android"
 buildGuava = "33.7.2-jre"
 buildBouncyCastle = "1.85"
 buildCommonsLang3 = "3.18.0"
-buildJose4j = "0.9.6"
+buildJose4j = "0.9.7"
 buildJdom2 = "2.0.6.1"
 
 [libraries]
