@@ -1,6 +1,6 @@
 import { DocumentSnapshot } from "firebase-admin/firestore";
 
-export class AccountWriteUnavailableError extends Error {
+class AccountWriteUnavailableError extends Error {
   constructor() {
     super("This account is unavailable or being deleted. Sign in again or retry account deletion.");
     this.name = "AccountWriteUnavailableError";

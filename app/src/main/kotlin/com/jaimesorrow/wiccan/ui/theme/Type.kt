@@ -12,7 +12,7 @@ import com.wiccan.app.R
 /**
  * Google Play Services' downloadable-fonts provider. Certificates come
  * verbatim from Google's own Jetchat Compose sample
- * (`res/values-v23/font_certs.xml`) - the standard, published cert set for
+ * (`res/values/font_certs.xml`) - the standard, published cert set for
  * this provider, not something generated for this app.
  */
 private val GoogleFontProvider = GoogleFont.Provider(

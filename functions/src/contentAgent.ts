@@ -9,19 +9,19 @@ import type { NewDraftContent } from "./contentAdminRepositoryPort";
 import { generateDraftBatch } from "./generateDraft";
 import type { GeneratedDraftBatchResult } from "./generateDraft";
 
-export const CONTENT_AGENT_TIERS: readonly ContentTier[] = ["free", "premium"];
-export const DEFAULT_CONTENT_AGENT_BATCH_SIZE = 3;
+const CONTENT_AGENT_TIERS: readonly ContentTier[] = ["free", "premium"];
+const DEFAULT_CONTENT_AGENT_BATCH_SIZE = 3;
 /** generateDraftBatch makes up to 5 attempts per draft, so 5 caps a run at 25 model calls. */
-export const MAX_CONTENT_AGENT_BATCH_SIZE = 5;
+const MAX_CONTENT_AGENT_BATCH_SIZE = 5;
 /** Longer than the job's 30-minute timeout, so a live run always outlasts its lease check. */
-export const CONTENT_AGENT_LEASE_MS = 35 * 60_000;
+const CONTENT_AGENT_LEASE_MS = 35 * 60_000;
 
 export interface ContentAgentSettings {
   enabled: boolean;
   batchSize: number;
 }
 
-export type ContentAgentRunStatus =
+type ContentAgentRunStatus =
   | "disabled"
   | "skipped"
   | "no-verified-passages"

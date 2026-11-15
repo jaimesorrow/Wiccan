@@ -7,24 +7,24 @@ import {
 } from "./categories";
 
 export const LESSON_TYPES = ["guided-practice", "spell", "ritual", "potion", "infusion", "bath", "oil", "spray", "jar"] as const;
-export type LessonType = (typeof LESSON_TYPES)[number];
+type LessonType = (typeof LESSON_TYPES)[number];
 /** Lesson types that always involve a preparation and therefore the potion safety disclosure. */
 export const POTION_LESSON_TYPES: ReadonlySet<string> = new Set(["potion", "infusion", "bath", "oil", "spray", "jar"]);
 
 export const DIFFICULTIES = ["accessible", "intermediate", "advanced"] as const;
-export type Difficulty = (typeof DIFFICULTIES)[number];
+type Difficulty = (typeof DIFFICULTIES)[number];
 
 export const CONTENT_STATUSES = ["draft", "review", "rejected", "archived", "published"] as const;
-export type LessonContentStatus = (typeof CONTENT_STATUSES)[number];
+type LessonContentStatus = (typeof CONTENT_STATUSES)[number];
 
-export interface LessonTool {
+interface LessonTool {
   name: string;
   quantity: string;
   required: boolean;
   substitution: string;
 }
 
-export interface LessonCorrespondences {
+interface LessonCorrespondences {
   elements: string[];
   colors: string[];
   herbs: string[];
@@ -34,7 +34,7 @@ export interface LessonCorrespondences {
   symbols: string[];
 }
 
-export interface LessonCitation {
+interface LessonCitation {
   title: string;
   author: string;
   edition?: string;
@@ -75,11 +75,11 @@ export interface CanonicalLesson {
   contentStatus: LessonContentStatus;
 }
 
-export const EMPTY_CORRESPONDENCES: LessonCorrespondences = {
+const EMPTY_CORRESPONDENCES: LessonCorrespondences = {
   elements: [], colors: [], herbs: [], stones: [], moonPhases: [], days: [], symbols: [],
 };
 
-export function slugify(title: string): string {
+function slugify(title: string): string {
   return title.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
     .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
@@ -207,22 +207,4 @@ export function toCanonicalLesson(id: string, fields: Record<string, unknown>): 
     contentStatus: (CONTENT_STATUSES as readonly string[]).includes(status) ? (status as LessonContentStatus) : "draft",
   };
   return { lesson: result, issues };
-}
-
-/**
- * The legacy fields today's app and getTodayContent read, derived from a
- * canonical lesson so new drafts stay readable before the app migrates.
- * `status` stays "draft" unless the lesson is published.
- */
-export function legacyFieldsFor(lesson: CanonicalLesson): Record<string, unknown> {
-  return {
-    title: lesson.title,
-    intro: lesson.introduction,
-    body: lesson.lesson,
-    materials: lesson.tools.map((tool) => tool.name),
-    category: lesson.primaryCategoryId,
-    type: lesson.requiresPotionDisclosure ? "potion" : lesson.lessonType === "spell" ? "spell" : "lesson",
-    tier: "premium",
-    status: lesson.contentStatus === "published" ? "published" : "draft",
-  };
 }

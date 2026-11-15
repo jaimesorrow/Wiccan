@@ -15,7 +15,7 @@ export class UnsafeContentError extends Error {}
  * generation prompt asked the LLM to do. A prompt instruction is a
  * request, not a guarantee; this is the enforcement point.
  */
-export function findSafetyViolations(content: StoredContent, sources: ContentSource[]): string[] {
+function findSafetyViolations(content: StoredContent, sources: ContentSource[]): string[] {
   const violations: string[] = [];
 
   if (!nonblank(content.title)) violations.push("title is empty.");

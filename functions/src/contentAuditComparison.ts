@@ -1,4 +1,4 @@
-export interface ComparableAuditRecord {
+interface ComparableAuditRecord {
   id: string;
   status: unknown;
   reviewHash: string;
