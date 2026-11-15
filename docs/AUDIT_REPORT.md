@@ -1,5 +1,25 @@
 # Wiccan repository audit - FINAL consolidated report
 
+## Follow-up applied after this report was written
+
+The suggestions below were carried out on 2026-11-15. Nothing was merged.
+
+**https://github.com/jaimesorrow/Wiccan/pull/150** head `0de8a890a6196778da7c9b9c4546b3bbf7601d4c` now also includes:
+
+- The four items in section 4b (`ca6f400`), then this further pass.
+- The unused `UserContentHistory` interface in `functions/src/types.ts` was deleted. The Firestore field list is a comment at that spot. `FirestoreContentRepository` still writes `userId`, `contentId`, `deliveredDate`, `title`, `type`, `tradition`, `category`, and the optional similarity and source fields.
+- 53 `export` keywords that Knip reported as unused outside their own file were removed. Four exports stay because other source files or tests import them: `conceptSimilarity`, `titleSimilarity`, `fingerprints`, and `signatureHash`. `PracticalReview` stays exported because the deployed `getTodayContent` return type must name it.
+- `SAFE_DP` was removed from `brand/scripts/build_brand_assets.py`. Only `CANVAS_DP` and `EMBLEM_DP` are read. The 66dp safe-zone note remains in the comment.
+- `legacyFieldsFor()` was deleted. Stored drafts already carry `title`, `intro`, `body`, `materials`, `category`, `type`, `tier`, and `status` because the generator and the seed write those fields. `toCanonicalLesson` only reads them. No writer builds a `CanonicalLesson` and then needs the inverse, so wiring a call would invent a path. `docs/CONTENT_SCHEMA_V2.md` now says that.
+- The 13 point-in-time docs moved to `docs/archive/` with `docs/archive/README.md`. `docs/CONTENT_SCHEMA_V2.md` and the runbook link inside the archived read-only note were updated. `WidgetUpdater` / `WiccanWidgetUpdater` and `app/proguard-rules.pro` stay: both updaters have callers, and the release build type still points at the ProGuard file even though minify is off.
+
+**https://github.com/jaimesorrow/Wiccan/pull/152** head `3f760b6026b58028aa479dc5b2c124c2110f5fa4`, branched from `main` at `a68c802`:
+
+- `WiccanDatabase/4.json` is the schema Room exported when commit `b89360e` (database version 4) was compiled. Schema 5 adds only `sourceTradition`.
+- JVM and instrumented tests open schema 3 and schema 4, so 3→4 and 4→5 both run.
+- `OnboardingFlowButtonsTest` no longer constructs `OnboardingViewModel` or `PaywallViewModel` inside a composable. CI now runs `:app:lintProdDebug` in addition to release lint.
+- `functions/package-lock.json` keeps the npm 10 `firebase-admin` nested `@firebase/app@0.16.2` and `@firebase/app-compat@0.5.18` entries and adds the npm 11 path under `@firebase/app-compat`. `npm ci` passed with npm 10.9.9 and npm 11.21.2.
+
 Prepared by Reviewbot, 2026-11-15 ~01:30 AKST. Audit base `6fc5824`; re-verified against current `main` **`a68c802`** (PR #149 "Bump the stable toolchain to November 2026" was merged at 01:05 AKST, after the original audit). The only remote changes made were the 55 branch deletions you authorized. Nothing was pushed, merged or commented on.
 
 ## 1. Summary
