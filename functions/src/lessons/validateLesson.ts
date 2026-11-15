@@ -7,7 +7,7 @@ import {
   POTION_LESSON_TYPES,
 } from "./canonicalLesson";
 
-export type ValidationCode =
+type ValidationCode =
   | "schema"
   | "safety"
   | "source";

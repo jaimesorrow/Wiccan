@@ -4,7 +4,7 @@
  * protection or prosperity belong in tags. IDs are stable and stored in
  * Firestore; change a label freely, never an ID.
  */
-export const LESSON_CATEGORIES = [
+const LESSON_CATEGORIES = [
   { id: "candle-spells", label: "Candle Spells", description: "Workings built around lighting, dressing, carving or tending a candle flame." },
   { id: "herbal-rituals", label: "Herbal Rituals", description: "Rituals that handle dried or fresh plant material: bundles, sachets, offerings, strewing." },
   { id: "cord-knot-work", label: "Cord & Knot Work", description: "Tying, braiding, binding and releasing knots in cord, thread or ribbon." },

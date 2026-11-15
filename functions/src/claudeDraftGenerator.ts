@@ -31,7 +31,7 @@ const GeneratedDraftSchema = z.object({
   adaptationNotes: z.array(z.string().trim().min(1)),
 });
 
-export function buildPrompt(request: DraftGenerationRequest): string {
+function buildPrompt(request: DraftGenerationRequest): string {
   if (!request.passage || findPassageViolations(request.passage).length) {
     throw new Error("Generation requires a fully reviewed source passage; a summary is insufficient.");
   }

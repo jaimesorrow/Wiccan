@@ -1,6 +1,6 @@
 # Firebase audit access (read phase)
 
-This file documents the first, read-only phase of the write-capable migration. The complete workflow is in [FIRESTORE_MIGRATION_RUNBOOK.md](FIRESTORE_MIGRATION_RUNBOOK.md). Production content has not been inventoried or changed from this workspace because no Firebase identity is connected yet.
+This file documents the first, read-only phase of the write-capable migration. The complete workflow is in [FIRESTORE_MIGRATION_RUNBOOK.md](../FIRESTORE_MIGRATION_RUNBOOK.md). Production content has not been inventoried or changed from this workspace because no Firebase identity is connected yet.
 
 Connect the official Firebase integration to an account with access to `wiccan-android`, or attach an authorized Google Cloud identity to the managed workspace. The initial inventory needs Firestore read access. The later backup and reviewed draft update need narrowly scoped export and document-update access; do not commit credentials or service-account files.
 
