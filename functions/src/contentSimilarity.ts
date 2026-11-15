@@ -97,16 +97,6 @@ export function longestCommonTokenRunRatio(left: string, right: string): number 
   return longest / Math.min(a.length, b.length);
 }
 
-export function lexicalSimilarity(left: CurriculumConcept, right: CurriculumConcept) {
-  const leftComposite = [left.technique, left.purpose, left.materials.join(" "), left.procedure, left.learningObjective].join(" ");
-  const rightComposite = [right.technique, right.purpose, right.materials.join(" "), right.procedure, right.learningObjective].join(" ");
-  return {
-    ngram: ngramJaccard(leftComposite, rightComposite),
-    longestRun: longestCommonTokenRunRatio(left.procedure, right.procedure),
-    samePassageTechnique: !!left.sourcePassageId && left.sourcePassageId === right.sourcePassageId && left.technique === right.technique,
-  };
-}
-
 export function findLexicalDuplicateConcerns(
   concepts: CurriculumConcept[],
   thresholds: SimilarityThresholds = DEFAULT_SIMILARITY_THRESHOLDS,
