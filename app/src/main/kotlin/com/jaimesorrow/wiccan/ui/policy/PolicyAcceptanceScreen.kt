@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -74,7 +75,11 @@ fun PolicyAcceptanceScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            WiccanEmblem(size = 56.dp)
+            WiccanEmblem(
+                modifier = Modifier.testTag("policy-logo"),
+                size = 56.dp,
+                contentDescription = "Wiccan",
+            )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = "Before you continue",
