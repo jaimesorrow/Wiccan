@@ -155,6 +155,9 @@ val toolClasspathFloors = mapOf(
     "org.apache.httpcomponents:httpclient" to libs.versions.buildHttpClient.get(),
     "ch.qos.logback:logback-core" to libs.versions.buildLogback.get(),
     "ch.qos.logback:logback-classic" to libs.versions.buildLogback.get(),
+    "org.bouncycastle:bcprov-jdk18on" to libs.versions.buildBouncyCastle.get(),
+    "org.bouncycastle:bcpkix-jdk18on" to libs.versions.buildBouncyCastle.get(),
+    "org.bouncycastle:bcutil-jdk18on" to libs.versions.buildBouncyCastle.get(),
 )
 
 fun isToolClasspath(name: String): Boolean =

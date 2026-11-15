@@ -3,6 +3,7 @@ package com.jaimesorrow.wiccan.ui.content
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import com.jaimesorrow.wiccan.domain.model.Content
@@ -41,6 +42,7 @@ class ContentDetailViewTest {
             practice = "Pause and choose one quality to bring inside.",
         )
         composeRule.setContent { MaterialTheme { ContentDetailView(content) } }
+        composeRule.onNodeWithTag("content-logo").assertIsDisplayed()
         for (text in listOf("Home & Hearth", "The Threshold", "Method", "Reflection", "Practice")) {
             composeRule.onNodeWithText(text).assertExists()
         }

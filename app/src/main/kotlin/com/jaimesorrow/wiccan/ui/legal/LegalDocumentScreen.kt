@@ -14,8 +14,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 
 @Composable
 fun LegalDocumentScreen(
@@ -37,6 +40,12 @@ fun LegalDocumentScreen(
             TextButton(onClick = onBack, modifier = Modifier.padding(top = 8.dp)) {
                 Text("← Back")
             }
+            WiccanEmblem(
+                modifier = Modifier.align(Alignment.CenterHorizontally).testTag("legal-logo"),
+                size = 44.dp,
+                contentDescription = "Wiccan",
+            )
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = document.title,
                 style = MaterialTheme.typography.headlineMedium,

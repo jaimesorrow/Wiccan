@@ -66,6 +66,9 @@ currently handled (automated, manual, or not yet built).
   now raises those modules on those configurations to the catalog's
   `buildGuava`, `buildCommonsLang3`, `buildHttpClient` and `buildLogback`
   floors. Like the other floors, they only raise an already-requested module.
+  `androidLintTool` also resolved Bouncy Castle 1.80.2 through
+  `sdk-common` (alerts #40, #44, #45); the same tool-classpath floors now
+  raise bcprov/bcpkix/bcutil there to `buildBouncyCastle`.
 - The October 24 refresh also moves `typescript-eslint` to 8.72.0 and
   `body-parser` to 2.4.0. The latter fixes GHSA-27r3-jxmh-p828, a high-severity
   denial-of-service issue in compressed request parsing.

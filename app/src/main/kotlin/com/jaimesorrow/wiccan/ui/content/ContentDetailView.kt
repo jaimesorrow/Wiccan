@@ -19,6 +19,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.ui.archive.displayName
@@ -61,7 +62,11 @@ fun ContentDetailView(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center,
         ) {
-            WiccanEmblem(size = 32.dp)
+            WiccanEmblem(
+                modifier = Modifier.testTag("content-logo"),
+                size = 32.dp,
+                contentDescription = "Wiccan",
+            )
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
