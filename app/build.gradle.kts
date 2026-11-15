@@ -145,6 +145,48 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
+// Security floors for build-tool classpaths that the root buildscript
+// constraints do not reach: KSP/Hilt annotation processors, Android Lint and
+// ktlint resolve their own configurations (see docs/MAINTENANCE.md). Floors
+// only raise a module that is already requested; they never add one.
+val toolClasspathFloors = mapOf(
+    "com.google.guava:guava" to libs.versions.buildGuava.get(),
+    "org.apache.commons:commons-lang3" to libs.versions.buildCommonsLang3.get(),
+    "org.apache.httpcomponents:httpclient" to libs.versions.buildHttpClient.get(),
+    "ch.qos.logback:logback-core" to libs.versions.buildLogback.get(),
+    "ch.qos.logback:logback-classic" to libs.versions.buildLogback.get(),
+)
+
+fun isToolClasspath(name: String): Boolean =
+    name == "androidLintTool" ||
+        name == "ktlint" ||
+        name.startsWith("hiltAnnotationProcessor") ||
+        name.endsWith("KotlinProcessorClasspath") ||
+        name.endsWith("_kspClasspath")
+
+configurations.matching { isToolClasspath(it.name) }.configureEach {
+    resolutionStrategy.eachDependency {
+        val floor = toolClasspathFloors["${requested.group}:${requested.name}"]
+        val current = requested.version
+        if (floor != null && current != null && isOlder(current, floor)) {
+            useVersion(floor)
+            because("security floor (docs/MAINTENANCE.md)")
+        }
+    }
+}
+
+fun isOlder(version: String, floor: String): Boolean {
+    fun parts(v: String) = v.substringBefore('-').split('.').map { it.toIntOrNull() ?: 0 }
+    val a = parts(version)
+    val b = parts(floor)
+    for (i in 0 until maxOf(a.size, b.size)) {
+        val x = a.getOrElse(i) { 0 }
+        val y = b.getOrElse(i) { 0 }
+        if (x != y) return x < y
+    }
+    return false
+}
+
 dependencies {
     constraints {
         implementation(libs.guava.android) {

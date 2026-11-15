@@ -58,6 +58,14 @@ currently handled (automated, manual, or not yet built).
   catalog entries like any other. Drop the `build*` floors once an AGP
   release resolves to patched versions on its own (check with
   `./gradlew buildEnvironment`).
+- **Tool-classpath security floors (2026-11-15)**: Dependabot alerts #28, #35,
+  #39, #42, #43 and #68 came from configurations the root `buildscript`
+  constraints do not reach: KSP/Hilt annotation processors (Guava
+  33.6.0-jre), `androidLintTool` (Guava 33.4.0-jre, commons-lang3 3.16.0,
+  httpclient 4.5.6) and `ktlint` (logback 1.3.16). `app/build.gradle.kts`
+  now raises those modules on those configurations to the catalog's
+  `buildGuava`, `buildCommonsLang3`, `buildHttpClient` and `buildLogback`
+  floors. Like the other floors, they only raise an already-requested module.
 - The October 24 refresh also moves `typescript-eslint` to 8.72.0 and
   `body-parser` to 2.4.0. The latter fixes GHSA-27r3-jxmh-p828, a high-severity
   denial-of-service issue in compressed request parsing.
