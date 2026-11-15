@@ -1,8 +1,8 @@
 # Wiccan repository audit
 
-Date: 2026-11-15. Base: `main` at `6fc5824` (`build(deps): raise Bouncy Castle floor on the Android Lint classpath`).
+Date: 2026-11-15. Written against `main` at `6fc5824`. This branch now also contains `a68c802`, the merge of #149.
 Cleanup pull request: https://github.com/jaimesorrow/Wiccan/pull/150 (`cursor/dead-code-audit-ee70`). This report's pull request: https://github.com/jaimesorrow/Wiccan/pull/151 (`cursor/repo-audit-report-ee70`). This branch does not contain those deletions.
-Open pull request #149 (`deps/stable-toolchain-2026-11`) was not modified.
+#149 (`deps/stable-toolchain-2026-11`) merged to `main` after this report was written. Its branch was not modified by this work.
 
 ## Structure
 
@@ -76,9 +76,9 @@ No tracked file was left because its role could not be stated. One gap is an abs
 
 ## Pull request #149
 
-#149 (`deps/stable-toolchain-2026-11`, head `20337e89`) is a toolchain bump and was not checked out or changed.
+#149 (`deps/stable-toolchain-2026-11`) was open while the audit was written and has since merged as `a68c802`. Its branch was not checked out or changed by this work.
 
-It edits `gradle/libs.versions.toml` version numbers, including `buildLogback` `1.5.38` to `1.6.7`, and it edits `docs/MAINTENANCE.md` in the toolchain section. This cleanup edits the same two files in different places: it deletes the three unused library aliases near the bottom of the catalog, and it corrects the kill-switch sentence that named the deleted fake. The version keys `buildHttpClient` and `buildLogback` stay, so #149's floor bumps still apply. A merge should keep #149's versions and this cleanup's alias deletion and sentence. No Functions source in #149 overlaps `contentSimilarity.ts` or the deleted fake.
+It changed `gradle/libs.versions.toml` version numbers, including `buildLogback` from `1.5.38` to `1.6.7`, and it edited the toolchain section of `docs/MAINTENANCE.md`. The cleanup pull request edits those same two files in different places: it deletes the three unused library aliases near the bottom of the catalog, and it corrects the kill-switch sentence that named the deleted fake. The version keys `buildHttpClient` and `buildLogback` stay, so the floors from #149 still apply. Merging the cleanup should keep those versions and add the alias deletion and the sentence correction. No Functions source in #149 overlaps `contentSimilarity.ts` or the deleted fake. `main` now has #149, and the cleanup branch does not, so that branch will need the same update before its `branch-current` check can pass.
 
 ## Build and test results
 
