@@ -165,7 +165,7 @@ and application ID `com.jaimesorrow.wiccan`. Building `dev`/`staging`
 as connected environments still requires each environment's own real
 `google-services.json` under `app/src/dev/` or `app/src/staging/`.
 
-The current toolchain uses Java 17, Gradle 9.8.1, AGP 9.4.1 and Kotlin
+The current toolchain uses Java 17, Gradle 9.9.1, AGP 9.5.1 and Kotlin
 2.4.21, with Play Billing 9.1.0. Install the Android SDK platform with
 `sdkmanager "platforms;android-37.0"` (`compileSdk` 37, `targetSdk` 36).
 Set `sdk.dir` in a local `local.properties` file or the `ANDROID_HOME`

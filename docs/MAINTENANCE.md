@@ -70,9 +70,34 @@ currently handled (automated, manual, or not yet built).
   `body-parser` to 2.4.0. The latter fixes GHSA-27r3-jxmh-p828, a high-severity
   denial-of-service issue in compressed request parsing.
 - The Firestore emulator scripts invoke the pinned current Firebase CLI with
-  `npx --yes firebase-tools@15.34.1`. Keeping the CLI out of the committed
+  `npx --yes firebase-tools@15.36.0`. Keeping the CLI out of the committed
   dependency graph avoids shipping its large, unrelated command-line
   dependency tree while preserving reproducible CI behavior.
+- **Stable toolchain refresh (2026-11-15)**: Gradle 9.9.1 (current stable;
+  9.10 is nightly only), KSP 2.3.14, Firebase Android BOM 35.2.0, Google
+  Services plugin 4.6.0, Robolectric 4.18, Roborazzi 1.79.0, and the
+  commons-lang3 3.22.0 / logback 1.6.7 security floors. AGP stays 9.5.1, the
+  newest stable release; 9.6 is still alpha and AGP 9.5's maximum API level
+  remains 37. Kotlin stays 2.4.21, the newest stable release (2.5.0 is an
+  RC). Kotlin's tested range for 2.4.21 stops at Gradle 9.7.0 and AGP 9.3.1;
+  the project already built on Gradle 9.9.0 and AGP 9.5.1, and Kotlin's own
+  docs allow newer Gradle and AGP with that caveat. `compileSdk` stays 37.
+  `targetSdk` stays 36: raising it opts into Android 17 runtime behavior,
+  which `scripts/release-preflight.sh` keeps separate from `compileSdk`
+  because this repo cannot validate it without a device. CI stays on JDK 17,
+  AGP 9.5's documented minimum and default; the app still compiles to JVM
+  17. Functions stay on Node 22, the deployed runtime. TypeScript stays on
+  6.0.3: 7.0.2 is stable but `ts-jest` 29.4.15 declares `typescript <7` and
+  `typescript-eslint` 8.72.2 declares `typescript <6.1.0`. The `js-yaml`
+  override stays on 4.3.2 (latest 4.x; 5.x would break
+  `@istanbuljs/load-nyc-config`) and the gaxios `uuid` override stays on
+  11.1.1 (latest 11.x). `actions/setup-java` is 6.3.0. Direct npm bumps are
+  `@anthropic-ai/sdk` 1.8.0, `@googleapis/androidpublisher` 42.3.1,
+  `firebase-admin` 14.5.1, `nodemailer` 10.5.0, `eslint` 10.15.0, `firebase`
+  13.3.0, and `typescript-eslint` 8.72.2, with overrides `@grpc/grpc-js`
+  1.14.7, `glob` 14.0.6, and `minimatch` 11.0.8. `@firebase/rules-unit-testing` 6.0.0 and packages inside `firebase` 13.3.0
+  still declare `node >=24.12.0`. They remain dev-only emulator tooling, and
+  the Node 22 suites are what CI runs.
 
 ## Content pool
 
@@ -110,8 +135,8 @@ currently handled (automated, manual, or not yet built).
   Kotlin 2.3+ metadata is unreadable to room-compiler 2.6.1 (it throws
   "unexpected jvm signature V"), so Room moved to 2.8.5; newer KSP needs a
   newer AGP than 8.7.3; Hilt 2.59+ refuses to apply below AGP 9.0.0; and
-  AGP 9 needs Gradle 9. The current set is Gradle 9.8.1, AGP 9.4.1,
-  Kotlin 2.4.21, KSP 2.3.12, Hilt 2.60.1, Room 2.8.5, compileSdk 37.
+  AGP 9 needs Gradle 9. The current set is Gradle 9.9.1, AGP 9.5.1,
+  Kotlin 2.4.21, KSP 2.3.14, Hilt 2.60.1, Room 2.8.5, compileSdk 37.
 - The earlier note here said the KSP/Hilt classloader conflict could not
   be resolved without KSP's compatibility table. That diagnosis was
   incomplete: the crash was Room's annotation processor, not KSP's or

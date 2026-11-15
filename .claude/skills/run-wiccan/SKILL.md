@@ -92,7 +92,7 @@ curl -s -X POST http://127.0.0.1:5001/wiccan-android/us-central1/getTodayContent
 .claude/skills/run-wiccan/driver.sh test      # both toolchains
 ```
 
-Current baseline: Java 17, Gradle 9.8.1, AGP 9.4.1, Kotlin 2.4.21 and
+Current baseline: Java 17, Gradle 9.9.1, AGP 9.5.1, Kotlin 2.4.21 and
 Play Billing 9.1.0. The Android SDK package is `platforms;android-37.0`
 (`compileSdk` 37, `targetSdk` 36); `driver.sh deps` installs that package.
 Ktlint plugin 14.2.0 registers Android source checks under AGP 9, with
@@ -144,7 +144,7 @@ These cost real time. All were hit in this container.
   2000 ms`. Use Roborazzi's `captureRoboImage` instead.
 - **Historical Roborazzi/Kotlin mismatch.** Roborazzi 1.76.0's Kotlin 2.3.0
   metadata failed under the project's former Kotlin 2.0.21 toolchain. The
-  current Kotlin 2.4.21 baseline uses Roborazzi 1.76.0; verify later upgrades
+  current Kotlin 2.4.21 baseline uses Roborazzi 1.79.0; verify later upgrades
   with the screenshot tests rather than relying on the old compiler mismatch.
 - **Roborazzi writes nothing unless recording is on.** The test passes and
   produces zero files. `app/build.gradle.kts` sets
