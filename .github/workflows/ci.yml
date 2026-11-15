@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -129,7 +129,7 @@ jobs:
       - run: npm --prefix functions run build
       - run: >-
           ANDROID_PACKAGE_NAME=com.jaimesorrow.wiccan
-          npx --yes firebase-tools@15.33.0 emulators:exec
+          npx --yes firebase-tools@15.36.0 emulators:exec
           --project wiccan-android --config firebase.json
           --only auth,functions,firestore,pubsub
           "node scripts/e2e-emulator.mjs"

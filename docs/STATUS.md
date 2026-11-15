@@ -67,7 +67,7 @@ found the following. Each is now addressed as noted:
 | Notifications fired once at a fixed UTC instant, not per-device local 9am | **FIXED** — hourly job now filters to devices whose local time currently reads 9am (`getUserLocalHour`); see the documented hourly-poll-vs-exact-dispatch limitation below |
 | No automated 16KB/ABI native-library check | **FIXED** — `scripts/check-16kb-alignment.sh` runs in CI against the release `.aab`; all eight libraries pass on the 2026-10-02 Billing 9.1.0 bundle |
 | No disaster recovery / incident response / maintenance docs | **FIXED** — `docs/DISASTER_RECOVERY.md`, `docs/INCIDENT_RESPONSE.md`, `docs/MAINTENANCE.md` |
-| Billing Library version | **9.1.0 on main** with Java 17, Gradle 9.8.1, AGP 9.4.1 and Kotlin 2.4.21. CI Android matrix passes; live Play validation remains pending. |
+| Billing Library version | **9.1.0** with Java 17, Gradle 9.9.1, AGP 9.5.1 and Kotlin 2.4.21. Live Play validation remains pending. |
 | Device registration schema is minimal (token + time zone + updatedAt; no `notificationsEnabled`/`platform`/`createdAt`/`lastSeenAt`) | **FIXED** — added all four: `createdAt`/`platform` written on first registration, `notificationsEnabled` is a real per-device toggle with a Settings switch (DataStore-backed locally, since Firestore rules give the client no read access to its own device doc), and `sendDailyNotifications` now skips opted-out devices. |
 | Visual theme is still near-black (`#0A0810`-direction) / generic serif+sans typography, not a distinct final direction | **IN REVIEW** — PR #24 adds six seasonal palettes and typography on main. The local build, tests, lint and six JVM palette specimens pass on 2026-10-02; actual fonts, transitions and app/device visual validation remain required. |
 | No Android product flavors for dev/staging/prod (environment separation is `.firebaserc` + `.env` only) | **FIXED** — `dev`/`staging`/`prod` product flavors added (`app/build.gradle.kts`). Prod has the registered client config for `com.jaimesorrow.wiccan` at `app/src/prod/google-services.json`; that source-set config takes precedence over CI's fake root fallback. Dev/staging still need their own configurations. |
@@ -104,15 +104,25 @@ found the following. Each is now addressed as noted:
 
 ## Latest automated validation
 
-The current baseline uses Java 17, Gradle 9.8.1, AGP 9.4.1,
+The current baseline uses Java 17, Gradle 9.9.1, AGP 9.5.1,
 Kotlin 2.4.21 and Billing 9.1.0, with `compileSdk` 37 / `targetSdk` 36.
-Android unit tests pass: 86 tests across 18 suites. Ktlint plugin 14.2.0
-restores Android source checks after AGP 9; the pinned 1.8.0 engine passes
-the source formatting checks. Functions on Node 22 pass a fresh `npm ci`, build,
-lint and 98 tests across 14 suites. Eight isolated validator regression
-tests pass. Debug APK and unsigned release AAB builds, instrumented-test
-compilation and all eight native libraries' 16 KB alignment pass. Release
-lint reports zero errors and 62 nonblocking warnings.
+A local revalidation on 2026-11-15, with Gradle running on JDK 21 and the
+app still compiling to JVM 17, passed `ktlintCheck`, 207 prod-debug unit
+tests across 36 suites, and `:app:assembleProdDebug`. Functions on Node 22
+passed a fresh `npm ci`, `npm audit --audit-level=moderate`, build, lint, and
+368 tests (25 skipped) across 40 suites. Firestore emulator rules tests
+(25) and the two Functions integration suites (25) passed on Firebase CLI
+15.36.0 with Java 21. Six low-severity `deepmerge` findings remain below that
+audit gate. Ktlint plugin 14.2.0 restores Android
+source checks after AGP 9; the pinned 1.8.0 engine passes the source
+formatting checks.
+
+The 2026-10-02 validation, on that date's toolchain, reported 86 Android
+unit tests across 18 suites and 98 Functions tests across 14 suites, plus
+debug and unsigned release builds, instrumented-test compilation, 16 KB
+alignment, and release lint with zero errors and 62 nonblocking warnings.
+Re-run the release lint, bundle, and alignment checks on the current
+toolchain before a release cut.
 
 The 2026-10-02 isolated backend emulator on Node 22, Firebase CLI 15 and
 Java 21 passed all 18 business-flow assertions, after separately verifying
