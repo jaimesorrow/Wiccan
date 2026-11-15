@@ -3,6 +3,7 @@ package com.jaimesorrow.wiccan.ui.archive
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
@@ -26,6 +27,7 @@ class GrimoireScreenTest {
         composeRule.setContent {
             MaterialTheme { ArchiveScreenContent(ArchiveUiState(isLoading = false), onEvent = {}) }
         }
+        composeRule.onNodeWithTag("grimoire-logo").assertIsDisplayed()
         composeRule.onNodeWithText("Grimoire").assertIsDisplayed()
         composeRule.onNodeWithText("Your Grimoire is empty. Open Today to receive your first lesson.").assertIsDisplayed()
         composeRule.onNodeWithText("Library").assertDoesNotExist()

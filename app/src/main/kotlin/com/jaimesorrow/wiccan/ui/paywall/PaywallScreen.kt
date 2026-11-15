@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -78,7 +79,7 @@ fun PaywallScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                WiccanFullLogo(width = 170.dp)
+                WiccanFullLogo(modifier = Modifier.testTag("paywall-logo"), width = 170.dp)
                 Spacer(Modifier.height(20.dp))
                 Text(
                     "Walk the path of Wicca",

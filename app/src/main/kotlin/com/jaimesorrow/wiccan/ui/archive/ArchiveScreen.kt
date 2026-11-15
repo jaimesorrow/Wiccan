@@ -21,11 +21,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.HistoryEntry
+import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 
 /**
  * The user's delivered content, either as a chronological Timeline or grouped
@@ -62,10 +64,20 @@ internal fun ArchiveScreenContent(
         containerColor = MaterialTheme.colorScheme.background,
     ) { insets ->
         Column(modifier = Modifier.padding(insets).fillMaxSize()) {
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                WiccanEmblem(
+                    modifier = Modifier.testTag("grimoire-logo"),
+                    size = 44.dp,
+                    contentDescription = "Wiccan",
+                )
+            }
             Text(
                 text = "Grimoire",
                 style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
             )
             when {
                 state.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
