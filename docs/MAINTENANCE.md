@@ -211,7 +211,7 @@ currently handled (automated, manual, or not yet built).
   (display/headings) and Manrope (everything else), rather than bundled
   font files, since this sandbox has no way to source licensed font
   binaries to embed. The provider's certificates
-  (`res/values-v23/font_certs.xml`) are copied verbatim from Google's own
+  (`res/values/font_certs.xml`) are copied verbatim from Google's own
   Jetchat Compose sample — never fabricated. This requires Google Play
   Services to actually download the fonts (falls back to the system font
   otherwise); the app already depends on Play Services for Firebase/Play
