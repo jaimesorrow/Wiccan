@@ -39,6 +39,8 @@ buildGuava = "33.8.0-jre"
 buildBouncyCastle = "1.87"
 buildCommonsLang3 = "3.21.0"
 buildJose4j = "0.9.7"
+buildHttpClient = "4.5.14"
+buildLogback = "1.5.38"
 buildJdom2 = "2.0.6.1"
 
 [libraries]
@@ -110,6 +112,9 @@ build-bcpkix = { group = "org.bouncycastle", name = "bcpkix-jdk18on", version.re
 build-bcutil = { group = "org.bouncycastle", name = "bcutil-jdk18on", version.ref = "buildBouncyCastle" }
 build-commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "buildCommonsLang3" }
 build-jose4j = { group = "org.bitbucket.b_c", name = "jose4j", version.ref = "buildJose4j" }
+build-httpclient = { group = "org.apache.httpcomponents", name = "httpclient", version.ref = "buildHttpClient" }
+build-logback-core = { group = "ch.qos.logback", name = "logback-core", version.ref = "buildLogback" }
+build-logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "buildLogback" }
 build-jdom2 = { group = "org.jdom", name = "jdom2", version.ref = "buildJdom2" }
 
 [plugins]
