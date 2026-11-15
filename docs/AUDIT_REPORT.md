@@ -1,7 +1,7 @@
 # Wiccan repository audit
 
 Date: 2026-11-15. Base: `main` at `6fc5824` (`build(deps): raise Bouncy Castle floor on the Android Lint classpath`).
-Cleanup pull request: https://github.com/jaimesorrow/Wiccan/pull/150 (`cursor/dead-code-audit-ee70`). This report lives on `cursor/repo-audit-report-ee70` and does not contain those deletions.
+Cleanup pull request: https://github.com/jaimesorrow/Wiccan/pull/150 (`cursor/dead-code-audit-ee70`). This report's pull request: https://github.com/jaimesorrow/Wiccan/pull/151 (`cursor/repo-audit-report-ee70`). This branch does not contain those deletions.
 Open pull request #149 (`deps/stable-toolchain-2026-11`) was not modified.
 
 ## Structure
