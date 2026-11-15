@@ -1,0 +1,570 @@
+# Wiccan repository audit
+
+Date: 2026-11-15. Base: `main` at `6fc5824` (`build(deps): raise Bouncy Castle floor on the Android Lint classpath`).
+Cleanup pull request: https://github.com/jaimesorrow/Wiccan/pull/150 (`cursor/dead-code-audit-ee70`). This report lives on `cursor/repo-audit-report-ee70` and does not contain those deletions.
+Open pull request #149 (`deps/stable-toolchain-2026-11`) was not modified.
+
+## Structure
+
+Two deployable codebases share the repo. The server is the source of truth for the daily lesson, entitlement, notification flag, policy acceptance, and device registration.
+
+- **Kotlin / Jetpack Compose Android app** (`app/`). Gradle Kotlin DSL, version catalog in `gradle/libs.versions.toml`, wrapper `gradlew`. Flavors `dev`, `staging`, and `prod`. Namespace `com.wiccan.app`. Application id `com.jaimesorrow.wiccan`. Entry points: `WiccanApplication`, `MainActivity`, `WiccanMessagingService`, the Glance widget receivers, and `DailyContentWorker`.
+- **TypeScript Cloud Functions** (`functions/`). Node 22, `tsc` to `functions/lib` (gitignored). Entry: `functions/src/index.ts`, deployed as `lib/index.js`. Operator CLIs are `functions/src/scripts/*Cli.ts`, invoked by `npm run` scripts after the build.
+- **Firestore rules tests** (`firestore-tests/`). Node test runner plus the Functions emulator integration tests.
+- **Hosting** (`hosting/`). Static legal and support pages. `firebase.json` points Hosting at this directory.
+- **Brand** (`brand/`). Approved artwork and the script that regenerates launcher, splash, in-app, and Play exports.
+- **Docs, skills, CI, and devcontainer.** `docs/` is operator and editorial documentation. `.claude/skills/` is agent guidance. `.github/workflows/` is CI, instrumented tests, and release. `.devcontainer/` is the Codespaces image.
+
+There is no Rust, and the Python in the repo is the toolchain checker, its tests, and the brand-asset script. There is no application Python package.
+
+## Tooling
+
+- **Knip 6.15.0** on `functions/`, with entries for `src/index.ts`, `src/scripts/**/*.ts`, tests, and `tests/**/*.mjs`.
+- **depcheck 1.4.7** on `functions/`.
+- **`tsc`** (`npm run build`) with `noUnusedLocals` and `noUnusedParameters`.
+- **ESLint** (`npm run lint`) and **Jest** (`npm test`).
+- **vulture** (confidence 80) on `scripts/` and `brand/scripts/`. No findings.
+- **Ripgrep** for every Knip hit and for resource names, catalog aliases, and Kotlin declaration names that occur once.
+- **Kotlin compiler** during `:app:compileProdDebugKotlin`. It reported deprecations and four unnecessary safe calls. It reported no unused declaration.
+- **Python unittest** for `scripts/test-check-toolchain.py` (29), `scripts/test-validate-repo.py` (8), and `scripts/test-check-16kb-alignment.py` (8), plus `scripts/check-toolchain.py` and `scripts/validate-repo.sh --structure`.
+- **Not run:** cargo / cargo-udeps / cargo-machete (no Rust). ts-prune was skipped because Knip covered exports and `tsconfig.json` excludes tests, which would mark test-only imports as unused.
+
+A name that appears once is not enough to delete it. Hilt modules, Room converters, Glance overrides, Billing callbacks, and `@Preview` composables are referenced by processors or tools rather than by a second source line.
+
+## Removed
+
+| Path | What it was | Evidence it was unused |
+| --- | --- | --- |
+| `functions/src/contentSimilarity.ts` (`lexicalSimilarity`) | Exported helper that scored a pair of curriculum concepts with n-grams, the longest shared procedure run, and a same-passage flag. | Ripgrep finds the identifier only at the old definition. No test, CLI, or doc imported it. `findLexicalDuplicateConcerns` in the same file already computes those signals itself. `npm run build`, `npm test`, and `npm run lint` passed after the deletion. |
+| `functions/src/testUtils/fakeSystemConfigRepository.ts` | In-memory `SystemConfigPort` for tests. | Knip reported the file unused. Ripgrep finds no import. Tests that need the kill switch spy on `FirestoreSystemConfigRepository` instead (`getTodayContentCallable.test.ts`). The class was named in `docs/MAINTENANCE.md` at the wrong path (`systemConfigPort.ts`). That sentence now names `FirestoreSystemConfigRepository`, which is the read path. |
+| `gradle/libs.versions.toml` library aliases `build-httpclient`, `build-logback-core`, `build-logback-classic` | Catalog coordinates nobody referenced. | Ripgrep finds those alias keys only in the catalog. `app/build.gradle.kts` applies the floors with string coordinates and `libs.versions.buildHttpClient` / `libs.versions.buildLogback`. Those version keys stay. `./gradlew ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug :app:compileProdDebugAndroidTestKotlin` passed after the deletion. |
+
+## Left in place: medium and low confidence
+
+Knip's unused-export list is mostly symbols that the same file calls. They are exported and have no other importer. Un-exporting them would not remove behavior, and several are the names tests or a later CLI could import. They stay.
+
+- `AccountWriteUnavailableError`, `findSafetyViolations`, `buildPrompt` — thrown or called inside their own modules.
+- `CONTENT_AGENT_TIERS`, `DEFAULT_CONTENT_AGENT_BATCH_SIZE`, `MAX_CONTENT_AGENT_BATCH_SIZE`, `CONTENT_AGENT_LEASE_MS` — read by `contentAgent.ts`.
+- `validateContentBackup`, `isPreciseSourceCitation` — called by the backup and eligibility functions in the same files.
+- `DEFAULT_SIMILARITY_THRESHOLDS`, `DEFAULT_GENERATION_ORIGINALITY_THRESHOLDS`, `DEFAULT_ORIGINALITY_THRESHOLDS` — default arguments in the same files.
+- `HistoricalSourceRecordSchema` — the registry parser's Zod schema.
+- `EMPTY_CORRESPONDENCES`, `slugify`, `LESSON_CATEGORIES` — used while mapping a canonical lesson.
+- `legacyFieldsFor` — no TypeScript caller. `docs/CONTENT_SCHEMA_V2.md` names it as the legacy-field derivation. Left in place because the doc treats it as the compatibility contract.
+- Lesson duplicate helpers in `functions/src/lessons/duplicates.ts` (`normalizeText`, `conceptTokens`, `neutralize`, `lessonSteps`, `signatureHash`, `fingerprints`, `jaccard`, `titleSimilarity`, `sequenceSimilarity`, `TfIdfSpace`, `conceptSimilarity`, `scorePair`, `distinctAreas`) — called by `scorePair` and the duplicate report in that file.
+- `canonicalDraftDir` — called by the inventory reader in the same file.
+- `LEGACY_PRACTICAL_CATEGORIES`, `DISCLOSURE_TYPES`, `requiresDisclosure` — used by the practical-lesson checks in the same file.
+- `TARGET_LOCAL_HOUR` — the hour compared in `sendDailyNotifications`.
+- Exported types Knip flagged (`ContentAgentRunStatus`, `ComparableAuditRecord`, `ContentBackupDocument`, `PostMigrationAuditRecord`, `ContentRollbackEntry`, `HistoricalEra`, `ContentSourceKind`, `RejectedGeneratedDraft`, `GenerationOriginalityComparison`, lesson types, `LessonFingerprints`, `PairScores`, `InventorySource`, `ValidationCode`, `PracticalReview`, `RewriteStagingEntry`, and others) are used in the files that declare them.
+- `UserContentHistory` in `functions/src/types.ts` — Knip and a word-boundary search find no reader. It is the only server-side description of a history document's fields. The Android model of the same name is a different file and is used. The server type stays so the field list is not only implicit in untyped Firestore maps.
+- `@types/jest` — depcheck reports it unused because nothing imports the package name. TypeScript pulls it in as ambient types for `describe` / `it` / `expect`. Jest 30 also ships types. Removing it would not be proved by the current Jest run, which typechecks tests with `isolatedModules`.
+- `WidgetUpdater` and `WiccanWidgetUpdater` both call `WiccanWidget().updateAll`. Both have callers (`DailyContentWorker` and `SettingsViewModel`). Consolidating them is a behavior-preserving refactor, not a dead-code deletion.
+- `@Preview` composables in `WiccanThemePreviews.kt` — production code does not call them. Android Studio preview does. They stay.
+- Hilt `@Module` classes, Room `@TypeConverter`s, Billing callbacks, and Glance overrides — a text search sees the name once. The processor or framework calls them.
+- Kotlin deprecations (`hiltViewModel` package move, `TabRow`, FCM `token` and `onNewToken`) and the unnecessary safe calls in `AuthRepositoryImpl.kt`. The compiler still compiles them and the calls are live. #149 already recorded the same `hiltViewModel` warning. Not this cleanup.
+- `functions/lessons/drafts/.gitkeep` and `functions/sourcePassages.json` (`[]`) look empty and are supposed to. The directory is the validate scan root. The JSON is the passage register, fail-closed until a human approves a passage.
+- `app/proguard-rules.pro` is empty because minify is off. `app/build.gradle.kts` still points the release build type at it.
+- Root `.gitignore` ignores `functions/node_modules/` and not a root `node_modules/`. Nothing of that kind is committed. `firestore-tests/.gitignore` covers that package. Not worth a drive-by ignore change in this pass.
+- `.github/workflows/instrumented-tests.yml` opens by saying it runs the Room migration test. The job itself runs `:app:connectedProdDebugAndroidTest`, which also includes `AppLaunchSmokeTest`. The comment is narrow, not unused. Left as-is.
+
+## Unclear purpose
+
+No tracked file was left because its role could not be stated. One gap is an absence:
+
+- There is no `app/schemas/com.jaimesorrow.wiccan.data.local.WiccanDatabase/4.json`. Schema files 1, 2, 3, and 5 are committed. `WiccanDatabase` is version 5, and `MIGRATION_3_4` plus `MIGRATION_4_5` both exist and are registered. The migration code is used. The missing version-4 snapshot looks like an export that was never committed, not like an unused file. It was not invented here, and no schema file was deleted.
+
+`.firebaserc` still has `REPLACE_WITH_DEV_FIREBASE_PROJECT_ID` and `REPLACE_WITH_STAGING_FIREBASE_PROJECT_ID`. Those aliases are the dev and staging slots. Their purpose is clear; the projects are not created in this repo. `docs/STATUS.md` already says dev and staging client config is external.
+
+## Pull request #149
+
+#149 (`deps/stable-toolchain-2026-11`, head `20337e89`) is a toolchain bump and was not checked out or changed.
+
+It edits `gradle/libs.versions.toml` version numbers, including `buildLogback` `1.5.38` to `1.6.7`, and it edits `docs/MAINTENANCE.md` in the toolchain section. This cleanup edits the same two files in different places: it deletes the three unused library aliases near the bottom of the catalog, and it corrects the kill-switch sentence that named the deleted fake. The version keys `buildHttpClient` and `buildLogback` stay, so #149's floor bumps still apply. A merge should keep #149's versions and this cleanup's alias deletion and sentence. No Functions source in #149 overlaps `contentSimilarity.ts` or the deleted fake.
+
+## Build and test results
+
+Run on this cleanup, after the deletions.
+
+- `functions/`: `npm run build` (tsc), `npm run lint` (eslint), and `npm test` — 40 suites passed, 2 skipped, 368 tests passed, 25 skipped. The skipped tests are `firestoreContentRepository.integration.test.ts` and `firestoreContentAgentState.integration.test.ts`, which skip unless `FIRESTORE_EMULATOR_HOST` is set.
+- `firestore-tests/`: `npm ci` then `npm test` (Firebase emulator, Java 21). Rules: 25 passed. The two Functions integration suites above then ran in that emulator and passed, 25 tests. The emulator log also printed a Node `MetadataLookupWarning` (`ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING_FLAG`) and still exited 0.
+- Python: `scripts/test-check-toolchain.py` 29 passed, `scripts/test-validate-repo.py` 8 passed, `scripts/test-check-16kb-alignment.py` 8 passed. `scripts/check-toolchain.py` 0 failures. `scripts/validate-repo.sh --structure` 0 failures. Dev and staging `google-services.json` files are skipped, which is the expected unconfigured state.
+- Android, JDK 21 in this sandbox, SDK `platforms;android-37.0` and build-tools `37.0.0`: `./gradlew ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug :app:compileProdDebugAndroidTestKotlin` — BUILD SUCCESSFUL. ktlint passed. Unit tests: 36 suites, 207 tests, 0 failures. `app/build/outputs/apk/prod/debug/app-prod-debug.apk` was produced. Instrumented Kotlin compiled. Those instrumented tests were not executed: this environment has no Android emulator. CI's instrumented-tests workflow is what runs them.
+- vulture: no unused Python at confidence 80.
+
+CI on GitHub was not waited on for this report. The commands above are the local equivalents of the CI structure job, the Functions job, and the prodDebug unit-test and assemble job.
+
+## Purpose of every remaining file
+
+One line per file. Grouped only in the sense that this list is ordered by path. Launcher densities and rewrite batches are still one line each. `docs/AUDIT_REPORT.md` is this file, added by the report pull request; it is not on the cleanup branch.
+
+- `.claude/skills/content-voice/SKILL.md` — Editorial rules for spell, potion, and lesson writing. Used by Agents drafting or reviewing content; points at docs/CONTENT_VOICE_AND_LESSON_STANDARD.md.
+- `.claude/skills/release-prep/SKILL.md` — Release validation checklist for agents. Used by Agents preparing a release; points at docs/RELEASE_CHECKLIST.md and docs/STATUS.md.
+- `.claude/skills/run-wiccan/SKILL.md` — How to build, screenshot, and drive the app and emulators from a container. Used by Agents; .claude/skills/run-wiccan/driver.sh.
+- `.claude/skills/run-wiccan/driver.sh` — Installs the Android SDK, assembles prodDebug, renders palette screenshots, and smoke-tests emulators. Used by The run-wiccan skill and scripts/validate-repo.sh's script-existence check.
+- `.claude/skills/steward/SKILL.md` — Which Gradle and npm commands apply to a Wiccan PR, and what must not be guessed. Used by Agents driving CI or review.
+- `.claude/skills/wiccan-theme/SKILL.md` — Compose guardrails: six palettes, MVI split, Cinzel/Manrope. Used by Agents editing app/src/main/kotlin/.../ui or the theme and widget packages.
+- `.devcontainer/Dockerfile` — Image used by the devcontainer. Used by .devcontainer/devcontainer.json.
+- `.devcontainer/devcontainer.json` — Codespaces/devcontainer definition for the Android and Functions toolchains. Used by GitHub Codespaces and VS Code Dev Containers.
+- `.devcontainer/post-create.sh` — Installs SDK and npm dependencies after the container is created. Used by The devcontainer postCreateCommand.
+- `.editorconfig` — Shared editor whitespace and charset settings. Used by Editors and ktlint's formatting expectations.
+- `.firebaserc` — Maps the default, staging, and production Firebase project aliases. Dev and staging IDs are still placeholders; production is wiccan-android. Used by Firebase CLI.
+- `.github/dependabot.yml` — Configures Dependabot update groups for Gradle, npm, and GitHub Actions. Used by Dependabot.
+- `.github/workflows/ci.yml` — CI: structure checks, Functions tests and lint, and the prodDebug Android unit-test and assemble matrix. Used by GitHub Actions on push and pull request.
+- `.github/workflows/instrumented-tests.yml` — Runs the emulator instrumented tests, including Room migration and launch smoke, on every pull request and on pushes to main. Used by GitHub Actions. It is separate from ci.yml so an emulator failure does not block the unit-test gate.
+- `.github/workflows/release.yml` — Builds the signed prod release bundle against the committed prod google-services.json. Used by GitHub Actions on workflow_dispatch and on v* tags.
+- `.gitignore` — Keeps Gradle output, node_modules, local Firebase config, keystores, and OS junk out of git. Used by Git.
+- `.nvmrc` — Pins local Node to 22, the Functions runtime. Used by nvm and scripts/check-toolchain.py.
+- `CLAUDE.md` — Agent-facing architecture and command guide for this repo. Used by Coding agents; summarized from README, Gradle, and Functions conventions.
+- `README.md` — Product overview, module map, data model, and the commands that build both codebases. Used by People cloning the repo; linked from GitHub.
+- `app/build.gradle.kts` — Android app module: flavors, Compose, Hilt, Room, Firebase, and test dependencies. Used by Gradle :app tasks.
+- `app/google-services.ci.json` — Placeholder google-services.json that CI copies into place for prodDebug. Used by CI and scripts/check-toolchain.py.
+- `app/keystore.properties.example` — Shows the keystore property names without committing a real signing secret. Used by Developers creating the gitignored app/keystore.properties.
+- `app/proguard-rules.pro` — Release R8 rules file. It is empty because minify is off; the release build type still points at it. Used by app/build.gradle.kts proguardFiles.
+- `app/schemas/com.jaimesorrow.wiccan.data.local.WiccanDatabase/1.json` — Room schema version 1, the original cached-content table. Used by Room exportSchema and the migration tests. There is no checked-in 4.json; see Unclear.
+- `app/schemas/com.jaimesorrow.wiccan.data.local.WiccanDatabase/2.json` — Room schema version 2, after the category column. Used by Room exportSchema and the migration tests. There is no checked-in 4.json; see Unclear.
+- `app/schemas/com.jaimesorrow.wiccan.data.local.WiccanDatabase/3.json` — Room schema version 3, after lesson sections and provenance columns. Used by Room exportSchema and the migration tests. There is no checked-in 4.json; see Unclear.
+- `app/schemas/com.jaimesorrow.wiccan.data.local.WiccanDatabase/5.json` — Room schema version 5, the current database version, after sourceTradition. Used by Room exportSchema and the migration tests. There is no checked-in 4.json; see Unclear.
+- `app/src/androidTest/kotlin/com/jaimesorrow/wiccan/data/local/WiccanDatabaseMigrationTest.kt` — Instrumented test that opens exported schemas through the real Room database. Used by Instrumented-tests workflow. It compiles here; it runs on an emulator in CI.
+- `app/src/androidTest/kotlin/com/jaimesorrow/wiccan/ui/AppLaunchSmokeTest.kt` — Instrumented launch smoke test for a signed-out prod build. Used by Instrumented-tests workflow.
+- `app/src/debug/kotlin/com/jaimesorrow/wiccan/appcheck/DebugAppCheckModule.kt` — Debug App Check provider. Not in release builds. Used by Debug source set; Hilt.
+- `app/src/dev/res/values/strings.xml` — Dev flavor app name, Wiccan Dev. Used by The dev resource merge.
+- `app/src/main/AndroidManifest.xml` — Declares the application, launcher activity, messaging service, widget receivers, and backup rules. Used by The Android package manager.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/MainActivity.kt` — Single activity. Installs the splash screen, applies the palette, and hosts the nav graph. Used by AndroidManifest.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/WiccanApplication.kt` — Hilt application. Starts WorkManager and schedules the daily cache refresh. Used by AndroidManifest.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/analytics/AnalyticsConsentManager.kt` — Applies the user's analytics and crash-reporting choice to the Firebase SDKs. Used by Settings and the consent preferences.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/analytics/AnalyticsLogger.kt` — Logs the six allowed Analytics events and nothing else. Used by ViewModels that record those events.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/appcheck/AppCheckProviderInstaller.kt` — Interface for installing the debug or Play Integrity App Check factory. Used by WiccanApplication; implemented in src/debug and src/release.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/billing/WiccanBillingClient.kt` — Play Billing client: connect, query the monthly offer, and launch purchase. Used by SubscriptionRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/core/auth/CurrentUserProvider.kt` — Uid lookup interface so ViewModels can be tested without FirebaseAuth. Used by Today and other signed-in ViewModels.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/core/auth/FirebaseCurrentUserProvider.kt` — FirebaseAuth implementation of CurrentUserProvider. Used by AuthModule.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/core/config/FirebaseEmulatorConfig.kt` — Host and ports for the local Firebase emulators. Used by Debug builds when useFirebaseEmulators is true.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/core/config/PolicyUrls.kt` — Public URLs for terms, privacy, safety, and account deletion. Used by Legal and policy screens; the same pages live in hosting/.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/core/error/AppError.kt` — Shared error cases repositories return. Used by ViewModels and AppErrorMapper.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/core/error/AppErrorMapper.kt` — Turns AppError into snackbar copy. Used by Every screen that shows a repository failure.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/core/error/ThrowableToAppError.kt` — Classifies thrown exceptions into AppError. Used by Repository implementations.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/core/result/AppResult.kt` — Success/failure wrapper for repository calls. Used by Repositories and ViewModels.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/core/time/LocalCalendarProvider.kt` — Device date used only to ask the server for that local day. Used by TodayViewModel.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/core/util/ContextExt.kt` — Finds the Activity under a Compose Context. Used by Screens that need an Activity for billing or credentials.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/local/AnalyticsConsentPreferences.kt` — DataStore for the analytics consent bit. Used by AnalyticsConsentManager and Settings.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/local/CachedDailyContentDao.kt` — Room DAO for the single cached daily row. Used by ContentRepositoryImpl and WiccanDatabase.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/local/CachedDailyContentEntity.kt` — Room entity mirroring one delivered lesson. Used by The DAO and content mappers.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/local/Converters.kt` — Room converters for string lists. Used by WiccanDatabase @TypeConverters.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/local/Migrations.kt` — Room migrations 1→2, 2→3, 3→4, and 4→5. Used by DatabaseModule and the migration tests.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/local/NotificationPreferences.kt` — DataStore cache of the notifications toggle. Used by Settings and notification registration.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/local/ThemePreferences.kt` — DataStore for the palette mode. Used by ThemeViewModel.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/local/WiccanDatabase.kt` — Room database, version 5. Used by DatabaseModule.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/mapper/ContentMappers.kt` — Maps the getTodayContent payload into the domain Content model. Used by ContentRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/mapper/HistoryMappers.kt` — Maps a Firestore history document into a HistoryEntry. Used by ArchiveFirestoreDataSource.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/remote/AccountFunctionsDataSource.kt` — Calls the deleteUserData callable. Used by AuthRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/remote/ArchiveFirestoreDataSource.kt` — Reads the signed-in user's delivery history for the Grimoire. Used by ArchiveRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/remote/ContentFunctionsDataSource.kt` — Calls getTodayContent. Used by ContentRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/remote/FcmTokenProvider.kt` — Reads the current FCM token. Used by NotificationRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/remote/GoogleCredentialDataSource.kt` — Credential Manager Google ID sign-in. Used by AuthRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/remote/NotificationFunctionsDataSource.kt` — Calls the device-registration and notification callables. Used by NotificationRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/remote/SubscriptionFunctionsDataSource.kt` — Calls verifyPurchase. Used by SubscriptionRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/remote/UserTierDataSource.kt` — Streams the server-written entitlement and closes it at the verified expiry. Used by SubscriptionRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/repository/ArchiveRepositoryImpl.kt` — ArchiveRepository backed by the history Firestore reads. Used by RepositoryModule and ArchiveViewModel.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/repository/AuthRepositoryImpl.kt` — AuthRepository for email, Google, profile, and account deletion. Used by RepositoryModule and the auth ViewModels.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/repository/ContentRepositoryImpl.kt` — ContentRepository: callable plus Room cache. Used by RepositoryModule, TodayViewModel, and DailyContentWorker.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/repository/NotificationRepositoryImpl.kt` — NotificationRepository for token registration. Used by RepositoryModule and Settings.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/data/repository/SubscriptionRepositoryImpl.kt` — SubscriptionRepository over Billing and verifyPurchase. Used by RepositoryModule and the paywall.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/di/AuthModule.kt` — Hilt bindings for FirebaseAuth and CurrentUserProvider. Used by Hilt; discovered by annotation processing, not a direct Kotlin call.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/di/DatabaseModule.kt` — Provides the Room database and DAO. Used by Hilt.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/di/FirebaseModule.kt` — Provides Firestore, Functions, Messaging, Analytics, and Crashlytics. Used by Hilt.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/di/RepositoryModule.kt` — Binds repository interfaces to their implementations. Used by Hilt.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/AccountStatus.kt` — Server account state after sign-in: profile, policies, onboarding. Used by RootViewModel.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/AuthState.kt` — Signed-out, signed-in, or unknown auth state. Used by RootViewModel.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/Content.kt` — One delivered spell, potion, or lesson. Used by Today, Grimoire, and the Room cache.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/ContentCategory.kt` — Grimoire category enum. Used by Content and Archive.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/ContentStatus.kt` — Draft versus published status on the client model. Used by Content mapping.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/ContentTier.kt` — Legacy tier flag. Active entitlement is premium; there is no free plan. Used by Subscription and content mapping.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/ContentType.kt` — Spell, potion, or lesson. Used by Content and the type pill.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/HistoryEntry.kt` — One Grimoire row. Used by Archive screens.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/PolicyVersions.kt` — Terms and privacy versions the client requires. Used by Policy acceptance; must match functions/src/policyVersions.ts.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/RootState.kt` — Which gate the app is in: signed out, policies, paywall, or ready. Used by MainActivity.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/SubscriptionOffer.kt` — A Play offer the paywall may sell. Used by PaywallViewModel.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/UserContentHistory.kt` — Client model of one userContentHistory document. Used by History mapping. Distinct from the unused server type of the same name.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/model/WiccanThemeMode.kt` — Automatic, system, or locked palette. Used by ThemePreferences and ThemeViewModel.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/repository/ArchiveRepository.kt` — Archive port. History reads stay off the daily-selection path. Used by ArchiveRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/repository/AuthRepository.kt` — Auth port. Used by AuthRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/repository/ContentRepository.kt` — Today-content port. Used by ContentRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/repository/NotificationRepository.kt` — Device-token port. Used by NotificationRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/repository/SubscriptionRepository.kt` — Billing and entitlement port. Used by SubscriptionRepositoryImpl.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/domain/usecase/DeleteAccountUseCase.kt` — Deletes the server account and signs out locally. Used by SettingsViewModel.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/notification/WiccanMessagingService.kt` — Uploads a rotated FCM token. It does not draw foreground notifications. Used by AndroidManifest.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/archive/ArchiveContract.kt` — MVI state and events for the Grimoire list. Used by ArchiveViewModel and ArchiveScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/archive/ArchiveDetailContract.kt` — MVI state for one Grimoire entry. Used by ArchiveDetailViewModel.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/archive/ArchiveDetailScreen.kt` — Grimoire detail screen. Used by WiccanNavGraph.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/archive/ArchiveDetailViewModel.kt` — Loads one history entry for detail. Used by ArchiveDetailScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/archive/ArchiveEntryRow.kt` — One row in the Grimoire list. Used by ArchiveScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/archive/ArchiveScreen.kt` — Grimoire list, with timeline and category tabs. Used by WiccanNavGraph.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/archive/ArchiveViewModel.kt` — Loads history and handles list events. Used by ArchiveScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/auth/OnboardingScreen.kt` — Profile onboarding after sign-in. Used by WiccanNavGraph.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/auth/OnboardingViewModel.kt` — Saves the onboarding profile through the callable. Used by OnboardingScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/auth/RootViewModel.kt` — Resolves RootState from auth, policies, and entitlement. Used by MainActivity.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/auth/SignInContract.kt` — MVI contract for sign-in, create-account, and password reset. Used by SignInViewModel and SignInScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/auth/SignInScreen.kt` — The combined auth screen. Used by MainActivity when signed out.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/auth/SignInViewModel.kt` — Handles email and Google sign-in events. Used by SignInScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/brand/WiccanBrand.kt` — Draws the emblem and full logo from the nodpi drawables. Used by Screen headers.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/content/ContentDetailView.kt` — Shared lesson detail body used by Today and the Grimoire. Used by TodayScreen and ArchiveDetailScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/legal/LegalDocumentScreen.kt` — In-app reader for one legal document. Used by Settings and policy acceptance.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/legal/LegalDocuments.kt` — The in-app copies of terms, privacy, and safety text. Used by LegalDocumentScreen and LegalDocumentsTest.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/navigation/WiccanDestinations.kt` — Route names for the signed-in graph. Used by WiccanNavGraph.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/navigation/WiccanNavGraph.kt` — Signed-in navigation host. Used by MainActivity.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/notification/NotificationSetupEffect.kt` — Asks for POST_NOTIFICATIONS on Android 13+. Used by The signed-in shell.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/notification/NotificationSetupViewModel.kt` — State for that permission request. Used by NotificationSetupEffect.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/paywall/PaywallContract.kt` — MVI contract for the subscription screen. Used by PaywallViewModel and PaywallScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/paywall/PaywallScreen.kt` — Subscription offer and purchase UI. Used by MainActivity when access is required.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/paywall/PaywallViewModel.kt` — Loads the Play offer and starts checkout. Used by PaywallScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/paywall/SubscriptionSetupEffect.kt` — Restores purchases when the app returns to the foreground. Used by The signed-in shell.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/paywall/SubscriptionSetupViewModel.kt` — State for that restore. Used by SubscriptionSetupEffect.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/policy/PolicyAcceptanceContract.kt` — MVI contract for the terms and privacy checkboxes. Used by PolicyAcceptanceViewModel.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/policy/PolicyAcceptanceScreen.kt` — Blocks the app until current policies are accepted. Used by MainActivity.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/policy/PolicyAcceptanceViewModel.kt` — Sends acceptance to the acceptTerms callable. Used by PolicyAcceptanceScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/settings/SettingsContract.kt` — MVI contract for settings. Used by SettingsViewModel and SettingsScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/settings/SettingsScreen.kt` — Theme, notifications, legal links, and account deletion. Used by WiccanNavGraph.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/settings/SettingsViewModel.kt` — Settings events, including theme changes that refresh the widget. Used by SettingsScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/theme/SeasonalThemeResolver.kt` — Maps a date on the Wheel of the Year to a palette and a blend. Used by WiccanTheme.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/theme/Theme.kt` — WiccanTheme wrapper: palette plus typography. Used by MainActivity and every screen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/theme/ThemeViewModel.kt` — Exposes the persisted theme mode. Used by MainActivity.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/theme/Type.kt` — Cinzel and Manrope typography via downloadable fonts. Used by WiccanTheme.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/theme/WiccanColorSchemeResolver.kt` — Resolves the active scheme, including seasonal blends. Used by WiccanTheme.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/theme/WiccanColorSchemes.kt` — Material3 ColorScheme for each of the six palettes. Used by The resolver and the widget.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/theme/WiccanPalette.kt` — The six palette identifiers. Used by Theme mode and the resolver.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/theme/WiccanPaletteColors.kt` — Raw colors for all six palettes. Screens do not hardcode Color(0x...). Used by WiccanColorSchemes.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/theme/WiccanThemeModeUi.kt` — Labels and locked-palette lookup for the settings picker. Used by SettingsScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/theme/WiccanThemePreviews.kt` — @Preview composables for the six palettes and the theme picker. Studio and design review use them; production code does not call them. Used by Android Studio preview.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/today/TodayContract.kt` — MVI contract for Today. Used by TodayViewModel and TodayScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/today/TodayScreen.kt` — Today's lesson. Used by WiccanNavGraph.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/today/TodayViewModel.kt` — Loads today's content and handles refresh. Used by TodayScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/today/components/ContentTypePill.kt` — Spell/potion/lesson badge. Used by ContentDetailView and Today.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/today/components/HairlineDivider.kt` — One-pixel section rule. Used by Content detail layout.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/today/components/MaterialsCard.kt` — Materials list card. Used by Content detail layout.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/today/components/SafetyNote.kt` — In-palette safety callout. Used by Content detail when a potion disclosure is required.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/ui/today/components/TodaySkeleton.kt` — Loading placeholder matching the Today layout. Used by TodayScreen.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/widget/WiccanThemeDateChangeReceiver.kt` — Refreshes the widget when the date changes so the seasonal palette can move. Used by AndroidManifest.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/widget/WiccanWidget.kt` — Glance home-screen widget. It resolves the palette itself because it is not inside MaterialTheme. Used by WiccanWidgetReceiver.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/widget/WiccanWidgetEntryPoint.kt` — Hilt entry point so Glance can read the same repositories. Used by WiccanWidget.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/widget/WiccanWidgetReceiver.kt` — Glance receiver registered in the manifest. Used by AndroidManifest.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/widget/WiccanWidgetUpdater.kt` — Injected widget refresh used when settings change the theme. Used by SettingsViewModel.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/widget/WidgetUpdater.kt` — Injected widget refresh used after the daily cache worker runs. Same Glance call, different injection shape. Used by DailyContentWorker.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/worker/DailyContentWorker.kt` — Refreshes the Room cache of today's content. Used by WorkManager, scheduled from WiccanApplication.
+- `app/src/main/kotlin/com/jaimesorrow/wiccan/worker/WiccanWorkerFactory.kt` — Lets WorkManager construct the Hilt worker. Used by WiccanApplication.
+- `app/src/main/res/drawable-nodpi/wiccan_emblem.png` — In-app seal used by WiccanEmblem. Used by ui/brand/WiccanBrand.kt.
+- `app/src/main/res/drawable-nodpi/wiccan_full_logo.png` — Full logo for dark palettes. Used by WiccanBrand.kt.
+- `app/src/main/res/drawable-nodpi/wiccan_full_logo_mask.png` — Full-logo mask tinted for Light/Ivory. Used by WiccanBrand.kt.
+- `app/src/main/res/drawable-xxxhdpi/splash_emblem.png` — Splash animated icon. Used by themes.xml windowSplashScreenAnimatedIcon.
+- `app/src/main/res/layout/widget_loading.xml` — Static layout shown before Glance renders the widget. Used by wiccan_widget_info.xml initialLayout.
+- `app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` — Adaptive launcher icon. Used by The launcher on API 26+.
+- `app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml` — Round adaptive launcher icon. Used by Launchers that request a round icon.
+- `app/src/main/res/mipmap-hdpi/ic_launcher.png` — Legacy launcher icon at 72px (hdpi). Used by Launchers on pre-adaptive APIs; BrandAssetsTest.
+- `app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png` — Adaptive-icon foreground at 162px (hdpi). Used by ic_launcher.xml.
+- `app/src/main/res/mipmap-hdpi/ic_launcher_monochrome.png` — Themed-icon monochrome layer at 162px (hdpi). Used by ic_launcher.xml and BrandAssetsTest.
+- `app/src/main/res/mipmap-hdpi/ic_launcher_round.png` — Round legacy launcher icon at 72px (hdpi). Used by Launchers that request a round icon.
+- `app/src/main/res/mipmap-mdpi/ic_launcher.png` — Legacy launcher icon at 48px (mdpi). Used by Launchers on pre-adaptive APIs; BrandAssetsTest.
+- `app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png` — Adaptive-icon foreground at 108px (mdpi). Used by ic_launcher.xml.
+- `app/src/main/res/mipmap-mdpi/ic_launcher_monochrome.png` — Themed-icon monochrome layer at 108px (mdpi). Used by ic_launcher.xml and BrandAssetsTest.
+- `app/src/main/res/mipmap-mdpi/ic_launcher_round.png` — Round legacy launcher icon at 48px (mdpi). Used by Launchers that request a round icon.
+- `app/src/main/res/mipmap-xhdpi/ic_launcher.png` — Legacy launcher icon at 96px (xhdpi). Used by Launchers on pre-adaptive APIs; BrandAssetsTest.
+- `app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png` — Adaptive-icon foreground at 216px (xhdpi). Used by ic_launcher.xml.
+- `app/src/main/res/mipmap-xhdpi/ic_launcher_monochrome.png` — Themed-icon monochrome layer at 216px (xhdpi). Used by ic_launcher.xml and BrandAssetsTest.
+- `app/src/main/res/mipmap-xhdpi/ic_launcher_round.png` — Round legacy launcher icon at 96px (xhdpi). Used by Launchers that request a round icon.
+- `app/src/main/res/mipmap-xxhdpi/ic_launcher.png` — Legacy launcher icon at 144px (xxhdpi). Used by Launchers on pre-adaptive APIs; BrandAssetsTest.
+- `app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png` — Adaptive-icon foreground at 324px (xxhdpi). Used by ic_launcher.xml.
+- `app/src/main/res/mipmap-xxhdpi/ic_launcher_monochrome.png` — Themed-icon monochrome layer at 324px (xxhdpi). Used by ic_launcher.xml and BrandAssetsTest.
+- `app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png` — Round legacy launcher icon at 144px (xxhdpi). Used by Launchers that request a round icon.
+- `app/src/main/res/mipmap-xxxhdpi/ic_launcher.png` — Legacy launcher icon at 192px (xxxhdpi). Used by Launchers on pre-adaptive APIs; BrandAssetsTest.
+- `app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png` — Adaptive-icon foreground at 432px (xxxhdpi). Used by ic_launcher.xml.
+- `app/src/main/res/mipmap-xxxhdpi/ic_launcher_monochrome.png` — Themed-icon monochrome layer at 432px (xxxhdpi). Used by ic_launcher.xml and BrandAssetsTest.
+- `app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png` — Round legacy launcher icon at 192px (xxxhdpi). Used by Launchers that request a round icon.
+- `app/src/main/res/values-v23/font_certs.xml` — Certificates for the downloadable Google Fonts provider. Used by ui/theme/Type.kt.
+- `app/src/main/res/values/colors.xml` — Window background and the permanent launcher-icon background. Used by themes.xml and the adaptive-icon XML.
+- `app/src/main/res/values/strings.xml` — App name and the sign-in intro strings. Used by AndroidManifest and SignInScreen.
+- `app/src/main/res/values/themes.xml` — Splash screen theme and window colors before Compose draws. Used by AndroidManifest.
+- `app/src/main/res/xml/backup_rules.xml` — Auto-backup rules so auth and cache files are not backed up wholesale. Used by AndroidManifest.
+- `app/src/main/res/xml/data_extraction_rules.xml` — Android 12+ data extraction rules. Used by AndroidManifest.
+- `app/src/main/res/xml/wiccan_widget_info.xml` — Glance widget metadata, including the loading layout. Used by AndroidManifest and WiccanWidgetReceiver.
+- `app/src/prod/google-services.json` — Registered production Firebase Android client. Used by The prod flavor and the Google Services plugin.
+- `app/src/release/kotlin/com/jaimesorrow/wiccan/appcheck/ReleaseAppCheckModule.kt` — Play Integrity App Check provider. Used by Release source set; Hilt.
+- `app/src/staging/res/values/strings.xml` — Staging flavor app name, Wiccan Staging. Used by The staging resource merge.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/analytics/AnalyticsConsentManagerTest.kt` — Unit test for consent application. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/analytics/AnalyticsLoggerTest.kt` — Unit test that only the six events are logged. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/billing/SubscriptionOfferTest.kt` — Unit test for offer selection. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/data/local/WiccanDatabaseMigrationJvmTest.kt` — JVM Room migration test using the exported schemas. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/data/mapper/ContentMappersTest.kt` — Unit test that lesson fields survive mapping and the Room round trip. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/data/remote/UserTierDataSourceTest.kt` — Unit test for entitlement expiry. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/data/repository/AuthRepositoryImplTest.kt` — Unit test for auth repository behavior. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/data/repository/ContentRepositoryImplTest.kt` — Unit test for cache-and-callable content loading. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/data/repository/FakeCachedDailyContentDao.kt` — In-memory DAO for content repository tests. Used by ContentRepositoryImplTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/data/repository/NotificationRepositoryImplTest.kt` — Unit test for device registration. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/data/repository/SubscriptionRepositoryImplTest.kt` — Unit test for billing plus server verification. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/OnboardingFlowButtonsTest.kt` — Robolectric test that onboarding buttons advance the flow. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/archive/ArchiveDetailViewModelTest.kt` — Unit test for Grimoire detail. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/archive/ArchiveViewModelTest.kt` — Unit test for the Grimoire list. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/archive/FakeArchiveRepository.kt` — In-memory archive port for those tests. Used by Archive ViewModel tests.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/archive/GrimoireScreenTest.kt` — Robolectric test of the Grimoire screen. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/auth/FakeAuthRepository.kt` — In-memory auth port. Used by Auth ViewModel tests.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/auth/RootViewModelTest.kt` — Unit test for root-state resolution. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/auth/SignInScreenLayoutTest.kt` — Robolectric layout test for the sign-in screen. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/auth/SignInViewModelTest.kt` — Unit test for sign-in validation and events. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/brand/BrandAssetsTest.kt` — Checks launcher, monochrome, and Play export specs. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/brand/BrandPaletteScreenshotTest.kt` — Roborazzi renders of the brand mark on the palettes. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/content/ContentDetailViewTest.kt` — Robolectric test of the shared detail view. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/legal/LegalDocumentsTest.kt` — Checks the in-app legal copy is present and versioned. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/navigation/GrimoireNavigationTest.kt` — Robolectric test of Grimoire navigation. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/navigation/WiccanAppShellNavigationTest.kt` — Clicks through the signed-in shell with stand-in screens. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/paywall/FakeSubscriptionRepository.kt` — In-memory subscription port. Used by PaywallViewModelTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/paywall/PaywallViewModelTest.kt` — Unit test for offer loading and purchase events. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/policy/PolicyAcceptanceViewModelTest.kt` — Unit test for the policy gate. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/settings/SettingsScreenButtonsTest.kt` — Robolectric test of settings buttons. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/settings/SettingsViewModelTest.kt` — Unit test for settings, including the widget refresh. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/theme/SeasonalThemeResolverTest.kt` — Date-to-palette tests, including mid-period dates. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/theme/ThemeViewModelTest.kt` — Unit test for the persisted theme mode. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/theme/WiccanColorSchemeResolverTest.kt` — Unit test for scheme resolution and contrast. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/theme/WiccanColorSchemesTest.kt` — Unit test that all six schemes build. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/theme/WiccanPaletteScreenshotTest.kt` — Roborazzi renders of the six palettes. Used by :app:testProdDebugUnitTest and the run-wiccan screenshots command.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/theme/WiccanThemeModeTest.kt` — Unit test for theme-mode mapping. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/today/FakeContentRepository.kt` — In-memory content port. Used by TodayViewModelTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/today/TodayScreenTest.kt` — Robolectric test of Today. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/ui/today/TodayViewModelTest.kt` — Unit test for today's load and refresh. Used by :app:testProdDebugUnitTest.
+- `app/src/test/kotlin/com/jaimesorrow/wiccan/worker/DailyContentWorkerTest.kt` — Unit test for the daily cache worker and widget update. Used by :app:testProdDebugUnitTest.
+- `brand/README.md` — Explains the approved artwork, the rebuild command, and which export is for Play versus the app. Used by brand/scripts/build_brand_assets.py and BrandAssetsTest.
+- `brand/exports/app-icon/wiccan_emblem_gold_1024.png` — 1024px gold emblem export. Used by Brand review and BrandAssetsTest.
+- `brand/exports/app-icon/wiccan_emblem_ivory_primary_1024.png` — 1024px emblem in the Light/Ivory primary. Used by Brand review and BrandAssetsTest.
+- `brand/exports/app-icon/wiccan_emblem_monochrome_1024.png` — 1024px monochrome emblem. Used by Themed-icon reference and BrandAssetsTest.
+- `brand/exports/full-logo/wiccan_full_logo_ivory_primary.png` — Full logo recolored for Light/Ivory. Used by Brand review.
+- `brand/exports/full-logo/wiccan_full_logo_original_colors.png` — Full logo in its original colors. Used by Brand review; the in-app drawable is the generated copy.
+- `brand/exports/google-play/wiccan_feature_graphic_1024x500.png` — 1024x500 Play feature graphic. Used by Play Console upload after owner approval; BrandAssetsTest.
+- `brand/exports/google-play/wiccan_play_icon_512.png` — 512px Play listing icon. Used by Play Console upload after owner approval; BrandAssetsTest.
+- `brand/exports/previews/adaptive_circle_mask.png` — Validation render of the adaptive-icon circle mask. Used by Brand review, not shipped in the APK.
+- `brand/exports/previews/six_palette_brand_render.png` — Validation render of the mark on six palettes. Used by Brand review, not shipped in the APK.
+- `brand/exports/previews/themed_icon_preview.png` — Validation render of the themed icon. Used by Brand review, not shipped in the APK.
+- `brand/scripts/build_brand_assets.py` — Extracts the emblem and wordmark from the approved PNGs and writes launcher, splash, in-app, and Play exports. Used by Run by hand; outputs are what the app and BrandAssetsTest read.
+- `brand/source/01_App_Icon_Approved_Reference.png` — Approved app-icon artwork. Used by build_brand_assets.py.
+- `brand/source/02_Full_Logo_Approved_Reference.png` — Approved full-logo artwork. Used by build_brand_assets.py.
+- `brand/source/Wiccan_Brand_Guidelines.pdf` — Owner-approved brand guidelines dated 2026-10-28. Used by Humans; the rebuild script follows them and does not parse the PDF.
+- `build.gradle.kts` — Root Gradle build: plugin aliases and security floors for the AGP build classpath. Used by Gradle; app/build.gradle.kts.
+- `docs/ANCIENT_LESSON_SOURCING.md` — How the 296 ancient-source seed entries were chosen and what they may claim. Used by README and the seed import path.
+- `docs/BUILD_VALIDATION.md` — What a green build does and does not prove. Used by Release and CI readers.
+- `docs/CHATGPT_DAILY_LESSON_PROMPT.md` — Prompt used when a person drafts a daily lesson by hand. Used by Editors; not called by the Functions generator.
+- `docs/CONTENT_CONTINUANCE_AGENT.md` — How the scheduled draft agent is enabled, bounded, and reviewed. Used by Operators; generateContentDraftsJob.
+- `docs/CONTENT_PRODUCTION_RUNBOOK.md` — Operator steps for draft, approve, seed, backup, and rollback commands. Used by The npm scripts in functions/package.json.
+- `docs/CONTENT_SCHEMA_V2.md` — Canonical lesson field contract and the legacy-field compatibility note. Used by Lesson validators and editors.
+- `docs/CONTENT_VOICE_AND_LESSON_STANDARD.md` — Required voice and the Introduction/Lesson/Reflection/Practice/Safety structure. Used by The content-voice skill and lesson validation.
+- `docs/DAILY_GRIMOIRE.md` — Product rules for the Grimoire list and detail. Used by Archive UI and the history repositories.
+- `docs/DISASTER_RECOVERY.md` — How to restore content and account data after a bad write. Used by Operators; backup and rollback CLIs.
+- `docs/DUPLICATE_AND_ORIGINALITY_CONTROLS.md` — What the similarity and originality checks refuse. Used by contentSimilarity, originalityScreen, and lessons/duplicates.
+- `docs/ERMAN_BERLIN_3027_SOURCE_EVIDENCE_REVIEW.md` — Research notes for one source. It does not approve a passage or write Firestore. Used by Editors deciding whether a passage can later be added to sourcePassages.json.
+- `docs/FIREBASE_SETUP.md` — How the three Firebase projects, Auth, and App Check are set up. Used by Operators and .firebaserc.
+- `docs/FIRESTORE_MIGRATION_RUNBOOK.md` — Ordered steps for a reviewed content migration. Used by seed, backup, and rollback CLIs.
+- `docs/FIVE_BOUND_REWRITE_REVIEW.md` — Local review of five existing seed IDs. It authorizes no Firestore write. Used by Editors; rewrite batch staging.
+- `docs/HISTORICAL_SOURCE_REGISTRY_REPORT.md` — Human report beside historicalSourceRegistry.json. Used by historicalSourceRegistry.ts and its test.
+- `docs/INCIDENT_RESPONSE.md` — What to do when content, billing, or notifications misbehave. Used by Operators; kill switches in docs/MAINTENANCE.md.
+- `docs/LEGACY_LESSON_AUDIT.md` — Read-only audit of the legacy seed lessons. Used by Editors; ancientContentSeed.json.
+- `docs/LOCAL_REWRITE_BATCHES.md` — How the local editorial JSON batches are produced and verified. Used by prepareRewriteBatchesCli and verifyRewriteCurriculumCli.
+- `docs/MAINTENANCE.md` — Recurring toolchain, theme-date, and kill-switch operations. Used by check-toolchain.py, release preflight, and operators.
+- `docs/ORACC_MAQLU_SOURCE_EVIDENCE_REVIEW.md` — Research notes for Maqlu. It does not approve a passage. Used by Editors; sourcePassages.json stays empty until a separate approval.
+- `docs/PLAY_CONSOLE_READINESS.md` — Play Console listing, subscription, and policy checklist. Used by Release operators; hosting legal pages.
+- `docs/PRACTICAL_CATEGORY_MAPPING_PROPOSAL.md` — Proposed practical-category map. The live seed still uses the current category contract. Used by Editors; not imported by the app.
+- `docs/PRACTICAL_MAGIC_LESSON_TEMPLATE.md` — Fill-in template for a practical lesson. Used by Editors and practicalLesson.ts.
+- `docs/PRODUCTION_SETUP.md` — Production Firebase, Play, and secrets setup. Used by Operators deploying functions and the release bundle.
+- `docs/PRODUCTION_VALIDATION.md` — Checks that must pass against production data before a content change is trusted. Used by The content CLIs and docs/RELEASE_CHECKLIST.md.
+- `docs/READ_ONLY_AUDIT_ACCESS.md` — How to grant a read-only look at production content. Used by Operators; auditContentCli.
+- `docs/RELEASE_CHECKLIST.md` — Release steps and the checks that still need a device or Play Console. Used by The release-prep skill and .github/workflows/release.yml.
+- `docs/STAGED_SOURCE_EVIDENCE_REVIEW.md` — Staged source research. It does not populate sourcePassages.json. Used by Editors.
+- `docs/STATUS.md` — Honest list of what is fixed and what is blocked on external infrastructure. Used by README and the release-prep skill.
+- `docs/SUBSCRIPTION_ACCESS.md` — Subscription products, trial, RTDN, and server-side entitlement. Used by verifyPurchase, handleRtdn, and the paywall.
+- `firebase.json` — Wires Functions, Firestore rules and indexes, Hosting, and the emulator ports. Used by Firebase CLI, CI emulator steps, firestore-tests, scripts/e2e-emulator.mjs.
+- `firestore-tests/.gitignore` — Ignores this package's node_modules. Used by Git.
+- `firestore-tests/README.md` — How to run the rules and emulator tests. Used by Developers.
+- `firestore-tests/firestore.rules.test.mjs` — Asserts client reads and writes against firestore.rules. Used by firebase emulators:exec from the npm test script.
+- `firestore-tests/package-lock.json` — Lockfile for that npm project. Used by npm ci.
+- `firestore-tests/package.json` — npm project for the Firestore rules tests and the Functions emulator integration tests. Used by npm test in this directory; CI.
+- `firestore-tests/with-java-21.sh` — Selects a Java 21 home because the Firestore emulator requires it. Used by The npm test script.
+- `firestore.indexes.json` — Composite indexes for history-by-user/date and content status/tier queries. Used by Firestore deploy; the history and content queries in the Functions repositories.
+- `firestore.rules` — Denies client access to server-owned collections and allows the narrow reads the app needs. Used by Firebase deploy; firestore-tests/firestore.rules.test.mjs.
+- `functions/.env.example` — Documents Functions env vars without committing secrets. The real .env is gitignored. Used by Operators copying it to functions/.env.
+- `functions/ancientContentSeed.json` — 296 checked-in drafts: 200 lessons, 59 spells, 37 potions. Used by contentSeed.ts, seedContentCli, and contentSeed.test.ts.
+- `functions/eslint.config.mjs` — Flat ESLint config for src. Used by npm run lint.
+- `functions/historicalSourceRegistry.json` — Candidate historical works and rights evidence. Used by historicalSourceRegistry.ts.
+- `functions/jest.config.js` — Jest config using ts-jest. Used by npm test.
+- `functions/lessons/drafts/.gitkeep` — Keeps the empty canonical-draft directory in git so content:validate has a folder to scan. Used by contentValidateCli.ts.
+- `functions/package-lock.json` — Lockfile for those dependencies. Used by npm ci.
+- `functions/package.json` — npm scripts and dependencies for Cloud Functions. Used by npm, Firebase predeploy, and CI.
+- `functions/rewriteBatches/batch-01.editorial.json` — Local editorial batch 1 of 12. writes is false; these are review packets, not a live inventory. Used by rewriteBatchStaging.test.ts and verifyRewriteCurriculumCli.
+- `functions/rewriteBatches/batch-02.editorial.json` — Local editorial batch 2 of 12. writes is false; these are review packets, not a live inventory. Used by rewriteBatchStaging.test.ts and verifyRewriteCurriculumCli.
+- `functions/rewriteBatches/batch-03.editorial.json` — Local editorial batch 3 of 12. writes is false; these are review packets, not a live inventory. Used by rewriteBatchStaging.test.ts and verifyRewriteCurriculumCli.
+- `functions/rewriteBatches/batch-04.editorial.json` — Local editorial batch 4 of 12. writes is false; these are review packets, not a live inventory. Used by rewriteBatchStaging.test.ts and verifyRewriteCurriculumCli.
+- `functions/rewriteBatches/batch-05.editorial.json` — Local editorial batch 5 of 12. writes is false; these are review packets, not a live inventory. Used by rewriteBatchStaging.test.ts and verifyRewriteCurriculumCli.
+- `functions/rewriteBatches/batch-06.editorial.json` — Local editorial batch 6 of 12. writes is false; these are review packets, not a live inventory. Used by rewriteBatchStaging.test.ts and verifyRewriteCurriculumCli.
+- `functions/rewriteBatches/batch-07.editorial.json` — Local editorial batch 7 of 12. writes is false; these are review packets, not a live inventory. Used by rewriteBatchStaging.test.ts and verifyRewriteCurriculumCli.
+- `functions/rewriteBatches/batch-08.editorial.json` — Local editorial batch 8 of 12. writes is false; these are review packets, not a live inventory. Used by rewriteBatchStaging.test.ts and verifyRewriteCurriculumCli.
+- `functions/rewriteBatches/batch-09.editorial.json` — Local editorial batch 9 of 12. writes is false; these are review packets, not a live inventory. Used by rewriteBatchStaging.test.ts and verifyRewriteCurriculumCli.
+- `functions/rewriteBatches/batch-10.editorial.json` — Local editorial batch 10 of 12. writes is false; these are review packets, not a live inventory. Used by rewriteBatchStaging.test.ts and verifyRewriteCurriculumCli.
+- `functions/rewriteBatches/batch-11.editorial.json` — Local editorial batch 11 of 12. writes is false; these are review packets, not a live inventory. Used by rewriteBatchStaging.test.ts and verifyRewriteCurriculumCli.
+- `functions/rewriteBatches/batch-12.editorial.json` — Local editorial batch 12 of 12. writes is false; these are review packets, not a live inventory. Used by rewriteBatchStaging.test.ts and verifyRewriteCurriculumCli.
+- `functions/sourcePassages.json` — Approved passage register. It is intentionally an empty array until a human records a verified passage. Used by sourcePassages.ts. Generation refuses to write without one.
+- `functions/sources.json` — Hand-curated generation sources. Not auto-populated. Used by contentSource.ts and the draft generator.
+- `functions/src/__tests__/acceptTerms.test.ts` — Tests policy acceptance and stale versions. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/approveDraft.test.ts` — Tests draft approval and safety rejection. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/callableInput.test.ts` — Tests token, name, and time-zone parsing. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/contentAgent.test.ts` — Tests one generation cycle with fakes. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/contentAuditComparison.test.ts` — Tests audit snapshot diffs. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/contentBackup.test.ts` — Tests backup validation and hashing. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/contentEligibility.test.ts` — Tests delivery eligibility and similarity groups. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/contentInventory.test.ts` — Tests inventory counts. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/contentProject.test.ts` — Tests the production-project guard, including the emulator-host refusal. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/contentRollback.test.ts` — Tests rollback planning. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/contentSeed.test.ts` — Tests the 296-entry seed file. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/contentSimilarity.test.ts` — Tests fingerprints, n-grams, and semantic screening. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/contentSource.test.ts` — Tests sources.json loading. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/contentUsageBackfill.test.ts` — Tests the legacy delivery-marker backfill. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/coverageConfig.test.ts` — Loads the real Istanbul config so the js-yaml override still parses. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/createUserProfile.test.ts` — Tests profile creation on sign-up. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/dateUtils.test.ts` — Tests user-local dates and hours. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/deleteAccount.test.ts` — Tests account erasure through the fake port. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/firestoreContentAgentState.integration.test.ts` — Emulator test of the generation lease. Skipped unless FIRESTORE_EMULATOR_HOST is set. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/firestoreContentRepository.integration.test.ts` — Emulator test of daily assignment. Skipped unless the emulator is set. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/firestoreSubscriptionRecordRepository.test.ts` — Tests the subscription expiry mirror. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/firestoreUserRepository.test.ts` — Tests entitlement writes against a fake Firestore. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/generateDraft.test.ts` — Tests draft generation and rejection. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/generationOriginality.test.ts` — Tests originality comparisons. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/getTodayContent.test.ts` — Tests one-a-day assignment, exhaustion, and subscription gating. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/getTodayContentCallable.test.ts` — Tests the callable wrapper, including the kill switch. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/googlePlayBillingRepository.test.ts` — Tests the Play API adapter with a mocked client. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/handleRtdn.test.ts` — Tests RTDN purchase updates. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/historicalSourceRegistry.test.ts` — Tests the registry file and the approval rules. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/lessonDuplicates.test.ts` — Tests lesson duplicate scoring. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/lessonValidation.test.ts` — Tests canonical lesson validation. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/originalityScreen.test.ts` — Tests passage and inventory screening. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/practicalLesson.test.ts` — Tests practical-lesson violations and disclosures. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/recheckLapsedSubscriptions.test.ts` — Tests the daily lapse recheck. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/reviewedContentChanges.test.ts` — Tests updateTime-bound reviewed patches. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/rewriteBatchStaging.test.ts` — Tests the twelve editorial batch files. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/seedContentImport.test.ts` — Tests import that preserves existing edited content. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/sendDailyNotifications.test.ts` — Tests who receives the daily push. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/subscriptionAccess.test.ts` — Tests active, expired, and missing entitlement. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/tierPolicy.test.ts` — Tests the product-id allow list. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/verificationEmail.test.ts` — Tests the verification email body. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/__tests__/verifyPurchase.test.ts` — Tests purchase verification and entitlement writes. Used by npm test, and CI. The two firestore*.integration.test.ts files also run under firestore-tests when the emulator is up.
+- `functions/src/acceptTerms.ts` — Records terms and privacy acceptance and rejects stale versions. Used by The acceptTerms callable and acceptTerms.test.ts.
+- `functions/src/accountDeletionPort.ts` — Port for deleting a user's history, devices, and profile. Used by deleteAccount.ts and FirestoreAccountDeletionRepository.
+- `functions/src/accountWriteGuard.ts` — Refuses account writes while deletion is in progress. Used by Profile and device callables.
+- `functions/src/approveDraft.ts` — Moves a draft to published after safety and practical checks. Used by approveDraftCli and approveDraft.test.ts.
+- `functions/src/billingIdentity.ts` — Obfuscated Play account id. The raw uid is not sent to Play. Used by verifyPurchase and the billing repository.
+- `functions/src/callableInput.ts` — Parses device tokens, display names, and time zones. Used by index.ts callables and callableInput.test.ts.
+- `functions/src/claudeDraftGenerator.ts` — Anthropic adapter implementing the draft-generation port. Used by generateContentDraftsJob.
+- `functions/src/contentAdminRepositoryPort.ts` — Admin port for creating and reading drafts. Used by generateDraft, approveDraft, and the Firestore admin repository.
+- `functions/src/contentAgent.ts` — One scheduled generation cycle: lease, pick a source, write a draft. Used by generateContentDraftsJob and contentAgent.test.ts.
+- `functions/src/contentAuditComparison.ts` — Diffs two content-audit snapshots. Used by compareContentAuditsCli.
+- `functions/src/contentBackup.ts` — Builds and checks a content backup artifact. Used by backupContentCli and contentBackup.test.ts.
+- `functions/src/contentEligibility.ts` — Decides which documents may be delivered, including similarity-group exclusion. Used by getTodayContent.
+- `functions/src/contentInventory.ts` — Counts published lessons and related inventory. Used by verifyLessonsCli and the seed importer.
+- `functions/src/contentRepositoryPort.ts` — Port for daily selection history. Defines SubscriptionRequiredError. Used by getTodayContent and FirestoreContentRepository.
+- `functions/src/contentRollback.ts` — Plans a rollback from a backup plus a post-migration audit. Used by rollbackContentCli.
+- `functions/src/contentSeed.ts` — Loads and validates ancientContentSeed.json. Used by seedContentCli and contentSeed.test.ts.
+- `functions/src/contentSimilarity.ts` — Lexical duplicate scoring for curriculum concepts. lexicalSimilarity was removed because nothing called it. Used by practicalContentAudit, verifyRewriteCurriculumCli, and originality checks.
+- `functions/src/contentSource.ts` — Loads sources.json and the source-kind rules. Used by The generator and seed importer.
+- `functions/src/contentUsageBackfill.ts` — Backfills legacy delivery markers. Used by backfillContentUsageCli.
+- `functions/src/createUserProfile.ts` — Creates users/{uid} when Auth creates an account. Used by The onUserCreated trigger.
+- `functions/src/dateUtils.ts` — User-local date and hour. Clients send a time zone, never a date. Used by getTodayContent and notifications.
+- `functions/src/deleteAccount.ts` — Deletes history, devices, the Play subscription, the profile, and the Auth user. Used by The deleteUserData callable.
+- `functions/src/draftGenerationPort.ts` — Port for one model draft. Used by claudeDraftGenerator and generateDraft.
+- `functions/src/fcmSenderPort.ts` — Port for sending a push and classifying dead tokens. Used by sendDailyNotifications and FirebaseFcmSender.
+- `functions/src/firebaseFcmSender.ts` — FCM implementation of that port. Used by sendDailyNotificationsJob.
+- `functions/src/firestoreAccountDeletionRepository.ts` — Firestore implementation of account deletion. Used by deleteUserData.
+- `functions/src/firestoreContentAdminRepository.ts` — Firestore implementation of the admin content port. Used by The generator and approve-draft.
+- `functions/src/firestoreContentAgentStateRepository.ts` — Lease and cursor for the generation agent. Used by contentAgent.ts.
+- `functions/src/firestoreContentRepository.ts` — Firestore implementation of daily selection. Used by getTodayContent.
+- `functions/src/firestoreNotificationUserRepository.ts` — Reads devices for the daily push. Used by sendDailyNotifications.
+- `functions/src/firestoreSubscriptionRecordRepository.ts` — Stores the verified subscription expiry. Used by verifyPurchase and RTDN.
+- `functions/src/firestoreSystemConfigRepository.ts` — Reads systemConfig/global. Nothing in the repo writes it. Used by getTodayContent, notifications, and the generation job.
+- `functions/src/firestoreUserProfileRepository.ts` — Reads and writes the server profile, including policy versions. Used by acceptTerms and onboarding.
+- `functions/src/firestoreUserRepository.ts` — Reads and updates the entitlement fields on users/{uid}. Used by verifyPurchase and the lapse recheck.
+- `functions/src/generateDraft.ts` — Turns a source passage into a draft and rejects ones that fail originality. Used by The content agent and generateDraftCli.
+- `functions/src/generationOriginality.ts` — Compares a candidate draft with the existing inventory. Used by generateDraft.
+- `functions/src/getTodayContent.ts` — Assigns one unseen eligible lesson per user-local day. Never recycles. Used by The getTodayContent callable.
+- `functions/src/googlePlayBillingRepository.ts` — Play Developer API client. Used by verifyPurchase, RTDN, and the lapse recheck.
+- `functions/src/handleRtdn.ts` — Applies a Play real-time developer notification. Used by handlePlayRtdn.
+- `functions/src/historicalSourceRegistry.ts` — Validates historicalSourceRegistry.json. Approval requires commercial-use rights and a passage. Used by The registry test and editors.
+- `functions/src/index.ts` — Deploys the callables, the Auth onCreate trigger, the RTDN subscriber, and the scheduled jobs. Business logic stays in the modules it imports. Used by Firebase Functions entry lib/index.js.
+- `functions/src/lessons/canonicalLesson.ts` — Maps stored fields into the canonical lesson and reports structural issues. Used by Lesson validation and the duplicate checker.
+- `functions/src/lessons/categories.ts` — The ten practical categories and their ids. Used by canonicalLesson and the validators.
+- `functions/src/lessons/duplicates.ts` — Fingerprint, Jaccard, and TF-IDF duplicate scoring for lessons. Used by contentDuplicatesCli and lessonDuplicates.test.ts.
+- `functions/src/lessons/repoInventory.ts` — Reads canonical drafts from functions/lessons/drafts. Used by contentValidateCli and contentDuplicatesCli.
+- `functions/src/lessons/validateLesson.ts` — Schema, safety, and source checks for one canonical lesson. Used by contentValidateCli.
+- `functions/src/notificationUserRepositoryPort.ts` — Port for notification devices. Used by sendDailyNotifications.
+- `functions/src/originalityScreen.ts` — Screens a candidate against the source passage and existing text. Used by generateDraft.
+- `functions/src/playBillingPort.ts` — Normalized Play subscription states. Used by The billing repository and purchase verification.
+- `functions/src/policyVersions.ts` — Server copies of the terms and privacy versions. Used by acceptTerms. Must stay aligned with the Android PolicyVersions.
+- `functions/src/practicalContentAudit.ts` — Audits practical-lesson fields and lexical duplicates. Used by auditContentCli.
+- `functions/src/practicalLesson.ts` — Practical-lesson rules, categories, and potion disclosure. Used by approveDraft and lesson validation.
+- `functions/src/recheckLapsedSubscriptions.ts` — Daily recheck of subscriptions that may have lapsed. Used by recheckLapsedSubscriptionsJob.
+- `functions/src/reviewedContentChanges.ts` — Applies a reviewed field patch only when the expected updateTime still matches. Used by The migration CLIs.
+- `functions/src/rewriteBatchStaging.ts` — Splits the seed into local editorial batches. Used by prepareRewriteBatchesCli.
+- `functions/src/scripts/approveDraftCli.ts` — Operator CLI to approve one draft. Used by npm run approve-draft.
+- `functions/src/scripts/auditContentCli.ts` — Writes a content audit snapshot. Used by npm run audit-content.
+- `functions/src/scripts/backfillContentUsageCli.ts` — Backfills legacy delivery markers. Used by npm run backfill-content-usage.
+- `functions/src/scripts/backupContentCli.ts` — Writes a content backup. Used by npm run backup-content.
+- `functions/src/scripts/compareContentAuditsCli.ts` — Compares two audit files. Used by npm run compare-content-audits.
+- `functions/src/scripts/contentDuplicatesCli.ts` — Runs the lesson duplicate check over the draft inventory. Used by npm run content:duplicates.
+- `functions/src/scripts/contentProject.ts` — Resolves the Firebase project and refuses production when the emulator host is set. Used by The content CLIs.
+- `functions/src/scripts/contentValidateCli.ts` — Validates every JSON file in functions/lessons/drafts. Used by npm run content:validate.
+- `functions/src/scripts/generateDraftCli.ts` — Operator CLI for one draft. Preview does not write. Used by npm run generate-draft and content-agent.
+- `functions/src/scripts/prepareRewriteBatchesCli.ts` — Writes the local rewrite batch JSON files. Used by npm run prepare-rewrite-batches.
+- `functions/src/scripts/publishEligibleCli.ts` — Publishes drafts that already pass the eligibility checks. Used by npm run publish-eligible.
+- `functions/src/scripts/restoreTestContentBackupCli.ts` — Restores a backup only when the Firestore emulator is set. Used by npm run restore-test-content-backup.
+- `functions/src/scripts/rollbackContentCli.ts` — Rolls content back to a backup when update times still match. Used by npm run rollback-content.
+- `functions/src/scripts/seedContentCli.ts` — Validates locally, and with explicit flags imports missing drafts. Used by npm run seed-content.
+- `functions/src/scripts/uploadContentBackupCli.ts` — Uploads a backup to the operator's storage target. Used by npm run upload-content-backup.
+- `functions/src/scripts/verifyLessonsCli.ts` — Read-only inventory check. Used by npm run verify-lessons.
+- `functions/src/scripts/verifyRewriteCurriculumCli.ts` — Checks one editorial batch for lexical duplicates. Used by npm run verify-rewrite-curriculum.
+- `functions/src/seedContentImport.ts` — Imports missing drafts without overwriting edited or published documents. Used by seedContentCli.
+- `functions/src/sendDailyNotifications.ts` — Sends the daily push at the user's local target hour. Used by sendDailyNotificationsJob.
+- `functions/src/sourcePassages.ts` — Loads the passage register and finds passage violations. Used by generateDraft and approveDraft.
+- `functions/src/subscriptionAccess.ts` — Decides whether a verified subscription is still active. Used by getTodayContent and verifyPurchase.
+- `functions/src/subscriptionRecordPort.ts` — Port for the subscription expiry mirror. Used by The Firestore subscription repository.
+- `functions/src/systemConfigPort.ts` — Port and defaults for the kill switches. Used by FirestoreSystemConfigRepository.
+- `functions/src/testUtils/fakeAccountDeletionRepository.ts` — In-memory account-deletion port. Used by deleteAccount.test.ts.
+- `functions/src/testUtils/fakeContentAdminRepository.ts` — In-memory admin content port. Used by generateDraft, approveDraft, and content-agent tests.
+- `functions/src/testUtils/fakeContentAgentState.ts` — In-memory generation lease. Used by contentAgent.test.ts.
+- `functions/src/testUtils/fakeContentRepository.ts` — In-memory daily-selection store and lesson fixtures. Used by getTodayContent and notification tests.
+- `functions/src/testUtils/fakeDraftGenerationPort.ts` — Deterministic stand-in for the model. Used by generateDraft and content-agent tests.
+- `functions/src/testUtils/fakeFcmSenderPort.ts` — In-memory push sender. Used by sendDailyNotifications.test.ts.
+- `functions/src/testUtils/fakeNotificationUserRepository.ts` — In-memory device list. Used by sendDailyNotifications.test.ts.
+- `functions/src/testUtils/fakePlayBillingPort.ts` — In-memory Play API. Used by Purchase, RTDN, and lapse tests.
+- `functions/src/testUtils/fakeSubscriptionRecordRepository.ts` — In-memory subscription mirror. Used by Purchase and RTDN tests.
+- `functions/src/testUtils/fakeUserProfileRepository.ts` — In-memory profile store. Used by acceptTerms, createUserProfile, and notification tests.
+- `functions/src/testUtils/fakeUserRepository.ts` — In-memory entitlement store. Used by Purchase, RTDN, and lapse tests.
+- `functions/src/testUtils/lessonFixtures.ts` — The reference lesson used as the duplicate baseline. Used by lesson validation and duplicate tests.
+- `functions/src/tierPolicy.ts` — Allow-listed product ids and the legacy premium flag. Used by verifyPurchase.
+- `functions/src/types.ts` — Shared content document types, including the history shape. Used by Selection, seed, and mappers. UserContentHistory itself has no TypeScript reader; see Medium.
+- `functions/src/userProfileRepositoryPort.ts` — Port for the profile and accepted policy versions. Used by acceptTerms and createUserProfile.
+- `functions/src/userRepositoryPort.ts` — Port for entitlement fields. Used by verifyPurchase.
+- `functions/src/verificationEmail.ts` — Renders the branded verification email. Used by sendVerificationEmail.
+- `functions/src/verifyPurchase.ts` — Verifies a Play purchase and writes the server entitlement. Used by The verifyPurchase callable.
+- `functions/tests/firebaseSecurity.test.mjs` — Rules tests that ship next to Functions and must not touch a live project. Used by npm run test:firebase.
+- `functions/tsconfig.json` — TypeScript config for the deploy build. noUnusedLocals and noUnusedParameters are on. Tests are excluded. Used by npm run build.
+- `functions/tsconfig.test.json` — Jest transform config. isolatedModules so tests are not a second full typecheck. Used by jest.config.js.
+- `gradle.properties` — AndroidX, Kotlin style, JVM memory, and worker limits. Used by Gradle.
+- `gradle/libs.versions.toml` — Version catalog for Android, Firebase, test, and build-classpath libraries. Used by build.gradle.kts and app/build.gradle.kts. Three unused library aliases were removed; version keys stay.
+- `gradle/wrapper/gradle-wrapper.jar` — Gradle wrapper binary that downloads the pinned distribution. Used by gradlew and gradlew.bat.
+- `gradle/wrapper/gradle-wrapper.properties` — Pins the Gradle distribution URL and checksum. Used by The wrapper jar.
+- `gradlew` — Unix Gradle wrapper entry point. Used by Every Android build and CI.
+- `gradlew.bat` — Windows Gradle wrapper entry point. Used by Windows checkouts.
+- `hosting/404.html` — Hosting 404 page. Used by Firebase Hosting.
+- `hosting/content-safety.html` — Hosted content-safety statement for potions and practice. Used by PolicyUrls and the legal screens.
+- `hosting/delete-account.html` — Hosted account-deletion instructions required by Play. Used by PolicyUrls and deleteUserData.
+- `hosting/index.html` — Public landing page for the Firebase Hosting site. Used by firebase.json hosting.public.
+- `hosting/privacy.html` — Hosted privacy policy. Play Console and the in-app policy screen point here. Used by PolicyUrls and docs/PLAY_CONSOLE_READINESS.md.
+- `hosting/styles.css` — Shared stylesheet for the hosting pages. The CSP allows style-src 'self'. Used by The HTML files in hosting/.
+- `hosting/terms.html` — Hosted terms of service. Used by PolicyUrls and the policy-acceptance flow.
+- `scripts/check-16kb-alignment.sh` — Checks ELF LOAD alignment of native libraries in a release AAB. Used by Run after a native-dependency bump; scripts/test-check-16kb-alignment.py.
+- `scripts/check-toolchain.py` — Asserts application id, package names, Java 17, Node 22, and catalog/lockfile agreement. Used by CI and scripts/test-check-toolchain.py.
+- `scripts/e2e-emulator.mjs` — Drives the Functions emulator through auth and callable paths unit tests cannot reach. Used by Manual and the run-wiccan driver backend flow.
+- `scripts/release-preflight.sh` — Release invariants such as targetSdk staying at 36 until a device can validate it. Used by validate-repo.sh and .github/workflows/release.yml.
+- `scripts/test-check-16kb-alignment.py` — Unit tests for the alignment script using fake readelf output. Used by CI structure job.
+- `scripts/test-check-toolchain.py` — Failure-case tests for check-toolchain.py on temporary copies. Used by CI, before the expensive build.
+- `scripts/test-validate-repo.py` — Failure-case tests for validate-repo.sh. Used by CI structure job.
+- `scripts/validate-repo.sh` — Cheap-to-expensive repo check: structure, release preflight, then the CI build matrix. Used by README and CI.
+- `settings.gradle.kts` — Names the Gradle project and includes the :app module. Used by Gradle.
+- `docs/AUDIT_REPORT.md` — This audit: structure, purpose of each remaining file, removals, and verification. Used by The audit-report pull request. It does not change runtime behavior.
