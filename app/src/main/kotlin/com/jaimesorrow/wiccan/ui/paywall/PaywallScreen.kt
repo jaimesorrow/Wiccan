@@ -35,7 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.core.util.findActivity
-import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
+import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import kotlinx.coroutines.awaitCancellation
 
 /** Payment is exclusively Google Play Billing; access is verified by the root gate. */
@@ -78,7 +78,7 @@ fun PaywallScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                CrescentGlyph()
+                WiccanFullLogo(width = 170.dp)
                 Spacer(Modifier.height(20.dp))
                 Text(
                     "Walk the path of Wicca",

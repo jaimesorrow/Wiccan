@@ -22,8 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.ui.archive.displayName
+import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.today.components.ContentTypePill
-import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
 import com.jaimesorrow.wiccan.ui.today.components.HairlineDivider
 import com.jaimesorrow.wiccan.ui.today.components.MaterialsCard
 import com.jaimesorrow.wiccan.ui.today.components.SafetyNote
@@ -56,12 +56,12 @@ fun ContentDetailView(
                 color = colors.onBackground,
             )
         }
-        // Decorative crescent, centered above the header row.
+        // Compact brand emblem, centered above the header row.
         Box(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center,
         ) {
-            CrescentGlyph()
+            WiccanEmblem(size = 32.dp)
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {

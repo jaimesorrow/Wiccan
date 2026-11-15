@@ -147,4 +147,9 @@ internal object WiccanPaletteColors {
         val ErrorContainer = Color(0xFFF5DAD2)
         val OnErrorContainer = Color(0xFF3A140C)
     }
+
+    /** Brand marks (see ui/brand/WiccanBrand.kt): the stable symbol accent on dark palettes. */
+    object Brand {
+        val EmblemGold = Color(0xFFE8BC61)
+    }
 }

@@ -50,8 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
+import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
-import com.jaimesorrow.wiccan.ui.today.components.CrescentGlyph
 import com.jaimesorrow.wiccan.ui.today.components.HairlineDivider
 import com.wiccan.app.R
 
@@ -111,9 +111,7 @@ internal fun SignInScreenContent(
                     .verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                CrescentGlyph(modifier = Modifier.testTag("auth-crescent"))
-                Spacer(modifier = Modifier.height(10.dp))
-                Text("W I C C A N", style = MaterialTheme.typography.labelLarge, color = scheme.primary)
+                WiccanFullLogo(modifier = Modifier.testTag("auth-logo"), width = 180.dp)
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
                     text = if (state.mode == SignInMode.FORGOT_PASSWORD) {
