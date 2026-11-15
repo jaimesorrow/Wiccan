@@ -37,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,6 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.config.PolicyUrls
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
+import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.theme.description
 import com.jaimesorrow.wiccan.ui.theme.displayName
 import kotlinx.coroutines.launch
@@ -125,6 +127,12 @@ fun SettingsScreen(
         ) {
             Spacer(modifier = Modifier.height(32.dp))
             if (accountOnly) TextButton(onClick = onBack) { Text("← Back") }
+            WiccanEmblem(
+                modifier = Modifier.align(Alignment.CenterHorizontally).testTag("settings-logo"),
+                size = 44.dp,
+                contentDescription = "Wiccan",
+            )
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 if (accountOnly) "Account & support" else "Settings",
                 style = MaterialTheme.typography.headlineMedium,

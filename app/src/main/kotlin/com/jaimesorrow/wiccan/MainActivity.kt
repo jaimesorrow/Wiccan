@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -179,7 +180,7 @@ private fun LoadingIndicator() {
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            WiccanFullLogo(width = 160.dp)
+            WiccanFullLogo(modifier = Modifier.testTag("loading-logo"), width = 160.dp)
             Spacer(modifier = Modifier.height(24.dp))
             CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
         }

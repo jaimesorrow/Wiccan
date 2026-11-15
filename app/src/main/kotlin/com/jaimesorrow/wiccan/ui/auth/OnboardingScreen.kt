@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,7 +43,7 @@ fun OnboardingScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            WiccanFullLogo(width = 150.dp)
+            WiccanFullLogo(modifier = Modifier.testTag("onboarding-logo"), width = 150.dp)
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 if (verification) "Confirm your path." else "Make this journey yours.",
