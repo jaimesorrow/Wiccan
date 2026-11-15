@@ -29,7 +29,8 @@ class GrimoireScreenTest {
         }
         composeRule.onNodeWithTag("grimoire-logo").assertIsDisplayed()
         composeRule.onNodeWithText("Grimoire").assertIsDisplayed()
-        composeRule.onNodeWithText("Your Grimoire is empty. Open Today to receive your first lesson.").assertIsDisplayed()
+        composeRule.onNodeWithText("Your Grimoire is still quiet. Open Today to receive your first lesson.").assertIsDisplayed()
+        composeRule.onNodeWithText("What the days have already given you.").assertIsDisplayed()
         composeRule.onNodeWithText("Library").assertDoesNotExist()
     }
 

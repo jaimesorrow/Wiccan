@@ -17,8 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
+import com.wiccan.app.R
 
 @Composable
 fun LegalDocumentScreen(
@@ -38,12 +40,12 @@ fun LegalDocumentScreen(
                 .padding(horizontal = 24.dp),
         ) {
             TextButton(onClick = onBack, modifier = Modifier.padding(top = 8.dp)) {
-                Text("← Back")
+                Text(stringResource(R.string.legal_back))
             }
             WiccanEmblem(
                 modifier = Modifier.align(Alignment.CenterHorizontally).testTag("legal-logo"),
                 size = 44.dp,
-                contentDescription = "Wiccan",
+                contentDescription = stringResource(R.string.legal_logo_description),
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
@@ -52,10 +54,9 @@ fun LegalDocumentScreen(
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                text = buildString {
-                    document.version?.let { append("Version $it · ") }
-                    append("Effective ${document.effectiveDate}")
-                },
+                text = document.version?.let { version ->
+                    stringResource(R.string.legal_version_effective, version, document.effectiveDate)
+                } ?: stringResource(R.string.legal_effective, document.effectiveDate),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

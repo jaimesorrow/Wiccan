@@ -16,11 +16,13 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
+import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.theme.LocallyResolvableTypography
 import com.jaimesorrow.wiccan.ui.theme.WiccanPalette
 import com.jaimesorrow.wiccan.ui.theme.toColorScheme
+import com.wiccan.app.R
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -71,8 +73,11 @@ class SignInScreenLayoutTest {
                 }
             }
         }
-        composeRule.onNodeWithText(HEADLINE).assertIsDisplayed()
-        for (text in listOf(HEADLINE, SUPPORTING_COPY)) {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val headline = context.getString(R.string.auth_intro_headline)
+        val supportingCopy = context.getString(R.string.auth_intro_body)
+        composeRule.onNodeWithText(headline).assertIsDisplayed()
+        for (text in listOf(headline, supportingCopy)) {
             composeRule.onNodeWithText(text).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action ->
                 val layouts = mutableListOf<TextLayoutResult>()
                 assertTrue(action(layouts))
@@ -97,7 +102,11 @@ class SignInScreenLayoutTest {
         assertTrue(events.contains(SignInUiEvent.SubmitEmailAuth))
         composeRule.onRoot().captureRoboImage(filePath = "$prefix-controls.png")
 
-        val toggleLabel = if (mode == SignInMode.SIGN_IN) "Need an account? Create one" else "Have an account? Sign in"
+        val toggleLabel = if (mode == SignInMode.SIGN_IN) {
+            context.getString(R.string.auth_need_account)
+        } else {
+            context.getString(R.string.auth_have_account)
+        }
         composeRule.onNodeWithText(toggleLabel).performScrollTo().assertIsDisplayed().performClick()
         if (mode == SignInMode.SIGN_IN) {
             composeRule.onNodeWithText("Forgot password?").performScrollTo().assertIsDisplayed().performClick()
@@ -107,11 +116,5 @@ class SignInScreenLayoutTest {
         composeRule.onNodeWithText("Terms").performScrollTo().assertIsDisplayed().performClick()
         composeRule.onNodeWithText("Privacy").performScrollTo().assertIsDisplayed().performClick()
         assertEquals(listOf(LegalDocumentId.TERMS, LegalDocumentId.PRIVACY), legal)
-    }
-
-    private companion object {
-        const val HEADLINE = "Your path into Wicca begins here."
-        const val SUPPORTING_COPY = "Explore candle spells, herbal rituals, cord and knot work, and lunar practices inspired by " +
-            "historical grimoires. Learn through a new guided lesson each day—and build a personal Grimoire filled with your discoveries."
     }
 }

@@ -110,15 +110,21 @@ class SubscriptionRepositoryImpl @Inject constructor(
                 } catch (t: Throwable) {
                     // One stale or legacy token must not prevent acknowledgement
                     // of another legitimate purchase on the same Play account.
-                    if (verificationError == null) verificationError = t.toAppError()
+                    if (verificationError == null) verificationError = t.toRestoreError()
                 }
             }
             verificationError?.let { AppResult.Failure(it) } ?: AppResult.Success(Unit)
         } catch (t: CancellationException) {
             throw t
         } catch (t: Throwable) {
-            AppResult.Failure(t.toAppError())
+            AppResult.Failure(t.toRestoreError())
         }
+    }
+
+    /** Network and auth stay specific. Everything else is a restore failure, not a blank "something went wrong". */
+    private fun Throwable.toRestoreError(): AppError = when (val mapped = toAppError()) {
+        AppError.Network, AppError.Unauthorized, AppError.Cancelled -> mapped
+        else -> AppError.RestoreFailed
     }
 
     private suspend fun handlePurchase(purchase: Purchase) {

@@ -17,6 +17,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.jaimesorrow.wiccan.ui.theme.WiccanPalette
+import com.jaimesorrow.wiccan.ui.theme.displayName
 import com.jaimesorrow.wiccan.ui.theme.toColorScheme
 import java.io.File
 import org.junit.Rule

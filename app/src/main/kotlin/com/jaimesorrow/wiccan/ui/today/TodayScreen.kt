@@ -25,7 +25,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -36,6 +38,7 @@ import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.content.ContentDetailView
 import com.jaimesorrow.wiccan.ui.today.components.TodaySkeleton
+import com.wiccan.app.R
 import java.time.Duration
 import java.time.ZonedDateTime
 import kotlinx.coroutines.delay
@@ -80,6 +83,8 @@ internal fun TodayScreenContent(
     onOpenGrimoire: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val resources = LocalResources.current
+    val retryLabel = stringResource(R.string.today_retry)
 
     LaunchedEffect(effects) {
         effects.collect { effect ->
@@ -87,8 +92,8 @@ internal fun TodayScreenContent(
                 is TodayUiEffect.ShowSnackbar -> {
                     val canRetry = effect.error !is AppError.Unauthorized
                     val result = snackbarHostState.showSnackbar(
-                        message = effect.error.toUserMessage(),
-                        actionLabel = if (canRetry) "Retry" else null,
+                        message = effect.error.toUserMessage(resources),
+                        actionLabel = if (canRetry) retryLabel else null,
                         withDismissAction = true,
                         duration = SnackbarDuration.Long,
                     )
@@ -124,22 +129,24 @@ internal fun TodayScreenContent(
                         WiccanEmblem(
                             modifier = Modifier.testTag("today-empty-logo"),
                             size = 48.dp,
-                            contentDescription = "Wiccan",
+                            contentDescription = stringResource(R.string.today_logo_description),
                         )
                         Spacer(modifier = Modifier.height(20.dp))
                         Text(
-                            text = "No new lessons remain",
+                            text = stringResource(R.string.today_empty_title),
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onBackground,
                         )
                         Text(
-                            text = "You have received every available lesson. Your previous lessons are saved in Grimoire.",
+                            text = stringResource(R.string.today_empty_body),
                             modifier = Modifier.padding(top = 12.dp, bottom = 24.dp),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onBackground,
                         )
-                        Button(onClick = onOpenGrimoire) { Text("Open Grimoire") }
-                        TextButton(onClick = { onEvent(TodayUiEvent.Retry) }) { Text("Check again") }
+                        Button(onClick = onOpenGrimoire) { Text(stringResource(R.string.today_open_grimoire)) }
+                        TextButton(onClick = { onEvent(TodayUiEvent.Retry) }) {
+                            Text(stringResource(R.string.today_look_again))
+                        }
                     }
                 }
                 state.content != null -> ContentDetailView(

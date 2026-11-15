@@ -6,8 +6,18 @@ import { FcmSenderPort } from "./fcmSenderPort";
 import { getUserLocalDate, getUserLocalHour } from "./dateUtils";
 import { hasAcceptedCurrentPolicies, PolicyAcceptanceReader } from "./acceptTerms";
 
-/** The local hour every device should get its "your content is ready" push. */
+/** The local hour every device should get its daily-practice push. */
 export const TARGET_LOCAL_HOUR = 9;
+
+/** Must match the Android notification channel created in the app. */
+export const DAILY_PRACTICE_CHANNEL_ID = "daily_practice";
+
+export function dailyNotificationCopy(type: ContentType, contentTitle: string): { title: string; body: string } {
+  return {
+    title: titleForType(type),
+    body: `The moon has turned. ${contentTitle}`,
+  };
+}
 
 export interface NotificationSendSummary {
   attempted: number;
@@ -19,16 +29,16 @@ export interface NotificationSendSummary {
 function titleForType(type: ContentType): string {
   switch (type) {
     case "spell":
-      return "Your spell is ready";
+      return "Your spell awaits";
     case "potion":
-      return "Your potion is ready";
+      return "Your potion awaits";
     case "lesson":
-      return "Your lesson is ready";
+      return "Your lesson awaits";
   }
 }
 
 /**
- * Sends the daily "your content is ready" push to every registered,
+ * Sends the daily practice push to every registered,
  * notifications-enabled device whose *local* time is currently in its 9am
  * hour - a user with several devices (phone, tablet, ...) gets one push
  * per device, each addressed to that device's own token, each at that
@@ -106,7 +116,8 @@ export async function sendDailyNotifications(
     try {
       const today = getUserLocalDate(device.timeZone, now);
       const selected = await selectTodayContent(device.uid, today, content);
-      const result = await fcm.send(device.token, titleForType(selected.type), selected.title);
+      const copy = dailyNotificationCopy(selected.type, selected.title);
+      const result = await fcm.send(device.token, copy.title, copy.body);
       if (result.delivered) {
         summary.sent++;
       } else if (result.staleToken) {

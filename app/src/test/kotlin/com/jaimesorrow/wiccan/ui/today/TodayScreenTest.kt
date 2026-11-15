@@ -35,12 +35,12 @@ class TodayScreenTest {
                 )
             }
         }
-        composeRule.onNodeWithText("No new lessons remain").assertIsDisplayed()
+        composeRule.onNodeWithText("The lessons have all been gathered").assertIsDisplayed()
         composeRule.onNodeWithTag("today-empty-logo").assertIsDisplayed()
         composeRule.onNodeWithText(
-            "You have received every available lesson. Your previous lessons are saved in Grimoire.",
+            "Every lesson we hold is already yours. They wait in your Grimoire.",
         ).assertIsDisplayed()
-        composeRule.onNodeWithText("Open Grimoire").performClick()
+        composeRule.onNodeWithText("Open your Grimoire").performClick()
         assertTrue(openedGrimoire)
         composeRule.onNodeWithText("Beginner").assertDoesNotExist()
         composeRule.onNodeWithText("Intermediate").assertDoesNotExist()
@@ -75,14 +75,15 @@ class TodayScreenTest {
                 )
             }
         }
-        composeRule.onNodeWithText("Lesson of the Day").assertIsDisplayed()
+        composeRule.onNodeWithText("Today's lesson").assertIsDisplayed()
+        composeRule.onNodeWithText("The moon has turned. Your next practice awaits.").assertIsDisplayed()
         composeRule.onNodeWithText(lesson.title).assertIsDisplayed()
         composeRule.onNodeWithText("What did you notice?").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Sit quietly and breathe.").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Modern Wiccan practice guide").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Original educational synthesis").performScrollTo().assertIsDisplayed()
-        composeRule.onNodeWithText("Saved to Grimoire").performScrollTo().assertIsDisplayed()
-        composeRule.onNodeWithText("Open Grimoire").performScrollTo().performClick()
+        composeRule.onNodeWithText("Kept in your Grimoire").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Open your Grimoire").performScrollTo().performClick()
         assertTrue(openedGrimoire)
         composeRule.onNodeWithText("Beginner").assertDoesNotExist()
         composeRule.onNodeWithText("Intermediate").assertDoesNotExist()

@@ -5,6 +5,7 @@ import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.ui.auth.FakeAuthRepository
+import com.wiccan.app.R
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -79,8 +80,8 @@ class PolicyAcceptanceViewModelTest {
     @Test
     fun `the no-guarantee acknowledgement is one of the required agreements`() {
         assertTrue(PolicyAgreement.NO_GUARANTEE in PolicyAgreement.entries)
-        assertTrue(PolicyAgreement.NO_GUARANTEE.label().contains("does not promise or guarantee any result"))
-        assertTrue(PolicyAgreement.ADULT.label().contains("18"))
+        assertEquals(R.string.policy_no_guarantee, PolicyAgreement.NO_GUARANTEE.labelRes())
+        assertEquals(R.string.policy_adult, PolicyAgreement.ADULT.labelRes())
     }
 
     @Test

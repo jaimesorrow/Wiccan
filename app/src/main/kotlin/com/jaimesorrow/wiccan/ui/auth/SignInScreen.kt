@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -64,13 +65,14 @@ fun SignInScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val resources = LocalResources.current
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is SignInUiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.error.toUserMessage())
+                is SignInUiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.error.toUserMessage(resources))
                 SignInUiEffect.PasswordResetEmailSent -> snackbarHostState.showSnackbar(
-                    "If an account uses this email, a reset link will arrive shortly.",
+                    resources.getString(R.string.auth_reset_snackbar),
                 )
             }
         }
@@ -115,7 +117,7 @@ internal fun SignInScreenContent(
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
                     text = if (state.mode == SignInMode.FORGOT_PASSWORD) {
-                        "Find your way back."
+                        stringResource(R.string.auth_forgot_headline)
                     } else {
                         stringResource(R.string.auth_intro_headline)
                     },
@@ -126,7 +128,7 @@ internal fun SignInScreenContent(
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = if (state.mode == SignInMode.FORGOT_PASSWORD) {
-                        "Enter your email address. We'll send a secure link to reset your password."
+                        stringResource(R.string.auth_forgot_body)
                     } else {
                         stringResource(R.string.auth_intro_body)
                     },
@@ -137,7 +139,7 @@ internal fun SignInScreenContent(
                 if (state.mode != SignInMode.FORGOT_PASSWORD) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        "A new practice each day. A Grimoire to call your own.",
+                        stringResource(R.string.auth_daily_line),
                         style = MaterialTheme.typography.titleSmall,
                         color = scheme.primary,
                         modifier = Modifier.fillMaxWidth(),
@@ -168,8 +170,12 @@ internal fun SignInScreenContent(
                     color = scheme.onSurfaceVariant,
                 )
                 Row {
-                    TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.TERMS) }) { Text("Terms") }
-                    TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) { Text("Privacy") }
+                    TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.TERMS) }) {
+                        Text(stringResource(R.string.auth_terms))
+                    }
+                    TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) {
+                        Text(stringResource(R.string.auth_privacy))
+                    }
                 }
                 if (state.isLoading) {
                     Spacer(modifier = Modifier.height(8.dp))
@@ -188,7 +194,7 @@ private fun AuthFields(
 ) {
     val creating = state.mode == SignInMode.CREATE_ACCOUNT
     Text(
-        if (creating) "Begin your Wiccan journey" else "Welcome back to your path",
+        stringResource(if (creating) R.string.auth_begin_path else R.string.auth_welcome_back),
         style = MaterialTheme.typography.titleLarge,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.fillMaxWidth(),
@@ -196,7 +202,7 @@ private fun AuthFields(
     Spacer(modifier = Modifier.height(16.dp))
     if (state.isGoogleSignInAvailable) {
         Button(onClick = onGoogleSignInClick, modifier = Modifier.fillMaxWidth(), enabled = !state.isLoading) {
-            Text("Continue with Google")
+            Text(stringResource(R.string.auth_continue_google))
         }
         Spacer(modifier = Modifier.height(16.dp))
         HairlineDivider(modifier = Modifier.fillMaxWidth())
@@ -210,11 +216,11 @@ private fun AuthFields(
         OutlinedTextField(
             value = state.confirmPassword,
             onValueChange = { onEvent(SignInUiEvent.ConfirmPasswordChanged(it)) },
-            label = { Text("Confirm password") },
+            label = { Text(stringResource(R.string.auth_confirm_password)) },
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             isError = state.confirmPasswordError != null,
-            supportingText = state.confirmPasswordError?.let { error -> { Text(error) } },
+            supportingText = state.confirmPasswordError?.let { error -> { Text(stringResource(error)) } },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -225,19 +231,21 @@ private fun AuthFields(
         modifier = Modifier.fillMaxWidth(),
         enabled = !state.isLoading,
     ) {
-        Text(if (creating) "Create Account" else "Sign In")
+        Text(stringResource(if (creating) R.string.auth_create_account else R.string.auth_sign_in))
     }
     TextButton(onClick = { onEvent(SignInUiEvent.ToggleMode) }) {
-        Text(if (creating) "Have an account? Sign in" else "Need an account? Create one")
+        Text(stringResource(if (creating) R.string.auth_have_account else R.string.auth_need_account))
     }
     if (!creating) {
-        TextButton(onClick = { onEvent(SignInUiEvent.ForgotPasswordClicked) }) { Text("Forgot password?") }
+        TextButton(onClick = { onEvent(SignInUiEvent.ForgotPasswordClicked) }) {
+            Text(stringResource(R.string.auth_forgot_password))
+        }
     }
 }
 
 @Composable
 private fun RecoveryFields(state: SignInUiState, onEvent: (SignInUiEvent) -> Unit) {
-    Text("Reset your password", style = MaterialTheme.typography.titleLarge)
+    Text(stringResource(R.string.auth_reset_title), style = MaterialTheme.typography.titleLarge)
     Spacer(modifier = Modifier.height(18.dp))
     EmailField(state, onEvent)
     Spacer(modifier = Modifier.height(16.dp))
@@ -245,15 +253,21 @@ private fun RecoveryFields(state: SignInUiState, onEvent: (SignInUiEvent) -> Uni
         onClick = { onEvent(SignInUiEvent.SubmitPasswordReset) },
         modifier = Modifier.fillMaxWidth(),
         enabled = !state.isLoading,
-    ) { Text(if (state.passwordResetSent) "Resend reset link" else "Send reset link") }
+    ) {
+        Text(
+            stringResource(if (state.passwordResetSent) R.string.auth_resend_reset else R.string.auth_send_reset),
+        )
+    }
     if (state.passwordResetSent) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            "Check your inbox and spam folder. If that email has an account, a reset link has been sent.",
+            stringResource(R.string.auth_reset_sent),
             style = MaterialTheme.typography.bodySmall,
         )
     }
-    TextButton(onClick = { onEvent(SignInUiEvent.BackToSignIn) }) { Text("Back to Sign In") }
+    TextButton(onClick = { onEvent(SignInUiEvent.BackToSignIn) }) {
+        Text(stringResource(R.string.auth_back_to_sign_in))
+    }
 }
 
 @Composable
@@ -261,10 +275,10 @@ private fun EmailField(state: SignInUiState, onEvent: (SignInUiEvent) -> Unit) {
     OutlinedTextField(
         value = state.email,
         onValueChange = { onEvent(SignInUiEvent.EmailChanged(it)) },
-        label = { Text("Email") },
+        label = { Text(stringResource(R.string.auth_email)) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         isError = state.emailError != null,
-        supportingText = state.emailError?.let { error -> { Text(error) } },
+        supportingText = state.emailError?.let { error -> { Text(stringResource(error)) } },
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
     )
@@ -273,17 +287,19 @@ private fun EmailField(state: SignInUiState, onEvent: (SignInUiEvent) -> Unit) {
 @Composable
 private fun PasswordField(state: SignInUiState, onEvent: (SignInUiEvent) -> Unit) {
     val iconColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val showPassword = stringResource(R.string.auth_show_password)
+    val hidePassword = stringResource(R.string.auth_hide_password)
     OutlinedTextField(
         value = state.password,
         onValueChange = { onEvent(SignInUiEvent.PasswordChanged(it)) },
-        label = { Text("Password") },
+        label = { Text(stringResource(R.string.auth_password)) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
             IconButton(
                 onClick = { onEvent(SignInUiEvent.TogglePasswordVisibility) },
                 modifier = Modifier.testTag("password-visibility-toggle").semantics {
-                    contentDescription = if (state.isPasswordVisible) "Hide password" else "Show password"
+                    contentDescription = if (state.isPasswordVisible) hidePassword else showPassword
                 },
             ) {
                 Canvas(modifier = Modifier.size(24.dp)) {
@@ -306,7 +322,7 @@ private fun PasswordField(state: SignInUiState, onEvent: (SignInUiEvent) -> Unit
             }
         },
         isError = state.passwordError != null,
-        supportingText = state.passwordError?.let { error -> { Text(error) } },
+        supportingText = state.passwordError?.let { error -> { Text(stringResource(error)) } },
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
     )

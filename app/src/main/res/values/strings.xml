@@ -1,6 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Wiccan</string>
-    <string name="auth_intro_headline">Your path into Wicca begins here.</string>
-    <string name="auth_intro_body">Explore candle spells, herbal rituals, cord and knot work, and lunar practices inspired by historical grimoires. Learn through a new guided lesson each day—and build a personal Grimoire filled with your discoveries.</string>
+
+    <!-- Sign-in, create account, password recovery -->
+    <string name="auth_intro_headline">The moonlit path begins here.</string>
+    <string name="auth_intro_body">Candle spells, herbs, cord and knot work, and lunar rites, drawn from historical grimoires. One guided practice arrives each day, and your Grimoire keeps what you find.</string>
     <string name="auth_subscription_requirement">A subscription is required after onboarding.</string>
+    <string name="auth_daily_line">The moon has turned. Your next practice awaits.</string>
+    <string name="auth_forgot_headline">Find the path back.</string>
+    <string name="auth_forgot_body">Enter your email. If an account uses it, we\'ll send a link to reset your password.</string>
+    <string name="auth_welcome_back">Welcome back.</string>
+    <string name="auth_begin_path">Begin your path.</string>
+    <string name="auth_continue_google">Continue with Google</string>
+    <string name="auth_confirm_password">Confirm password</string>
+    <string name="auth_create_account">Create Account</string>
+    <string name="auth_sign_in">Sign In</string>
+    <string name="auth_have_account">Already have an account? Sign in</string>
+    <string name="auth_need_account">New to the path? Create an account</string>
+    <string name="auth_forgot_password">Forgot password?</string>
+    <string name="auth_reset_title">Reset your password</string>
+    <string name="auth_send_reset">Send reset link</string>
+    <string name="auth_resend_reset">Resend reset link</string>
+    <string name="auth_reset_sent">Check your inbox and spam folder. If that email has an account, a reset link has been sent.</string>
+    <string name="auth_back_to_sign_in">Back to sign in</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_show_password">Show password</string>
+    <string name="auth_hide_password">Hide password</string>
+    <string name="auth_terms">Terms</string>
+    <string name="auth_privacy">Privacy</string>
+    <string name="auth_reset_snackbar">If an account uses this email, a reset link will arrive shortly.</string>
+    <string name="auth_error_email_required">Enter your email address.</string>
+    <string name="auth_error_email_invalid">That email address doesn\'t look complete.</string>
+    <string name="auth_error_password_required">Enter your password.</string>
+    <string name="auth_error_password_short">Password must be at least 6 characters.</string>
+    <string name="auth_error_password_mismatch">Those passwords don\'t match.</string>
+    <string name="auth_logo_description">Wiccan</string>
+
+    <!-- Email verification and name step -->
+    <string name="onboarding_verify_title">Confirm this email.</string>
+    <string name="onboarding_verify_body">Check your inbox for a verification message from Wiccan. Open the link, then return here to continue.</string>
+    <string name="onboarding_verified_button">I\'ve verified my email</string>
+    <string name="onboarding_resend_button">Resend verification email</string>
+    <string name="onboarding_name_title">What name should the Grimoire keep?</string>
+    <string name="onboarding_name_body">Add your first and last name. No billing address or card details are needed here.</string>
+    <string name="onboarding_first_name">First name</string>
+    <string name="onboarding_last_name">Last name</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_sign_out">Sign out</string>
+    <string name="onboarding_account">Account &amp; support / Delete Account</string>
+    <string name="onboarding_privacy">Privacy Policy</string>
+    <string name="onboarding_notice_resent">If your email still needs confirming, a new message is on its way.</string>
+    <string name="onboarding_notice_not_verified">Verification checked. Confirm your email before continuing.</string>
+    <string name="onboarding_notice_name_invalid">Enter your first and last names (up to 60 characters each).</string>
+    <string name="onboarding_notice_saved">Your name is kept.</string>
+    <string name="onboarding_notice_signed_out">You have signed out.</string>
+    <string name="onboarding_notice_failed">The spell faltered. Check your connection and try again.</string>
+    <string name="loading_description">Loading</string>
+
+    <!-- Policy acceptance. Agreement text stays plain. -->
+    <string name="policy_title">A pause before the path opens</string>
+    <string name="policy_body">Please review each document and confirm every statement below to keep using Wiccan.</string>
+    <string name="policy_terms">Terms of Service</string>
+    <string name="policy_privacy">Privacy Policy</string>
+    <string name="policy_safety">Content &amp; Safety</string>
+    <string name="policy_optional">Optional</string>
+    <string name="policy_continue">Continue</string>
+    <string name="policy_adult">I am 18 years of age or older.</string>
+    <string name="policy_agree_terms">I have read and agree to the Terms of Service.</string>
+    <string name="policy_ack_privacy">I have read and acknowledge the Privacy Policy.</string>
+    <string name="policy_no_guarantee">I understand that Wiccan does not promise or guarantee any result from any spell, potion, ritual, ceremony, or other practice, and I have read the Content &amp; Safety guidance.</string>
+    <string name="policy_share_analytics">Share usage analytics and crash reports to help improve Wiccan. Not required; change it anytime in Settings.</string>
+    <string name="policy_logo_description">Wiccan</string>
+
+    <!-- Paywall. Price, trial, and renewal copy stays plain. -->
+    <string name="paywall_account">Account &amp; support</string>
+    <string name="paywall_headline">Walk the moonlit path</string>
+    <string name="paywall_body">Candle spells, herbal rites, cord and knot work, and lunar practices, inspired by historical grimoires.</string>
+    <string name="paywall_benefit_daily">A guided practice, new each day</string>
+    <string name="paywall_benefit_grimoire">A Grimoire that keeps what you find</string>
+    <string name="paywall_benefit_subscription">One subscription for the whole path</string>
+    <string name="paywall_price_unavailable">Subscription unavailable</string>
+    <string name="paywall_trial_free">7 days free</string>
+    <string name="paywall_price_month">%1$s / month</string>
+    <string name="paywall_price_connect">Connect to Google Play to view your subscription offer.</string>
+    <string name="paywall_price_then">Then %1$s per month. Auto-renews until canceled.</string>
+    <string name="paywall_price_no_trial">%1$s per month. Trial unavailable for this Play account.</string>
+    <string name="paywall_retry_price">Retry price</string>
+    <string name="paywall_start_trial">Start My 7-Day Free Trial</string>
+    <string name="paywall_continue_subscription">Continue to Subscription</string>
+    <string name="paywall_restore">Restore Purchases</string>
+    <string name="paywall_trial_disclosure">No charge during the trial. Google Play charges %1$s monthly after the trial unless canceled before it ends. Cancel anytime through Google Play.</string>
+    <string name="paywall_paid_disclosure">Google Play handles payment and automatic renewals. Cancel anytime through Google Play.</string>
+    <string name="paywall_restore_checked">Purchases checked. Access opens when an active subscription is verified.</string>
+    <string name="paywall_logo_description">Wiccan</string>
+
+    <!-- Today -->
+    <string name="today_spell">Today\'s spell</string>
+    <string name="today_potion">Today\'s potion</string>
+    <string name="today_lesson">Today\'s lesson</string>
+    <string name="today_subtitle">The moon has turned. Your next practice awaits.</string>
+    <string name="today_empty_title">The lessons have all been gathered</string>
+    <string name="today_empty_body">Every lesson we hold is already yours. They wait in your Grimoire.</string>
+    <string name="today_open_grimoire">Open your Grimoire</string>
+    <string name="today_look_again">Look again</string>
+    <string name="today_retry">Try again</string>
+    <string name="today_loading">Loading today\'s practice</string>
+    <string name="today_logo_description">Wiccan</string>
+
+    <!-- Content detail -->
+    <string name="content_type_spell">Spell</string>
+    <string name="content_type_potion">Potion</string>
+    <string name="content_type_lesson">Lesson</string>
+    <string name="content_source_tradition">Source tradition</string>
+    <string name="content_application">In a Wiccan practice</string>
+    <string name="content_materials">What you\'ll need</string>
+    <string name="content_method">The working</string>
+    <string name="content_incantation">Words you may speak</string>
+    <string name="content_incantation_note">A note on those words</string>
+    <string name="content_timing">When to work</string>
+    <string name="content_correspondences">Correspondences</string>
+    <string name="content_reflection">Reflection</string>
+    <string name="content_practice">Practice</string>
+    <string name="content_safety_heading">Safety note</string>
+    <string name="content_potion_disclosure_missing">Shared preparation disclosure is unavailable. Keep this lesson out of delivery until it is configured.</string>
+    <string name="content_adaptation">How this was adapted</string>
+    <string name="content_source">Source</string>
+    <string name="content_rights">Rights</string>
+    <string name="content_citation_text">Text: %1$s</string>
+    <string name="content_citation_manuscript">Manuscript: %1$s</string>
+    <string name="content_citation_tradition">Source tradition: %1$s</string>
+    <string name="content_citation_manuscript_date">Manuscript date: %1$s</string>
+    <string name="content_citation_composition_date">Composition date: %1$s</string>
+    <string name="content_citation_edition">Edition: %1$s</string>
+    <string name="content_citation_edition_date">Edition date: %1$s</string>
+    <string name="content_citation_translator">Translator/editor: %1$s</string>
+    <string name="content_citation_locator">Exact locator: %1$s</string>
+    <string name="content_verified_source">Verified source details</string>
+    <string name="content_saved">Kept in your Grimoire</string>
+    <string name="content_logo_description">Wiccan</string>
+
+    <!-- Grimoire -->
+    <string name="grimoire_title">Grimoire</string>
+    <string name="grimoire_subtitle">What the days have already given you.</string>
+    <string name="grimoire_timeline">Timeline</string>
+    <string name="grimoire_categories">Categories</string>
+    <string name="grimoire_empty">Your Grimoire is still quiet. Open Today to receive your first lesson.</string>
+    <string name="grimoire_back">← Return to your Grimoire</string>
+    <string name="grimoire_missing">That page of the Grimoire could not be found.</string>
+    <string name="grimoire_category_count">%1$s (%2$d)</string>
+    <string name="grimoire_expand">Show this category</string>
+    <string name="grimoire_collapse">Hide this category</string>
+    <string name="grimoire_loading">Loading your Grimoire</string>
+    <string name="grimoire_logo_description">Wiccan</string>
+    <string name="category_candle_spells">Candle Spells</string>
+    <string name="category_herbal_rituals">Herbal Rituals</string>
+    <string name="category_cord_knot">Cord &amp; Knot Work</string>
+    <string name="category_lunar">Lunar Practices</string>
+    <string name="category_charms">Charms &amp; Talismans</string>
+    <string name="category_candle_magic">Candle Spells &amp; Rituals</string>
+    <string name="category_herbs">Herbal Spells &amp; Botanical Workings</string>
+    <string name="category_potions">Potions, Oils &amp; Infusions</string>
+    <string name="category_crystals">Crystal &amp; Stone Workings</string>
+    <string name="category_cord_magic">Cord &amp; Knot Spells</string>
+    <string name="category_moon_magic">Moon &amp; Lunar Spellwork</string>
+    <string name="category_elemental_magic">Elemental Spellwork</string>
+    <string name="category_altars">Altar &amp; Sacred Space Rituals</string>
+    <string name="category_divination">Divination &amp; Intuitive Practices</string>
+    <string name="category_elemental_practices">Elemental Practices</string>
+    <string name="category_protection_cleansing">Protection, Cleansing &amp; Warding</string>
+    <string name="category_protection">Protection</string>
+    <string name="category_love">Love &amp; Relationships</string>
+    <string name="category_prosperity">Prosperity &amp; Abundance</string>
+    <string name="category_healing">Healing &amp; Wellness</string>
+    <string name="category_divination_clarity">Divination &amp; Clarity</string>
+    <string name="category_banishing">Banishing &amp; Release</string>
+    <string name="category_home">Home &amp; Hearth</string>
+    <string name="category_moon_seasonal">Moon &amp; Seasonal</string>
+
+    <!-- Settings, account, delete. Delete warning stays plain. -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Tend your account, reminders, and palette.</string>
+    <string name="settings_account_title">Account &amp; support</string>
+    <string name="settings_account_subtitle">Your name, email, and subscription.</string>
+    <string name="settings_back">← Back</string>
+    <string name="settings_account_heading">Your name and email</string>
+    <string name="settings_email">Email: %1$s</string>
+    <string name="settings_save_name">Save your name</string>
+    <string name="settings_new_email">New email address</string>
+    <string name="settings_verify_email">Verify new email</string>
+    <string name="settings_reset_password">Email a reset link</string>
+    <string name="settings_sign_out">Sign out</string>
+    <string name="settings_manage_subscription">Manage Subscription</string>
+    <string name="settings_manage_subscription_unavailable">Open Google Play to manage your subscription.</string>
+    <string name="settings_notifications">Daily practice reminder</string>
+    <string name="settings_notifications_hint">A note when the day\'s spell, potion, or lesson is ready.</string>
+    <string name="settings_palette">Palette</string>
+    <string name="settings_palette_hint">The Wheel of the Year is the recommended default. You can also lock any of the six.</string>
+    <string name="settings_analytics">Usage analytics &amp; crash reports</string>
+    <string name="settings_analytics_hint">Optional. Helps improve Wiccan; never used for ads.</string>
+    <string name="settings_delete">Delete Account</string>
+    <string name="settings_delete_title">Delete account?</string>
+    <string name="settings_delete_body">Wiccan first cancels active Google Play renewal, then permanently deletes your account, delivery history, devices, and subscription record. If cancellation cannot be confirmed, deletion stops so you can retry. Limited pseudonymous anti-fraud hashes may remain. This cannot be undone.</string>
+    <string name="settings_delete_confirm">Delete</string>
+    <string name="settings_delete_cancel">Cancel</string>
+    <string name="settings_contact">Contact Support</string>
+    <string name="settings_contact_unavailable">No email app found. Contact %1$s.</string>
+    <string name="settings_version">Wiccan v%1$s</string>
+    <string name="settings_version_unknown">unknown</string>
+    <string name="settings_logo_description">Wiccan</string>
+    <string name="settings_notice_analytics">Your analytics choice couldn\'t be saved. Please try again.</string>
+    <string name="settings_notice_name_invalid">Enter both names (up to 60 characters each).</string>
+    <string name="settings_notice_name_saved">Your name is kept.</string>
+    <string name="settings_notice_email_invalid">Enter a valid new email address.</string>
+    <string name="settings_notice_email_sent">Open the link Firebase sends to the new address to confirm it.</string>
+    <string name="settings_notice_reset_sent">If a reset is available for this account, a link will arrive in your inbox.</string>
+
+    <!-- Palette names stay the product names. Mood lines are the voice. -->
+    <string name="palette_near_black">Near Black</string>
+    <string name="palette_near_black_mood">Still and close</string>
+    <string name="palette_midnight">Midnight Blue</string>
+    <string name="palette_midnight_mood">Starlit and quiet</string>
+    <string name="palette_plum">Royal Plum</string>
+    <string name="palette_plum_mood">Dusk and velvet</string>
+    <string name="palette_forest">Deep Forest</string>
+    <string name="palette_forest_mood">Rooted in the grove</string>
+    <string name="palette_earth">Warm Earth</string>
+    <string name="palette_earth_mood">Candlelight and clay</string>
+    <string name="palette_ivory">Light / Ivory</string>
+    <string name="palette_ivory_mood">Pale as moonlight</string>
+    <string name="theme_mode_wheel">Automatic — Wheel of the Year</string>
+    <string name="theme_mode_wheel_hint">Recommended. The palette turns with the seasons.</string>
+    <string name="theme_mode_system">Follow system</string>
+    <string name="theme_mode_system_hint">Near Black when the device is in dark mode, Light/Ivory in light mode.</string>
+
+    <!-- Legal document chrome. Document text is not in this file. -->
+    <string name="legal_back">← Back</string>
+    <string name="legal_version_effective">Version %1$s · Effective %2$s</string>
+    <string name="legal_effective">Effective %1$s</string>
+    <string name="legal_logo_description">Wiccan</string>
+
+    <!-- Navigation -->
+    <string name="nav_today">Today</string>
+    <string name="nav_grimoire">Grimoire</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Errors -->
+    <string name="error_network">The spell faltered. Check your connection and try again.</string>
+    <string name="error_unauthorized">The circle has closed. Please sign in again.</string>
+    <string name="error_not_found">That page of the Grimoire could not be found.</string>
+    <string name="error_no_new_lesson">No new lessons remain. Your earlier lessons wait in your Grimoire.</string>
+    <string name="error_subscription_required">An active trial or subscription is required. Restore or subscribe to continue.</string>
+    <string name="error_google_sign_in">Google sign-in isn\'t available right now. Use your email and password.</string>
+    <string name="error_cancelled">Cancelled.</string>
+    <string name="error_purchase_verification">We couldn\'t verify that purchase with Google Play. Try again, or contact support.</string>
+    <string name="error_invalid_credentials">The gate stayed shut. Check your email and password, then try again.</string>
+    <string name="error_restore_purchases">The restore faltered. Check this account in Google Play, then try again.</string>
+    <string name="error_unknown">The working stumbled. Try again in a moment.</string>
+
+    <!-- Home-screen widget and the daily notification channel -->
+    <string name="widget_title">Wiccan</string>
+    <string name="widget_subtitle">Today\'s practice awaits</string>
+    <string name="widget_description">A moonlit shortcut to today\'s practice.</string>
+    <string name="notification_channel_daily_name">Daily practice</string>
+    <string name="notification_channel_daily_description">A note when the day\'s spell, potion, or lesson is ready.</string>
 </resources>

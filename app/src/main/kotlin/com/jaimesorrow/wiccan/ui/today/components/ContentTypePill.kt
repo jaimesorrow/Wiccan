@@ -10,8 +10,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.jaimesorrow.wiccan.domain.model.ContentType
+import com.wiccan.app.R
 
 /**
  * Small pill badge showing the content type. Uses the primary container
@@ -21,9 +23,9 @@ import com.jaimesorrow.wiccan.domain.model.ContentType
 fun ContentTypePill(type: ContentType, modifier: Modifier = Modifier) {
     val colors = MaterialTheme.colorScheme
     val label = when (type) {
-        ContentType.SPELL -> "SPELL"
-        ContentType.POTION -> "POTION"
-        ContentType.LESSON -> "LESSON"
+        ContentType.SPELL -> stringResource(R.string.content_type_spell)
+        ContentType.POTION -> stringResource(R.string.content_type_potion)
+        ContentType.LESSON -> stringResource(R.string.content_type_lesson)
     }
     Box(
         modifier = modifier

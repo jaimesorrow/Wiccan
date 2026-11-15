@@ -14,7 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.wiccan.app.R
 
 /**
  * Muted-brass safety callout — stays in-palette (per the visual spec)
@@ -39,7 +41,7 @@ fun SafetyNote(note: String, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.width(12.dp))
         Column {
             Text(
-                text = "A NOTE ON SAFETY",
+                text = stringResource(R.string.content_safety_heading),
                 style = MaterialTheme.typography.labelSmall,
                 color = colors.tertiary,
             )

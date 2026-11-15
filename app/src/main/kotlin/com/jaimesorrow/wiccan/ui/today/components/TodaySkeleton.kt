@@ -19,7 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.wiccan.app.R
 
 /**
  * Dark-themed skeleton mirroring the loaded layout: a pill row, a title
@@ -39,11 +43,13 @@ fun TodaySkeleton(modifier: Modifier = Modifier) {
         label = "skeletonAlpha",
     )
 
+    val loading = stringResource(R.string.today_loading)
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(PaddingValues(horizontal = 24.dp, vertical = 32.dp))
-            .alpha(alpha),
+            .alpha(alpha)
+            .semantics { contentDescription = loading },
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Placeholder(widthFraction = 0.30f, height = 20.dp, corner = 50.dp)

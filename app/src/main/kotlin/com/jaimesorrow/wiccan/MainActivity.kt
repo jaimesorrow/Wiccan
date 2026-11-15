@@ -29,6 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,6 +53,7 @@ import com.jaimesorrow.wiccan.ui.policy.PolicyAcceptanceScreen
 import com.jaimesorrow.wiccan.ui.settings.SettingsScreen
 import com.jaimesorrow.wiccan.ui.theme.ThemeViewModel
 import com.jaimesorrow.wiccan.ui.theme.WiccanTheme
+import com.wiccan.app.R
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -179,10 +183,14 @@ private fun LoadingIndicator() {
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center,
     ) {
+        val loadingDescription = stringResource(R.string.loading_description)
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             WiccanFullLogo(modifier = Modifier.testTag("loading-logo"), width = 160.dp)
             Spacer(modifier = Modifier.height(24.dp))
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            CircularProgressIndicator(
+                modifier = Modifier.semantics { contentDescription = loadingDescription },
+                color = MaterialTheme.colorScheme.primary,
+            )
         }
     }
 }

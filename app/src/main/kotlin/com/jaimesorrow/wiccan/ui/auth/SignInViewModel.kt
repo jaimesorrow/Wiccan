@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
+import com.wiccan.app.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
@@ -77,16 +78,20 @@ class SignInViewModel @Inject constructor(private val authRepository: AuthReposi
         val password = current.password
         val creating = current.mode == SignInMode.CREATE_ACCOUNT
         val emailError = when {
-            email.isBlank() -> "Enter your email address."
-            !EMAIL_PATTERN.matches(email) -> "Enter a valid email address."
+            email.isBlank() -> R.string.auth_error_email_required
+            !EMAIL_PATTERN.matches(email) -> R.string.auth_error_email_invalid
             else -> null
         }
         val passwordError = when {
-            password.isBlank() -> "Enter your password."
-            password.length < 6 -> "Password must be at least 6 characters."
+            password.isBlank() -> R.string.auth_error_password_required
+            password.length < 6 -> R.string.auth_error_password_short
             else -> null
         }
-        val confirmPasswordError = if (creating && current.confirmPassword != password) "Passwords do not match." else null
+        val confirmPasswordError = if (creating && current.confirmPassword != password) {
+            R.string.auth_error_password_mismatch
+        } else {
+            null
+        }
         if (emailError != null || passwordError != null || confirmPasswordError != null) {
             _state.update {
                 it.copy(
@@ -113,7 +118,7 @@ class SignInViewModel @Inject constructor(private val authRepository: AuthReposi
         val email = _state.value.email.trim()
         if (_state.value.isLoading) return
         if (email.isBlank() || !EMAIL_PATTERN.matches(email)) {
-            _state.update { it.copy(email = email, emailError = "Enter a valid email address.") }
+            _state.update { it.copy(email = email, emailError = R.string.auth_error_email_invalid) }
             return
         }
         _state.update { it.copy(email = email, isLoading = true) }

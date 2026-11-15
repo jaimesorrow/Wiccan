@@ -128,7 +128,7 @@ class SettingsScreenButtonsTest {
     @Test
     fun `Sign Out signs the user out`() {
         launch()
-        click("Sign Out")
+        click("Sign out")
         assertEquals(1, auth.signOutCallCount)
     }
 
@@ -151,7 +151,7 @@ class SettingsScreenButtonsTest {
     @Test
     fun `notifications switch updates the server preference`() {
         launch()
-        val switch = composeRule.onNode(isToggleable() and hasText("Daily Notifications"))
+        val switch = composeRule.onNode(isToggleable() and hasText("Daily practice reminder"))
         switch.performScrollTo().assertIsOn().performClick()
         composeRule.waitForIdle()
         coVerify { notifications.setNotificationsEnabled(false) }
@@ -172,7 +172,7 @@ class SettingsScreenButtonsTest {
         launch(accountOnly = true)
         click("← Back")
         assertEquals(listOf("back"), clicks)
-        composeRule.onNodeWithText("Daily Notifications").assertDoesNotExist()
+        composeRule.onNodeWithText("Daily practice reminder").assertDoesNotExist()
         composeRule.onNodeWithText("Theme").assertDoesNotExist()
         composeRule.onNodeWithText("Usage analytics & crash reports").assertExists()
         composeRule.onNodeWithText("Delete Account").assertExists()

@@ -11,6 +11,7 @@ import com.jaimesorrow.wiccan.domain.repository.NotificationRepository
 import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import com.jaimesorrow.wiccan.domain.usecase.DeleteAccountUseCase
 import com.jaimesorrow.wiccan.widget.WiccanWidgetUpdater
+import com.wiccan.app.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
@@ -97,7 +98,7 @@ class SettingsViewModel @Inject constructor(
                 // Withdrawal still took effect for this session; the switch shows what is saved.
                 _state.update { it.copy(shareAnalytics = !share) }
                 effectChannel.send(
-                    SettingsUiEffect.ShowMessage("Your analytics choice couldn't be saved. Please try again."),
+                    SettingsUiEffect.ShowMessage(R.string.settings_notice_analytics),
                 )
             }
         }
@@ -124,7 +125,7 @@ class SettingsViewModel @Inject constructor(
         val last = state.value.lastName.trim()
         if (first.isBlank() || last.isBlank() || first.length > 60 || last.length > 60) {
             viewModelScope.launch {
-                effectChannel.send(SettingsUiEffect.ShowMessage("Enter both names (up to 60 characters each)."))
+                effectChannel.send(SettingsUiEffect.ShowMessage(R.string.settings_notice_name_invalid))
             }
             return
         }
@@ -134,7 +135,7 @@ class SettingsViewModel @Inject constructor(
             val result = authRepository.completeProfile(first, last)
             _state.update { it.copy(isAccountBusy = false) }
             when (result) {
-                is AppResult.Success -> effectChannel.send(SettingsUiEffect.ShowMessage("Profile updated."))
+                is AppResult.Success -> effectChannel.send(SettingsUiEffect.ShowMessage(R.string.settings_notice_name_saved))
                 is AppResult.Failure -> effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
             }
         }
@@ -143,7 +144,7 @@ class SettingsViewModel @Inject constructor(
     private fun updateEmail() {
         val email = state.value.newEmail.trim()
         if (email.length > 254 || !email.contains("@") || email.contains(" ")) {
-            viewModelScope.launch { effectChannel.send(SettingsUiEffect.ShowMessage("Enter a valid new email address.")) }
+            viewModelScope.launch { effectChannel.send(SettingsUiEffect.ShowMessage(R.string.settings_notice_email_invalid)) }
             return
         }
         if (state.value.isAccountBusy) return
@@ -153,7 +154,7 @@ class SettingsViewModel @Inject constructor(
             _state.update { it.copy(isAccountBusy = false) }
             when (result) {
                 is AppResult.Success -> effectChannel.send(
-                    SettingsUiEffect.ShowMessage("Verify the new address using the link sent by Firebase."),
+                    SettingsUiEffect.ShowMessage(R.string.settings_notice_email_sent),
                 )
                 is AppResult.Failure -> effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
             }
@@ -169,7 +170,7 @@ class SettingsViewModel @Inject constructor(
             _state.update { it.copy(isAccountBusy = false) }
             when (result) {
                 is AppResult.Success -> effectChannel.send(
-                    SettingsUiEffect.ShowMessage("If password reset is available, a link will arrive in your inbox."),
+                    SettingsUiEffect.ShowMessage(R.string.settings_notice_reset_sent),
                 )
                 is AppResult.Failure -> effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
             }

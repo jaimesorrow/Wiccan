@@ -7,6 +7,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.appcheck.AppCheckProviderInstaller
+import com.jaimesorrow.wiccan.notification.ensureDailyPracticeChannel
 import com.jaimesorrow.wiccan.worker.DailyContentWorker
 import com.jaimesorrow.wiccan.worker.WiccanWorkerFactory
 import com.wiccan.app.BuildConfig
@@ -37,6 +38,7 @@ class WiccanApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        ensureDailyPracticeChannel(this)
         // Must run before any other Firebase call - App Check attaches its
         // token to every subsequent Functions/Firestore request. Which
         // provider this installs is decided per build variant (src/debug

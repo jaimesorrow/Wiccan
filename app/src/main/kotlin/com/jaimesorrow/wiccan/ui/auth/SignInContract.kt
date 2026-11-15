@@ -12,9 +12,9 @@ data class SignInUiState(
     val confirmPassword: String = "",
     val isPasswordVisible: Boolean = false,
     val passwordResetSent: Boolean = false,
-    val emailError: String? = null,
-    val passwordError: String? = null,
-    val confirmPasswordError: String? = null,
+    val emailError: Int? = null,
+    val passwordError: Int? = null,
+    val confirmPasswordError: Int? = null,
     val isGoogleSignInAvailable: Boolean = false,
 )
 

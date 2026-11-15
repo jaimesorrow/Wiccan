@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan.ui.settings
 
+import androidx.annotation.StringRes
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
@@ -36,5 +37,5 @@ sealed class SettingsUiEvent {
 
 sealed class SettingsUiEffect {
     data class ShowSnackbar(val error: AppError) : SettingsUiEffect()
-    data class ShowMessage(val message: String) : SettingsUiEffect()
+    data class ShowMessage(@StringRes val messageRes: Int) : SettingsUiEffect()
 }

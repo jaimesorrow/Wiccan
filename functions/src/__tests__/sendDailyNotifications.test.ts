@@ -1,4 +1,4 @@
-import { sendDailyNotifications } from "../sendDailyNotifications";
+import { dailyNotificationCopy, sendDailyNotifications } from "../sendDailyNotifications";
 import { FakeContentRepository, makeContent } from "../testUtils/fakeContentRepository";
 import { FakeNotificationUserRepository } from "../testUtils/fakeNotificationUserRepository";
 import { FakeFcmSenderPort } from "../testUtils/fakeFcmSenderPort";
@@ -31,8 +31,23 @@ describe("sendDailyNotifications", () => {
     expect(fcm.sentTo).toHaveLength(2);
     expect(fcm.sentTo[0]).toEqual({
       token: "token-1",
-      title: "Your spell is ready",
-      body: "Candle of Clear Intent",
+      title: "Your spell awaits",
+      body: "The moon has turned. Candle of Clear Intent",
+    });
+  });
+
+  it("names each content type and keeps the lesson title in the body", () => {
+    expect(dailyNotificationCopy("spell", "Candle of Clear Intent")).toEqual({
+      title: "Your spell awaits",
+      body: "The moon has turned. Candle of Clear Intent",
+    });
+    expect(dailyNotificationCopy("potion", "Moonwater")).toEqual({
+      title: "Your potion awaits",
+      body: "The moon has turned. Moonwater",
+    });
+    expect(dailyNotificationCopy("lesson", "The Threshold")).toEqual({
+      title: "Your lesson awaits",
+      body: "The moon has turned. The Threshold",
     });
   });
 

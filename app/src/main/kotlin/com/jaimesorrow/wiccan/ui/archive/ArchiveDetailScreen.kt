@@ -18,11 +18,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.ui.content.ContentDetailView
+import com.wiccan.app.R
 
 /** Full display of one Archive entry, reached via `archive_detail/{contentId}`. */
 @Composable
@@ -33,11 +38,15 @@ fun ArchiveDetailScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val resources = LocalResources.current
+    val loadingDescription = stringResource(R.string.loading_description)
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is ArchiveDetailUiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.error.toUserMessage())
+                is ArchiveDetailUiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(
+                    effect.error.toUserMessage(resources),
+                )
             }
         }
     }
@@ -49,16 +58,19 @@ fun ArchiveDetailScreen(
     ) { insets ->
         Column(modifier = Modifier.padding(insets).fillMaxSize(), verticalArrangement = Arrangement.Top) {
             TextButton(onClick = onBack, modifier = Modifier.padding(start = 16.dp, top = 8.dp)) {
-                Text("← Back to Grimoire")
+                Text(stringResource(R.string.grimoire_back))
             }
             when {
-                state.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                state.isLoading -> Box(
+                    Modifier.fillMaxSize().semantics { contentDescription = loadingDescription },
+                    contentAlignment = Alignment.Center,
+                ) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
                 state.content != null -> ContentDetailView(content = state.content!!, modifier = Modifier.fillMaxSize())
                 else -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "That entry couldn't be found.",
+                        text = stringResource(R.string.grimoire_missing),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
