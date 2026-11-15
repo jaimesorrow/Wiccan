@@ -49,7 +49,7 @@ npm run upload-content-backup -- --project wiccan-android \
 Restore only against the emulator, then retain the resulting tested manifest:
 
 ```bash
-npx firebase-tools@15.34.1 emulators:exec --project demo-wiccan --config ../firebase.json --only firestore \
+npx firebase-tools@15.36.0 emulators:exec --project demo-wiccan --config ../firebase.json --only firestore \
   "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 node lib/scripts/restoreTestContentBackupCli.js \
   --artifact /secure/wiccan-content-backup.json.gz \
   --manifest /secure/wiccan-content-backup-manifest.json \
@@ -110,9 +110,9 @@ cd .. && ./gradlew :app:testProdDebugUnitTest :app:assembleProdDebug :app:compil
 Rules, indexes, and functions are deployed separately and only after their exact diff and project are approved:
 
 ```bash
-npx firebase-tools@15.34.1 deploy --project wiccan-android --only firestore:rules
-npx firebase-tools@15.34.1 deploy --project wiccan-android --only firestore:indexes
-npx firebase-tools@15.34.1 deploy --project wiccan-android --only functions
+npx firebase-tools@15.36.0 deploy --project wiccan-android --only firestore:rules
+npx firebase-tools@15.36.0 deploy --project wiccan-android --only firestore:indexes
+npx firebase-tools@15.36.0 deploy --project wiccan-android --only functions
 ```
 
 Do not combine these deploy commands, and do not run them merely because tests pass.
