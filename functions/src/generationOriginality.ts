@@ -29,7 +29,7 @@ export interface GenerationOriginalityThresholds {
   ritualActionReject: number;
 }
 
-export const DEFAULT_GENERATION_ORIGINALITY_THRESHOLDS: GenerationOriginalityThresholds = {
+const DEFAULT_GENERATION_ORIGINALITY_THRESHOLDS: GenerationOriginalityThresholds = {
   titleReject: 0.85,
   summaryReject: 0.82,
   instructionReject: 0.78,
@@ -37,7 +37,7 @@ export const DEFAULT_GENERATION_ORIGINALITY_THRESHOLDS: GenerationOriginalityThr
   ritualActionReject: 0.75,
 };
 
-export interface GenerationOriginalityComparison {
+interface GenerationOriginalityComparison {
   comparedId: string;
   comparedTitle: string;
   titleSimilarity: number;

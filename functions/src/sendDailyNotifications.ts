@@ -7,7 +7,7 @@ import { getUserLocalDate, getUserLocalHour } from "./dateUtils";
 import { hasAcceptedCurrentPolicies, PolicyAcceptanceReader } from "./acceptTerms";
 
 /** The local hour every device should get its "your content is ready" push. */
-export const TARGET_LOCAL_HOUR = 9;
+const TARGET_LOCAL_HOUR = 9;
 
 export interface NotificationSendSummary {
   attempted: number;

@@ -18,7 +18,7 @@ export interface SimilarityThresholds {
   semanticReject: number;
 }
 
-export const DEFAULT_SIMILARITY_THRESHOLDS: SimilarityThresholds = {
+const DEFAULT_SIMILARITY_THRESHOLDS: SimilarityThresholds = {
   ngramReview: 0.72,
   longestRunReview: 0.55,
   semanticReview: 0.82,

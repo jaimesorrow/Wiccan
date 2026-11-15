@@ -37,8 +37,11 @@ contentStatus (draft|review|rejected|archived|published), createdAt, updatedAt
 spray, jar. The last six always set `requiresPotionDisclosure`, which renders
 `settings/disclosures.potionSafetyDisclosure`.
 
-Stored v2 drafts also carry the legacy fields (`legacyFieldsFor`) so the
-current app keeps working until it reads the canonical model directly.
+Stored content documents are written with the fields the current app reads
+(`title`, `intro`, `body`, `materials`, `category`, `type`, `tier`, `status`)
+by the generator and the seed. `toCanonicalLesson` projects those documents
+into the canonical lesson used for validation. Nothing writes a canonical
+lesson back into that stored shape.
 
 ## Categories (method, not outcome)
 
@@ -75,7 +78,7 @@ Intentions (protection, love, abundance, rest, focus...) are tags.
 
 Mapping never invents content. An incomplete record fails validation and is
 excluded from delivery rather than crashing a reader. The dry-run mapping and
-audit of the 296 checked-in records is `docs/LEGACY_LESSON_AUDIT.md`.
+audit of the 296 checked-in records is `docs/archive/LEGACY_LESSON_AUDIT.md`.
 
 ## Validation (`validateLesson`)
 
