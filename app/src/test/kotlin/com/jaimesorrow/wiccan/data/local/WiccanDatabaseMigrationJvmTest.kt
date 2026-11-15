@@ -22,6 +22,12 @@ class WiccanDatabaseMigrationJvmTest {
     @Test
     fun `version 1 installations can upgrade directly to the current schema`() = migrateLegacyDatabase(1)
 
+    @Test
+    fun `version 3 installations gain practical columns then source tradition`() = migrateLegacyDatabase(3)
+
+    @Test
+    fun `version 4 installations gain source tradition and keep practical columns`() = migrateLegacyDatabase(4)
+
     private fun migrateLegacyDatabase(version: Int) {
         val context = RuntimeEnvironment.getApplication()
         val name = "lesson-migration-v$version.db"
@@ -39,11 +45,14 @@ class WiccanDatabaseMigrationJvmTest {
             for (index in 0 until setupQueries.length()) legacy.execSQL(setupQueries.getString(index))
             val categoryColumn = if (version >= 2) ", category" else ""
             val categoryValue = if (version >= 2) ", 'HOME_AND_HEARTH'" else ""
+            val potionColumn = if (version >= 4) ", requiresPotionDisclosure" else ""
+            val potionValue = if (version >= 4) ", 1" else ""
             legacy.execSQL(
                 "INSERT INTO cached_daily_content " +
-                    "(contentId, type, tier, tradition, title, intro, body, tags, status, deliveredDate$categoryColumn) " +
+                    "(contentId, type, tier, tradition, title, intro, body, tags, status, deliveredDate" +
+                    "$categoryColumn$potionColumn) " +
                     "VALUES ('lesson-1', 'LESSON', 'FREE', 'Folk practice', 'The Threshold', 'intro', 'body', '', " +
-                    "'PUBLISHED', '2026-10-02'$categoryValue)",
+                    "'PUBLISHED', '2026-10-02'$categoryValue$potionValue)",
             )
             legacy.version = version
         }
@@ -65,7 +74,7 @@ class WiccanDatabaseMigrationJvmTest {
                 assertTrue(it.isNull(3))
                 assertTrue(it.isNull(4))
                 assertTrue(it.isNull(5))
-                assertEquals(0, it.getInt(6))
+                assertEquals(if (version >= 4) 1 else 0, it.getInt(6))
                 assertTrue(it.isNull(7))
             }
             migrated.execSQL("UPDATE cached_daily_content SET reflection = 'Which boundary matters?'")
