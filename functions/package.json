@@ -60,6 +60,11 @@
     "glob": "14.0.6",
     "handlebars": "4.7.10",
     "minimatch": "11.0.8",
+    "firebase-admin": {
+      "@firebase/app": "0.16.2",
+      "@firebase/app-compat": "0.5.18",
+      "@firebase/database-compat": "2.1.7"
+    },
     "gaxios": {
       "uuid": "11.1.1"
     },

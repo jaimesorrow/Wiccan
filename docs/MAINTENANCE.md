@@ -98,9 +98,15 @@ currently handled (automated, manual, or not yet built).
   `@anthropic-ai/sdk` 1.8.0, `@googleapis/androidpublisher` 42.3.1,
   `firebase-admin` 14.5.1, `nodemailer` 10.5.0, `eslint` 10.15.0, `firebase`
   13.3.0, and `typescript-eslint` 8.72.2, with overrides `@grpc/grpc-js`
-  1.14.7, `glob` 14.0.6, and `minimatch` 11.0.8. `@firebase/rules-unit-testing` 6.0.0 and packages inside `firebase` 13.3.0
-  still declare `node >=24.12.0`. They remain dev-only emulator tooling, and
-  the Node 22 suites are what CI runs.
+  1.14.7, `glob` 14.0.6, and `minimatch` 11.0.8. `firebase-admin` 14.5.1 depends on `@firebase/database-compat` `^2.1.4`,
+  and that package's optional peers pull `@firebase/app`. `@firebase/database-compat`
+  2.1.8, `@firebase/database` 1.1.6, `@firebase/app` 0.16.3+, and
+  `@firebase/app-compat` 0.5.19+ declare `node >=24.12.0`. An override keeps
+  the production chain on database-compat 2.1.7, database 1.1.5, app 0.16.2,
+  and app-compat 0.5.18, which declare `node >=20` and match the deployed
+  Node 22 runtime. `@firebase/rules-unit-testing` 6.0.0 and the `firebase`
+  13.3.0 client still declare `node >=24.12.0`. Those are devDependencies,
+  and the Node 22 suites are what CI runs.
 
 ## Content pool
 
