@@ -3,6 +3,7 @@ package com.jaimesorrow.wiccan.ui.today
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -35,6 +36,7 @@ class TodayScreenTest {
             }
         }
         composeRule.onNodeWithText("No new lessons remain").assertIsDisplayed()
+        composeRule.onNodeWithTag("today-empty-logo").assertIsDisplayed()
         composeRule.onNodeWithText(
             "You have received every available lesson. Your previous lessons are saved in Grimoire.",
         ).assertIsDisplayed()
