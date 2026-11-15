@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -87,6 +88,7 @@ class OnboardingFlowButtonsTest {
     @Test
     fun `policy gate links open Terms, Privacy and Content & Safety, and Account opens`() {
         launchPolicyGate()
+        composeRule.onNodeWithTag("policy-logo").assertExists()
         click("Terms of Service")
         click("Privacy Policy")
         click("Content & Safety")
@@ -136,6 +138,7 @@ class OnboardingFlowButtonsTest {
             }
         }
         composeRule.onNodeWithText("I've Verified My Email").assertExists()
+        composeRule.onNodeWithTag("onboarding-logo").assertExists()
         composeRule.onNodeWithText("Resend Verification Email").assertExists()
         click("Account & support / Delete Account")
         click("Privacy Policy")
@@ -150,6 +153,7 @@ class OnboardingFlowButtonsTest {
         composeRule.setContent {
             MaterialTheme { OnboardingScreen(verification = false, viewModel = viewModel) }
         }
+        composeRule.onNodeWithTag("onboarding-logo").assertExists()
         composeRule.onNodeWithText("First name").performTextInput("Rowan")
         composeRule.onNodeWithText("Last name").performTextInput("Wilde")
         click("Continue")
@@ -172,6 +176,7 @@ class OnboardingFlowButtonsTest {
                 )
             }
         }
+        composeRule.onNodeWithTag("paywall-logo").assertExists()
         click("Account & support")
         click("Terms")
         click("Privacy")
@@ -189,6 +194,7 @@ class OnboardingFlowButtonsTest {
                 LegalDocumentScreen(document = WiccanLegalDocuments.terms, onBack = { clicks += "back" })
             }
         }
+        composeRule.onNodeWithTag("legal-logo").assertExists()
         click("← Back")
         assertEquals(listOf("back"), clicks)
     }
