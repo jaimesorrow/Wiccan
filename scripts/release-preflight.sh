@@ -90,6 +90,7 @@ require_grep 'LegalDocumentId\.TERMS' app/src/main/kotlin/com/jaimesorrow/wiccan
 require_grep 'LegalDocumentId\.CONTENT_SAFETY' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/policy/PolicyAcceptanceScreen.kt   'policy gate exposes Content & Safety guidance'
 require_grep 'onTermsClick' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/paywall/PaywallScreen.kt   'paywall exposes Terms beside subscription offer'
 require_grep 'onContentSafetyClick' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/settings/SettingsScreen.kt   'Settings exposes permanent safety guidance'
+require_grep 'onPotionSafetyClick' app/src/main/kotlin/com/jaimesorrow/wiccan/ui/settings/SettingsScreen.kt   'Settings exposes dedicated potion safety guidance'
 require_grep '^# Google Play release compliance — Wiccan$' docs/PLAY_CONSOLE_READINESS.md   'Wiccan-specific Play compliance audit exists'
 
 if grep -Fq 'https://wiccan.app/privacy' app/src/main/kotlin/com/jaimesorrow/wiccan/core/config/PolicyUrls.kt; then
