@@ -184,13 +184,10 @@ private fun CategoryHeader(category: ContentCategory, count: Int, isCollapsed: B
         modifier = Modifier
             .fillMaxWidth()
             .background(colors.surfaceVariant)
-            .clickable(onClick = onClick)
+            .clickable(onClickLabel = if (isCollapsed) "Show this category" else "Hide this category", onClick = onClick)
             .padding(horizontal = 24.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val expandedDescription = stringResource(
-            if (isCollapsed) R.string.grimoire_expand else R.string.grimoire_collapse,
-        )
         Text(
             text = stringResource(R.string.grimoire_category_count, category.displayName(), count),
             style = MaterialTheme.typography.titleSmall,
@@ -201,7 +198,7 @@ private fun CategoryHeader(category: ContentCategory, count: Int, isCollapsed: B
             text = if (isCollapsed) "▸" else "▾",
             style = MaterialTheme.typography.titleSmall,
             color = colors.onSurfaceVariant,
-            modifier = Modifier.semantics { contentDescription = expandedDescription },
+            modifier = Modifier.semantics { /* Decorative arrow; row announces category name and count. */ },
         )
     }
 }
