@@ -31,6 +31,7 @@ class TodayViewModel @Inject constructor(
     // Buffered so an effect emitted while nothing is collecting isn't dropped.
     private val effectChannel = Channel<TodayUiEffect>(Channel.BUFFERED)
     val effects: Flow<TodayUiEffect> = effectChannel.receiveAsFlow()
+    private var hasHandledInitialResume = false
 
     init {
         observeCache()
@@ -39,6 +40,9 @@ class TodayViewModel @Inject constructor(
 
     fun onEvent(event: TodayUiEvent) {
         when (event) {
+            TodayUiEvent.Resumed -> {
+                if (hasHandledInitialResume) refresh() else hasHandledInitialResume = true
+            }
             TodayUiEvent.Retry -> refresh()
         }
     }

@@ -115,6 +115,22 @@ class TodayViewModelTest {
     }
 
     @Test
+    fun `initial resume does not duplicate init refresh but later resume refreshes`() = runTest(dispatcher) {
+        repository.nextResult = AppResult.Success(sampleContent)
+        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(1, repository.refreshCalls.size)
+
+        viewModel.onEvent(TodayUiEvent.Resumed)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(1, repository.refreshCalls.size)
+
+        viewModel.onEvent(TodayUiEvent.Resumed)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(2, repository.refreshCalls.size)
+    }
+
+    @Test
     fun `exhausted inventory takes priority over stale cached content and clears on success`() = runTest(dispatcher) {
         repository.emitCached(sampleContent)
         repository.nextResult = AppResult.Failure(AppError.NoNewLesson)
