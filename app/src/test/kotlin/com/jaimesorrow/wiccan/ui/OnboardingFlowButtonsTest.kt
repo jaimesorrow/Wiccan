@@ -127,11 +127,12 @@ class OnboardingFlowButtonsTest {
 
     @Test
     fun `verification screen buttons sign out, open account and privacy`() {
+        val viewModel = OnboardingViewModel(auth)
         composeRule.setContent {
             MaterialTheme {
                 OnboardingScreen(
                     verification = true,
-                    viewModel = OnboardingViewModel(auth),
+                    viewModel = viewModel,
                     onOpenLegalDocument = { clicks += it.name },
                     onAccountClick = { clicks += "account" },
                 )
@@ -166,10 +167,11 @@ class OnboardingFlowButtonsTest {
     @Test
     fun `paywall Account, Terms, Privacy and Restore Purchases all respond`() {
         val subscriptions = FakeSubscriptionRepository()
+        val viewModel = PaywallViewModel(subscriptions, mockk(relaxed = true))
         composeRule.setContent {
             MaterialTheme {
                 PaywallScreen(
-                    viewModel = PaywallViewModel(subscriptions, mockk(relaxed = true)),
+                    viewModel = viewModel,
                     onAccountClick = { clicks += "account" },
                     onTermsClick = { clicks += "terms" },
                     onPrivacyClick = { clicks += "privacy" },
