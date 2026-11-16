@@ -2,9 +2,11 @@
 
 Updated: November 7, 2026
 
-## Canonical lesson template
+## Product-target lesson template
 
-The existing Firestore aliases remain readable during migration: `intro/introduction`, `body/lesson`, `materials/tools`, and `status/contentStatus`. New authoring uses the canonical names below. Existing document IDs and timestamps are preserved.
+This is the coordinated future authoring target, not a payload accepted by the current source-bound generator validator. Do not submit either JSON example directly to the current CLI. Until the schema migration lands, generated records must continue using the validator contract in `functions/src/practicalLesson.ts`, including string-array tools/correspondences, a supported current `lessonType`, the exact `Wiccan / Modern Witchcraft` tradition value, source-passage fields, compatibility aliases, and editorial review metadata.
+
+The existing Firestore aliases remain readable during migration: `intro/introduction`, `body/lesson`, `materials/tools`, and `status/contentStatus`. Existing document IDs and timestamps are preserved.
 
 ```json
 {

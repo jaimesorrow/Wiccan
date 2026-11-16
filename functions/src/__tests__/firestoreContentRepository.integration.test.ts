@@ -15,6 +15,8 @@ import { FakePlayBillingPort } from "../testUtils/fakePlayBillingPort";
 import { Content } from "../types";
 import { getUserLocalDate } from "../dateUtils";
 import { practicalContentHash } from "../practicalLesson";
+import { screenGeneratedCandidate } from "../generationOriginality";
+import type { NewDraftContent } from "../contentAdminRepositoryPort";
 
 // The emulator suite exercises the production repository and real Firestore
 // transactions. Ordinary unit-test runs do not contact a live project.
@@ -39,7 +41,7 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
   });
 
   beforeEach(async () => {
-    for (const name of ["content", "users", "userContentHistory", "userContentUsage", "contentPoolExhaustionEvents", "contentPublicationAudit"]) {
+    for (const name of ["content", "users", "userContentHistory", "userContentUsage", "contentPoolExhaustionEvents", "contentPublicationAudit", "contentOriginalityReservations"]) {
       const documents = await db.collection(name).listDocuments();
       await Promise.all(documents.map((document) => db.recursiveDelete(document)));
     }
@@ -292,6 +294,35 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
     });
     expect(saved?.generatedAt).toBeDefined();
     expect(typeof saved?.generatedAt?.toDate).toBe("function");
+  });
+
+  it("serializes final originality screening across concurrent generators", async () => {
+    const adminRepo = new FirestoreContentAdminRepository(db);
+    const first = {
+      type: "lesson", tier: "free", tradition: "Wiccan / Modern Witchcraft", category: "cord-knot-work",
+      title: "Threshold Cord", slug: "threshold-cord", summary: "Tie a cord to mark a calm return.",
+      intro: "A modern practice.", body: "1. Hold the cord.\n2. Tie three knots.\n3. Set it near the doorway.",
+      reflection: "What changed?", practice: "Pause at the doorway.", materials: ["cord"],
+      safetyNote: "Keep loose cord away from children and pets.", tags: ["cord"], sourceId: "ancient-source",
+    } as unknown as NewDraftContent;
+    const second = {
+      ...first,
+      title: "Doorway Knot Marker",
+      slug: "doorway-knot-marker",
+      summary: "Create a knot marker for a steady homecoming.",
+    };
+    const firstKeys = screenGeneratedCandidate(first as unknown as Record<string, unknown>, []).reservationKeys;
+    const secondKeys = screenGeneratedCandidate(second as unknown as Record<string, unknown>, []).reservationKeys;
+    expect(firstKeys.filter((key) => secondKeys.includes(key))).toHaveLength(0);
+
+    const results = await Promise.allSettled([
+      adminRepo.createDraftWithOriginalityReservations(first, firstKeys),
+      adminRepo.createDraftWithOriginalityReservations(second, secondKeys),
+    ]);
+
+    expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
+    expect(results.filter((result) => result.status === "rejected")).toHaveLength(1);
+    expect((await db.collection("content").get()).size).toBe(1);
   });
 
   it("publishes a reviewed batch atomically and creates immutable audit rows", async () => {

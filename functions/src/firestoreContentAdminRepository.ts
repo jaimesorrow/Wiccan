@@ -3,6 +3,7 @@ import { ContentStatus } from "./types";
 import { ContentAdminRepositoryPort, NewDraftContent, StoredContent } from "./contentAdminRepositoryPort";
 import type { PublicationRequest, PublicationResult, VersionedStoredContent } from "./contentAdminRepositoryPort";
 import { practicalContentHash } from "./practicalLesson";
+import { screenGeneratedCandidate } from "./generationOriginality";
 
 const CONTENT_COLLECTION = "content";
 const ORIGINALITY_RESERVATIONS_COLLECTION = "contentOriginalityReservations";
@@ -36,6 +37,14 @@ export class FirestoreContentAdminRepository implements ContentAdminRepositoryPo
     const reservationRefs = reservationKeys.map((key) =>
       this.db.collection(ORIGINALITY_RESERVATIONS_COLLECTION).doc(key));
     await this.db.runTransaction(async (transaction) => {
+      const inventorySnapshot = await transaction.get(this.db.collection(CONTENT_COLLECTION));
+      const originality = screenGeneratedCandidate(
+        draft as unknown as Record<string, unknown>,
+        inventorySnapshot.docs.map((document) => ({ id: document.id, fields: document.data() })),
+      );
+      if (!originality.accepted) {
+        throw new Error(`Originality reservation collision: inventory:${originality.rejectionReasons[0]}`);
+      }
       const existing = await transaction.getAll(...reservationRefs);
       const collision = existing.find((snapshot) => snapshot.exists);
       if (collision) throw new Error(`Originality reservation collision: ${collision.id}`);
