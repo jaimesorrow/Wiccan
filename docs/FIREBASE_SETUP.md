@@ -182,7 +182,7 @@ sender domain:
 firebase functions:secrets:set SMTP_URL --project production
 
 # In functions/.env.wiccan-android (gitignored):
-SMTP_FROM=Wiccan <noreply@your-verified-domain.example>
+SMTP_FROM=Wiccan <noreply@wiccanandroid.com>
 
 firebase deploy --only functions:sendVerificationEmail --project production
 ```
@@ -193,6 +193,15 @@ Settings → Authorized domains, keep the Firebase action-handler domain enabled
 Password-reset and change-email messages still use Firebase's built-in sender;
 customize those separately under Authentication → Templates so their visible
 name, reply-to address and wording match Wiccan.
+
+Create or update the shared preparation disclosure without replacing any other
+fields in `settings/disclosures`:
+
+```bash
+cd functions
+npm run configure-disclosures -- --project wiccan-android          # dry run
+npm run configure-disclosures -- --project wiccan-android --commit # write
+```
 
 No Google Play Console product, OAuth consent-screen, API-key, or Android
 package change is required for the email template. Google Cloud only needs the
