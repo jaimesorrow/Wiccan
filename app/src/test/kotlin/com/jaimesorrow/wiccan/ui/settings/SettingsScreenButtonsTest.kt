@@ -85,6 +85,7 @@ class SettingsScreenButtonsTest {
                     onTermsClick = { clicks += "terms" },
                     onPrivacyClick = { clicks += "privacy" },
                     onContentSafetyClick = { clicks += "safety" },
+                    onPotionSafetyClick = { clicks += "potion-safety" },
                 )
             }
         }
@@ -104,7 +105,8 @@ class SettingsScreenButtonsTest {
         click("Terms of Service")
         click("Privacy Policy")
         click("Content & Safety")
-        assertEquals(listOf("terms", "privacy", "safety"), clicks)
+        click("Potion Safety")
+        assertEquals(listOf("terms", "privacy", "safety", "potion-safety"), clicks)
     }
 
     @Test

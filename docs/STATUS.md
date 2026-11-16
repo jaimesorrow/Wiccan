@@ -266,7 +266,7 @@ recorded, so a modified client cannot skip the gate. The emulator callable
 run (45 checks) covers the refusal, a stale-version rejection and acceptance.
 
 `hosting/` publishes the same text at `https://wiccan-android.web.app`
-(`/terms`, `/privacy`, `/content-safety`, `/delete-account`) via Firebase
+(`/terms`, `/privacy`, `/content-safety`, `/potion-safety`, `/delete-account`) via Firebase
 Hosting with a restrictive CSP. `LegalDocumentsTest` fails if any hosted page
 drifts from the in-app text or a `PolicyUrls` link has no page. Not yet
 deployed: no authenticated Firebase access exists in this sandbox. Terms are

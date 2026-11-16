@@ -116,6 +116,7 @@ class MainActivity : ComponentActivity() {
                                 onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
                                 onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
                                 onContentSafetyClick = { openLegalDocument = LegalDocumentId.CONTENT_SAFETY },
+                                onPotionSafetyClick = { openLegalDocument = LegalDocumentId.POTION_SAFETY },
                                 viewModel = hiltViewModel(key = "subscription-account-$subscriptionUid"),
                             )
                             BackHandler { openAccount = false }
@@ -138,6 +139,7 @@ class MainActivity : ComponentActivity() {
                                 onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
                                 onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
                                 onContentSafetyClick = { openLegalDocument = LegalDocumentId.CONTENT_SAFETY },
+                                onPotionSafetyClick = { openLegalDocument = LegalDocumentId.POTION_SAFETY },
                                 viewModel = hiltViewModel(key = "onboarding-account"),
                             )
                             BackHandler { openAccount = false }
