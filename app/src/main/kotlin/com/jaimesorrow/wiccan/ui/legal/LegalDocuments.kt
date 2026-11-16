@@ -187,7 +187,7 @@ object WiccanLegalDocuments {
                     "Wiccan is operated by Jaime Sorrow. For questions, email wiccan.android.app@gmail.com or use Contact " +
                         "Support in Settings.",
                     "You may delete your account in Settings → Delete Account, or request deletion without the app at " +
-                        "https://wiccan-android.web.app/delete-account.",
+                        "https://app.wiccanandroid.com/delete-account.html.",
                 ),
             ),
         ),
@@ -269,7 +269,7 @@ object WiccanLegalDocuments {
                     "Limited pseudonymous purchase-token and account hashes may remain for fraud and anti-replay protection, " +
                         "for as long as needed to stop a purchase being reused on another account. They are not the raw purchase " +
                         "token or an active account profile.",
-                    "You may also request deletion without the app at https://wiccan-android.web.app/delete-account. " +
+                    "You may also request deletion without the app at https://app.wiccanandroid.com/delete-account.html. " +
                         "Legitimate legal, security, dispute, or fraud records may be retained only as necessary.",
                 ),
             ),
