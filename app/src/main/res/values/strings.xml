@@ -64,6 +64,7 @@
     <string name="policy_terms">Terms of Service</string>
     <string name="policy_privacy">Privacy Policy</string>
     <string name="policy_safety">Content &amp; Safety</string>
+    <string name="policy_potion_safety">Potion Safety</string>
     <string name="policy_optional">Optional</string>
     <string name="policy_continue">Continue</string>
     <string name="policy_adult">I am 18 years of age or older.</string>

@@ -151,7 +151,7 @@ as needed to stop a purchase being reused on another account.
 
 The public pages live in `hosting/` and deploy to GitHub Pages at
 `app.wiccanandroid.com`: `/terms.html`, `/privacy.html`,
-`/content-safety.html`, `/delete-account.html`. Terms, Privacy and
+`/content-safety.html`, `/potion-safety.html`, `/delete-account.html`. Terms, Privacy and
 Content & Safety are word-for-word copies of `WiccanLegalDocuments`;
 `LegalDocumentsTest` fails if they drift, so change both together and bump
 `PolicyVersions` (app and `functions/src/policyVersions.ts`) for material

@@ -11,6 +11,7 @@ package com.jaimesorrow.wiccan.core.config
 object PolicyUrls {
     const val TERMS_OF_SERVICE = "https://app.wiccanandroid.com/terms.html"
     const val PRIVACY_POLICY = "https://app.wiccanandroid.com/privacy.html"
+    const val POTION_SAFETY = "https://app.wiccanandroid.com/potion-safety.html"
     const val ACCOUNT_DELETION_URL = "https://app.wiccanandroid.com/delete-account.html"
     const val SUPPORT_EMAIL = "wiccan.android.app@gmail.com"
 }

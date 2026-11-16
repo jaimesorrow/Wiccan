@@ -6,6 +6,7 @@ enum class LegalDocumentId {
     TERMS,
     PRIVACY,
     CONTENT_SAFETY,
+    POTION_SAFETY,
 }
 
 data class LegalSection(
@@ -33,6 +34,7 @@ object WiccanLegalDocuments {
         LegalDocumentId.TERMS -> terms
         LegalDocumentId.PRIVACY -> privacy
         LegalDocumentId.CONTENT_SAFETY -> contentSafety
+        LegalDocumentId.POTION_SAFETY -> potionSafety
     }
 
     val terms = LegalDocument(
@@ -375,6 +377,92 @@ object WiccanLegalDocuments {
                         "grounding, duplication, safety, rights, and wording before publication.",
                     "Report a safety, rights, or accuracy concern through Contact Support. Content may be corrected or " +
                         "withdrawn while it is reviewed.",
+                ),
+            ),
+        ),
+    )
+
+    val potionSafety = LegalDocument(
+        id = LegalDocumentId.POTION_SAFETY,
+        title = "Potion Safety",
+        version = null,
+        effectiveDate = "November 16, 2026",
+        introduction =
+            "Potion, infusion, bath, oil, spray, jar, tea, and skin-contact practices can involve real physical risks. " +
+                "This guidance supplements each lesson's specific safety note. If a lesson is unclear, an ingredient is " +
+                "unknown, or you cannot use it safely, do not make or use the preparation.",
+        sections = listOf(
+            LegalSection(
+                "Ritual use and ingestion",
+                listOf(
+                    "Unless a lesson clearly identifies a preparation as ordinary food or drink made only with food-grade " +
+                        "ingredients and normal kitchen methods, treat it as ritual use only and do not consume it.",
+                    "Never ingest essential oils. Do not add essential oils, fragrance oils, craft herbs, crystals, unknown " +
+                        "plants, non-food colorants, or ritual materials to food or drink.",
+                    "A spiritual label such as potion, elixir, tea, or infusion does not establish that something is safe to " +
+                        "swallow, inhale, apply to skin, or give to another person or animal.",
+                ),
+            ),
+            LegalSection(
+                "Ingredients, allergies, and health",
+                listOf(
+                    "Identify every ingredient before use and follow its manufacturer label. Do not use unknown, spoiled, " +
+                        "foraged, contaminated, recalled, or hazardous substances.",
+                    "Consider allergies, asthma, skin sensitivity, pregnancy or nursing, medications, medical conditions, and " +
+                        "possible ingredient interactions. Ask an appropriate licensed health professional or pharmacist when " +
+                        "you are unsure. Wiccan is not medical advice and no preparation is a diagnosis or treatment.",
+                    "For skin contact, use only skin-safe ingredients at appropriate dilution and patch test a small area first. " +
+                        "Stop immediately if irritation, pain, dizziness, breathing difficulty, or another adverse reaction occurs.",
+                ),
+            ),
+            LegalSection(
+                "Mixing, heating, bathing, and ventilation",
+                listOf(
+                    "Do not combine household cleaners, bleach, acids, bases, solvents, alcohol, medicines, or reactive " +
+                        "materials. Never heat a sealed container or use a container that is not intended for the temperature " +
+                        "and ingredients involved.",
+                    "Keep flames and hot liquids on stable heat-safe surfaces, provide ventilation, tie back loose clothing and " +
+                        "hair, and never leave heat or flame unattended.",
+                    "Keep preparations out of eyes, mouth, mucous membranes, broken skin, and other sensitive areas. For baths, " +
+                        "use a safe water temperature, prevent slips, and leave the bath if you feel faint, irritated, or unwell.",
+                ),
+            ),
+            LegalSection(
+                "Children, animals, and consent",
+                listOf(
+                    "Keep ingredients and finished preparations secured away from children and animals. Many plants, oils, " +
+                        "foods, minerals, fumes, and topical products that adults tolerate can harm animals or children.",
+                    "Do not give, apply, spray, burn near, or otherwise expose another person or animal to a preparation without " +
+                        "informed consent and confirmation that the intended use is safe.",
+                ),
+            ),
+            LegalSection(
+                "Labeling, storage, spoilage, and disposal",
+                listOf(
+                    "Label every container with its ingredients, preparation date, intended use, and “Ritual use only — do not " +
+                        "consume” when it is not food. Store it separately from food, drinks, medicines, and personal-care products.",
+                    "Use clean equipment and suitable containers. Discard a preparation if its identity, age, storage history, " +
+                        "or safety is uncertain, or if its color, odor, texture, pressure, or container changes unexpectedly.",
+                    "Follow ingredient labels and local requirements for disposal. Do not pour oils, salts, concentrated herbs, " +
+                        "chemicals, glitter, wax, or unknown mixtures into drains, soil, or natural water.",
+                ),
+            ),
+            LegalSection(
+                "Poisoning, injury, and emergencies",
+                listOf(
+                    "If someone may have swallowed, inhaled, or been exposed to something harmful, stop the practice and contact " +
+                        "local emergency services or poison control. In the United States, Poison Control is available at " +
+                        "1-800-222-1222 and poison.org. Do not wait for symptoms or rely on a ritual response.",
+                    "Bring or photograph the product label or ingredient list for responders when it is safe to do so.",
+                ),
+            ),
+            LegalSection(
+                "Lesson-specific warnings and results",
+                listOf(
+                    "Always follow the lesson's activity-specific safety note and shared potion disclosure. This page does not " +
+                        "override a stricter warning. If instructions conflict, choose the safer option or do not attempt the practice.",
+                    "Wiccan does not promise or guarantee that any potion or related practice will produce a magical, spiritual, " +
+                        "medical, psychological, fertility, relationship, financial, protective, or other result.",
                 ),
             ),
         ),

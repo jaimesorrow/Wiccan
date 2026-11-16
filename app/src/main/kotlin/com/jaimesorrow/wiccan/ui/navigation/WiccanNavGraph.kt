@@ -47,6 +47,7 @@ internal data class SettingsLinks(
     val onTermsClick: () -> Unit,
     val onPrivacyClick: () -> Unit,
     val onContentSafetyClick: () -> Unit,
+    val onPotionSafetyClick: () -> Unit,
 )
 
 /**
@@ -74,6 +75,7 @@ private fun productionScreens(settingsViewModel: SettingsViewModel) = WiccanNavS
             onTermsClick = links.onTermsClick,
             onPrivacyClick = links.onPrivacyClick,
             onContentSafetyClick = links.onContentSafetyClick,
+            onPotionSafetyClick = links.onPotionSafetyClick,
         )
     },
     // ArchiveDetailViewModel reads the contentId from SavedStateHandle itself.
@@ -118,6 +120,7 @@ internal fun WiccanAppShellContent(
         onTermsClick = { navController.navigate(WiccanDestinations.TERMS) },
         onPrivacyClick = { navController.navigate(WiccanDestinations.PRIVACY) },
         onContentSafetyClick = { navController.navigate(WiccanDestinations.CONTENT_SAFETY) },
+        onPotionSafetyClick = { navController.navigate(WiccanDestinations.POTION_SAFETY) },
     )
 
     Scaffold(
@@ -158,6 +161,7 @@ internal fun WiccanAppShellContent(
                 WiccanDestinations.TERMS to LegalDocumentId.TERMS,
                 WiccanDestinations.PRIVACY to LegalDocumentId.PRIVACY,
                 WiccanDestinations.CONTENT_SAFETY to LegalDocumentId.CONTENT_SAFETY,
+                WiccanDestinations.POTION_SAFETY to LegalDocumentId.POTION_SAFETY,
             ).forEach { (route, documentId) ->
                 composable(route) {
                     screens.legalDocument(documentId) { navController.popBackStackIfPossible() }

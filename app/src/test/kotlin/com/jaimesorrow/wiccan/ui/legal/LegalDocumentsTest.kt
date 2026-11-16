@@ -14,6 +14,7 @@ class LegalDocumentsTest {
         assertEquals(PolicyVersions.PRIVACY, WiccanLegalDocuments.privacy.version)
         assertTrue(WiccanLegalDocuments.terms.effectiveDate.isNotBlank())
         assertTrue(WiccanLegalDocuments.privacy.effectiveDate.isNotBlank())
+        assertTrue(WiccanLegalDocuments.potionSafety.effectiveDate.isNotBlank())
     }
 
     @Test
@@ -37,6 +38,21 @@ class LegalDocumentsTest {
             "absence of any result is not a defect",
         ).forEach { required -> assertTrue("Missing no-results disclaimer: $required", section.contains(required)) }
         assertTrue(WiccanLegalDocuments.contentSafety.auditText().contains("does not promise or guarantee"))
+    }
+
+    @Test
+    fun `potion safety covers ingestion exposure storage and emergencies`() {
+        val text = WiccanLegalDocuments.potionSafety.auditText()
+        listOf(
+            "Never ingest essential oils",
+            "patch test",
+            "pregnancy or nursing",
+            "children and animals",
+            "Ritual use only",
+            "Poison Control",
+            "does not override a stricter warning",
+            "does not promise or guarantee",
+        ).forEach { required -> assertTrue("Missing potion safety guidance: $required", text.contains(required, true)) }
     }
 
     @Test
@@ -82,6 +98,7 @@ class LegalDocumentsTest {
             "terms" to WiccanLegalDocuments.terms,
             "privacy" to WiccanLegalDocuments.privacy,
             "content-safety" to WiccanLegalDocuments.contentSafety,
+            "potion-safety" to WiccanLegalDocuments.potionSafety,
         ).forEach { (page, document) ->
             val expected = buildList {
                 add(document.title)
@@ -98,7 +115,12 @@ class LegalDocumentsTest {
 
     @Test
     fun `every public policy URL has a hosted page`() {
-        listOf(PolicyUrls.TERMS_OF_SERVICE, PolicyUrls.PRIVACY_POLICY, PolicyUrls.ACCOUNT_DELETION_URL).forEach { url ->
+        listOf(
+            PolicyUrls.TERMS_OF_SERVICE,
+            PolicyUrls.PRIVACY_POLICY,
+            PolicyUrls.POTION_SAFETY,
+            PolicyUrls.ACCOUNT_DELETION_URL,
+        ).forEach { url ->
             val page = url.substringAfterLast('/')
             assertTrue("No hosted page for $url", hostingFile(page).isFile)
         }

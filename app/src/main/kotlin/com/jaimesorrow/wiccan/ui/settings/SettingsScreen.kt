@@ -68,6 +68,7 @@ fun SettingsScreen(
     onTermsClick: () -> Unit = {},
     onPrivacyClick: () -> Unit = {},
     onContentSafetyClick: () -> Unit = {},
+    onPotionSafetyClick: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -323,6 +324,11 @@ fun SettingsScreen(
                 TextButton(onClick = onContentSafetyClick) {
                     Text(stringResource(R.string.policy_safety), style = MaterialTheme.typography.labelSmall)
                 }
+                TextButton(onClick = onPotionSafetyClick) {
+                    Text(stringResource(R.string.policy_potion_safety), style = MaterialTheme.typography.labelSmall)
+                }
+            }
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 TextButton(
                     onClick = {
                         openExternal(
