@@ -70,6 +70,8 @@ const SYNONYMS: ReadonlyArray<[RegExp, string]> = [
   [/\b(?:botanical|plant)\b/g, "herb"],
 ];
 
+const SURFACE_COUNTS = /\b(?:one|two|three|four|five|six|seven|eight|nine|ten|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|\d+)\b/g;
+
 export function normalizeGenerationText(value: unknown): string {
   let normalized = normalizeConceptText(value);
   for (const [pattern, replacement] of SYNONYMS) normalized = normalized.replace(pattern, replacement);
@@ -95,10 +97,12 @@ function firstString(fields: Record<string, unknown>, keys: string[]): string {
 function numberedActions(value: unknown): string[] {
   if (typeof value !== "string") return [];
   const matches = [...value.matchAll(/^\s*\d+[.)]\s+(.+)$/gm)]
-    .map((match) => normalizeGenerationText(match[1]))
+    .map((match) => normalizeGenerationText(match[1]).replace(SURFACE_COUNTS, "count"))
     .filter(Boolean);
   if (matches.length) return matches;
-  return value.split(/[.!?]\s+/).map(normalizeGenerationText).filter((item) => item.split(" ").length >= 3);
+  return value.split(/[.!?]\s+/)
+    .map((item) => normalizeGenerationText(item).replace(SURFACE_COUNTS, "count"))
+    .filter((item) => item.split(" ").length >= 3);
 }
 
 function detectedSetting(text: string): string {
