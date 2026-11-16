@@ -150,7 +150,7 @@ Policy and deletion page state that purpose and that they are kept only as long
 as needed to stop a purchase being reused on another account.
 
 The public pages live in `hosting/` (Firebase Hosting, production project):
-`/terms`, `/privacy`, `/content-safety`, `/delete-account`. Terms, Privacy and
+`/terms`, `/privacy`, `/content-safety`, `/potion-safety`, `/delete-account`. Terms, Privacy and
 Content & Safety are word-for-word copies of `WiccanLegalDocuments`;
 `LegalDocumentsTest` fails if they drift, so change both together and bump
 `PolicyVersions` (app and `functions/src/policyVersions.ts`) for material
