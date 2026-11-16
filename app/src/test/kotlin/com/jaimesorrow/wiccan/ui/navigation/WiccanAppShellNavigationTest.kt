@@ -54,6 +54,7 @@ class WiccanAppShellNavigationTest {
                 Button(onClick = links.onTermsClick) { Text("stub:terms") }
                 Button(onClick = links.onPrivacyClick) { Text("stub:privacy") }
                 Button(onClick = links.onContentSafetyClick) { Text("stub:safety") }
+                Button(onClick = links.onPotionSafetyClick) { Text("stub:potion-safety") }
             }
         },
         archiveDetail = { contentId, onBack ->
@@ -149,6 +150,7 @@ class WiccanAppShellNavigationTest {
             "stub:terms" to LegalDocumentId.TERMS,
             "stub:privacy" to LegalDocumentId.PRIVACY,
             "stub:safety" to LegalDocumentId.CONTENT_SAFETY,
+            "stub:potion-safety" to LegalDocumentId.POTION_SAFETY,
         ).forEach { (button, documentId) ->
             click(button)
             assertScreen("legal:$documentId")
