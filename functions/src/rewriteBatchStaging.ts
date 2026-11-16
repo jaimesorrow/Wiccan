@@ -4,7 +4,7 @@ import { stableJson } from "./practicalLesson";
 
 export const DEFAULT_REWRITE_BATCH_SIZE = 25;
 
-export interface RewriteStagingEntry {
+interface RewriteStagingEntry {
   id: string;
   preservedStatus: "draft";
   liveBindingRequired: true;

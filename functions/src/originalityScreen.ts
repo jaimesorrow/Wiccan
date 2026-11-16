@@ -6,7 +6,7 @@ export interface OriginalityThresholds {
   existingNgramReview: number;
   existingLongestRunReview: number;
 }
-export const DEFAULT_ORIGINALITY_THRESHOLDS: OriginalityThresholds = {
+const DEFAULT_ORIGINALITY_THRESHOLDS: OriginalityThresholds = {
   sourceNgramReview: 0.2,
   sourceLongestRunReview: 0.3,
   existingNgramReview: 0.65,

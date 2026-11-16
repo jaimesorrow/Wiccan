@@ -3,8 +3,8 @@ import path from "path";
 import { z } from "zod";
 import { ContentType } from "./types";
 
-export type HistoricalEra = "ancient" | "medieval" | "early-modern" | "modern";
-export type ContentSourceKind = "ancient-grimoire" | "historical-grimoire" | "ancient-historical-context";
+type HistoricalEra = "ancient" | "medieval" | "early-modern" | "modern";
+type ContentSourceKind = "ancient-grimoire" | "historical-grimoire" | "ancient-historical-context";
 
 /**
  * A hand-curated, manually vetted historical source.

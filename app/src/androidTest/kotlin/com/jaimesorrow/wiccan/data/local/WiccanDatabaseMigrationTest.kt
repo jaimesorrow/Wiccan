@@ -167,4 +167,56 @@ class WiccanDatabaseMigrationTest {
             assertTrue(it.isNull(6))
         }
     }
+
+    @Test
+    fun migrate3To5_addsPracticalColumnsThenSourceTradition() {
+        createDatabase(3).apply {
+            execSQL(
+                """
+                INSERT INTO cached_daily_content
+                    (contentId, type, tier, tradition, category, title, intro, body, materials, safetyNote, tags, status, deliveredDate)
+                VALUES
+                    ('v3-lesson', 'LESSON', 'PREMIUM', 'Contemporary Wicca', 'PROTECTION', 'Threshold', 'intro', 'body', NULL, NULL, '[]', 'PUBLISHED', '2026-03-01')
+                """.trimIndent(),
+            )
+            close()
+        }
+        val migrated = openCurrentDatabase()
+        migrated.query(
+            "SELECT title, category, primaryCategoryId, requiresPotionDisclosure, sourceTradition " +
+                "FROM cached_daily_content WHERE contentId = 'v3-lesson'",
+        ).use {
+            assertTrue(it.moveToFirst())
+            assertEquals("Threshold", it.getString(0))
+            assertEquals("PROTECTION", it.getString(1))
+            assertTrue(it.isNull(2))
+            assertEquals(0, it.getInt(3))
+            assertTrue(it.isNull(4))
+        }
+    }
+
+    @Test
+    fun migrate4To5_addsSourceTraditionAndKeepsPracticalColumns() {
+        createDatabase(4).apply {
+            execSQL(
+                """
+                INSERT INTO cached_daily_content
+                    (contentId, type, tier, tradition, category, title, intro, body, tags, status, deliveredDate, requiresPotionDisclosure, primaryCategoryId)
+                VALUES
+                    ('v4-lesson', 'LESSON', 'PREMIUM', 'Contemporary Wicca', 'PROTECTION', 'Candle', 'intro', 'body', '[]', 'PUBLISHED', '2026-04-01', 1, 'candle-spells')
+                """.trimIndent(),
+            )
+            close()
+        }
+        val migrated = openCurrentDatabase()
+        migrated.query(
+            "SELECT primaryCategoryId, requiresPotionDisclosure, sourceTradition " +
+                "FROM cached_daily_content WHERE contentId = 'v4-lesson'",
+        ).use {
+            assertTrue(it.moveToFirst())
+            assertEquals("candle-spells", it.getString(0))
+            assertEquals(1, it.getInt(1))
+            assertTrue(it.isNull(2))
+        }
+    }
 }

@@ -211,7 +211,7 @@ currently handled (automated, manual, or not yet built).
   (display/headings) and Manrope (everything else), rather than bundled
   font files, since this sandbox has no way to source licensed font
   binaries to embed. The provider's certificates
-  (`res/values-v23/font_certs.xml`) are copied verbatim from Google's own
+  (`res/values/font_certs.xml`) are copied verbatim from Google's own
   Jetchat Compose sample — never fabricated. This requires Google Play
   Services to actually download the fonts (falls back to the system font
   otherwise); the app already depends on Play Services for Firebase/Play
@@ -237,7 +237,7 @@ currently handled (automated, manual, or not yet built).
   - The agent needs the `ANTHROPIC_API_KEY` secret (`firebase functions:secrets:set ANTHROPIC_API_KEY`) before the functions deploy, and at least one fully verified passage in `functions/sourcePassages.json`. Without one, each run records `no-verified-passages` and generates nothing.
   - Run reports land in `contentGenerationRuns`, and the rotation cursor in `contentAgentState/scheduler`. Both are Admin-SDK-only. The agent never publishes; drafts go through `approve-draft` as usual.
 - To flip any of these: edit the `systemConfig/global` document directly in the Firebase Console (or via the Admin SDK) — there is no CLI script for this, since it's meant to be a rare, deliberate, auditable manual action, not an automated one.
-- `FirestoreSystemConfigRepository`/`FakeSystemConfigRepository` (`functions/src/systemConfigPort.ts`) are the read path; nothing in this codebase writes to `systemConfig/global` — creating/editing it is an operator action, not a code path.
+- `FirestoreSystemConfigRepository` (`functions/src/firestoreSystemConfigRepository.ts`), through `SystemConfigPort` (`functions/src/systemConfigPort.ts`), is the read path; nothing in this codebase writes to `systemConfig/global` — creating/editing it is an operator action, not a code path.
 
 ## Policy versions
 

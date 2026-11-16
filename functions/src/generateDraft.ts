@@ -36,7 +36,7 @@ export interface GeneratedDraftSummary {
   originality: GenerationOriginalityReport;
 }
 
-export interface RejectedGeneratedDraft {
+interface RejectedGeneratedDraft {
   title: string;
   status: "rejected-duplicate";
   reasons: string[];

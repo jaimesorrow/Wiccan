@@ -3,9 +3,9 @@ import type { ContentBackupArtifact } from "./contentBackup";
 import { stableJson } from "./practicalLesson";
 import type { ReviewedChangeSet } from "./reviewedContentChanges";
 
-export interface PostMigrationAuditRecord { id: string; updateTime: string | null }
+interface PostMigrationAuditRecord { id: string; updateTime: string | null }
 export interface PostMigrationAudit { inventoryKind: string; project?: string; records: PostMigrationAuditRecord[] }
-export interface ContentRollbackEntry { id: string; expectedUpdateTime: string }
+interface ContentRollbackEntry { id: string; expectedUpdateTime: string }
 export interface ContentRollbackPlan {
   projectId: string;
   backupArtifactSha256: string;

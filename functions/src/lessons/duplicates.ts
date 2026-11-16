@@ -45,19 +45,19 @@ function singular(word: string): string {
   return word;
 }
 
-export function normalizeText(value: string): string {
+function normalizeText(value: string): string {
   return value.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
     .replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
 }
 
 /** Lowercased, singularized, synonym-collapsed tokens with decorative words removed. */
-export function conceptTokens(value: string): string[] {
+function conceptTokens(value: string): string[] {
   return normalizeText(value).split(" ").filter(Boolean).map(singular)
     .map((word) => SYNONYM_OF.get(word) ?? word).filter((word) => !DECORATIVE.has(word));
 }
 
 /** Replaces colours, herbs, stones, moon phases, days and numbers with placeholders. */
-export function neutralize(value: string): string {
+function neutralize(value: string): string {
   return value.toLowerCase().replace(MOON, " moonphase ").replace(DAY, " weekday ").replace(COLOR, " colour ")
     .replace(HERB, " herb ").replace(STONE, " stone ").replace(NUMBER, " count ");
 }
@@ -128,7 +128,7 @@ const NON_OBJECTS = new Set([
 ]);
 
 /** Splits a guided lesson into its steps: numbered lines or paragraphs, otherwise sentences. */
-export function lessonSteps(lesson: string): string[] {
+function lessonSteps(lesson: string): string[] {
   const numbered = lesson.split(/\n(?=\s*\d+[.)]\s)/).map((s) => s.trim()).filter(Boolean);
   if (numbered.length >= 3) return numbered;
   const paragraphs = lesson.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
@@ -193,7 +193,7 @@ export function signatureHash(signature: ConceptSignature): string {
   });
 }
 
-export interface LessonFingerprints {
+interface LessonFingerprints {
   id: string;
   slug: string;
   titleHash: string;
@@ -217,7 +217,7 @@ export function fingerprints(lesson: CanonicalLesson, signature = conceptSignatu
 // Similarity
 // ---------------------------------------------------------------------------
 
-export function jaccard<T>(left: Iterable<T>, right: Iterable<T>): number {
+function jaccard<T>(left: Iterable<T>, right: Iterable<T>): number {
   const a = new Set(left);
   const b = new Set(right);
   if (!a.size && !b.size) return 0;
@@ -244,7 +244,7 @@ export function titleSimilarity(left: string, right: string): number {
 }
 
 /** Longest-common-subsequence similarity of two ordered action lists. */
-export function sequenceSimilarity(left: string[], right: string[]): number {
+function sequenceSimilarity(left: string[], right: string[]): number {
   if (!left.length || !right.length) return 0;
   const dp = Array.from({ length: left.length + 1 }, () => new Array<number>(right.length + 1).fill(0));
   for (let i = 1; i <= left.length; i++) {
@@ -256,7 +256,7 @@ export function sequenceSimilarity(left: string[], right: string[]): number {
 }
 
 /** TF-IDF cosine similarity with smoothed IDF over a shared corpus. */
-export class TfIdfSpace {
+class TfIdfSpace {
   private readonly idf = new Map<string, number>();
   private readonly docs: number;
 
@@ -346,7 +346,7 @@ export function indexLesson(lesson: CanonicalLesson, source: string): IndexedLes
   };
 }
 
-export interface PairScores {
+interface PairScores {
   titleSimilarity: number;
   summarySimilarity: number;
   instructionSimilarity: number;
@@ -365,7 +365,7 @@ export function conceptSimilarity(a: ConceptSignature, b: ConceptSignature): num
     + 0.1 * jaccard(a.followUpAction.split(" ").filter(Boolean), b.followUpAction.split(" ").filter(Boolean));
 }
 
-export function scorePair(space: TfIdfSpace, a: IndexedLesson, b: IndexedLesson): PairScores {
+function scorePair(space: TfIdfSpace, a: IndexedLesson, b: IndexedLesson): PairScores {
   return {
     titleSimilarity: titleSimilarity(a.lesson.title, b.lesson.title),
     summarySimilarity: space.cosine(a.tokens.summary, b.tokens.summary),
@@ -380,7 +380,7 @@ export function scorePair(space: TfIdfSpace, a: IndexedLesson, b: IndexedLesson)
 }
 
 /** Areas in which the candidate differs from another lesson (novelty requirement). */
-export function distinctAreas(space: TfIdfSpace, a: IndexedLesson, b: IndexedLesson, scores: PairScores): string[] {
+function distinctAreas(space: TfIdfSpace, a: IndexedLesson, b: IndexedLesson, scores: PairScores): string[] {
   const listDiffers = (left: string[], right: string[]) =>
     (left.length > 0 || right.length > 0) && jaccard(left, right) < 0.5;
   const leftPurpose = a.signature.intendedPurpose.split(" ").filter(Boolean);

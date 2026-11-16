@@ -11,7 +11,7 @@ grimoires.
 app/                         Android app module (Kotlin, package com.jaimesorrow.wiccan)
                                Generated Android namespace: com.wiccan.app
   domain/model/                Content, ContentType, ContentTier, ContentStatus,
-                                UserContentHistory, AuthState
+                                AuthState
   domain/repository/           ContentRepository, SubscriptionRepository,
                                 NotificationRepository, AuthRepository
   data/local/                  Room entity + DAO + database (CachedDailyContent)

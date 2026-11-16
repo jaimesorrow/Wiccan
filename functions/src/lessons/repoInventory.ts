@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { CanonicalLesson, toCanonicalLesson } from "./canonicalLesson";
 import { IndexedLesson, indexLesson } from "./duplicates";
 
-export interface InventorySource {
+interface InventorySource {
   name: string;
   records: number;
   /** Mapping issues per record ID (legacy records only). */
@@ -18,7 +18,7 @@ export interface Inventory {
 }
 
 /** New-schema lesson files: functions/lessons/drafts/<id>.json, one canonical lesson each. */
-export function canonicalDraftDir(functionsRoot: string): string {
+function canonicalDraftDir(functionsRoot: string): string {
   return join(functionsRoot, "lessons", "drafts");
 }
 

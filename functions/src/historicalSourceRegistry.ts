@@ -4,7 +4,7 @@ import { z } from "zod";
 
 const webUrl = z.string().url().refine((value) => ["http:", "https:"].includes(new URL(value).protocol));
 
-export const HistoricalSourceRecordSchema = z.object({
+const HistoricalSourceRecordSchema = z.object({
   id: z.string().trim().min(1),
   title: z.string().trim().min(1),
   status: z.enum(["approved", "rejected", "pending"]),
