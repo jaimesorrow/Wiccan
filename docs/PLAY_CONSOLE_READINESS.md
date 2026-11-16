@@ -52,6 +52,16 @@ These answers reflect the current code. Re-audit if functionality or SDKs change
 | Account creation | **Yes** | Email/password or Google sign-in. |
 | Account deletion | **Yes** | In-app Settings flow exists; external deletion-request page is still a release blocker. |
 
+### Google sign-in production state
+
+The production Firebase project has Google and Email/Password providers enabled,
+and `app/src/prod/google-services.json` contains the nonblank web OAuth client
+that generates `default_web_client_id`. Repository checks fail if that client is
+removed or blank. Do not treat this configuration as end-to-end sign-in proof:
+the release owner must still match the installed build and Play App Signing
+certificate fingerprints to Firebase, then verify Google sign-in on a physical
+device using the Play-distributed build.
+
 ### Content rating answers
 
 Answer the live IARC wording honestly. Wiccan should disclose supernatural,
