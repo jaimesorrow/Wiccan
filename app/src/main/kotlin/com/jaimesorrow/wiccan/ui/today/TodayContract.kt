@@ -15,6 +15,7 @@ data class TodayUiState(
 )
 
 sealed class TodayUiEvent {
+    data object Resumed : TodayUiEvent()
     data object Retry : TodayUiEvent()
 }
 

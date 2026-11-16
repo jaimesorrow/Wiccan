@@ -52,7 +52,7 @@ fun TodayScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     // A retained screen must ask the server again after a local-date or timezone change.
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.onEvent(TodayUiEvent.Retry) }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.onEvent(TodayUiEvent.Resumed) }
     LaunchedEffect(viewModel) {
         while (true) {
             val now = ZonedDateTime.now()
