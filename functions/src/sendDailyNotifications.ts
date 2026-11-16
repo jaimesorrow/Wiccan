@@ -7,7 +7,7 @@ import { getUserLocalDate, getUserLocalHour } from "./dateUtils";
 import { hasAcceptedCurrentPolicies, PolicyAcceptanceReader } from "./acceptTerms";
 
 /** The local hour every device should get its daily-practice push. */
-export const TARGET_LOCAL_HOUR = 9;
+const TARGET_LOCAL_HOUR = 9;
 
 /** Must match the Android notification channel created in the app. */
 export const DAILY_PRACTICE_CHANNEL_ID = "daily_practice";
