@@ -19,7 +19,9 @@ export class FakeContentAdminRepository implements ContentAdminRepositoryPort {
   async createDraftWithOriginalityReservations(draft: NewDraftContent, reservationKeys: string[]): Promise<string> {
     const collision = reservationKeys.find((key) => this.originalityReservations.has(key));
     if (collision) throw new Error(`Originality reservation collision: ${collision}`);
-    const id = await this.createDraft(draft);
+    const id = `content-${this.nextId++}`;
+    this.docs.set(id, { ...draft, status: "draft", createdAt: new Date(), updatedAt: new Date() });
+    this.versions.set(id, 1);
     reservationKeys.forEach((key) => this.originalityReservations.add(key));
     return id;
   }

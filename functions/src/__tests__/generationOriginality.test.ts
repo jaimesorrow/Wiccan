@@ -80,12 +80,33 @@ describe("generation originality screen", () => {
     expect(screenGeneratedCandidate(candidate, [{ id: "existing", fields: lesson() }]).accepted).toBe(true);
   });
 
+  it("rejects a count-only variation of the same ritual method", () => {
+    const candidate = lesson({
+      title: "Sevenfold Doorway Cord",
+      slug: "sevenfold-doorway-cord",
+      summary: "Tie a seven-knot cord to mark a calm return through the doorway.",
+      lesson: "1. Hold the cord at the doorway.\n2. Tie seven knots while breathing slowly.\n3. Place the seven knots near the threshold.",
+      practice: "Pause at the threshold for three days.",
+      correspondences: ["threshold", "seven knots"],
+    });
+
+    const report = screenGeneratedCandidate(candidate, [{ id: "existing", fields: lesson() }]);
+
+    expect(report.accepted).toBe(false);
+    expect(report.rejectionReasons.some((reason) => reason.includes("ritual-action-similarity"))).toBe(true);
+  });
+
   it("uses atomic fake reservations to reject a concurrent duplicate", async () => {
     const repo = new FakeContentAdminRepository();
     const report = screenGeneratedCandidate(lesson(), []);
     const draft = lesson() as unknown as NewDraftContent;
-    await repo.createDraftWithOriginalityReservations(draft, report.reservationKeys);
-    await expect(repo.createDraftWithOriginalityReservations(draft, report.reservationKeys))
-      .rejects.toThrow(/Originality reservation collision/);
+    const results = await Promise.allSettled([
+      repo.createDraftWithOriginalityReservations(draft, report.reservationKeys),
+      repo.createDraftWithOriginalityReservations(draft, report.reservationKeys),
+    ]);
+
+    expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
+    expect(results.filter((result) => result.status === "rejected")).toHaveLength(1);
+    expect(repo.docs.size).toBe(1);
   });
 });
