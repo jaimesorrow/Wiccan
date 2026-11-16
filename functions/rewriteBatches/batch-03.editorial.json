@@ -113,7 +113,7 @@
           "Scissors",
           "A small dish or hook for display"
         ],
-        "safetyNote": "This bundle is for display and scent only; never light it. Keep it away from candles, heaters, and open flames. Some people are sensitive to handling herbs; wash your hands afterward. Keep string and plant material out of reach of children and pets, as some plants are harmful to animals. Do not cook with herbs that have been handled for craft.",
+        "safetyNote": "This bundle is for display and scent only; never light it. Keep it away from candles, heaters, and open flames. Some people are sensitive to handling herbs; wash your hands afterward. Keep string and plant material out of reach of children and pets, as some plants are harmful to animals. Do not cook with herbs that have been handled for craft. Handle knives and blades carefully, cutting away from your body and keeping them out of reach of children.",
         "category": "herbal-rituals",
         "primaryCategoryId": "herbal-rituals",
         "secondaryCategoryIds": [
@@ -177,7 +177,7 @@
           "Scissors",
           "A small pouch or tin for storage"
         ],
-        "safetyNote": "Keep the cord out of reach of young children and pets, and never loop it around a neck, wrist, or any part of the body. Coil it loosely for storage. When laying it out, keep it flat so no one trips, and pick it up as soon as the ritual ends.",
+        "safetyNote": "Keep the cord out of reach of young children and pets, and never loop it around a neck, wrist, or any part of the body. Coil it loosely for storage. When laying it out, keep it flat so no one trips, and pick it up as soon as the ritual ends. Handle knives and blades carefully, cutting away from your body and keeping them out of reach of children.",
         "category": "cord-knot-work",
         "primaryCategoryId": "cord-knot-work",
         "secondaryCategoryIds": [
@@ -368,7 +368,7 @@
           "A notebook",
           "A snack and a glass of water for closing"
         ],
-        "safetyNote": "If you use a real candle, keep it in a heat-safe holder on a stable surface, never leave it unattended, and extinguish it fully before leaving the room. Pour salt water down a sink, not onto plants or soil. Keep salt water away from eyes and do not use it on broken skin.",
+        "safetyNote": "If you use a real candle, keep it in a heat-safe holder on a stable surface, never leave it unattended, and extinguish it fully before leaving the room. Pour salt water down a sink, not onto plants or soil. Keep salt water away from eyes and do not use it on broken skin. Keep all materials out of reach of children. Keep pets away from the working area and out of reach of any materials. Check every herb, oil or resin for allergies before use, and stop if skin or breathing reacts. Use incense or smoke only in a well-ventilated room, and step outside if you have asthma or breathing trouble.",
         "category": "lunar-practices",
         "primaryCategoryId": "lunar-practices",
         "secondaryCategoryIds": [
@@ -433,7 +433,7 @@
           "A label and pen",
           "A safe outdoor spot such as a garden or balcony"
         ],
-        "safetyNote": "Rainwater can carry dirt, bacteria, and pollutants; it is for altar use only and is not for drinking, cooking, or use on skin or eyes. Label it clearly, keep it covered, and discard it within a week. Place the container where it cannot tip and where you can reach it safely without slipping in wet weather.",
+        "safetyNote": "Rainwater can carry dirt, bacteria, and pollutants; it is for altar use only and is not for drinking, cooking, or use on skin or eyes. Label it clearly, keep it covered, and discard it within a week. Place the container where it cannot tip and where you can reach it safely without slipping in wet weather. Keep all materials out of reach of children.",
         "category": "elemental-practices",
         "primaryCategoryId": "elemental-practices",
         "secondaryCategoryIds": [
@@ -554,7 +554,7 @@
           "A small sprig of dried rosemary (optional)",
           "Clear tape or a laminating pouch"
         ],
-        "safetyNote": "If you add dried herbs, seal them completely under tape so they cannot crumble, and keep the bookmark away from young children and pets. Some people are sensitive to handling herbs; wash your hands afterward.",
+        "safetyNote": "If you add dried herbs, seal them completely under tape so they cannot crumble, and keep the bookmark away from young children and pets. Some people are sensitive to handling herbs; wash your hands afterward. Obtain consent from anyone this practice affects before you begin.",
         "category": "charms-talismans",
         "primaryCategoryId": "charms-talismans",
         "secondaryCategoryIds": [
@@ -681,7 +681,7 @@
           "A moon-phase calendar or app",
           "Optional: a flameless candle"
         ],
-        "safetyNote": "If you use a real candle instead of a flameless one, keep it in a heat-safe holder, never leave it unattended, and extinguish it before leaving the room.",
+        "safetyNote": "If you use a real candle instead of a flameless one, keep it in a heat-safe holder, never leave it unattended, and extinguish it before leaving the room. Keep all materials out of reach of children. Keep pets away from the working area and out of reach of any materials.",
         "category": "lunar-practices",
         "primaryCategoryId": "lunar-practices",
         "secondaryCategoryIds": [
@@ -818,7 +818,7 @@
           "A small folded card with a symbol or image",
           "A piece of felt cut to fit the tin"
         ],
-        "safetyNote": "Use only a flameless tealight in the tin; do not use a real flame in a small or shared space. Keep small items such as stones and salt out of reach of children and pets. Check local rules before carrying salt or stones when travelling internationally.",
+        "safetyNote": "Use only a flameless tealight in the tin; do not use a real flame in a small or shared space. Keep small items such as stones and salt out of reach of children and pets. Check local rules before carrying salt or stones when travelling internationally. Handle knives and blades carefully, cutting away from your body and keeping them out of reach of children.",
         "category": "altars-sacred-space",
         "primaryCategoryId": "altars-sacred-space",
         "secondaryCategoryIds": [
@@ -881,7 +881,7 @@
           "Two or three natural objects from the season, such as leaves, flowers, seeds, or stones",
           "A notebook"
         ],
-        "safetyNote": "Collect natural objects only where it is allowed and never take protected plants. Some plants and berries are poisonous; keep them out of reach of children and pets and wash your hands after handling them. If you add a candle, keep it in a heat-safe holder, never leave it unattended, and extinguish it before leaving the room.",
+        "safetyNote": "Collect natural objects only where it is allowed and never take protected plants. Some plants and berries are poisonous; keep them out of reach of children and pets and wash your hands after handling them. If you add a candle, keep it in a heat-safe holder, never leave it unattended, and extinguish it before leaving the room. Check every herb, oil or resin for allergies before use, and stop if skin or breathing reacts. Use incense or smoke only in a well-ventilated room, and step outside if you have asthma or breathing trouble.",
         "category": "altars-sacred-space",
         "primaryCategoryId": "altars-sacred-space",
         "secondaryCategoryIds": [
@@ -1137,7 +1137,7 @@
           "A small pot of living lemon balm, mint, or another fragrant culinary herb",
           "A notebook"
         ],
-        "safetyNote": "Some people are sensitive to handling lemon balm or mint; wash your hands if your skin feels irritated, and stop if you notice an allergic reaction. Keep the pot out of reach of pets, as some plants are harmful to animals. Do not cook with plants that have been handled repeatedly for ritual use. This practice supports calm moments; it is not a therapy, so seek professional support if stress or worry feels overwhelming.",
+        "safetyNote": "Some people are sensitive to handling lemon balm or mint; wash your hands if your skin feels irritated, and stop if you notice an allergic reaction. Keep the pot out of reach of pets, as some plants are harmful to animals. Do not cook with plants that have been handled repeatedly for ritual use. This practice supports calm moments; it is not a therapy, so seek professional support if stress or worry feels overwhelming. Keep all materials out of reach of children.",
         "category": "herbal-rituals",
         "primaryCategoryId": "herbal-rituals",
         "secondaryCategoryIds": [
@@ -1199,7 +1199,7 @@
           "A towel",
           "Comfortable clothing"
         ],
-        "safetyNote": "Check the ground carefully for sharp objects, stinging plants, and droppings before removing your shoes, and avoid areas treated with pesticides. Avoid going barefoot outdoors if you have cuts on your feet, reduced feeling in your feet, or diabetes, unless a healthcare professional has advised it. Watch for ticks and wash your feet afterward. Do not go barefoot on hot pavement or sand.",
+        "safetyNote": "Check the ground carefully for sharp objects, stinging plants, and droppings before removing your shoes, and avoid areas treated with pesticides. Avoid going barefoot outdoors if you have cuts on your feet, reduced feeling in your feet, or diabetes, unless a healthcare professional has advised it. Watch for ticks and wash your feet afterward. Do not go barefoot on hot pavement or sand. Keep pets away from the working area and out of reach of any materials. Check every herb, oil or resin for allergies before use, and stop if skin or breathing reacts. Keep all materials out of reach of children. Use incense or smoke only in a well-ventilated room, and step outside if you have asthma or breathing trouble.",
         "category": "elemental-practices",
         "primaryCategoryId": "elemental-practices",
         "secondaryCategoryIds": [
@@ -1270,7 +1270,7 @@
           "Rubber gloves",
           "A label for any leftover mix"
         ],
-        "safetyNote": "Ritual use only. Do not consume. Wear gloves, keep the mix away from eyes, and rinse skin if it causes irritation. Never mix vinegar with bleach or other cleaning products, as this can release harmful gas, and ventilate the room. Do not use vinegar or lemon on marble, limestone, or waxed wood. Wet floors are slippery; keep children and pets out until the floor is dry. Do not store leftover mix; discard it the same day.",
+        "safetyNote": "Ritual use only. Do not consume. Wear gloves, keep the mix away from eyes, and rinse skin if it causes irritation. Never mix vinegar with bleach or other cleaning products, as this can release harmful gas, and ventilate the room. Do not use vinegar or lemon on marble, limestone, or waxed wood. Wet floors are slippery; keep children and pets out until the floor is dry. Do not store leftover mix; discard it the same day. Check every herb, oil or resin for allergies before use, and stop if skin or breathing reacts.",
         "category": "potions-infusions",
         "primaryCategoryId": "potions-infusions",
         "secondaryCategoryIds": [
@@ -1335,7 +1335,7 @@
           "A hook or nail to hang the cord",
           "A notebook"
         ],
-        "safetyNote": "Hang the cord at adult height, away from beds and doorways, and keep it and the scissors out of reach of young children and pets. Never tie the cord around any part of the body. Keep knots loose so they are easy to untie.",
+        "safetyNote": "Hang the cord at adult height, away from beds and doorways, and keep it and the scissors out of reach of young children and pets. Never tie the cord around any part of the body. Keep knots loose so they are easy to untie. Handle knives and blades carefully, cutting away from your body and keeping them out of reach of children.",
         "category": "cord-knot-work",
         "primaryCategoryId": "cord-knot-work",
         "secondaryCategoryIds": [
@@ -1398,7 +1398,7 @@
           "A soft dry cloth",
           "A notebook"
         ],
-        "safetyNote": "Keep stones away from young children and pets because of the choking risk. Some stones are soft or water-sensitive; clean them with a dry cloth. Place stones where no one will trip on them if you lay them on the floor.",
+        "safetyNote": "Keep stones away from young children and pets because of the choking risk. Some stones are soft or water-sensitive; clean them with a dry cloth. Place stones where no one will trip on them if you lay them on the floor. Keep any flame attended, extinguish it before you leave, and keep it away from flammable items.",
         "category": "crystals-stones",
         "primaryCategoryId": "crystals-stones",
         "secondaryCategoryIds": [
@@ -1462,7 +1462,7 @@
           "A pen",
           "Small labels or a pencil"
         ],
-        "safetyNote": "Use only herbs you know to be common culinary herbs, and wash your hands after handling them. Some people are sensitive to certain plants; stop if your skin feels irritated. Keep herbs away from pets, as some are harmful to animals. Folk associations are traditions and personal meanings, not medical properties.",
+        "safetyNote": "Use only herbs you know to be common culinary herbs, and wash your hands after handling them. Some people are sensitive to certain plants; stop if your skin feels irritated. Keep herbs away from pets, as some are harmful to animals. Folk associations are traditions and personal meanings, not medical properties. Keep all materials out of reach of children.",
         "category": "herbal-rituals",
         "primaryCategoryId": "herbal-rituals",
         "secondaryCategoryIds": [
@@ -1521,7 +1521,7 @@
           "A window or outdoor spot where morning sun reaches",
           "A notebook"
         ],
-        "safetyNote": "Never look directly at the sun, even with eyes partly closed, as this can damage your eyes. Limit sun exposure, protect your skin with sunscreen or clothing on bright days, and avoid the strongest midday sun. If you have a condition affected by light or heat, adapt the practice to a shaded spot.",
+        "safetyNote": "Never look directly at the sun, even with eyes partly closed, as this can damage your eyes. Limit sun exposure, protect your skin with sunscreen or clothing on bright days, and avoid the strongest midday sun. If you have a condition affected by light or heat, adapt the practice to a shaded spot. Keep all materials out of reach of children. Keep pets away from the working area and out of reach of any materials.",
         "category": "elemental-practices",
         "primaryCategoryId": "elemental-practices",
         "secondaryCategoryIds": [
