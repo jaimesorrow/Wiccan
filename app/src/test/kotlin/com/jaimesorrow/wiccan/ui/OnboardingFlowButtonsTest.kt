@@ -32,8 +32,8 @@ import com.jaimesorrow.wiccan.ui.paywall.PaywallViewModel
 import com.jaimesorrow.wiccan.ui.policy.PolicyAcceptanceScreen
 import com.jaimesorrow.wiccan.ui.policy.PolicyAcceptanceViewModel
 import com.jaimesorrow.wiccan.ui.policy.PolicyAgreement
-import com.jaimesorrow.wiccan.ui.policy.SHARE_ANALYTICS_LABEL
-import com.jaimesorrow.wiccan.ui.policy.label
+import com.jaimesorrow.wiccan.ui.policy.labelRes
+import com.wiccan.app.R
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -105,7 +105,7 @@ class OnboardingFlowButtonsTest {
         val continueButton = composeRule.onNode(hasText("Continue") and hasClickAction())
         PolicyAgreement.entries.forEach { agreement ->
             continueButton.performScrollTo().assertIsNotEnabled()
-            click(agreement.label())
+            click(composeRule.activity.getString(agreement.labelRes()))
         }
         continueButton.performScrollTo().assertIsEnabled().performClick()
         composeRule.waitForIdle()
@@ -116,8 +116,8 @@ class OnboardingFlowButtonsTest {
     @Test
     fun `optional analytics box is recorded when checked and never required`() {
         val consent = launchPolicyGate()
-        PolicyAgreement.entries.forEach { click(it.label()) }
-        click(SHARE_ANALYTICS_LABEL)
+        PolicyAgreement.entries.forEach { click(composeRule.activity.getString(it.labelRes())) }
+        click(composeRule.activity.getString(R.string.policy_share_analytics))
         click("Continue")
         coVerify { consent.setConsent(true) }
         assertEquals(1, auth.acceptTermsCallCount)
@@ -138,12 +138,12 @@ class OnboardingFlowButtonsTest {
                 )
             }
         }
-        composeRule.onNodeWithText("I've Verified My Email").assertExists()
+        composeRule.onNodeWithText("I've verified my email").assertExists()
         composeRule.onNodeWithTag("onboarding-logo").assertExists()
-        composeRule.onNodeWithText("Resend Verification Email").assertExists()
+        composeRule.onNodeWithText("Resend verification email").assertExists()
         click("Account & support / Delete Account")
         click("Privacy Policy")
-        click("Sign Out")
+        click("Sign out")
         assertEquals(listOf("account", LegalDocumentId.PRIVACY.name), clicks)
         assertEquals(1, auth.signOutCallCount)
     }
@@ -209,7 +209,7 @@ class OnboardingFlowButtonsTest {
         composeRule.setContent {
             MaterialTheme { ArchiveDetailScreen(onBack = { clicks += "back" }, viewModel = viewModel) }
         }
-        click("← Back to Grimoire")
+        click("← Return to your Grimoire")
         assertEquals(listOf("back"), clicks)
     }
 }

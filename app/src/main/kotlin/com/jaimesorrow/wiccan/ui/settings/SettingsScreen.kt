@@ -37,8 +37,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,6 +52,7 @@ import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.theme.description
 import com.jaimesorrow.wiccan.ui.theme.displayName
+import com.wiccan.app.R
 import kotlinx.coroutines.launch
 
 /**
@@ -66,6 +71,10 @@ fun SettingsScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val resources = LocalResources.current
+    val loadingDescription = stringResource(R.string.loading_description)
+    val subscriptionUnavailable = stringResource(R.string.settings_manage_subscription_unavailable)
+    val contactUnavailable = stringResource(R.string.settings_contact_unavailable, PolicyUrls.SUPPORT_EMAIL)
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -81,8 +90,8 @@ fun SettingsScreen(
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is SettingsUiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.error.toUserMessage())
-                is SettingsUiEffect.ShowMessage -> snackbarHostState.showSnackbar(effect.message)
+                is SettingsUiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.error.toUserMessage(resources))
+                is SettingsUiEffect.ShowMessage -> snackbarHostState.showSnackbar(resources.getString(effect.messageRes))
             }
         }
     }
@@ -90,23 +99,16 @@ fun SettingsScreen(
     if (state.showDeleteConfirmation) {
         AlertDialog(
             onDismissRequest = { viewModel.onEvent(SettingsUiEvent.CancelDeleteAccount) },
-            title = { Text("Delete account?") },
-            text = {
-                Text(
-                    "Wiccan first cancels active Google Play renewal, then permanently deletes your " +
-                        "account, delivery history, devices, and subscription record. If cancellation " +
-                        "cannot be confirmed, deletion stops so you can retry. Limited pseudonymous " +
-                        "anti-fraud hashes may remain. This cannot be undone.",
-                )
-            },
+            title = { Text(stringResource(R.string.settings_delete_title)) },
+            text = { Text(stringResource(R.string.settings_delete_body)) },
             confirmButton = {
                 TextButton(onClick = { viewModel.onEvent(SettingsUiEvent.ConfirmDeleteAccount) }) {
-                    Text("Delete")
+                    Text(stringResource(R.string.settings_delete_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.onEvent(SettingsUiEvent.CancelDeleteAccount) }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.settings_delete_cancel))
                 }
             },
         )
@@ -126,23 +128,28 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.Top,
         ) {
             Spacer(modifier = Modifier.height(32.dp))
-            if (accountOnly) TextButton(onClick = onBack) { Text("← Back") }
+            if (accountOnly) TextButton(onClick = onBack) { Text(stringResource(R.string.settings_back)) }
             WiccanEmblem(
                 modifier = Modifier.align(Alignment.CenterHorizontally).testTag("settings-logo"),
                 size = 44.dp,
-                contentDescription = "Wiccan",
+                contentDescription = stringResource(R.string.settings_logo_description),
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                if (accountOnly) "Account & support" else "Settings",
+                stringResource(if (accountOnly) R.string.settings_account_title else R.string.settings_title),
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Text(
+                stringResource(if (accountOnly) R.string.settings_account_subtitle else R.string.settings_subtitle),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(12.dp))
-            Text("Account details", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.settings_account_heading), style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Email: " + state.accountEmail,
+                text = stringResource(R.string.settings_email, state.accountEmail),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -150,7 +157,7 @@ fun SettingsScreen(
             OutlinedTextField(
                 value = state.firstName,
                 onValueChange = { viewModel.onEvent(SettingsUiEvent.FirstNameChanged(it)) },
-                label = { Text("First name") },
+                label = { Text(stringResource(R.string.onboarding_first_name)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
@@ -158,7 +165,7 @@ fun SettingsScreen(
             OutlinedTextField(
                 value = state.lastName,
                 onValueChange = { viewModel.onEvent(SettingsUiEvent.LastNameChanged(it)) },
-                label = { Text("Last name") },
+                label = { Text(stringResource(R.string.onboarding_last_name)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
@@ -166,12 +173,12 @@ fun SettingsScreen(
                 onClick = { viewModel.onEvent(SettingsUiEvent.SaveNameClicked) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !state.isAccountBusy,
-            ) { Text("Update Name") }
+            ) { Text(stringResource(R.string.settings_save_name)) }
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = state.newEmail,
                 onValueChange = { viewModel.onEvent(SettingsUiEvent.NewEmailChanged(it)) },
-                label = { Text("New email address") },
+                label = { Text(stringResource(R.string.settings_new_email)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
@@ -179,20 +186,24 @@ fun SettingsScreen(
                 onClick = { viewModel.onEvent(SettingsUiEvent.ChangeEmailClicked) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !state.isAccountBusy,
-            ) { Text("Verify New Email") }
+            ) { Text(stringResource(R.string.settings_verify_email)) }
             OutlinedButton(
                 onClick = { viewModel.onEvent(SettingsUiEvent.ResetPasswordClicked) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !state.isAccountBusy,
-            ) { Text("Reset Password by Email") }
-            if (state.isAccountBusy) CircularProgressIndicator()
+            ) { Text(stringResource(R.string.settings_reset_password)) }
+            if (state.isAccountBusy) {
+                CircularProgressIndicator(
+                    modifier = Modifier.semantics { contentDescription = loadingDescription },
+                )
+            }
             Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedButton(
                 onClick = { viewModel.onEvent(SettingsUiEvent.SignOutClicked) },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Sign Out")
+                Text(stringResource(R.string.settings_sign_out))
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -200,12 +211,12 @@ fun SettingsScreen(
                 onClick = {
                     openExternal(
                         manageSubscriptionIntent(),
-                        "Open Google Play to manage your subscription.",
+                        subscriptionUnavailable,
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Manage Subscription")
+                Text(stringResource(R.string.settings_manage_subscription))
             }
 
             if (!accountOnly) {
@@ -221,23 +232,30 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = "Daily Notifications",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
+                    Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+                        Text(
+                            text = stringResource(R.string.settings_notifications),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                        Text(
+                            text = stringResource(R.string.settings_notifications_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                     Switch(checked = state.notificationsEnabled, onCheckedChange = null)
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
                 Text(
-                    text = "Theme",
+                    text = stringResource(R.string.settings_palette),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "The seasonal palette is the recommended default, but you can lock any of the six.",
+                    text = stringResource(R.string.settings_palette_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -262,12 +280,12 @@ fun SettingsScreen(
             ) {
                 Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
                     Text(
-                        text = "Usage analytics & crash reports",
+                        text = stringResource(R.string.settings_analytics),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onBackground,
                     )
                     Text(
-                        text = "Optional. Helps improve Wiccan; never used for ads.",
+                        text = stringResource(R.string.settings_analytics_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -281,40 +299,43 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !state.isDeleting,
             ) {
-                Text("Delete Account")
+                Text(stringResource(R.string.settings_delete))
             }
 
             if (state.isDeleting) {
                 Spacer(modifier = Modifier.height(16.dp))
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                CircularProgressIndicator(
+                    modifier = Modifier.semantics { contentDescription = loadingDescription },
+                    color = MaterialTheme.colorScheme.primary,
+                )
             }
 
             Spacer(modifier = Modifier.weight(1f))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 TextButton(onClick = onTermsClick) {
-                    Text("Terms of Service", style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.policy_terms), style = MaterialTheme.typography.labelSmall)
                 }
                 TextButton(onClick = onPrivacyClick) {
-                    Text("Privacy Policy", style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.policy_privacy), style = MaterialTheme.typography.labelSmall)
                 }
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 TextButton(onClick = onContentSafetyClick) {
-                    Text("Content & Safety", style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.policy_safety), style = MaterialTheme.typography.labelSmall)
                 }
                 TextButton(
                     onClick = {
                         openExternal(
                             supportEmailIntent(),
-                            "No email app found. Contact ${PolicyUrls.SUPPORT_EMAIL}.",
+                            contactUnavailable,
                         )
                     },
                 ) {
-                    Text("Contact Support", style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.settings_contact), style = MaterialTheme.typography.labelSmall)
                 }
             }
             Text(
-                text = "Wiccan v${appVersionName(context)}",
+                text = stringResource(R.string.settings_version, appVersionName(context)),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
@@ -370,7 +391,8 @@ private fun supportEmailIntent(): Intent =
     Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${PolicyUrls.SUPPORT_EMAIL}"))
 
 private fun appVersionName(context: Context): String = try {
-    context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "unknown"
+    context.packageManager.getPackageInfo(context.packageName, 0).versionName
+        ?: context.getString(R.string.settings_version_unknown)
 } catch (t: Throwable) {
-    "unknown"
+    context.getString(R.string.settings_version_unknown)
 }

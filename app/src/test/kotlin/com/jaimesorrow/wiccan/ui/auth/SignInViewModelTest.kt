@@ -4,6 +4,7 @@ import android.content.Context
 import app.cash.turbine.test
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
+import com.wiccan.app.R
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -53,8 +54,8 @@ class SignInViewModelTest {
     fun emptyCredentialsShowFieldValidationAndDoNotCallRepository() = runTest {
         viewModel.onEvent(SignInUiEvent.SubmitEmailAuth)
 
-        assertEquals("Enter your email address.", viewModel.state.value.emailError)
-        assertEquals("Enter your password.", viewModel.state.value.passwordError)
+        assertEquals(R.string.auth_error_email_required, viewModel.state.value.emailError)
+        assertEquals(R.string.auth_error_password_required, viewModel.state.value.passwordError)
         assertFalse(viewModel.state.value.isLoading)
         assertEquals(null, repository.lastSignInEmail)
         assertEquals(null, repository.lastCreateAccountEmail)
@@ -67,8 +68,8 @@ class SignInViewModelTest {
 
         viewModel.onEvent(SignInUiEvent.SubmitEmailAuth)
 
-        assertEquals("Enter a valid email address.", viewModel.state.value.emailError)
-        assertEquals("Password must be at least 6 characters.", viewModel.state.value.passwordError)
+        assertEquals(R.string.auth_error_email_invalid, viewModel.state.value.emailError)
+        assertEquals(R.string.auth_error_password_short, viewModel.state.value.passwordError)
         assertFalse(viewModel.state.value.isLoading)
         assertEquals(null, repository.lastSignInEmail)
     }
@@ -136,7 +137,7 @@ class SignInViewModelTest {
         viewModel.onEvent(SignInUiEvent.ConfirmPasswordChanged("different"))
         viewModel.onEvent(SignInUiEvent.SubmitEmailAuth)
         dispatcher.scheduler.advanceUntilIdle()
-        assertEquals("Passwords do not match.", viewModel.state.value.confirmPasswordError)
+        assertEquals(R.string.auth_error_password_mismatch, viewModel.state.value.confirmPasswordError)
         assertEquals(null, repository.lastCreateAccountEmail)
     }
 

@@ -72,6 +72,13 @@ class SubscriptionRepositoryImplTest {
     }
 
     @Test
+    fun `restore reports a distinct failure when Play cannot be queried`() = runTest {
+        coEvery { billingClient.queryOwnedSubscriptions() } throws IllegalStateException("billing unavailable")
+
+        assertEquals(AppResult.Failure(AppError.RestoreFailed), repository.restorePurchases())
+    }
+
+    @Test
     fun `restore requires a signed-in Firebase account`() = runTest {
         every { currentUser.currentUserId } returns null
 

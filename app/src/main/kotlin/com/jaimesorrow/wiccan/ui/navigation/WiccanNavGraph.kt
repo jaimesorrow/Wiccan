@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan.ui.navigation
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -10,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -28,13 +30,14 @@ import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
 import com.jaimesorrow.wiccan.ui.settings.SettingsScreen
 import com.jaimesorrow.wiccan.ui.settings.SettingsViewModel
 import com.jaimesorrow.wiccan.ui.today.TodayScreen
+import com.wiccan.app.R
 
-private data class BottomNavItem(val route: String, val label: String)
+private data class BottomNavItem(val route: String, @StringRes val labelRes: Int)
 
 private val bottomNavItems = listOf(
-    BottomNavItem(WiccanDestinations.TODAY, "Today"),
-    BottomNavItem(WiccanDestinations.ARCHIVE, "Grimoire"),
-    BottomNavItem(WiccanDestinations.SETTINGS, "Settings"),
+    BottomNavItem(WiccanDestinations.TODAY, R.string.nav_today),
+    BottomNavItem(WiccanDestinations.ARCHIVE, R.string.nav_grimoire),
+    BottomNavItem(WiccanDestinations.SETTINGS, R.string.nav_settings),
 )
 
 /** What a settings destination needs from navigation. */
@@ -203,7 +206,7 @@ internal fun WiccanBottomBarContent(currentRoute: String?, onNavigate: (String) 
                     onNavigate(item.route)
                 },
                 icon = {},
-                label = { Text(item.label) },
+                label = { Text(stringResource(item.labelRes)) },
             )
         }
     }

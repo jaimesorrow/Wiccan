@@ -20,14 +20,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.jaimesorrow.wiccan.domain.model.Content
+import com.jaimesorrow.wiccan.domain.model.ContentType
 import com.jaimesorrow.wiccan.ui.archive.displayName
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.today.components.ContentTypePill
 import com.jaimesorrow.wiccan.ui.today.components.HairlineDivider
 import com.jaimesorrow.wiccan.ui.today.components.MaterialsCard
 import com.jaimesorrow.wiccan.ui.today.components.SafetyNote
+import com.wiccan.app.R
 
 /**
  * The full display for one piece of content — header (type pill,
@@ -52,9 +55,20 @@ fun ContentDetailView(
     ) {
         if (isDailyLesson) {
             Text(
-                "${content.type.name.lowercase().replaceFirstChar { it.uppercase() }} of the Day",
+                stringResource(
+                    when (content.type) {
+                        ContentType.SPELL -> R.string.today_spell
+                        ContentType.POTION -> R.string.today_potion
+                        ContentType.LESSON -> R.string.today_lesson
+                    },
+                ),
                 style = MaterialTheme.typography.headlineSmall,
                 color = colors.onBackground,
+            )
+            Text(
+                stringResource(R.string.today_subtitle),
+                style = MaterialTheme.typography.bodyLarge,
+                color = colors.onSurfaceVariant,
             )
         }
         // Compact brand emblem, centered above the header row.
@@ -65,7 +79,7 @@ fun ContentDetailView(
             WiccanEmblem(
                 modifier = Modifier.testTag("content-logo"),
                 size = 32.dp,
-                contentDescription = "Wiccan",
+                contentDescription = stringResource(R.string.content_logo_description),
             )
         }
 
@@ -96,7 +110,7 @@ fun ContentDetailView(
         }
 
         content.sourceTradition?.takeIf { it.isNotBlank() }?.let {
-            LessonSection("Historical source tradition", it)
+            LessonSection(stringResource(R.string.content_source_tradition), it)
         }
 
         if (content.intro.isNotBlank()) {
@@ -109,23 +123,30 @@ fun ContentDetailView(
 
         HairlineDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        content.application?.takeIf { it.isNotBlank() }?.let { LessonSection("Wiccan application", it) }
+        content.application?.takeIf { it.isNotBlank() }?.let {
+            LessonSection(stringResource(R.string.content_application), it)
+        }
         val displayedTools = content.tools.ifEmpty { content.materials.orEmpty() }
         if (displayedTools.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             MaterialsCard(materials = displayedTools)
         }
-        LessonSection(title = "Method", text = content.body)
-        content.incantation?.takeIf { it.isNotBlank() }?.let { LessonSection("Optional incantation", it) }
+        LessonSection(title = stringResource(R.string.content_method), text = content.body)
+        content.incantation?.takeIf { it.isNotBlank() }?.let {
+            LessonSection(stringResource(R.string.content_incantation), it)
+        }
         content.incantationOmissionReason?.takeIf { it.isNotBlank() }?.let {
-            LessonSection("Incantation note", it)
+            LessonSection(stringResource(R.string.content_incantation_note), it)
         }
-        content.timing?.takeIf { it.isNotBlank() }?.let { LessonSection("Timing", it) }
+        content.timing?.takeIf { it.isNotBlank() }?.let { LessonSection(stringResource(R.string.content_timing), it) }
         content.correspondences.takeIf { it.isNotEmpty() }?.let {
-            LessonSection("Supported correspondences", it.joinToString(separator = "\n") { item -> "• $item" })
+            LessonSection(
+                stringResource(R.string.content_correspondences),
+                it.joinToString(separator = "\n") { item -> "• $item" },
+            )
         }
-        content.reflection?.takeIf { it.isNotBlank() }?.let { LessonSection("Reflection", it) }
-        content.practice?.takeIf { it.isNotBlank() }?.let { LessonSection("Practice", it) }
+        content.reflection?.takeIf { it.isNotBlank() }?.let { LessonSection(stringResource(R.string.content_reflection), it) }
+        content.practice?.takeIf { it.isNotBlank() }?.let { LessonSection(stringResource(R.string.content_practice), it) }
 
         content.safetyNote?.takeIf { it.isNotBlank() }?.let { note ->
             Spacer(modifier = Modifier.height(8.dp))
@@ -135,39 +156,48 @@ fun ContentDetailView(
         if (content.requiresPotionDisclosure) {
             SafetyNote(
                 note = content.potionSafetyDisclosure?.takeIf { it.isNotBlank() }
-                    ?: "Shared preparation disclosure is unavailable. Keep this lesson out of delivery until it is configured.",
+                    ?: stringResource(R.string.content_potion_disclosure_missing),
             )
         }
 
         content.adaptationNotes.takeIf { it.isNotEmpty() }?.let {
-            LessonSection("Adaptation notes", it.joinToString(separator = "\n") { item -> "• $item" })
+            LessonSection(
+                stringResource(R.string.content_adaptation),
+                it.joinToString(separator = "\n") { item -> "• $item" },
+            )
         }
 
-        content.sourceCitation?.takeIf { it.isNotBlank() }?.let { LessonSection("Source", it) }
+        content.sourceCitation?.takeIf { it.isNotBlank() }?.let { LessonSection(stringResource(R.string.content_source), it) }
         content.sourceUrl?.takeIf { it.isNotBlank() }?.let {
             Text(it, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
         }
-        content.rightsNotes?.takeIf { it.isNotBlank() }?.let { LessonSection("Rights", it) }
+        content.rightsNotes?.takeIf { it.isNotBlank() }?.let { LessonSection(stringResource(R.string.content_rights), it) }
         content.citation?.let { citation ->
             val details = listOfNotNull(
-                citation.textTitle?.let { "Text: $it" },
-                citation.manuscriptId?.let { "Manuscript: $it" },
-                citation.tradition?.let { "Source tradition: $it" },
-                citation.manuscriptDate?.let { "Manuscript date: $it" },
-                citation.compositionDate?.let { "Composition date: $it" },
-                citation.edition?.let { "Edition: $it" },
-                citation.editionDate?.let { "Edition date: $it" },
-                citation.translator?.let { "Translator/editor: $it" },
-                citation.locator?.let { "Exact locator: $it" },
+                citation.textTitle?.let { stringResource(R.string.content_citation_text, it) },
+                citation.manuscriptId?.let { stringResource(R.string.content_citation_manuscript, it) },
+                citation.tradition?.let { stringResource(R.string.content_citation_tradition, it) },
+                citation.manuscriptDate?.let { stringResource(R.string.content_citation_manuscript_date, it) },
+                citation.compositionDate?.let { stringResource(R.string.content_citation_composition_date, it) },
+                citation.edition?.let { stringResource(R.string.content_citation_edition, it) },
+                citation.editionDate?.let { stringResource(R.string.content_citation_edition_date, it) },
+                citation.translator?.let { stringResource(R.string.content_citation_translator, it) },
+                citation.locator?.let { stringResource(R.string.content_citation_locator, it) },
                 citation.url,
             ).filter { it.isNotBlank() }
-            if (details.isNotEmpty()) LessonSection("Verified source details", details.joinToString("\n"))
+            if (details.isNotEmpty()) {
+                LessonSection(stringResource(R.string.content_verified_source), details.joinToString("\n"))
+            }
         }
 
         if (isDailyLesson) {
-            Text("Saved to Grimoire", style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
+            Text(
+                stringResource(R.string.content_saved),
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.onSurfaceVariant,
+            )
             onOpenGrimoire?.let { action ->
-                TextButton(onClick = action) { Text("Open Grimoire") }
+                TextButton(onClick = action) { Text(stringResource(R.string.today_open_grimoire)) }
             }
         }
         Spacer(modifier = Modifier.height(16.dp))

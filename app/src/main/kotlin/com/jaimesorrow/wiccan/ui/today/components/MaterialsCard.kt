@@ -17,7 +17,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.wiccan.app.R
 
 /**
  * Bulleted materials list in a subtly bordered card. Uses [surfaceVariant]
@@ -35,7 +37,7 @@ fun MaterialsCard(materials: List<String>, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            text = "MATERIALS",
+            text = stringResource(R.string.content_materials),
             style = MaterialTheme.typography.labelSmall,
             color = colors.tertiary,
         )

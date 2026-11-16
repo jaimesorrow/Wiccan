@@ -16,5 +16,11 @@ sealed class AppError {
     /** The user dismissed a system flow (e.g. the account picker); screens show nothing. */
     object Cancelled : AppError()
     data class PurchaseVerificationFailed(val reason: String? = null) : AppError()
+
+    /** Email/password sign-in rejected the password or credential. */
+    object InvalidCredentials : AppError()
+
+    /** Restore Purchases could not be completed for a reason other than the network or auth. */
+    object RestoreFailed : AppError()
     data class Unknown(val message: String? = null) : AppError()
 }

@@ -1,9 +1,11 @@
 package com.jaimesorrow.wiccan.ui.auth
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
+import com.wiccan.app.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +18,7 @@ data class OnboardingUiState(
     val firstName: String = "",
     val lastName: String = "",
     val busy: Boolean = false,
-    val notice: String? = null,
+    val notice: Int? = null,
 )
 
 @HiltViewModel
@@ -34,26 +36,26 @@ class OnboardingViewModel @Inject constructor(
     }
     fun resendVerification() = perform(
         { authRepository.sendEmailVerification() },
-        "If verification is pending, a new email has been sent.",
+        R.string.onboarding_notice_resent,
     )
     fun checkVerification() = perform(
         { authRepository.refreshEmailVerification() },
-        "Verification checked. Confirm your email before continuing.",
+        R.string.onboarding_notice_not_verified,
     )
     fun completeProfile() {
         val first = state.value.firstName.trim()
         val last = state.value.lastName.trim()
         if (first.isBlank() || last.isBlank() || first.length > 60 || last.length > 60) {
-            _state.update { it.copy(notice = "Enter your first and last names (up to 60 characters each).") }
+            _state.update { it.copy(notice = R.string.onboarding_notice_name_invalid) }
             return
         }
-        perform({ authRepository.completeProfile(first, last) }, "Profile saved.")
+        perform({ authRepository.completeProfile(first, last) }, R.string.onboarding_notice_saved)
     }
-    fun signOut() = perform({ authRepository.signOut() }, "Signed out.")
+    fun signOut() = perform({ authRepository.signOut() }, R.string.onboarding_notice_signed_out)
 
     private fun perform(
         operation: suspend () -> AppResult<Unit>,
-        successMessage: String,
+        @StringRes successMessage: Int,
     ) {
         if (state.value.busy) return
         _state.update { it.copy(busy = true, notice = null) }
@@ -65,7 +67,7 @@ class OnboardingViewModel @Inject constructor(
                     notice = if (result is AppResult.Success) {
                         successMessage
                     } else {
-                        "Unable to complete this action. Check your connection and try again."
+                        R.string.onboarding_notice_failed
                     },
                 )
             }

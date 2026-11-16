@@ -24,6 +24,7 @@ import com.jaimesorrow.wiccan.MainActivity
 import com.jaimesorrow.wiccan.ui.navigation.WiccanDeepLinks
 import com.jaimesorrow.wiccan.ui.theme.resolveWiccanPalette
 import com.jaimesorrow.wiccan.ui.theme.toColorScheme
+import com.wiccan.app.R
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.first
 
@@ -38,6 +39,8 @@ class WiccanWidget : GlanceAppWidget() {
         val isSystemDark = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES
         val colorScheme = resolveWiccanPalette(themeMode, isSystemDark).toColorScheme()
+        val title = context.getString(R.string.widget_title)
+        val subtitle = context.getString(R.string.widget_subtitle)
         val openApp = actionStartActivity(
             Intent(Intent.ACTION_VIEW, Uri.parse(WiccanDeepLinks.TODAY_URI), context, MainActivity::class.java),
         )
@@ -48,11 +51,11 @@ class WiccanWidget : GlanceAppWidget() {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Wiccan",
+                    text = title,
                     style = TextStyle(fontSize = 20.sp, color = ColorProvider(colorScheme.primary)),
                 )
                 Text(
-                    text = "Open your daily practice",
+                    text = subtitle,
                     style = TextStyle(fontSize = 14.sp, color = ColorProvider(colorScheme.onBackground)),
                 )
             }

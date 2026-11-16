@@ -22,11 +22,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
+import com.wiccan.app.R
 
 @Composable
 fun OnboardingScreen(
@@ -36,6 +40,7 @@ fun OnboardingScreen(
     viewModel: OnboardingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val loadingDescription = stringResource(R.string.loading_description)
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { insets ->
         Column(
             modifier = Modifier.padding(insets).fillMaxSize().imePadding()
@@ -46,34 +51,30 @@ fun OnboardingScreen(
             WiccanFullLogo(modifier = Modifier.testTag("onboarding-logo"), width = 150.dp)
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                if (verification) "Confirm your path." else "Make this journey yours.",
+                stringResource(if (verification) R.string.onboarding_verify_title else R.string.onboarding_name_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                if (verification) {
-                    "Check your inbox for a verification message from Wiccan. Open the link, then return here to continue."
-                } else {
-                    "Add your name to complete your Wiccan account. No billing address or card details are needed here."
-                },
+                stringResource(if (verification) R.string.onboarding_verify_body else R.string.onboarding_name_body),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(24.dp))
             if (verification) {
                 Button(onClick = viewModel::checkVerification, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) {
-                    Text("I've Verified My Email")
+                    Text(stringResource(R.string.onboarding_verified_button))
                 }
                 TextButton(onClick = viewModel::resendVerification, enabled = !state.busy) {
-                    Text("Resend Verification Email")
+                    Text(stringResource(R.string.onboarding_resend_button))
                 }
             } else {
                 OutlinedTextField(
                     value = state.firstName,
                     onValueChange = viewModel::setFirstName,
-                    label = { Text("First name") },
+                    label = { Text(stringResource(R.string.onboarding_first_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
@@ -81,27 +82,31 @@ fun OnboardingScreen(
                 OutlinedTextField(
                     value = state.lastName,
                     onValueChange = viewModel::setLastName,
-                    label = { Text("Last name") },
+                    label = { Text(stringResource(R.string.onboarding_last_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = viewModel::completeProfile, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) {
-                    Text("Continue")
+                    Text(stringResource(R.string.onboarding_continue))
                 }
             }
             if (state.busy) {
                 Spacer(modifier = Modifier.height(12.dp))
-                CircularProgressIndicator()
+                CircularProgressIndicator(modifier = Modifier.semantics { contentDescription = loadingDescription })
             }
             state.notice?.let { message ->
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(message, style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(message), style = MaterialTheme.typography.bodySmall)
             }
             Spacer(modifier = Modifier.height(18.dp))
-            TextButton(onClick = viewModel::signOut, enabled = !state.busy) { Text("Sign Out") }
-            TextButton(onClick = onAccountClick) { Text("Account & support / Delete Account") }
-            TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) { Text("Privacy Policy") }
+            TextButton(onClick = viewModel::signOut, enabled = !state.busy) {
+                Text(stringResource(R.string.onboarding_sign_out))
+            }
+            TextButton(onClick = onAccountClick) { Text(stringResource(R.string.onboarding_account)) }
+            TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) {
+                Text(stringResource(R.string.onboarding_privacy))
+            }
         }
     }
 }

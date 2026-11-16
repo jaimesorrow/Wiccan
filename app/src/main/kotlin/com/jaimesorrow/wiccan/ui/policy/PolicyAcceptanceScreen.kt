@@ -26,14 +26,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
+import com.wiccan.app.R
 
 /**
  * Blocking agreement gate shown whenever the signed-in user hasn't yet
@@ -52,11 +57,15 @@ fun PolicyAcceptanceScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val resources = LocalResources.current
+    val loadingDescription = stringResource(R.string.loading_description)
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is PolicyAcceptanceUiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.error.toUserMessage())
+                is PolicyAcceptanceUiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(
+                    effect.error.toUserMessage(resources),
+                )
             }
         }
     }
@@ -78,17 +87,17 @@ fun PolicyAcceptanceScreen(
             WiccanEmblem(
                 modifier = Modifier.testTag("policy-logo"),
                 size = 56.dp,
-                contentDescription = "Wiccan",
+                contentDescription = stringResource(R.string.policy_logo_description),
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "Before you continue",
+                text = stringResource(R.string.policy_title),
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Please review each document and confirm every statement below to keep using Wiccan.",
+                text = stringResource(R.string.policy_body),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -96,20 +105,20 @@ fun PolicyAcceptanceScreen(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.TERMS) }) {
-                    Text("Terms of Service")
+                    Text(stringResource(R.string.policy_terms))
                 }
                 TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) {
-                    Text("Privacy Policy")
+                    Text(stringResource(R.string.policy_privacy))
                 }
             }
             TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.CONTENT_SAFETY) }) {
-                Text("Content & Safety")
+                Text(stringResource(R.string.policy_safety))
             }
             Spacer(modifier = Modifier.height(4.dp))
 
             PolicyAgreement.entries.forEach { agreement ->
                 AgreementRow(
-                    text = agreement.label(),
+                    text = stringResource(agreement.labelRes()),
                     checked = agreement in state.agreed,
                     onCheckedChange = { viewModel.onEvent(PolicyAcceptanceUiEvent.AgreementChanged(agreement, it)) },
                 )
@@ -117,13 +126,13 @@ fun PolicyAcceptanceScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Optional",
+                text = stringResource(R.string.policy_optional),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.fillMaxWidth(),
             )
             AgreementRow(
-                text = SHARE_ANALYTICS_LABEL,
+                text = stringResource(R.string.policy_share_analytics),
                 checked = state.shareAnalytics,
                 onCheckedChange = { viewModel.onEvent(PolicyAcceptanceUiEvent.ShareAnalyticsChanged(it)) },
             )
@@ -134,30 +143,28 @@ fun PolicyAcceptanceScreen(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = state.canContinue,
             ) {
-                Text("Continue")
+                Text(stringResource(R.string.policy_continue))
             }
 
-            TextButton(onClick = onAccountClick) { Text("Account & support / Delete Account") }
+            TextButton(onClick = onAccountClick) { Text(stringResource(R.string.onboarding_account)) }
 
             if (state.isSubmitting) {
                 Spacer(modifier = Modifier.height(12.dp))
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                CircularProgressIndicator(
+                    modifier = Modifier.semantics { contentDescription = loadingDescription },
+                    color = MaterialTheme.colorScheme.primary,
+                )
             }
         }
     }
 }
 
-internal const val SHARE_ANALYTICS_LABEL =
-    "Share usage analytics and crash reports to help improve Wiccan. Not required; change it anytime in Settings."
-
-/** Statement the user must check for each required agreement. */
-internal fun PolicyAgreement.label(): String = when (this) {
-    PolicyAgreement.ADULT -> "I am 18 years of age or older."
-    PolicyAgreement.TERMS -> "I have read and agree to the Terms of Service."
-    PolicyAgreement.PRIVACY -> "I have read and acknowledge the Privacy Policy."
-    PolicyAgreement.NO_GUARANTEE ->
-        "I understand that Wiccan does not promise or guarantee any result from any spell, potion, ritual, " +
-            "ceremony, or other practice, and I have read the Content & Safety guidance."
+/** Statement the user must check for each required agreement. Wording stays plain. */
+internal fun PolicyAgreement.labelRes(): Int = when (this) {
+    PolicyAgreement.ADULT -> R.string.policy_adult
+    PolicyAgreement.TERMS -> R.string.policy_agree_terms
+    PolicyAgreement.PRIVACY -> R.string.policy_ack_privacy
+    PolicyAgreement.NO_GUARANTEE -> R.string.policy_no_guarantee
 }
 
 @Composable

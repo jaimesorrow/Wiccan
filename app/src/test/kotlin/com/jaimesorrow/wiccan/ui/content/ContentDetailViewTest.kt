@@ -43,7 +43,7 @@ class ContentDetailViewTest {
         )
         composeRule.setContent { MaterialTheme { ContentDetailView(content) } }
         composeRule.onNodeWithTag("content-logo").assertIsDisplayed()
-        for (text in listOf("Home & Hearth", "The Threshold", "Method", "Reflection", "Practice")) {
+        for (text in listOf("Home & Hearth", "The Threshold", "The working", "Reflection", "Practice")) {
             composeRule.onNodeWithText(text).assertExists()
         }
         composeRule.onNodeWithText(content.reflection!!).performScrollTo().assertIsDisplayed()

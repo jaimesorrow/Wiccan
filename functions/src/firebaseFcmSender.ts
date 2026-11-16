@@ -1,5 +1,6 @@
 import { Messaging } from "firebase-admin/messaging";
 import { FcmSenderPort, FcmSendResult } from "./fcmSenderPort";
+import { DAILY_PRACTICE_CHANNEL_ID } from "./sendDailyNotifications";
 
 /** FCM error codes that mean the token is permanently dead, not a transient failure. */
 const STALE_TOKEN_ERROR_CODES: ReadonlySet<string> = new Set([
@@ -15,6 +16,7 @@ export class FirebaseFcmSender implements FcmSenderPort {
       await this.messaging.send({
         token,
         notification: { title, body },
+        android: { notification: { channelId: DAILY_PRACTICE_CHANNEL_ID } },
       });
       return { delivered: true };
     } catch (err) {
