@@ -176,7 +176,7 @@
         "lessonType": "altar",
         "requiresPotionDisclosure": false,
         "durationMinutes": 30,
-        "incantation": "(none; speak in your own words)",
+        "incantation": null,
         "timing": null,
         "application": "A planning practice that prepares a beginner to perform a short, structured personal ritual.",
         "correspondences": [],
