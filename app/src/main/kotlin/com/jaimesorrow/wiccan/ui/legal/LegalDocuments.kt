@@ -467,5 +467,4 @@ object WiccanLegalDocuments {
             ),
         ),
     )
-
 }
