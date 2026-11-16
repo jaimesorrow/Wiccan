@@ -10,7 +10,7 @@ against the build uploaded to Play before submission.
 | App name | `Wiccan` |
 | Default language | English (United States) |
 | App or game | App |
-| Free or paid | Free download; optional in-app subscription |
+| Free or paid | Free download; a Google Play subscription (free trial eligible) is required for daily content and Grimoire access |
 | Category | Lifestyle |
 | Support email | `wiccan.android.app@gmail.com` |
 | Website | `https://app.wiccanandroid.com/` |
@@ -36,10 +36,11 @@ against the build uploaded to Play before submission.
 > daily reminders help you return to your practice without turning it into an
 > endless feed.
 >
-> Wiccan is free to download. Wiccan Premium is an optional recurring
-> subscription that adds access to the premium content pool and a home-screen
-> widget. Google Play shows the localized price, billing period, and applicable
-> terms before purchase. You can manage or cancel through Google Play.
+> Wiccan is free to download. An active free trial or Wiccan Premium
+> subscription is required for daily content and Grimoire access. Premium is a
+> recurring subscription that also includes the home-screen widget. Google Play
+> shows the localized price, billing period, and applicable terms before
+> purchase. You can manage or cancel through Google Play.
 >
 > Wiccan is intended for adults age 18 and older. Its content is educational
 > and reflective. Ritual and folklore are not medical treatment and do not
