@@ -7,7 +7,7 @@ const FORMAT_VERSION = 1;
 
 type EncodedValue = null | boolean | string | number | { [TYPE_KEY]: string; [key: string]: unknown };
 
-export interface ContentBackupDocument {
+interface ContentBackupDocument {
   id: string;
   createTime: string;
   updateTime: string;
@@ -154,7 +154,7 @@ function validateEncodedValue(value: unknown): void {
   }
 }
 
-export function validateContentBackup(value: unknown): asserts value is ContentBackupArtifact {
+function validateContentBackup(value: unknown): asserts value is ContentBackupArtifact {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Backup artifact must be an object.");
   const artifact = value as Partial<ContentBackupArtifact>;
   if (artifact.formatVersion !== FORMAT_VERSION || artifact.databaseId !== "(default)" || artifact.collectionPath !== "content" ||

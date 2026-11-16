@@ -29,7 +29,7 @@ WHITE = (255, 255, 255)
 
 # Adaptive icon: 108dp canvas, 66dp safe zone. The emblem is itself a circle,
 # so its outer diameter is kept to 62dp to sit inside the safe zone with margin.
-CANVAS_DP, SAFE_DP, EMBLEM_DP = 108, 66, 62
+CANVAS_DP, EMBLEM_DP = 108, 62
 DENSITIES = {"mdpi": 1.0, "hdpi": 1.5, "xhdpi": 2.0, "xxhdpi": 3.0, "xxxhdpi": 4.0}
 LEGACY_DP = 48
 

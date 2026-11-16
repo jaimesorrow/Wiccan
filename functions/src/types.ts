@@ -55,23 +55,15 @@ export interface Content extends PracticalLessonFields {
   similarityGroupId?: string;
 }
 
-/** Mirrors the Firestore `userContentHistory` collection. */
-export interface UserContentHistory {
-  userId: string;
-  contentId: string;
-  /** ISO date string (yyyy-MM-dd), server-set. */
-  deliveredDate: string;
-  /** Denormalized from the delivered Content so Grimoire can list without extra reads. */
-  title: string;
-  type: ContentType;
-  tradition: string;
-  category: ContentCategory;
-  /** Snapshot of the delivered lesson's editorial identity, when available. */
-  similarityGroupId?: string;
-  /** Fallback provenance retained even if the original content document is later removed. */
-  sourceId?: string;
-  sourceCitation?: string;
-}
+/**
+ * Firestore `userContentHistory` documents are written only by
+ * `FirestoreContentRepository`. Each document has `userId`, `contentId`,
+ * `deliveredDate` (server-set `yyyy-MM-dd`), `title`, `type`, `tradition`,
+ * and `category`. `similarityGroupId`, `sourceId`, and `sourceCitation` are
+ * copied from the delivered content when that content has them. The Android
+ * Grimoire maps the same documents to `HistoryEntry`; nothing in this package
+ * reads them through a shared type.
+ */
 
 /**
  * One entry of the checked-in ancient-source seed pool

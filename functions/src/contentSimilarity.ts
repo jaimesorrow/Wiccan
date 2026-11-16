@@ -18,7 +18,7 @@ export interface SimilarityThresholds {
   semanticReject: number;
 }
 
-export const DEFAULT_SIMILARITY_THRESHOLDS: SimilarityThresholds = {
+const DEFAULT_SIMILARITY_THRESHOLDS: SimilarityThresholds = {
   ngramReview: 0.72,
   longestRunReview: 0.55,
   semanticReview: 0.82,
@@ -95,16 +95,6 @@ export function longestCommonTokenRunRatio(left: string, right: string): number 
     previous = current;
   }
   return longest / Math.min(a.length, b.length);
-}
-
-export function lexicalSimilarity(left: CurriculumConcept, right: CurriculumConcept) {
-  const leftComposite = [left.technique, left.purpose, left.materials.join(" "), left.procedure, left.learningObjective].join(" ");
-  const rightComposite = [right.technique, right.purpose, right.materials.join(" "), right.procedure, right.learningObjective].join(" ");
-  return {
-    ngram: ngramJaccard(leftComposite, rightComposite),
-    longestRun: longestCommonTokenRunRatio(left.procedure, right.procedure),
-    samePassageTechnique: !!left.sourcePassageId && left.sourcePassageId === right.sourcePassageId && left.technique === right.technique,
-  };
 }
 
 export function findLexicalDuplicateConcerns(
