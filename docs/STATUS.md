@@ -79,7 +79,7 @@ found the following. Each is now addressed as noted:
 
 - **Visual/typography redesign** — local build/test/lint and six JVM palette specimens pass; real-device app screens, transitions and actual font appearance still need review before release.
 - **Billing runtime validation** — 9.1.0 is integrated with the modernized toolchain and local unit tests pass; live purchases, acknowledgement, restore and RTDN still need Play/Firebase verification.
-- Policy pages (Terms, Privacy, Content & Safety, account deletion) are written in `hosting/` but not yet deployed — run `firebase deploy --only hosting --project production`, then confirm each `PolicyUrls` link loads.
+- Policy pages (Terms, Privacy, Content & Safety, account deletion) are written in `hosting/` with a GitHub Pages workflow. The `app.wiccanandroid.com` custom-domain setting, DNS, HTTPS, and each `PolicyUrls` response still require live verification before Play submission.
 - `handlePlayRtdn`, `verifyPurchase`'s field shapes, and the `users/{uid}/devices` collection-group query have never been exercised against a real Play Console / Firebase project.
 - `dev`/`staging` product flavors exist but need their own real `google-services.json` (from their own real Firebase projects) before they'll build.
 - The production Firebase client config identifies `wiccan-android` and includes its verified web OAuth client ID. Build/signing-certificate matching, device sign-in, live Firebase/Play flows and release setup remain unverified.
@@ -265,9 +265,9 @@ notification job skips users until the current Terms and Privacy versions are
 recorded, so a modified client cannot skip the gate. The emulator callable
 run (45 checks) covers the refusal, a stale-version rejection and acceptance.
 
-`hosting/` publishes the same text at `https://wiccan-android.web.app`
-(`/terms`, `/privacy`, `/content-safety`, `/potion-safety`, `/delete-account`) via Firebase
-Hosting with a restrictive CSP. `LegalDocumentsTest` fails if any hosted page
+`hosting/` publishes the same text at `https://app.wiccanandroid.com`
+(`/terms.html`, `/privacy.html`, `/content-safety.html`, `/delete-account.html`)
+through GitHub Pages. `LegalDocumentsTest` fails if any hosted page
 drifts from the in-app text or a `PolicyUrls` link has no page. Not yet
 deployed: no authenticated Firebase access exists in this sandbox. Terms are
 governed by Alaska law, keeping users' mandatory local consumer protections and

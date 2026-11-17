@@ -122,7 +122,7 @@ class LegalDocumentsTest {
             PolicyUrls.ACCOUNT_DELETION_URL,
         ).forEach { url ->
             val page = url.substringAfterLast('/')
-            assertTrue("No hosted page for $url", hostingFile("$page.html").isFile)
+            assertTrue("No hosted page for $url", hostingFile(page).isFile)
         }
         val deletion = hostedText("delete-account")
         assertTrue(deletion.contains(PolicyUrls.SUPPORT_EMAIL))

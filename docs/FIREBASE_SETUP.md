@@ -264,10 +264,10 @@ fails rather than silently shipping to production.
 ## Still outstanding after all of the above
 
 - The policy pages in `hosting/` (`PolicyUrls`:
-  `https://wiccan-android.web.app/terms`, `/privacy`, `/delete-account`) must
-  be deployed before Play submission: `firebase deploy --only hosting --project production`
-  (a full `firebase deploy --project production` also includes them). Open
-  each URL afterwards to confirm it loads.
+  `https://app.wiccanandroid.com/terms.html`, `/privacy.html`,
+  `/delete-account.html`) must be deployed through `.github/workflows/pages.yml`
+  before Play submission. Complete the GitHub Pages and DNS steps in
+  `docs/GITHUB_PAGES_DOMAIN.md`, then open each URL to confirm it loads.
 - `handlePlayRtdn` and `verifyPurchase`'s field shapes have never run
   against a real Play Console — they need a real purchase token, which no
   emulator can mint.
