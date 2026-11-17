@@ -10,6 +10,7 @@ describe("deleteAccount", () => {
     expect(repo.calls).toEqual([
       "cancel-subscription:user-123",
       "history:user-123",
+      "pool-exhaustion:user-123",
       "usage:user-123",
       "devices:user-123",
       "subscription:user-123",

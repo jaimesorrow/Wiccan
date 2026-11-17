@@ -7,6 +7,7 @@ import { obfuscatedAccountId, purchaseTokenDocumentId } from "./billingIdentity"
 
 const USERS_COLLECTION = "users";
 const HISTORY_COLLECTION = "userContentHistory";
+const POOL_EXHAUSTION_COLLECTION = "contentPoolExhaustionEvents";
 const CONTENT_USAGE_COLLECTION = "userContentUsage";
 const DEVICES_SUBCOLLECTION = "devices";
 const SUBSCRIPTIONS_COLLECTION = "subscriptions";
@@ -27,6 +28,11 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionPort {
 
   async deleteUserContentHistory(uid: string): Promise<void> {
     const snap = await this.db.collection(HISTORY_COLLECTION).where("userId", "==", uid).get();
+    await this.deleteAll(snap.docs.map((doc) => doc.ref));
+  }
+
+  async deleteContentPoolExhaustionEvents(uid: string): Promise<void> {
+    const snap = await this.db.collection(POOL_EXHAUSTION_COLLECTION).where("userId", "==", uid).get();
     await this.deleteAll(snap.docs.map((doc) => doc.ref));
   }
 

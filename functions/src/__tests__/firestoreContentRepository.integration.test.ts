@@ -386,4 +386,17 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
     expect((await db.collection("userContentUsage").doc(UID).collection("similarityGroups").get()).size).toBe(0);
     expect((await db.collection("userContentUsage").doc(UID).get()).exists).toBe(false);
   });
+
+  it("authorized account deletion removes only that user's pool exhaustion events", async () => {
+    await Promise.all([
+      repo.logPoolExhaustion(UID, "premium", TODAY),
+      repo.logPoolExhaustion("another-user", "premium", TODAY),
+    ]);
+    const deletion = new FirestoreAccountDeletionRepository(db, {} as Auth, new FakePlayBillingPort());
+
+    await deletion.deleteContentPoolExhaustionEvents(UID);
+
+    const events = await db.collection("contentPoolExhaustionEvents").get();
+    expect(events.docs.map((event) => event.get("userId"))).toEqual(["another-user"]);
+  });
 });

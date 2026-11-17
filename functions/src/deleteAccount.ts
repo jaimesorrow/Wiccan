@@ -16,6 +16,7 @@ import { AccountDeletionPort } from "./accountDeletionPort";
 export async function deleteAccount(uid: string, repo: AccountDeletionPort): Promise<void> {
   await repo.cancelActiveSubscription(uid);
   await repo.deleteUserContentHistory(uid);
+  await repo.deleteContentPoolExhaustionEvents(uid);
   await repo.deleteUserContentUsage(uid);
   await repo.deleteUserDevices(uid);
   await repo.deleteSubscriptionRecord(uid);
