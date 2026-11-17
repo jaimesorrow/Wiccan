@@ -41,7 +41,7 @@
           "A single flower, leaf, or pinch of dried herbs",
           "A cloth for wiping the bowl"
         ],
-        "safetyNote": "Change the water every day so it does not grow mold or attract insects. Use only flowers and herbs you can identify, as some plants are harmful to pets; keep the bowl out of reach of pets and young children.",
+        "safetyNote": "Change the water every day so it does not grow mold or attract insects. Use only flowers and herbs you can identify, as some plants are harmful to pets; keep the bowl out of reach of pets and young children. Check every herb, oil or resin for allergies before use, and stop if skin or breathing reacts. Use incense or smoke only in a well-ventilated room, and step outside if you have asthma or breathing trouble.",
         "category": "altars-sacred-space",
         "primaryCategoryId": "altars-sacred-space",
         "secondaryCategoryIds": [
@@ -172,7 +172,7 @@
           "A small watering can",
           "Plant labels and a pen"
         ],
-        "safetyNote": "Wear gloves if compost irritates your skin, and wash your hands after planting. Choose herbs you can identify with certainty. Some herbs, including mint, are harmful to cats and dogs; keep the pot where pets cannot chew it. Keep trimmings labeled for craft use.",
+        "safetyNote": "Wear gloves if compost irritates your skin, and wash your hands after planting. Choose herbs you can identify with certainty. Some herbs, including mint, are harmful to cats and dogs; keep the pot where pets cannot chew it. Keep trimmings labeled for craft use. Keep all materials out of reach of children. Check every herb, oil or resin for allergies before use, and stop if skin or breathing reacts. Use incense or smoke only in a well-ventilated room, and step outside if you have asthma or breathing trouble.",
         "category": "herbal-rituals",
         "primaryCategoryId": "herbal-rituals",
         "secondaryCategoryIds": [
@@ -360,7 +360,7 @@
           "Paper and crayons",
           "A basket for gathering"
         ],
-        "safetyNote": "Supervise children while gathering; avoid berries, fungi, and any plant you cannot identify, and wash hands after handling natural items. Do not collect from protected areas or take living plants. Keep small objects away from very young children and pets because of the choking risk.",
+        "safetyNote": "Supervise children while gathering; avoid berries, fungi, and any plant you cannot identify, and wash hands after handling natural items. Do not collect from protected areas or take living plants. Keep small objects away from very young children and pets because of the choking risk. Check every herb, oil or resin for allergies before use, and stop if skin or breathing reacts. Use incense or smoke only in a well-ventilated room, and step outside if you have asthma or breathing trouble.",
         "category": "altars-sacred-space",
         "primaryCategoryId": "altars-sacred-space",
         "secondaryCategoryIds": [
@@ -423,14 +423,14 @@
           "A slip of paper and a pen",
           "A sprig of dried rosemary"
         ],
-        "safetyNote": "A charm complements practical travel safety and never replaces it; follow official advice for your route. In a vehicle, keep the pouch in a bag or glovebox, never hanging where it could distract a driver. Keep the pouch and stone away from young children and pets because of the choking risk.",
+        "safetyNote": "A charm complements practical travel safety and never replaces it; follow official advice for your route. In a vehicle, keep the pouch in a bag or glovebox, never hanging where it could distract a driver. Keep the pouch and stone away from young children and pets because of the choking risk. Do not eat or drink any preparation from this practice; it is for ritual use only.",
         "category": "charms-talismans",
         "primaryCategoryId": "charms-talismans",
         "secondaryCategoryIds": [
           "crystals-stones"
         ],
-        "lessonType": "jar",
-        "requiresPotionDisclosure": true,
+        "lessonType": "stone",
+        "requiresPotionDisclosure": false,
         "durationMinutes": 20,
         "incantation": "Road ahead and home behind, carry me well and bring me back; steady stone, green guard, go with me.",
         "timing": "The day before a trip.",
@@ -489,7 +489,7 @@
           "Paper and a pen",
           "A timer"
         ],
-        "safetyNote": "Burn the candle in a heat-safe holder on a stable surface, never leave it unattended, and keep it away from children, pets, curtains, and hair. Extinguish it completely when the timer sounds. Respect the other person's choice and space; never use this practice to pressure anyone.",
+        "safetyNote": "Burn the candle in a heat-safe holder on a stable surface, never leave it unattended, and keep it away from children, pets, curtains, and hair. Extinguish it completely when the timer sounds. Respect the other person's choice and space; never use this practice to pressure anyone. Obtain consent from anyone this practice affects before you begin.",
         "category": "candle-spells",
         "primaryCategoryId": "candle-spells",
         "secondaryCategoryIds": [
@@ -934,7 +934,7 @@
           "A flameless candle for walking between rooms",
           "A notebook"
         ],
-        "safetyNote": "Keep the real candle in one place in a sturdy heat-safe holder, never carry a lit candle between rooms, and never leave it unattended; use the flameless candle while walking. Keep it away from children, pets, curtains, and moving boxes, and extinguish it completely at the end.",
+        "safetyNote": "Keep the real candle in one place in a sturdy heat-safe holder, never carry a lit candle between rooms, and never leave it unattended; use the flameless candle while walking. Keep it away from children, pets, curtains, and moving boxes, and extinguish it completely at the end. Obtain consent from anyone this practice affects before you begin.",
         "category": "candle-spells",
         "primaryCategoryId": "candle-spells",
         "secondaryCategoryIds": [
@@ -995,7 +995,7 @@
           "Three small saucers",
           "A notebook"
         ],
-        "safetyNote": "Use only herbs you can identify with certainty. Some herbs, such as mint, can irritate sensitive skin; wash your hands afterward and stop if you notice irritation or an allergic reaction. Keep herbs away from pets, since some are harmful to them.",
+        "safetyNote": "Use only herbs you can identify with certainty. Some herbs, such as mint, can irritate sensitive skin; wash your hands afterward and stop if you notice irritation or an allergic reaction. Keep herbs away from pets, since some are harmful to them. Keep all materials out of reach of children. Obtain consent from anyone this practice affects before you begin.",
         "category": "herbal-rituals",
         "primaryCategoryId": "herbal-rituals",
         "secondaryCategoryIds": [
@@ -1058,7 +1058,7 @@
           "Scissors",
           "Tape"
         ],
-        "safetyNote": "Use scissors carefully. The charm is made for a keyring and is not meant to be worn around the neck or tied around any part of the body. Keep loose cords and small parts away from young children and pets because of the strangling and choking risk.",
+        "safetyNote": "Use scissors carefully. The charm is made for a keyring and is not meant to be worn around the neck or tied around any part of the body. Keep loose cords and small parts away from young children and pets because of the strangling and choking risk. Obtain consent from anyone this practice affects before you begin.",
         "category": "cord-knot-work",
         "primaryCategoryId": "cord-knot-work",
         "secondaryCategoryIds": [
@@ -1188,7 +1188,7 @@
           "Paper",
           "A label and pen"
         ],
-        "safetyNote": "Ritual use only. Do not consume. This ink is for writing only; label it clearly and store it away from food and drinks. Handle hot water from the kettle carefully and keep it away from children. Coffee ink stains fabric, wood, and skin; wear old clothes, wash your hands after use, and stop if your skin becomes irritated. Keep the jar out of reach of children and pets.",
+        "safetyNote": "Ritual use only. Do not consume. This ink is for writing only; label it clearly and store it away from food and drinks. Handle hot water from the kettle carefully and keep it away from children. Coffee ink stains fabric, wood, and skin; wear old clothes, wash your hands after use, and stop if your skin becomes irritated. Keep the jar out of reach of children and pets. Check every herb, oil or resin for allergies before use, and stop if skin or breathing reacts. Use incense or smoke only in a well-ventilated room, and step outside if you have asthma or breathing trouble.",
         "category": "potions-infusions",
         "primaryCategoryId": "potions-infusions",
         "secondaryCategoryIds": [
@@ -1254,7 +1254,7 @@
           "A board or tray to work on",
           "Sandpaper and clear sealant (optional)"
         ],
-        "safetyNote": "Air-dry clay is not food-safe or waterproof; use the dish only for dry offerings such as stones, seeds, or dried herbs, and never for liquids or food. Wash your hands after working with clay, and use sealant in a ventilated area. Keep clay away from young children's mouths and from pets.",
+        "safetyNote": "Air-dry clay is not food-safe or waterproof; use the dish only for dry offerings such as stones, seeds, or dried herbs, and never for liquids or food. Wash your hands after working with clay, and use sealant in a ventilated area. Keep clay away from young children's mouths and from pets. Check every herb, oil or resin for allergies before use, and stop if skin or breathing reacts.",
         "category": "elemental-practices",
         "primaryCategoryId": "elemental-practices",
         "secondaryCategoryIds": [
@@ -1317,7 +1317,7 @@
           "A fine pen",
           "A small sticker or decoration for the case (optional)"
         ],
-        "safetyNote": "Handle the mirror carefully and stop using it if it cracks, as broken glass can cut. If negative feelings about yourself are persistent or overwhelming, speak to a doctor or mental health professional.",
+        "safetyNote": "Handle the mirror carefully and stop using it if it cracks, as broken glass can cut. If negative feelings about yourself are persistent or overwhelming, speak to a doctor or mental health professional. Obtain consent from anyone this practice affects before you begin.",
         "category": "charms-talismans",
         "primaryCategoryId": "charms-talismans",
         "secondaryCategoryIds": [
@@ -1447,7 +1447,7 @@
           "A small card and a pen",
           "A plant or flower (optional)"
         ],
-        "safetyNote": "Use a flameless candle, especially if other pets live in the home. Keep keepsakes such as collars and tags away from other animals and young children. Grief can be heavy; reach out to friends, a pet loss support line, or a counselor if you need support.",
+        "safetyNote": "Use a flameless candle, especially if other pets live in the home. Keep keepsakes such as collars and tags away from other animals and young children. Grief can be heavy; reach out to friends, a pet loss support line, or a counselor if you need support. Check every herb, oil or resin for allergies before use, and stop if skin or breathing reacts. Use incense or smoke only in a well-ventilated room, and step outside if you have asthma or breathing trouble.",
         "category": "altars-sacred-space",
         "primaryCategoryId": "altars-sacred-space",
         "secondaryCategoryIds": [
