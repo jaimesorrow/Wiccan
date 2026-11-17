@@ -11,6 +11,10 @@ export class FakeAccountDeletionRepository implements AccountDeletionPort {
     this.calls.push(`history:${uid}`);
   }
 
+  async deleteContentPoolExhaustionEvents(uid: string): Promise<void> {
+    this.calls.push(`pool-exhaustion:${uid}`);
+  }
+
   async deleteUserContentUsage(uid: string): Promise<void> {
     this.calls.push(`usage:${uid}`);
   }
