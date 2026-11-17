@@ -36,7 +36,7 @@ Prepared by Reviewbot, 2026-11-15 ~01:30 AKST. Audit base `6fc5824`; re-verified
 | `app/` | Kotlin 2.4, AGP 9.5.1, Gradle 9.9.1, compileSdk 37, Hilt, Room (v5), Compose, Glance, WorkManager | `WiccanApplication`, `MainActivity`, `WiccanMessagingService`, widget receivers, `DailyContentWorker` | Android app (`com.jaimesorrow.wiccan`, namespace `com.wiccan.app`); flavors dev/staging/prod |
 | `functions/` | TypeScript, Node 22, firebase-functions 7, jest, eslint | `src/index.ts` -> `lib/index.js`; 17 operator CLIs in `src/scripts` run via npm scripts | Cloud Functions: daily content, billing/RTDN, notifications, account deletion, content pipeline/agent |
 | `firestore-tests/` | node:test + Firebase emulator | `npm test` | Firestore rules + emulator integration tests |
-| `hosting/` | static HTML/CSS | Firebase Hosting | Public legal/support/account-deletion pages |
+| `hosting/` | static HTML/CSS | GitHub Pages | Launch, tester recruitment, legal/support, and account-deletion pages |
 | `scripts/` | Python, bash, Node | CI | Toolchain/identity checks, repo validation, 16KB alignment, emulator e2e |
 | `brand/` | PNG/PDF + Python generator | `build_brand_assets.py` | Approved artwork and generated exports |
 | `docs/` | Markdown (29) | - | Runbooks, standards, research reports |

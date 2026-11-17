@@ -15,9 +15,9 @@ the final public documents.
 disclosures are implemented, but the following owner/Console work cannot be
 truthfully completed from the repository:
 
-- deploy the policy pages (`firebase deploy --only hosting --project production`)
-  and confirm `https://wiccan-android.web.app/terms`, `/privacy` and
-  `/delete-account` load; monitor `wiccan.android.app@gmail.com`, which the app,
+- deploy the policy pages through the GitHub Pages workflow and confirm
+  `https://app.wiccanandroid.com/terms.html`, `/privacy.html` and
+  `/delete-account.html` load; monitor `wiccan.android.app@gmail.com`, which the app,
   policies and deletion page name as the support and privacy contact;
 - select the **18+** target audience in Play Console (Terms v4 requires users
   to be 18 or older, and the policy gate asks them to confirm it);
@@ -118,7 +118,7 @@ Additional form answers:
 
 - **Encrypted in transit:** Yes, for the app/Firebase/Play paths in this repo.
 - **Users can request deletion:** Yes — in app (Settings → Delete Account) and at
-  `https://wiccan-android.web.app/delete-account` once hosting is deployed.
+  `https://app.wiccanandroid.com/delete-account.html` once GitHub Pages and DNS are live.
 - **Independent security review:** Do not claim one unless a qualifying review
   has actually been completed and remains valid.
 - **Data sale:** No.
@@ -149,8 +149,9 @@ and account hashes may remain for anti-fraud/anti-replay purposes; the Privacy
 Policy and deletion page state that purpose and that they are kept only as long
 as needed to stop a purchase being reused on another account.
 
-The public pages live in `hosting/` (Firebase Hosting, production project):
-`/terms`, `/privacy`, `/content-safety`, `/potion-safety`, `/delete-account`. Terms, Privacy and
+The public pages live in `hosting/` and deploy to GitHub Pages at
+`app.wiccanandroid.com`: `/terms.html`, `/privacy.html`,
+`/content-safety.html`, `/potion-safety.html`, `/delete-account.html`. Terms, Privacy and
 Content & Safety are word-for-word copies of `WiccanLegalDocuments`;
 `LegalDocumentsTest` fails if they drift, so change both together and bump
 `PolicyVersions` (app and `functions/src/policyVersions.ts`) for material

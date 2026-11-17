@@ -104,6 +104,9 @@ set payout details or authorize the Play API.
 
 ## Store listing draft
 
+The finalized launch-ready copy, website URLs, asset paths, tester recruitment
+message, and rollout sequence live in [PLAY_STORE_LISTING.md](PLAY_STORE_LISTING.md).
+
 **App name:** Wiccan
 
 **Short description (72 characters):**
@@ -199,9 +202,9 @@ users. Never batch-publish unreviewed content simply to meet a numeric target.
 - Register the Play RTDN topic and grant the Google Play publisher permission.
 - Add the upload signing secrets used by `.github/workflows/release.yml`, then
   build and verify a signed AAB. Increase `versionCode` for each new submission.
-- Replace the placeholder values in `PolicyUrls.kt` with real privacy, terms,
-  account-deletion and support URLs/address. Review and host the pages before
-  completing Play's Data Safety form.
+- Review and publish the configured `app.wiccanandroid.com` privacy, terms,
+  account-deletion, safety, and support pages before completing Play's Data
+  Safety form.
 - Complete store assets, content rating, target audience, review access and
   applicable Play testing requirements. Test a Play license-tester purchase,
   renewal, restoration after reinstall, pending payment, cancellation, RTDN and
