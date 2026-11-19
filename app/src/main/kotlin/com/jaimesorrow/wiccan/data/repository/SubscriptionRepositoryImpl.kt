@@ -26,8 +26,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @Singleton
@@ -40,7 +40,8 @@ class SubscriptionRepositoryImpl @Inject constructor(
 ) : SubscriptionRepository {
 
     private val tierObservationLock = Any()
-    private var lastObservedTier: Pair<String, ContentTier>? = null
+    private var lapseAccount: String? = null
+    private var lapseGeneration = 0L
     private var selectedOffer: Pair<String, SubscriptionOffer>? = null
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -77,13 +78,30 @@ class SubscriptionRepositoryImpl @Inject constructor(
 
     override fun observeTier(): Flow<ContentTier> {
         val userId = currentUserProvider.currentUserId ?: return flowOf(ContentTier.FREE)
-        return userTierDataSource.observeTier(userId).onEach { tier ->
-            synchronized(tierObservationLock) {
-                if (currentUserProvider.currentUserId != userId) return@synchronized
-                if (lastObservedTier == (userId to ContentTier.PREMIUM) && tier == ContentTier.FREE) {
-                    analyticsLogger.logSubscriptionLapsed()
+        return flow {
+            var premiumGeneration: Long? = null
+            userTierDataSource.observeTier(userId).collect { tier ->
+                synchronized(tierObservationLock) {
+                    if (currentUserProvider.currentUserId != userId) {
+                        premiumGeneration = null
+                        return@synchronized
+                    }
+                    if (lapseAccount != userId) {
+                        lapseAccount = userId
+                        lapseGeneration++
+                    }
+                    if (tier == ContentTier.PREMIUM) {
+                        if (premiumGeneration == null) premiumGeneration = lapseGeneration
+                    } else {
+                        // Only a listener that previously saw Premium can report a lapse.
+                        if (premiumGeneration == lapseGeneration) {
+                            analyticsLogger.logSubscriptionLapsed()
+                            lapseGeneration++
+                        }
+                        premiumGeneration = null
+                    }
                 }
-                lastObservedTier = userId to tier
+                emit(tier)
             }
         }
     }

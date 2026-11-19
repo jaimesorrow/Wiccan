@@ -24,6 +24,7 @@ import io.mockk.verify
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -62,6 +63,24 @@ class SubscriptionRepositoryImplTest {
 
         every { userTier.observeTier("other-user") } returns flowOf(ContentTier.PREMIUM, ContentTier.FREE, ContentTier.FREE)
         repository.observeTier().toList()
+        verify(exactly = 1) { analytics.logSubscriptionLapsed() }
+    }
+
+    @Test
+    fun `overlapping listeners ignore initial free and report a shared lapse once`() = runTest {
+        val rootTier = repository.observeTier()
+        every { userTier.observeTier("uid-123") } returns flow {
+            emit(ContentTier.PREMIUM)
+            every { userTier.observeTier("uid-123") } returns flowOf(ContentTier.FREE)
+            repository.observeTier().toList()
+            verify(exactly = 0) { analytics.logSubscriptionLapsed() }
+
+            every { userTier.observeTier("uid-123") } returns flowOf(ContentTier.PREMIUM, ContentTier.FREE)
+            repository.observeTier().toList()
+            emit(ContentTier.FREE)
+        }
+
+        rootTier.toList()
         verify(exactly = 1) { analytics.logSubscriptionLapsed() }
     }
 
