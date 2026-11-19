@@ -29,7 +29,9 @@ export class FirestoreContentAdminRepository implements ContentAdminRepositoryPo
     return doc.id;
   }
 
-  async createDraftWithOriginalityReservations(draft: NewDraftContent, reservationKeys: string[]): Promise<string> {
+  async createDraftWithOriginalityReservations(
+    draft: NewDraftContent, reservationKeys: string[], beforeWrite?: () => void,
+  ): Promise<string> {
     if (reservationKeys.length === 0 || new Set(reservationKeys).size !== reservationKeys.length) {
       throw new Error("Originality reservations must be a non-empty unique list.");
     }
@@ -48,6 +50,7 @@ export class FirestoreContentAdminRepository implements ContentAdminRepositoryPo
       const existing = await transaction.getAll(...reservationRefs);
       const collision = existing.find((snapshot) => snapshot.exists);
       if (collision) throw new Error(`Originality reservation collision: ${collision.id}`);
+      beforeWrite?.();
       transaction.create(contentRef, {
         ...draft,
         rightsReviewRequired: true,
