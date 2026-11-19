@@ -316,6 +316,10 @@ export const registerDeviceToken = onCall(CALLABLE_OPTIONS, async (request) => {
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to register a device token.");
   }
+  const expectedUid = request.data?.expectedUid;
+  if (expectedUid !== undefined && expectedUid !== uid) {
+    throw new HttpsError("permission-denied", "The signed-in account has changed.");
+  }
 
   const token = parseDeviceToken(request.data?.token);
   if (!token) {
@@ -326,10 +330,18 @@ export const registerDeviceToken = onCall(CALLABLE_OPTIONS, async (request) => {
   if (requestedTimeZone !== undefined && !timeZone) {
     throw new HttpsError("invalid-argument", "timeZone must be a valid bounded time-zone identifier.");
   }
+  const enabled = request.data?.enabled;
+  const updateChoice = request.data?.updateChoice;
+  if ((enabled !== undefined && typeof enabled !== "boolean") ||
+      (updateChoice !== undefined && typeof updateChoice !== "boolean") ||
+      (updateChoice === true && typeof enabled !== "boolean")) {
+    throw new HttpsError("invalid-argument", "Invalid notification preference.");
+  }
 
   try {
     const users = new FirestoreNotificationUserRepository(getFirestore());
-    await users.setToken(uid, token, timeZone);
+    await users.setToken(uid, token, timeZone, enabled, updateChoice === true);
+    return { preferenceSupported: true };
   } catch (err) {
     logger.error("registerDeviceToken failed", { uid, error: (err as Error).message });
     throw new HttpsError("internal", "Could not register device token.");
@@ -346,6 +358,10 @@ export const unregisterDeviceToken = onCall(CALLABLE_OPTIONS, async (request) =>
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Sign-in is required to unregister a device token.");
+  }
+  const expectedUid = request.data?.expectedUid;
+  if (expectedUid !== undefined && expectedUid !== uid) {
+    throw new HttpsError("permission-denied", "The signed-in account has changed.");
   }
 
   const token = parseDeviceToken(request.data?.token);
