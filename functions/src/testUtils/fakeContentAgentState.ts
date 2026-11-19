@@ -1,4 +1,4 @@
-import { ContentAgentRunReport, ContentAgentStatePort } from "../contentAgent";
+import { ContentAgentRunReport, ContentAgentStatePort, DailyDraftAdmission, DailyDraftClaim } from "../contentAgent";
 
 /** In-memory twin of FirestoreContentAgentStateRepository's claim/lease semantics. */
 export class FakeContentAgentState implements ContentAgentStatePort {
@@ -17,11 +17,16 @@ export class FakeContentAgentState implements ContentAgentStatePort {
     return this.cursor++;
   }
 
-  async reserveDailyDrafts(dateKey: string, requested: number, limit: number, maxRuns: number): Promise<number> {
-    const day = this.daily.get(dateKey) ?? { reserved: 0, runs: 0 };
-    const grant = day.runs >= maxRuns ? 0 : Math.max(0, Math.min(requested, limit - day.reserved));
-    if (grant > 0) this.daily.set(dateKey, { reserved: day.reserved + grant, runs: day.runs + 1 });
-    return grant;
+  async claimDailySlot(runId: string, now: Date, leaseMs: number, admission: DailyDraftAdmission): Promise<DailyDraftClaim> {
+    if (this.claimedRunIds.has(runId) || (this.lease && this.lease.until > now.getTime())) return { status: "skipped" };
+    const day = this.daily.get(admission.dateKey) ?? { reserved: 0, runs: 0 };
+    const grant = day.runs >= admission.maxRuns ? 0 : Math.max(0, Math.min(admission.requested, admission.limit - day.reserved));
+    if (grant === 0) return { status: "daily-limit-reached" };
+    this.daily.set(admission.dateKey, { reserved: day.reserved + grant, runs: day.runs + 1 });
+    const cursor = this.cursor++;
+    this.claimedRunIds.add(runId);
+    this.lease = { runId, until: now.getTime() + leaseMs };
+    return { status: "claimed", cursor, reserved: grant };
   }
 
   async settleDailyDrafts(dateKey: string, reserved: number, written: number, countRun = true): Promise<void> {

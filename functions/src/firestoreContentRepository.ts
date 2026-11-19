@@ -199,11 +199,16 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
   }
 
   async logPoolExhaustion(uid: string, tier: ContentTier, today: string): Promise<void> {
-    await this.db.collection(POOL_EXHAUSTION_COLLECTION).add({
-      userId: uid,
-      tier,
-      date: today,
-      loggedAt: Timestamp.now(),
+    const userRef = this.db.collection(USERS_COLLECTION).doc(uid);
+    const eventRef = this.db.collection(POOL_EXHAUSTION_COLLECTION).doc();
+    await this.db.runTransaction(async (transaction) => {
+      assertAccountWriteAllowed(await transaction.get(userRef));
+      transaction.create(eventRef, {
+        userId: uid,
+        tier,
+        date: today,
+        loggedAt: Timestamp.now(),
+      });
     });
   }
 }

@@ -13,7 +13,7 @@ const CONTENT_AGENT_TIERS: readonly ContentTier[] = ["free", "premium"];
 /**
  * Hard ceiling on drafts written per UTC day, across every run, retry and
  * overlapping invocation. Enforced by a transactional Firestore counter
- * (ContentAgentStatePort.reserveDailyDrafts), not only by the batch size.
+ * (ContentAgentStatePort.claimDailySlot), not only by the batch size.
  */
 export const DAILY_DRAFT_LIMIT = 2;
 /** Bounds model spend: a day's counter admits at most this many runs, however they end. */
@@ -55,6 +55,17 @@ export interface ContentAgentRunReport {
   published: false;
 }
 
+export interface DailyDraftAdmission {
+  dateKey: string;
+  requested: number;
+  limit: number;
+  maxRuns: number;
+}
+
+export type DailyDraftClaim =
+  | { status: "claimed"; cursor: number; reserved: number }
+  | { status: "skipped" | "daily-limit-reached" };
+
 /** Scheduler state and run log; Admin SDK only (see firestore.rules). */
 export interface ContentAgentStatePort {
   /**
@@ -65,7 +76,7 @@ export interface ContentAgentStatePort {
    * limit immediately, so a retry or concurrent invocation can never push
    * the day past `limit`.
    */
-  reserveDailyDrafts(dateKey: string, requested: number, limit: number, maxRuns: number): Promise<number>;
+  claimDailySlot(runId: string, now: Date, leaseMs: number, admission: DailyDraftAdmission): Promise<DailyDraftClaim>;
   /**
    * Gives back `reserved - written` unused slots after a run that finished
    * cleanly. Pass `countRun = false` for a run that never reached the model
@@ -139,10 +150,11 @@ class ProgressRecorder {
         }
         return async (draft: NewDraftContent, keys: string[]) => {
           // The cap is per UTC day: never write a draft under slots reserved for an earlier date.
-          if (dailyDraftDateKey(this.clock()) !== this.dateKey) {
-            throw new Error(`The UTC date changed during generation (reserved for ${this.dateKey}); stopping to honor the daily cap.`);
-          }
-          const contentId = await target.createDraftWithOriginalityReservations(draft, keys);
+          const contentId = await target.createDraftWithOriginalityReservations(draft, keys, () => {
+            if (dailyDraftDateKey(this.clock()) !== this.dateKey) {
+              throw new Error(`The UTC date changed during generation (reserved for ${this.dateKey}); stopping to honor the daily cap.`);
+            }
+          });
           this.accepted.push({ contentId, title: draft.title, type: draft.type });
           return contentId;
         };
@@ -201,18 +213,14 @@ export async function runContentAgentCycle(deps: {
   };
   if (!settings.enabled) return base;
 
-  // Reserve today's draft slots first so a spent day never burns a rotation slot or a model call.
+  // Grant the rotation lease and today's quota together so skipped deliveries consume neither.
   const dateKey = dailyDraftDateKey(now);
-  const reserved = await state.reserveDailyDrafts(dateKey, requested, DAILY_DRAFT_LIMIT, MAX_RUNS_PER_DAY);
-  if (reserved < 1) return { ...base, status: "daily-limit-reached", requested: 0 };
+  const claim = await state.claimDailySlot(runId, now, CONTENT_AGENT_LEASE_MS, {
+    dateKey, requested, limit: DAILY_DRAFT_LIMIT, maxRuns: MAX_RUNS_PER_DAY,
+  });
+  if (claim.status !== "claimed") return { ...base, status: claim.status, requested: 0 };
+  const { cursor, reserved } = claim;
   base.requested = reserved;
-
-  const cursor = await state.claimSlot(runId, now, CONTENT_AGENT_LEASE_MS);
-  if (cursor === null) {
-    // A duplicate or overlapping delivery: hand every reserved slot back.
-    await state.settleDailyDrafts(dateKey, reserved, 0, false);
-    return { ...base, status: "skipped" };
-  }
 
   const eligible = eligibleAgentPassages(passages, sources);
   if (eligible.length === 0) {

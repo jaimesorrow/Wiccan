@@ -89,6 +89,19 @@ describeWithEmulator("FirestoreContentAgentStateRepository", () => {
     const DATE = "2026-11-08";
     const daily = () => db.collection("contentAgentState").doc(`daily-${DATE}`).get();
 
+    it("claims quota and lease atomically without charging skipped deliveries", async () => {
+      const admission = { dateKey: DATE, requested: 1, limit: 2, maxRuns: 2 };
+      const claim = (id: string) => state.claimDailySlot(id, NOW, LEASE_MS, admission);
+      expect(await claim("first")).toEqual({ status: "claimed", cursor: 0, reserved: 1 });
+      expect(await claim("overlap")).toEqual({ status: "skipped" });
+      await state.recordRun("first", report("first", 0));
+      const duplicates = await Promise.all([claim("first"), claim("first")]);
+      expect(duplicates).toEqual([{ status: "skipped" }, { status: "skipped" }]);
+      expect((await daily()).data()).toMatchObject({ reserved: 1, runs: 1 });
+      expect(await claim("next")).toEqual({ status: "claimed", cursor: 1, reserved: 1 });
+      expect((await daily()).data()).toMatchObject({ reserved: 2, runs: 2 });
+    });
+
     it("grants at most the daily limit across sequential reservations", async () => {
       expect(await state.reserveDailyDrafts(DATE, 5, 2, 3)).toBe(2);
       expect(await state.reserveDailyDrafts(DATE, 1, 2, 3)).toBe(0);

@@ -159,7 +159,7 @@ describe("daily draft cap", () => {
     await state.claimSlot("run-same", DAY, 1); // run-same already ran
     const duplicate = await run("run-same", at(1));
     expect(duplicate.status).toBe("skipped");
-    expect(state.daily.get("2026-11-08")).toEqual({ reserved: 0, runs: 0 });
+    expect(state.daily.has("2026-11-08")).toBe(false);
     const real = await run("run-real", at(2));
     expect(real.accepted).toHaveLength(2);
     expect(repo.docs.size).toBe(2);

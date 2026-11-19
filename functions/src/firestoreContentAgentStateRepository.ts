@@ -1,5 +1,5 @@
 import { FieldValue, Firestore, Timestamp } from "firebase-admin/firestore";
-import { ContentAgentRunReport, ContentAgentStatePort } from "./contentAgent";
+import { ContentAgentRunReport, ContentAgentStatePort, DailyDraftAdmission, DailyDraftClaim } from "./contentAgent";
 
 const STATE_COLLECTION = "contentAgentState";
 const SCHEDULER_DOC = "scheduler";
@@ -17,12 +17,36 @@ export class FirestoreContentAgentStateRepository implements ContentAgentStatePo
   }
 
   async claimSlot(runId: string, now: Date, leaseMs: number): Promise<number | null> {
+    const result = await this.claim(runId, now, leaseMs);
+    return result.status === "claimed" ? result.cursor : null;
+  }
+
+  async claimDailySlot(runId: string, now: Date, leaseMs: number, admission: DailyDraftAdmission): Promise<DailyDraftClaim> {
+    return this.claim(runId, now, leaseMs, admission);
+  }
+
+  private async claim(runId: string, now: Date, leaseMs: number, admission?: DailyDraftAdmission): Promise<DailyDraftClaim> {
     const runRef = this.db.collection(RUNS_COLLECTION).doc(runId);
     return this.db.runTransaction(async (transaction) => {
       const [state, run] = await transaction.getAll(this.stateRef, runRef);
-      if (run.exists) return null;
+      if (run.exists) return { status: "skipped" };
       const leaseUntil = state.get("leaseUntil");
-      if (leaseUntil instanceof Timestamp && leaseUntil.toMillis() > now.getTime()) return null;
+      if (leaseUntil instanceof Timestamp && leaseUntil.toMillis() > now.getTime()) return { status: "skipped" };
+      let grant = 0;
+      if (admission) {
+        const ref = this.dailyRef(admission.dateKey);
+        const counter = await transaction.get(ref);
+        const reserved = validCursor(counter.get("reserved"));
+        const runs = validCursor(counter.get("runs"));
+        grant = runs >= admission.maxRuns ? 0 : Math.max(0, Math.min(admission.requested, admission.limit - reserved));
+        if (grant === 0) return { status: "daily-limit-reached" };
+        transaction.set(ref, {
+          dateKey: admission.dateKey,
+          reserved: reserved + grant,
+          runs: runs + 1,
+          updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
+      }
       const cursor = validCursor(state.get("cursor"));
       transaction.set(this.stateRef, {
         cursor: cursor + 1,
@@ -31,7 +55,7 @@ export class FirestoreContentAgentStateRepository implements ContentAgentStatePo
         updatedAt: FieldValue.serverTimestamp(),
       }, { merge: true });
       transaction.create(runRef, { status: "running", runId, startedAt: now.toISOString(), createdAt: FieldValue.serverTimestamp() });
-      return cursor;
+      return { status: "claimed", cursor, reserved: grant };
     });
   }
 
