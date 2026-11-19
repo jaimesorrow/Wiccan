@@ -17,7 +17,7 @@
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <exclude domain="sharedpref" />
+        <exclude domain="sharedpref" path="." />
         <exclude domain="database" path="wiccan.db" />
         <exclude domain="database" path="wiccan.db-wal" />
         <exclude domain="database" path="wiccan.db-shm" />
@@ -26,7 +26,7 @@
         <exclude domain="database" path="androidx.work.workdb-shm" />
     </cloud-backup>
     <device-transfer>
-        <exclude domain="sharedpref" />
+        <exclude domain="sharedpref" path="." />
         <exclude domain="database" path="wiccan.db" />
         <exclude domain="database" path="wiccan.db-wal" />
         <exclude domain="database" path="wiccan.db-shm" />
