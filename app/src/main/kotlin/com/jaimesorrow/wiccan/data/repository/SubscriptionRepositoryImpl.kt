@@ -39,7 +39,8 @@ class SubscriptionRepositoryImpl @Inject constructor(
     private val analyticsLogger: AnalyticsLogger,
 ) : SubscriptionRepository {
 
-    private var lastObservedTier: ContentTier? = null
+    private val tierObservationLock = Any()
+    private var lastObservedTier: Pair<String, ContentTier>? = null
     private var selectedOffer: Pair<String, SubscriptionOffer>? = null
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -77,10 +78,13 @@ class SubscriptionRepositoryImpl @Inject constructor(
     override fun observeTier(): Flow<ContentTier> {
         val userId = currentUserProvider.currentUserId ?: return flowOf(ContentTier.FREE)
         return userTierDataSource.observeTier(userId).onEach { tier ->
-            if (lastObservedTier == ContentTier.PREMIUM && tier == ContentTier.FREE) {
-                analyticsLogger.logSubscriptionLapsed()
+            synchronized(tierObservationLock) {
+                if (currentUserProvider.currentUserId != userId) return@synchronized
+                if (lastObservedTier == (userId to ContentTier.PREMIUM) && tier == ContentTier.FREE) {
+                    analyticsLogger.logSubscriptionLapsed()
+                }
+                lastObservedTier = userId to tier
             }
-            lastObservedTier = tier
         }
     }
 

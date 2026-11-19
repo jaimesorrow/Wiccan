@@ -14,14 +14,18 @@ import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.data.remote.SubscriptionFunctionsDataSource
 import com.jaimesorrow.wiccan.data.remote.UserTierDataSource
+import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -41,6 +45,24 @@ class SubscriptionRepositoryImplTest {
         every { billingClient.purchaseUpdates } returns emptyFlow()
         every { currentUser.currentUserId } returns "uid-123"
         repository = SubscriptionRepositoryImpl(billingClient, functions, userTier, currentUser, analytics)
+    }
+
+    @Test
+    fun `only a lapse for the same signed in account logs an event`() = runTest {
+        every { userTier.observeTier("uid-123") } returns flowOf(ContentTier.PREMIUM)
+        val oldAccountFlow = repository.observeTier()
+        oldAccountFlow.toList()
+
+        every { currentUser.currentUserId } returns "other-user"
+        every { userTier.observeTier("other-user") } returns flowOf(ContentTier.FREE)
+        repository.observeTier().toList()
+        oldAccountFlow.toList()
+        repository.observeTier().toList()
+        verify(exactly = 0) { analytics.logSubscriptionLapsed() }
+
+        every { userTier.observeTier("other-user") } returns flowOf(ContentTier.PREMIUM, ContentTier.FREE, ContentTier.FREE)
+        repository.observeTier().toList()
+        verify(exactly = 1) { analytics.logSubscriptionLapsed() }
     }
 
     @Test
