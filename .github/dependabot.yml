@@ -5,6 +5,14 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    ignore:
+      # Keep runtime types on the deployed Node.js major.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "firebase"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@firebase/rules-unit-testing"
+        update-types: ["version-update:semver-major"]
     groups:
       firebase:
         patterns:
@@ -17,6 +25,11 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: "firebase"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@firebase/rules-unit-testing"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "gradle"
     directory: "/"

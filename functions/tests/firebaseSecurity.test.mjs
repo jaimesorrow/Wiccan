@@ -18,6 +18,7 @@ const { obfuscatedAccountId, purchaseTokenDocumentId } = require("../lib/billing
 const { backfillContentUsage } = require("../lib/contentUsageBackfill.js");
 const { FirestoreAccountDeletionRepository } = require("../lib/firestoreAccountDeletionRepository.js");
 const { FakePlayBillingPort } = require("../lib/testUtils/fakePlayBillingPort.js");
+const { CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION } = require("../lib/policyVersions.js");
 let environment;
 let adminApp;
 let adminDb;
@@ -35,9 +36,15 @@ after(async () => { await environment?.cleanup(); if (adminApp) await deleteApp(
 async function seedArchive() {
   await environment.withSecurityRulesDisabled(async (context) => {
     const db = context.firestore();
+    const activeSubscriber = {
+      tier: "premium",
+      subscriptionExpiresAtMillis: Date.now() + 3_600_000,
+      acceptedTermsVersion: CURRENT_TERMS_VERSION,
+      acceptedPrivacyVersion: CURRENT_PRIVACY_VERSION,
+    };
     await Promise.all([
-      setDoc(doc(db, "users/alice"), { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 }),
-      setDoc(doc(db, "users/bob"), { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 }),
+      setDoc(doc(db, "users/alice"), activeSubscriber),
+      setDoc(doc(db, "users/bob"), activeSubscriber),
       setDoc(doc(db, "content/free-lesson"), { status: "published", tier: "free" }),
       setDoc(doc(db, "content/premium-lesson"), { status: "published", tier: "premium" }),
       setDoc(doc(db, "content/draft-lesson"), { status: "draft", tier: "free" }),
