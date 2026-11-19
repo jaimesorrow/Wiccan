@@ -56,8 +56,9 @@ Run it from the **Actions** tab, or push a `v*` tag.
 - Both CI and the release workflow use the authoritative prod source-set
   config at `app/src/prod/google-services.json`. CI additionally copies a
   fake root fallback; that fallback does not override the prod config.
-- [ ] `versionCode` in `app/build.gradle.kts` must strictly increase on
-  every Play submission; bump it before each run (see Versioning below).
+- [ ] Before uploading a new bundle, set a higher `versionCode` in
+  `app/build.gradle.kts`. Keep the existing code when promoting an
+  uploaded bundle or rerunning a build without a new upload.
 - [ ] After the first upload, add the **Play App Signing** certificate's
   SHA-1 to Firebase. Google re-signs the app with its own key, so the
   certificate on users' devices is not the upload key — Google sign-in and
