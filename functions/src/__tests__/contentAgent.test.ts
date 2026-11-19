@@ -192,13 +192,14 @@ describe("runContentAgentCycle", () => {
 });
 
 describe("content agent settings", () => {
-  it("clamps the batch size to 1-5 and defaults to 3", () => {
-    expect(clampBatchSize(undefined)).toBe(3);
-    expect(clampBatchSize("4")).toBe(3);
-    expect(clampBatchSize(2.5)).toBe(3);
+  it("clamps the batch size to 1-2 (the daily limit) and defaults to 2", () => {
+    expect(clampBatchSize(undefined)).toBe(2);
+    expect(clampBatchSize("4")).toBe(2);
+    expect(clampBatchSize(2.5)).toBe(2);
     expect(clampBatchSize(0)).toBe(1);
-    expect(clampBatchSize(99)).toBe(5);
-    expect(clampBatchSize(4)).toBe(4);
+    expect(clampBatchSize(99)).toBe(2);
+    expect(clampBatchSize(4)).toBe(2);
+    expect(clampBatchSize(1)).toBe(1);
   });
 
   it("only uses passages whose source is an approved generation source", () => {

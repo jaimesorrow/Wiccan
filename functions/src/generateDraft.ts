@@ -10,7 +10,7 @@ import {
   generationConceptSignature,
   screenGeneratedCandidate,
 } from "./generationOriginality";
-import type { GenerationOriginalityReport } from "./generationOriginality";
+import type { GenerationInventoryRecord, GenerationOriginalityReport } from "./generationOriginality";
 
 export interface GenerateDraftRequest {
   tier: ContentTier;
@@ -48,6 +48,28 @@ export interface GeneratedDraftBatchResult {
   rejected: RejectedGeneratedDraft[];
   attempts: number;
   exhausted: boolean;
+}
+
+/** Model attempts allowed per requested draft before a batch gives up (regenerate on a duplicate). */
+export const MAX_ATTEMPTS_PER_DRAFT = 5;
+/** Drafts may only ever be these types; anything else crashes the Grimoire. */
+const ALLOWED_DRAFT_TYPES: readonly ContentType[] = ["spell", "potion", "lesson"];
+const MAX_TITLES_IN_PROMPT = 1000;
+
+/** Every distinct existing title (published and draft) plus this batch's rejected titles, for the prompt's avoid-list. */
+export function existingTitleList(inventory: GenerationInventoryRecord[], rejectedTitles: string[] = []): string[] {
+  const seen = new Set<string>();
+  const titles: string[] = [];
+  const all = [...inventory.map((record) => record.fields.title), ...rejectedTitles];
+  for (const value of all) {
+    if (typeof value !== "string") continue;
+    const title = value.trim();
+    const key = title.toLowerCase();
+    if (!title || seen.has(key)) continue;
+    seen.add(key);
+    titles.push(title);
+  }
+  return titles.slice(-MAX_TITLES_IN_PROMPT);
 }
 
 export class InvalidGenerationRequestError extends Error {}
@@ -140,12 +162,17 @@ export async function generateDraftBatch(
   const accepted: GeneratedDraftSummary[] = [];
   const rejected: RejectedGeneratedDraft[] = [];
   const inventory = await repo.listOriginalityInventory();
-  const maximumAttempts = Math.max(count * 5, count);
+  const maximumAttempts = Math.max(count * MAX_ATTEMPTS_PER_DRAFT, count);
+  /** Titles of candidates rejected this batch, so a regeneration does not repeat them. */
+  const rejectedTitles: string[] = [];
   let attempts = 0;
 
   while (accepted.length < count && attempts < maximumAttempts) {
     const pair = pairs[attempts % pairs.length];
     attempts += 1;
+    if (!ALLOWED_DRAFT_TYPES.includes(pair.type)) {
+      throw new InvalidGenerationRequestError(`Type '${pair.type}' is not allowed; drafts must be spell, potion or lesson.`);
+    }
     const relevantExcludedConcepts = inventory
       .filter((record) => {
         const fields = record.fields;
@@ -173,6 +200,7 @@ export async function generateDraftBatch(
       summary: pair.source.summary,
       groundedFacts: pair.source.groundedFacts,
       excludedConcepts: relevantExcludedConcepts,
+      existingTitles: existingTitleList(inventory, rejectedTitles),
     });
 
     const draft: NewDraftContent = {
@@ -199,6 +227,7 @@ export async function generateDraftBatch(
     delete draft.practicalReview;
     const originality = screenGeneratedCandidate(draft as unknown as Record<string, unknown>, inventory);
     if (!originality.accepted) {
+      rejectedTitles.push(generated.title);
       rejected.push({
         title: generated.title,
         status: "rejected-duplicate",
@@ -215,6 +244,7 @@ export async function generateDraftBatch(
       contentId = await repo.createDraftWithOriginalityReservations(draft, originality.reservationKeys);
     } catch (error) {
       if (!(error instanceof Error) || !error.message.startsWith("Originality reservation collision:")) throw error;
+      rejectedTitles.push(generated.title);
       rejected.push({
         title: generated.title,
         status: "rejected-duplicate",

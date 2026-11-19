@@ -8,7 +8,7 @@ export interface SystemConfig {
    * Unlike the two flags above it fails closed: only an explicit `true` enables it.
    */
   contentGenerationEnabled: boolean;
-  /** Drafts requested per scheduled run; clamped to 1-5, default 3. */
+  /** Drafts requested per scheduled run; clamped to 1-2 (the daily limit), default 2. */
   contentGenerationBatchSize: number;
 }
 
