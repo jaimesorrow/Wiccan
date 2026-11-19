@@ -92,7 +92,7 @@ function lessonText(fields: Record<string, unknown>): string {
 export function findPracticalSafetyViolations(content: object): string[] {
   const fields = content as Record<string, unknown>;
   const text = lessonText(fields);
-  const method = String(fields.lesson ?? fields.body ?? "").toLowerCase();
+  const method = [fields.lesson, fields.body].filter(nonblank).join(" ").toLowerCase();
   const safety = String(fields.safetyNote ?? "").toLowerCase();
   const issues: string[] = [];
 
