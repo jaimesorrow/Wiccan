@@ -15,6 +15,7 @@ data class SettingsUiState(
     val showDeleteConfirmation: Boolean = false,
     val tier: ContentTier = ContentTier.FREE,
     val notificationsEnabled: Boolean = true,
+    val isNotificationBusy: Boolean = false,
     val shareAnalytics: Boolean = false,
     val themeMode: WiccanThemeMode = WiccanThemeMode.DEFAULT,
 )
