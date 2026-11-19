@@ -4,7 +4,7 @@
   exclusions, older syntax. See data_extraction_rules.xml for the reasoning.
 -->
 <full-backup-content>
-    <exclude domain="sharedpref" />
+    <exclude domain="sharedpref" path="." />
     <exclude domain="database" path="wiccan.db" />
     <exclude domain="database" path="wiccan.db-wal" />
     <exclude domain="database" path="wiccan.db-shm" />

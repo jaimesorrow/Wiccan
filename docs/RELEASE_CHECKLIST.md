@@ -72,7 +72,7 @@ Run it from the **Actions** tab, or push a `v*` tag.
 
 ## Versioning
 
-- `versionCode`/`versionName` live in `app/build.gradle.kts` (`defaultConfig`). Bump both on every Play submission — `versionCode` must strictly increase, Play rejects a re-upload otherwise.
+- `versionCode` and `versionName` live in `app/build.gradle.kts` (`defaultConfig`). Use a new, higher `versionCode` when uploading a new build to Play. Set the user-visible `versionName` according to the release versioning scheme.
 - [ ] Decide a versioning scheme (this checklist doesn't impose one) and document it once chosen.
 
 ## 16KB page size (Android 15+)
