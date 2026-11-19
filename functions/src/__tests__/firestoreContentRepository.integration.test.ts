@@ -388,13 +388,18 @@ describeWithEmulator("Firestore daily assignment transactions", () => {
   });
 
   it("authorized account deletion removes only that user's pool exhaustion events", async () => {
+    await db.collection("users").doc("another-user").set({ tier: "premium" });
     await Promise.all([
       repo.logPoolExhaustion(UID, "premium", TODAY),
       repo.logPoolExhaustion("another-user", "premium", TODAY),
     ]);
     const deletion = new FirestoreAccountDeletionRepository(db, {} as Auth, new FakePlayBillingPort());
 
+    await deletion.cancelActiveSubscription(UID);
     await deletion.deleteContentPoolExhaustionEvents(UID);
+    await expect(repo.logPoolExhaustion(UID, "premium", TODAY)).rejects.toThrow("being deleted");
+    await deletion.deleteUserProfile(UID);
+    await expect(repo.logPoolExhaustion(UID, "premium", TODAY)).rejects.toThrow("unavailable");
 
     const events = await db.collection("contentPoolExhaustionEvents").get();
     expect(events.docs.map((event) => event.get("userId"))).toEqual(["another-user"]);
