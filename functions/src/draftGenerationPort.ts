@@ -29,6 +29,12 @@ export interface DraftGenerationRequest {
   groundedFacts: string[];
   /** Exact editor-inspected passage, never a source inferred after generation. */
   passage?: SourcePassage;
+  /**
+   * Titles of every existing content document (published and draft) plus
+   * candidates already rejected or accepted in this batch. The model must not
+   * reuse or lightly reword any of them.
+   */
+  existingTitles?: string[];
   /** Compact concept summaries the model must not reproduce or merely rename. */
   excludedConcepts?: Array<{
     id: string;
