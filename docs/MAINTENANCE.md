@@ -107,6 +107,9 @@ currently handled (automated, manual, or not yet built).
   Node 22 runtime. `@firebase/rules-unit-testing` 6.0.0 and the `firebase`
   13.3.0 client still declare `node >=24.12.0`. Those are devDependencies,
   and the Node 22 suites are what CI runs.
+- **Node 22 compatibility**: Both npm workspaces use Firebase JS 12 and
+  Rules Unit Testing 5. Functions uses Node 22 types to match its deployed
+  runtime. Dependabot can propose compatible updates within these majors.
 
 ## Content pool
 
