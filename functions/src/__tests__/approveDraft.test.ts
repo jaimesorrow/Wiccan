@@ -2,6 +2,8 @@ import { approveDraft as approveDraftWithApproval, DraftNotFoundError, UnsafeCon
 import { FakeContentAdminRepository } from "../testUtils/fakeContentAdminRepository";
 import { NewDraftContent } from "../contentAdminRepositoryPort";
 import { ContentSource } from "../contentSource";
+import * as contentSources from "../contentSource";
+import * as sourcePassages from "../sourcePassages";
 
 const BASE_DRAFT: NewDraftContent = {
   title: "t",
@@ -65,8 +67,21 @@ describe("approveDraft", () => {
     const contentId = await repo.createDraft(BASE_DRAFT);
     await approveDraft(contentId, repo);
 
-    await expect(approveDraft(contentId, repo)).resolves.toBeUndefined();
-    expect(await repo.getStatus(contentId)).toBe("published");
+    const sources = jest.spyOn(contentSources, "loadContentSources").mockImplementation(() => {
+      throw new Error("Source registry unavailable");
+    });
+    const passages = jest.spyOn(sourcePassages, "loadSourcePassages").mockImplementation(() => {
+      throw new Error("Passage registry unavailable");
+    });
+    try {
+      await expect(approveDraft(contentId, repo)).resolves.toBeUndefined();
+      expect(await repo.getStatus(contentId)).toBe("published");
+      expect(sources).not.toHaveBeenCalled();
+      expect(passages).not.toHaveBeenCalled();
+    } finally {
+      sources.mockRestore();
+      passages.mockRestore();
+    }
   });
 
   it("throws DraftNotFoundError for a missing document", async () => {
@@ -103,6 +118,20 @@ describe("approveDraft", () => {
     });
 
     await expect(approveDraft(contentId, repo)).rejects.toThrow(UnsafeContentError);
+    expect(await repo.getStatus(contentId)).toBe("draft");
+  });
+
+  it.each(["spell", "potion"] as const)("screens a legacy %s without a source passage", async (type) => {
+    const repo = new FakeContentAdminRepository();
+    const contentId = await repo.createDraft({
+      ...BASE_DRAFT,
+      type,
+      body: "Drink the mixture.",
+      lesson: "Set the bowl on the altar.",
+      safetyNote: "For external use only.",
+    });
+
+    await expect(approveDraft(contentId, repo)).rejects.toThrow("may not instruct ingestion");
     expect(await repo.getStatus(contentId)).toBe("draft");
   });
 
