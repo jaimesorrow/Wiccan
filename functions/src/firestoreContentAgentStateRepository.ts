@@ -35,6 +35,45 @@ export class FirestoreContentAgentStateRepository implements ContentAgentStatePo
     });
   }
 
+  private dailyRef(dateKey: string) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) throw new Error(`Invalid daily counter date key '${dateKey}'.`);
+    return this.db.collection(STATE_COLLECTION).doc(`daily-${dateKey}`);
+  }
+
+  async reserveDailyDrafts(dateKey: string, requested: number, limit: number, maxRuns: number): Promise<number> {
+    const ref = this.dailyRef(dateKey);
+    return this.db.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(ref);
+      const reserved = validCursor(snapshot.get("reserved"));
+      const runs = validCursor(snapshot.get("runs"));
+      const grant = runs >= maxRuns ? 0 : Math.max(0, Math.min(requested, limit - reserved));
+      if (grant > 0) {
+        transaction.set(ref, {
+          dateKey,
+          reserved: reserved + grant,
+          runs: runs + 1,
+          updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
+      }
+      return grant;
+    });
+  }
+
+  async settleDailyDrafts(dateKey: string, reserved: number, written: number): Promise<void> {
+    const release = Math.max(0, reserved - written);
+    if (release === 0) return;
+    const ref = this.dailyRef(dateKey);
+    await this.db.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(ref);
+      const current = validCursor(snapshot.get("reserved"));
+      transaction.set(ref, {
+        reserved: Math.max(0, current - release),
+        written: validCursor(snapshot.get("written")) + Math.min(written, reserved),
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+    });
+  }
+
   async recordRun(runId: string, report: ContentAgentRunReport): Promise<void> {
     const runRef = this.db.collection(RUNS_COLLECTION).doc(runId);
     await this.db.runTransaction(async (transaction) => {

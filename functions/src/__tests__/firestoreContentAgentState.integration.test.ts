@@ -85,4 +85,42 @@ describeWithEmulator("FirestoreContentAgentStateRepository", () => {
     const scheduler = await db.collection("contentAgentState").doc("scheduler").get();
     expect(scheduler.get("leaseRunId")).toBe("run-fresh");
   });
+  describe("daily draft counter", () => {
+    const DATE = "2026-11-08";
+    const daily = () => db.collection("contentAgentState").doc(`daily-${DATE}`).get();
+
+    it("grants at most the daily limit across sequential reservations", async () => {
+      expect(await state.reserveDailyDrafts(DATE, 5, 2, 3)).toBe(2);
+      expect(await state.reserveDailyDrafts(DATE, 1, 2, 3)).toBe(0);
+      expect((await daily()).get("reserved")).toBe(2);
+    });
+
+    it("never over-grants when reservations race", async () => {
+      const grants = await Promise.all(
+        Array.from({ length: 6 }, () => state.reserveDailyDrafts(DATE, 2, 2, 10)),
+      );
+      expect(grants.reduce((sum, grant) => sum + grant, 0)).toBe(2);
+      expect((await daily()).get("reserved")).toBe(2);
+    });
+
+    it("stops admitting runs after the run allowance, whatever they wrote", async () => {
+      expect(await state.reserveDailyDrafts(DATE, 1, 2, 2)).toBe(1);
+      await state.settleDailyDrafts(DATE, 1, 0);
+      expect(await state.reserveDailyDrafts(DATE, 1, 2, 2)).toBe(1);
+      await state.settleDailyDrafts(DATE, 1, 0);
+      expect(await state.reserveDailyDrafts(DATE, 1, 2, 2)).toBe(0);
+    });
+
+    it("returns unused slots on settle, and keeps each UTC date separate", async () => {
+      expect(await state.reserveDailyDrafts(DATE, 2, 2, 3)).toBe(2);
+      await state.settleDailyDrafts(DATE, 2, 1);
+      expect((await daily()).get("reserved")).toBe(1);
+      expect(await state.reserveDailyDrafts(DATE, 2, 2, 3)).toBe(1);
+      expect(await state.reserveDailyDrafts("2026-11-09", 2, 2, 3)).toBe(2);
+    });
+
+    it("rejects a malformed date key", async () => {
+      await expect(state.reserveDailyDrafts("../scheduler", 1, 2, 3)).rejects.toThrow(/Invalid daily counter date key/);
+    });
+  });
 });

@@ -10,9 +10,17 @@ import { generateDraftBatch } from "./generateDraft";
 import type { GeneratedDraftBatchResult } from "./generateDraft";
 
 const CONTENT_AGENT_TIERS: readonly ContentTier[] = ["free", "premium"];
-const DEFAULT_CONTENT_AGENT_BATCH_SIZE = 3;
-/** generateDraftBatch makes up to 5 attempts per draft, so 5 caps a run at 25 model calls. */
-const MAX_CONTENT_AGENT_BATCH_SIZE = 5;
+/**
+ * Hard ceiling on drafts written per UTC day, across every run, retry and
+ * overlapping invocation. Enforced by a transactional Firestore counter
+ * (ContentAgentStatePort.reserveDailyDrafts), not only by the batch size.
+ */
+export const DAILY_DRAFT_LIMIT = 2;
+/** Bounds model spend: a day's counter admits at most this many runs, however they end. */
+export const MAX_RUNS_PER_DAY = 3;
+const DEFAULT_CONTENT_AGENT_BATCH_SIZE = DAILY_DRAFT_LIMIT;
+/** generateDraftBatch makes up to 5 attempts per draft, so a run makes at most 10 model calls. */
+const MAX_CONTENT_AGENT_BATCH_SIZE = DAILY_DRAFT_LIMIT;
 /** Longer than the job's 30-minute timeout, so a live run always outlasts its lease check. */
 const CONTENT_AGENT_LEASE_MS = 35 * 60_000;
 
@@ -24,6 +32,7 @@ export interface ContentAgentSettings {
 type ContentAgentRunStatus =
   | "disabled"
   | "skipped"
+  | "daily-limit-reached"
   | "no-verified-passages"
   | "completed"
   | "exhausted"
@@ -49,6 +58,22 @@ export interface ContentAgentRunReport {
 /** Scheduler state and run log; Admin SDK only (see firestore.rules). */
 export interface ContentAgentStatePort {
   /**
+   * In one transaction, reserves up to `requested` of the day's `limit`
+   * draft slots on the counter for `dateKey` (a UTC YYYY-MM-DD), and counts
+   * this run against `maxRuns`. Returns how many slots were reserved: 0 when
+   * the limit or the run allowance is spent. A reservation counts toward the
+   * limit immediately, so a retry or concurrent invocation can never push
+   * the day past `limit`.
+   */
+  reserveDailyDrafts(dateKey: string, requested: number, limit: number, maxRuns: number): Promise<number>;
+  /**
+   * Gives back `reserved - written` unused slots after a run that finished
+   * cleanly. Never called after a failed run, which keeps its full
+   * reservation so a draft committed just before the failure can't be
+   * miscounted.
+   */
+  settleDailyDrafts(dateKey: string, reserved: number, written: number): Promise<void>;
+  /**
    * Atomically claims the next rotation slot for `runId` and advances the
    * cursor in the same transaction. Returns the claimed cursor, or null when
    * this runId already ran (a duplicate scheduler delivery) or another run
@@ -57,6 +82,11 @@ export interface ContentAgentStatePort {
   claimSlot(runId: string, now: Date, leaseMs: number): Promise<number | null>;
   /** Writes the final report under `runId` and releases that run's lease. */
   recordRun(runId: string, report: ContentAgentRunReport): Promise<void>;
+}
+
+/** The UTC calendar day a run counts against. */
+export function dailyDraftDateKey(now: Date): string {
+  return now.toISOString().slice(0, 10);
 }
 
 export function clampBatchSize(value: unknown): number {
@@ -156,12 +186,23 @@ export async function runContentAgentCycle(deps: {
   };
   if (!settings.enabled) return base;
 
+  // Reserve today's draft slots first so a spent day never burns a rotation slot or a model call.
+  const dateKey = dailyDraftDateKey(now);
+  const reserved = await state.reserveDailyDrafts(dateKey, requested, DAILY_DRAFT_LIMIT, MAX_RUNS_PER_DAY);
+  if (reserved < 1) return { ...base, status: "daily-limit-reached", requested: 0 };
+  base.requested = reserved;
+
   const cursor = await state.claimSlot(runId, now, CONTENT_AGENT_LEASE_MS);
-  if (cursor === null) return { ...base, status: "skipped" };
+  if (cursor === null) {
+    // A duplicate or overlapping delivery: hand every reserved slot back.
+    await state.settleDailyDrafts(dateKey, reserved, 0);
+    return { ...base, status: "skipped" };
+  }
 
   const eligible = eligibleAgentPassages(passages, sources);
   if (eligible.length === 0) {
     const report: ContentAgentRunReport = { ...base, status: "no-verified-passages", cursor };
+    await state.settleDailyDrafts(dateKey, reserved, 0);
     await state.recordRun(runId, report);
     return report;
   }
@@ -173,7 +214,7 @@ export async function runContentAgentCycle(deps: {
   let report: ContentAgentRunReport;
   try {
     const batch = await generateDraftBatch(
-      { tier, sourceId: passage.sourceId, passageId: passage.id, count: requested },
+      { tier, sourceId: passage.sourceId, passageId: passage.id, count: reserved },
       sources,
       progress.generator(generator),
       progress.repo(repo),
@@ -197,5 +238,7 @@ export async function runContentAgentCycle(deps: {
     };
   }
   await state.recordRun(runId, report);
+  // A failed run keeps its whole reservation; any other run returns the slots it did not use.
+  if (report.status !== "failed") await state.settleDailyDrafts(dateKey, reserved, report.accepted.length);
   return report;
 }
