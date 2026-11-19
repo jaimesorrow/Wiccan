@@ -26,15 +26,28 @@ private val Context.notificationDataStore: DataStore<Preferences> by preferences
 class NotificationPreferences @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
-    val notificationsEnabled: Flow<Boolean> = context.notificationDataStore.data.map {
-        it[KEY_NOTIFICATIONS_ENABLED] ?: true
+    fun observe(uid: String): Flow<Boolean> = context.notificationDataStore.data.map {
+        it[accountKey(uid)] ?: true
     }
 
-    suspend fun setNotificationsEnabled(enabled: Boolean) {
-        context.notificationDataStore.edit { it[KEY_NOTIFICATIONS_ENABLED] = enabled }
+    suspend fun savedChoice(uid: String): Boolean? {
+        val key = accountKey(uid)
+        return context.notificationDataStore.edit { values ->
+            values.remove(LEGACY_KEY)?.let { previous ->
+                if (values[key] == null) values[key] = previous
+            }
+        }[key]
+    }
+
+    suspend fun setNotificationsEnabled(uid: String, enabled: Boolean) {
+        context.notificationDataStore.edit {
+            it.remove(LEGACY_KEY)
+            it[accountKey(uid)] = enabled
+        }
     }
 
     private companion object {
-        val KEY_NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
+        val LEGACY_KEY = booleanPreferencesKey("notifications_enabled")
+        fun accountKey(uid: String) = booleanPreferencesKey("notifications_enabled_$uid")
     }
 }
