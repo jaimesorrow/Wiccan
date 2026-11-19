@@ -61,7 +61,9 @@ export interface ContentAdminRepositoryPort {
    * reservation collision means another generator already accepted the same
    * normalized title, slug, authored content, or practical concept.
    */
-  createDraftWithOriginalityReservations(draft: NewDraftContent, reservationKeys: string[]): Promise<string>;
+  createDraftWithOriginalityReservations(
+    draft: NewDraftContent, reservationKeys: string[], beforeWrite?: () => void,
+  ): Promise<string>;
 
   /** Complete draft/published inventory used before every generation batch. */
   listOriginalityInventory(): Promise<GenerationInventoryRecord[]>;
