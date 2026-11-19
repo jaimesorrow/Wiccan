@@ -235,6 +235,19 @@ async function main() {
   ok("updateTimeZone succeeds", !tz?.error, JSON.stringify(tz).slice(0, 200));
   const notif = await call("setNotificationsEnabled", token, { token: fcm, enabled: false });
   ok("setNotificationsEnabled succeeds", !notif?.error, JSON.stringify(notif).slice(0, 200));
+  const wrongAccount = await call("registerDeviceToken", token, { token: fcm, expectedUid: "another-user" });
+  ok("registration rejects a changed account", wrongAccount?.error?.status === "PERMISSION_DENIED");
+  const rotated = "e2e-rotated-token";
+  const rotatedRegistration = await call("registerDeviceToken", token, { token: rotated, expectedUid: uid, enabled: false });
+  ok("replacement token accepts the saved opt-out", rotatedRegistration?.result?.preferenceSupported === true);
+  const deviceCollection = db.collection("users").doc(uid).collection("devices");
+  const rotatedDevice = (await deviceCollection.where("token", "==", rotated).get()).docs[0];
+  ok("replacement device is opted out", rotatedDevice?.get("notificationsEnabled") === false);
+  const change = await call("registerDeviceToken", token, { token: rotated, expectedUid: uid, enabled: true, updateChoice: true });
+  ok("explicit preference update is persisted", change?.result?.preferenceSupported === true &&
+    (await rotatedDevice.ref.get()).get("notificationsEnabled") === true);
+  await call("updateTimeZone", token, { token: "unknown-device", timeZone: "UTC" });
+  ok("time zone updates never create incomplete devices", (await deviceCollection.get()).size === 2);
 
   console.log("\n== collection-group query ==");
   ok("collectionGroup('devices') resolves", (await db.collectionGroup("devices").get()).size >= 1);

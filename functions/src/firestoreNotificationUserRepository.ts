@@ -39,7 +39,9 @@ export class FirestoreNotificationUserRepository implements NotificationUserRepo
     await this.deviceDoc(uid, token).delete();
   }
 
-  async setToken(uid: string, token: string, timeZone?: string | null): Promise<void> {
+  async setToken(
+    uid: string, token: string, timeZone?: string | null, enabled?: boolean, updateChoice = false,
+  ): Promise<void> {
     const ref = this.deviceDoc(uid, token);
     await this.db.runTransaction(async (transaction) => {
       const [user, existing] = await Promise.all([
@@ -53,10 +55,10 @@ export class FirestoreNotificationUserRepository implements NotificationUserRepo
       };
       if (timeZone) data.timeZone = timeZone;
       // Preserve first registration metadata and the saved notification choice.
-      if (!existing.exists) {
+      if (!existing.exists || !existing.get("createdAt")) {
         data.createdAt = FieldValue.serverTimestamp();
-        data.notificationsEnabled = true;
       }
+      if (updateChoice || !existing.exists) data.notificationsEnabled = enabled ?? true;
       transaction.set(ref, data, { merge: true });
     });
   }
@@ -71,9 +73,16 @@ export class FirestoreNotificationUserRepository implements NotificationUserRepo
 
   private async updateDevice(uid: string, token: string, fields: Record<string, unknown>): Promise<void> {
     await this.db.runTransaction(async (transaction) => {
-      const user = await transaction.get(this.db.collection(USERS_COLLECTION).doc(uid));
+      const ref = this.deviceDoc(uid, token);
+      const [user, device] = await Promise.all([
+        transaction.get(this.db.collection(USERS_COLLECTION).doc(uid)), transaction.get(ref),
+      ]);
       assertAccountWriteAllowed(user);
-      transaction.set(this.deviceDoc(uid, token), fields, { merge: true });
+      if (!device.exists || device.get("token") !== token) {
+        if ("notificationsEnabled" in fields) throw new Error("Device token is not registered.");
+        return;
+      }
+      transaction.update(ref, fields);
     });
   }
 
