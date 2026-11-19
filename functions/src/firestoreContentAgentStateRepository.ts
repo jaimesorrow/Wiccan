@@ -59,15 +59,16 @@ export class FirestoreContentAgentStateRepository implements ContentAgentStatePo
     });
   }
 
-  async settleDailyDrafts(dateKey: string, reserved: number, written: number): Promise<void> {
+  async settleDailyDrafts(dateKey: string, reserved: number, written: number, countRun = true): Promise<void> {
     const release = Math.max(0, reserved - written);
-    if (release === 0) return;
+    if (release === 0 && countRun) return;
     const ref = this.dailyRef(dateKey);
     await this.db.runTransaction(async (transaction) => {
       const snapshot = await transaction.get(ref);
       const current = validCursor(snapshot.get("reserved"));
       transaction.set(ref, {
         reserved: Math.max(0, current - release),
+        runs: countRun ? validCursor(snapshot.get("runs")) : Math.max(0, validCursor(snapshot.get("runs")) - 1),
         written: validCursor(snapshot.get("written")) + Math.min(written, reserved),
         updatedAt: FieldValue.serverTimestamp(),
       }, { merge: true });

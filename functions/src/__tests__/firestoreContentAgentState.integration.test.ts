@@ -119,6 +119,14 @@ describeWithEmulator("FirestoreContentAgentStateRepository", () => {
       expect(await state.reserveDailyDrafts("2026-11-09", 2, 2, 3)).toBe(2);
     });
 
+    it("refunds the run allowance for a run that never reached the model", async () => {
+      expect(await state.reserveDailyDrafts(DATE, 2, 2, 3)).toBe(2);
+      await state.settleDailyDrafts(DATE, 2, 0, false);
+      const snapshot = await daily();
+      expect(snapshot.get("reserved")).toBe(0);
+      expect(snapshot.get("runs")).toBe(0);
+    });
+
     it("rejects a malformed date key", async () => {
       await expect(state.reserveDailyDrafts("../scheduler", 1, 2, 3)).rejects.toThrow(/Invalid daily counter date key/);
     });

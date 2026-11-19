@@ -68,11 +68,13 @@ export interface ContentAgentStatePort {
   reserveDailyDrafts(dateKey: string, requested: number, limit: number, maxRuns: number): Promise<number>;
   /**
    * Gives back `reserved - written` unused slots after a run that finished
-   * cleanly. Never called after a failed run, which keeps its full
+   * cleanly. Pass `countRun = false` for a run that never reached the model
+   * (a skipped duplicate or overlapping delivery, or no verified passages), so
+   * it does not use up the day's run allowance. Never called after a failed run, which keeps its full
    * reservation so a draft committed just before the failure can't be
    * miscounted.
    */
-  settleDailyDrafts(dateKey: string, reserved: number, written: number): Promise<void>;
+  settleDailyDrafts(dateKey: string, reserved: number, written: number, countRun?: boolean): Promise<void>;
   /**
    * Atomically claims the next rotation slot for `runId` and advances the
    * cursor in the same transaction. Returns the claimed cursor, or null when
@@ -114,6 +116,8 @@ function errorMessage(error: unknown): string {
 
 /** Records drafts committed and model calls made, so a run that throws midway still reports them. */
 class ProgressRecorder {
+  constructor(private readonly dateKey: string, private readonly clock: () => Date) {}
+
   attempts = 0;
   readonly accepted: ContentAgentRunReport["accepted"] = [];
 
@@ -134,6 +138,10 @@ class ProgressRecorder {
           return typeof value === "function" ? value.bind(target) : value;
         }
         return async (draft: NewDraftContent, keys: string[]) => {
+          // The cap is per UTC day: never write a draft under slots reserved for an earlier date.
+          if (dailyDraftDateKey(this.clock()) !== this.dateKey) {
+            throw new Error(`The UTC date changed during generation (reserved for ${this.dateKey}); stopping to honor the daily cap.`);
+          }
           const contentId = await target.createDraftWithOriginalityReservations(draft, keys);
           this.accepted.push({ contentId, title: draft.title, type: draft.type });
           return contentId;
@@ -166,8 +174,15 @@ export async function runContentAgentCycle(deps: {
   repo: ContentAdminRepositoryPort;
   state: ContentAgentStatePort;
   now: Date;
+  /**
+   * Current time, read before every draft is written. If the UTC date has
+   * moved on from the day the slots were reserved, the run stops rather than
+   * write into the next day's allowance. Defaults to the fixed `now`.
+   */
+  clock?: () => Date;
 }): Promise<ContentAgentRunReport> {
   const { runId, settings, passages, sources, generator, repo, state, now } = deps;
+  const clock = deps.clock ?? (() => now);
   const requested = clampBatchSize(settings.batchSize);
   const base: ContentAgentRunReport = {
     status: "disabled",
@@ -195,14 +210,14 @@ export async function runContentAgentCycle(deps: {
   const cursor = await state.claimSlot(runId, now, CONTENT_AGENT_LEASE_MS);
   if (cursor === null) {
     // A duplicate or overlapping delivery: hand every reserved slot back.
-    await state.settleDailyDrafts(dateKey, reserved, 0);
+    await state.settleDailyDrafts(dateKey, reserved, 0, false);
     return { ...base, status: "skipped" };
   }
 
   const eligible = eligibleAgentPassages(passages, sources);
   if (eligible.length === 0) {
     const report: ContentAgentRunReport = { ...base, status: "no-verified-passages", cursor };
-    await state.settleDailyDrafts(dateKey, reserved, 0);
+    await state.settleDailyDrafts(dateKey, reserved, 0, false);
     await state.recordRun(runId, report);
     return report;
   }
@@ -210,7 +225,7 @@ export async function runContentAgentCycle(deps: {
   const passage = eligible[cursor % eligible.length];
   const tier = CONTENT_AGENT_TIERS[Math.floor(cursor / eligible.length) % CONTENT_AGENT_TIERS.length];
   const slot = { ...base, cursor, passageId: passage.id, sourceId: passage.sourceId, tier };
-  const progress = new ProgressRecorder();
+  const progress = new ProgressRecorder(dateKey, clock);
   let report: ContentAgentRunReport;
   try {
     const batch = await generateDraftBatch(

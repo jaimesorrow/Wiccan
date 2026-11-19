@@ -58,8 +58,8 @@ class FailingGenerator extends FakeDraftGenerationPort {
 function harness(settings: ContentAgentSettings = { enabled: true, batchSize: 5 }, generator = new FakeDraftGenerationPort()) {
   const repo = new FakeContentAdminRepository();
   const state = new FakeContentAgentState();
-  const run = (runId: string, now: Date) => runContentAgentCycle({
-    runId, settings, passages: [PASSAGE], sources: [SOURCE], generator, repo, state, now,
+  const run = (runId: string, now: Date, clock?: () => Date, passages: SourcePassage[] = [PASSAGE]) => runContentAgentCycle({
+    runId, settings, passages, sources: [SOURCE], generator, repo, state, now, clock,
   });
   return { generator, repo, state, run };
 }
@@ -159,10 +159,58 @@ describe("daily draft cap", () => {
     await state.claimSlot("run-same", DAY, 1); // run-same already ran
     const duplicate = await run("run-same", at(1));
     expect(duplicate.status).toBe("skipped");
-    expect(state.daily.get("2026-11-08")?.reserved).toBe(0);
+    expect(state.daily.get("2026-11-08")).toEqual({ reserved: 0, runs: 0 });
     const real = await run("run-real", at(2));
     expect(real.accepted).toHaveLength(2);
     expect(repo.docs.size).toBe(2);
+  });
+
+  it("does not spend the run allowance on skipped duplicate or overlapping deliveries", async () => {
+    const { repo, state, run } = harness({ enabled: true, batchSize: 1 });
+    expect((await run("run-1", DAY)).accepted).toHaveLength(1);
+    // Two redeliveries of run-1 make no model call and must not count as runs.
+    expect((await run("run-1", at(1))).status).toBe("skipped");
+    expect((await run("run-1", at(2))).status).toBe("skipped");
+    expect(state.daily.get("2026-11-08")).toEqual({ reserved: 1, runs: 1 });
+    const next = await run("run-2", at(3));
+    expect(next.accepted).toHaveLength(1);
+    expect(repo.docs.size).toBe(2);
+    expect((await run("run-3", at(4))).status).toBe("daily-limit-reached");
+  });
+
+  it("does not spend the run allowance when there are no verified passages", async () => {
+    const { state, run } = harness({ enabled: true, batchSize: 1 });
+    for (let i = 0; i < MAX_RUNS_PER_DAY + 2; i++) {
+      expect((await run(`run-empty-${i}`, at(i), undefined, [])).status).toBe("no-verified-passages");
+    }
+    expect(state.daily.get("2026-11-08")).toEqual({ reserved: 0, runs: 0 });
+    expect((await run("run-real", at(8))).accepted).toHaveLength(1);
+  });
+
+  it("stops writing when the UTC date rolls over mid-run, so slots reserved for one day never fill the next", async () => {
+    const { repo, state, run } = harness({ enabled: true, batchSize: 2 });
+    const justBeforeMidnight = new Date("2026-11-08T23:59:59.000Z");
+    let writes = 0;
+    // The first draft is written before midnight; the clock reads the next day from the second write on.
+    const clock = () => (writes++ === 0 ? justBeforeMidnight : new Date("2026-11-09T00:00:01.000Z"));
+    const report = await run("run-late", justBeforeMidnight, clock);
+    expect(report.status).toBe("failed");
+    expect(report.error).toMatch(/UTC date changed/);
+    expect(report.accepted).toHaveLength(1);
+    expect(repo.docs.size).toBe(1);
+    // The failed run keeps its reservation on the date it reserved, and the new day starts fresh.
+    expect(state.daily.get("2026-11-08")).toEqual({ reserved: 2, runs: 1 });
+    const nextDay = await run("run-next", NEXT_DAY);
+    expect(nextDay.accepted).toHaveLength(2);
+    expect(state.daily.get("2026-11-09")).toEqual({ reserved: 2, runs: 1 });
+    expect(repo.docs.size).toBe(3);
+  });
+
+  it("writes nothing if the date has already rolled over before the first draft", async () => {
+    const { repo, run } = harness({ enabled: true, batchSize: 2 });
+    const report = await run("run-late", new Date("2026-11-08T23:59:59.000Z"), () => new Date("2026-11-09T00:00:00.000Z"));
+    expect(report.status).toBe("failed");
+    expect(repo.docs.size).toBe(0);
   });
 
   it("cannot exceed two drafts when invocations overlap", async () => {

@@ -540,6 +540,7 @@ export const generateContentDraftsJob = onSchedule(
       repo: new FirestoreContentAdminRepository(db),
       state: new FirestoreContentAgentStateRepository(db),
       now: new Date(),
+      clock: () => new Date(),
     });
     const summary = { ...report, accepted: report.accepted.length, rejected: report.rejected.length };
     if (report.status === "failed") logger.error("generateContentDrafts failed", summary);

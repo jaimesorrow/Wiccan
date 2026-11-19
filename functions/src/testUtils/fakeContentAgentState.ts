@@ -24,9 +24,11 @@ export class FakeContentAgentState implements ContentAgentStatePort {
     return grant;
   }
 
-  async settleDailyDrafts(dateKey: string, reserved: number, written: number): Promise<void> {
+  async settleDailyDrafts(dateKey: string, reserved: number, written: number, countRun = true): Promise<void> {
     const day = this.daily.get(dateKey);
-    if (day) day.reserved = Math.max(0, day.reserved - Math.max(0, reserved - written));
+    if (!day) return;
+    day.reserved = Math.max(0, day.reserved - Math.max(0, reserved - written));
+    if (!countRun) day.runs = Math.max(0, day.runs - 1);
   }
 
   async recordRun(runId: string, report: ContentAgentRunReport): Promise<void> {
