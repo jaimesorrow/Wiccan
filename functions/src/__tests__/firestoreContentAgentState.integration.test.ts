@@ -85,4 +85,63 @@ describeWithEmulator("FirestoreContentAgentStateRepository", () => {
     const scheduler = await db.collection("contentAgentState").doc("scheduler").get();
     expect(scheduler.get("leaseRunId")).toBe("run-fresh");
   });
+  describe("daily draft counter", () => {
+    const DATE = "2026-11-08";
+    const daily = () => db.collection("contentAgentState").doc(`daily-${DATE}`).get();
+
+    it("claims quota and lease atomically without charging skipped deliveries", async () => {
+      const admission = { dateKey: DATE, requested: 1, limit: 2, maxRuns: 2 };
+      const claim = (id: string) => state.claimDailySlot(id, NOW, LEASE_MS, admission);
+      expect(await claim("first")).toEqual({ status: "claimed", cursor: 0, reserved: 1 });
+      expect(await claim("overlap")).toEqual({ status: "skipped" });
+      await state.recordRun("first", report("first", 0));
+      const duplicates = await Promise.all([claim("first"), claim("first")]);
+      expect(duplicates).toEqual([{ status: "skipped" }, { status: "skipped" }]);
+      expect((await daily()).data()).toMatchObject({ reserved: 1, runs: 1 });
+      expect(await claim("next")).toEqual({ status: "claimed", cursor: 1, reserved: 1 });
+      expect((await daily()).data()).toMatchObject({ reserved: 2, runs: 2 });
+    });
+
+    it("grants at most the daily limit across sequential reservations", async () => {
+      expect(await state.reserveDailyDrafts(DATE, 5, 2, 3)).toBe(2);
+      expect(await state.reserveDailyDrafts(DATE, 1, 2, 3)).toBe(0);
+      expect((await daily()).get("reserved")).toBe(2);
+    });
+
+    it("never over-grants when reservations race", async () => {
+      const grants = await Promise.all(
+        Array.from({ length: 6 }, () => state.reserveDailyDrafts(DATE, 2, 2, 10)),
+      );
+      expect(grants.reduce((sum, grant) => sum + grant, 0)).toBe(2);
+      expect((await daily()).get("reserved")).toBe(2);
+    });
+
+    it("stops admitting runs after the run allowance, whatever they wrote", async () => {
+      expect(await state.reserveDailyDrafts(DATE, 1, 2, 2)).toBe(1);
+      await state.settleDailyDrafts(DATE, 1, 0);
+      expect(await state.reserveDailyDrafts(DATE, 1, 2, 2)).toBe(1);
+      await state.settleDailyDrafts(DATE, 1, 0);
+      expect(await state.reserveDailyDrafts(DATE, 1, 2, 2)).toBe(0);
+    });
+
+    it("returns unused slots on settle, and keeps each UTC date separate", async () => {
+      expect(await state.reserveDailyDrafts(DATE, 2, 2, 3)).toBe(2);
+      await state.settleDailyDrafts(DATE, 2, 1);
+      expect((await daily()).get("reserved")).toBe(1);
+      expect(await state.reserveDailyDrafts(DATE, 2, 2, 3)).toBe(1);
+      expect(await state.reserveDailyDrafts("2026-11-09", 2, 2, 3)).toBe(2);
+    });
+
+    it("refunds the run allowance for a run that never reached the model", async () => {
+      expect(await state.reserveDailyDrafts(DATE, 2, 2, 3)).toBe(2);
+      await state.settleDailyDrafts(DATE, 2, 0, false);
+      const snapshot = await daily();
+      expect(snapshot.get("reserved")).toBe(0);
+      expect(snapshot.get("runs")).toBe(0);
+    });
+
+    it("rejects a malformed date key", async () => {
+      await expect(state.reserveDailyDrafts("../scheduler", 1, 2, 3)).rejects.toThrow(/Invalid daily counter date key/);
+    });
+  });
 });

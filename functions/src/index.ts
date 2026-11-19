@@ -66,7 +66,12 @@ const PLAY_RTDN_TOPIC = process.env.PLAY_RTDN_TOPIC ?? "play-rtdn";
 const SMTP_URL = defineSecret("SMTP_URL");
 const SMTP_FROM = defineString("SMTP_FROM", { default: "Wiccan <noreply@wiccanandroid.com>" });
 const VERIFICATION_EMAIL_COOLDOWN_MS = 60_000;
-const ANTHROPIC_API_KEY = defineSecret("ANTHROPIC_API_KEY");
+// Bound by name to generateContentDraftsJob alone. Deliberately not a
+// defineSecret() param: a module-level param is a *global* deploy requirement
+// (firebase-tools resolves it for every deploy, even --only), which blocked
+// every other function until the secret existed. The Anthropic SDK reads
+// process.env.ANTHROPIC_API_KEY, which Cloud Functions injects for this one function.
+const ANTHROPIC_API_KEY_SECRET = "ANTHROPIC_API_KEY";
 
 /**
  * Callable: generates a single-use Firebase verification action and delivers
@@ -518,10 +523,12 @@ export const sendDailyNotificationsJob = onSchedule("every 1 hours", async () =>
 });
 
 /**
- * Daily continuous content agent: writes up to `contentGenerationBatchSize`
- * duplicate-screened, review-required drafts from the next verified source
- * passage in rotation (see contentAgent.ts). It never publishes; drafts go
- * through approve-draft review like any other draft.
+ * Daily continuous content agent: writes at most DAILY_DRAFT_LIMIT (2)
+ * duplicate-screened, review-required practical drafts per UTC day from the
+ * next verified source passage in rotation (see contentAgent.ts). The cap is
+ * a transactional counter, so retries and overlapping invocations cannot
+ * exceed it. It never publishes; drafts go through approve-draft review like
+ * any other draft.
  *
  * Off unless systemConfig/global.contentGenerationEnabled is exactly true.
  * Each run transactionally claims its rotation slot (keyed by the schedule
@@ -530,7 +537,7 @@ export const sendDailyNotificationsJob = onSchedule("every 1 hours", async () =>
  * next day's run moves on to the next passage.
  */
 export const generateContentDraftsJob = onSchedule(
-  { schedule: "every day 04:00", timeZone: "UTC", secrets: [ANTHROPIC_API_KEY], timeoutSeconds: 1800, retryCount: 0 },
+  { schedule: "every day 04:00", timeZone: "UTC", secrets: [ANTHROPIC_API_KEY_SECRET], timeoutSeconds: 1800, retryCount: 0 },
   async (event) => {
     const db = getFirestore();
     const config = await new FirestoreSystemConfigRepository(db).getConfig();
@@ -549,6 +556,7 @@ export const generateContentDraftsJob = onSchedule(
       repo: new FirestoreContentAdminRepository(db),
       state: new FirestoreContentAgentStateRepository(db),
       now: new Date(),
+      clock: () => new Date(),
     });
     const summary = { ...report, accepted: report.accepted.length, rejected: report.rejected.length };
     if (report.status === "failed") logger.error("generateContentDrafts failed", summary);
