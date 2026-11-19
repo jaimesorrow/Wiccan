@@ -1,10 +1,9 @@
-import { findPracticalLessonViolations } from "./practicalLesson";
+import { findPracticalLessonViolations, findPracticalSafetyViolations, practicalContentHash } from "./practicalLesson";
 import { loadSourcePassages, nonblank } from "./sourcePassages";
 import type { SourcePassage } from "./sourcePassages";
 import { ContentAdminRepositoryPort, StoredContent } from "./contentAdminRepositoryPort";
 import type { PublicationRequest } from "./contentAdminRepositoryPort";
 import { ContentSource, isLessonGenerationSource, loadContentSources } from "./contentSource";
-import { practicalContentHash } from "./practicalLesson";
 
 export class DraftNotFoundError extends Error {}
 export class UnsafeContentError extends Error {}
@@ -65,13 +64,14 @@ function findSafetyViolations(content: StoredContent, sources: ContentSource[]):
 /** Returns every publication blocker without changing Firestore. */
 export function validateDraftForPublication(
   content: StoredContent,
-  sources: ContentSource[] = loadContentSources(),
-  passages: SourcePassage[] = loadSourcePassages(),
+  sources?: ContentSource[],
+  passages?: SourcePassage[],
 ): string[] {
   const practicalViolations = content.type === "lesson" || content.sourcePassageId
-    ? findPracticalLessonViolations(content, passages)
-    : [];
-  return [...findSafetyViolations(content, sources), ...practicalViolations];
+    ? findPracticalLessonViolations(content, passages ?? loadSourcePassages())
+    : findPracticalSafetyViolations(content);
+  const applicableSources = content.type === "lesson" ? sources ?? loadContentSources() : [];
+  return [...findSafetyViolations(content, applicableSources), ...practicalViolations];
 }
 
 export interface DraftApprovalPlanEntry {
@@ -83,8 +83,8 @@ export interface DraftApprovalPlanEntry {
 export async function planDraftApproval(
   contentId: string,
   repo: ContentAdminRepositoryPort,
-  sources: ContentSource[] = loadContentSources(),
-  passages: SourcePassage[] = loadSourcePassages(),
+  sources?: ContentSource[],
+  passages?: SourcePassage[],
 ): Promise<DraftApprovalPlanEntry> {
   const versioned = await repo.getVersionedContent(contentId);
   if (versioned === null) throw new DraftNotFoundError(`No content document '${contentId}' found.`);
@@ -107,8 +107,8 @@ export async function approveDraft(
   contentId: string,
   repo: ContentAdminRepositoryPort,
   approval: Pick<PublicationRequest, "operator" | "approvalDigest">,
-  sources: ContentSource[] = loadContentSources(),
-  passages: SourcePassage[] = loadSourcePassages(),
+  sources?: ContentSource[],
+  passages?: SourcePassage[],
 ): Promise<void> {
   if (!approval.operator.trim() || !/^[a-f0-9]{64}$/.test(approval.approvalDigest)) {
     throw new Error("Explicit publication operator and approval digest are required.");

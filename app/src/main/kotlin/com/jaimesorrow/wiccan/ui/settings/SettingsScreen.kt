@@ -227,6 +227,7 @@ fun SettingsScreen(
                         .fillMaxWidth()
                         .toggleable(
                             value = state.notificationsEnabled,
+                            enabled = !state.isNotificationBusy,
                             role = Role.Switch,
                             onValueChange = { viewModel.onEvent(SettingsUiEvent.NotificationsToggled(it)) },
                         ),
@@ -245,7 +246,11 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    Switch(checked = state.notificationsEnabled, onCheckedChange = null)
+                    Switch(
+                        checked = state.notificationsEnabled,
+                        onCheckedChange = null,
+                        enabled = !state.isNotificationBusy,
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))

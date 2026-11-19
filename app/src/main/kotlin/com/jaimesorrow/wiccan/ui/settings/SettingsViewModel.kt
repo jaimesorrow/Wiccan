@@ -108,12 +108,14 @@ class SettingsViewModel @Inject constructor(
         // Optimistic: the switch should feel instant. Reverted if the
         // server call fails, so the UI never claims a state that didn't
         // actually take effect.
-        _state.update { it.copy(notificationsEnabled = enabled) }
+        val previous = state.value
+        if (previous.isNotificationBusy) return
+        _state.update { it.copy(notificationsEnabled = enabled, isNotificationBusy = true) }
         viewModelScope.launch {
             when (val result = notificationRepository.setNotificationsEnabled(enabled)) {
-                is AppResult.Success -> Unit
+                is AppResult.Success -> _state.update { it.copy(isNotificationBusy = false) }
                 is AppResult.Failure -> {
-                    _state.update { it.copy(notificationsEnabled = !enabled) }
+                    _state.update { it.copy(notificationsEnabled = previous.notificationsEnabled, isNotificationBusy = false) }
                     effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
                 }
             }
