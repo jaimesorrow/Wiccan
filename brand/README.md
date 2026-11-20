@@ -35,7 +35,7 @@ the 66dp safe zone, the monochrome layer, Play specs and contrast.
 - `exports/google-play/wiccan_feature_graphic_1024x500.png` — 1024×500, 24-bit (no alpha).
 - `exports/app-icon/` — emblem at 1024 px in gold, Light/Ivory primary and monochrome (transparent).
 - `exports/full-logo/` — full logo in original colours and in the Light/Ivory primary (transparent).
-- `exports/previews/` — validation renders only (launcher circle mask, themed icon, six palettes); not for shipping.
+- `exports/previews/` — not tracked. `scripts/build_brand_assets.py` regenerates validation renders here (launcher circle mask, themed icon, six palettes); not for shipping.
 
 ## Known limits — owner review needed
 

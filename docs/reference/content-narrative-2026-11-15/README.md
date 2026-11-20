@@ -8,6 +8,8 @@ The authoritative forward-looking narrative remains [`docs/CONTENT_VOICE_AND_LES
 
 ## Preserved files
 
+> **PDF snapshots removed (2026-11-19).** The compressed PDF archives (`PUBLISHED_38.pdf.xz`, `PUBLISHED_54.pdf.xz`, `REWRITES_VOICED_150.pdf.xz.part-*`, `REWRITES_PLAIN_150.pdf.xz.part-*`) were deleted from the working tree to slim the repository ahead of the Play release. They remain in git history at commit `5d0742f` and earlier (`git show 5d0742f:docs/reference/content-narrative-2026-11-15/<file>`). Rows below that name them describe what the removed files contained; the integrity hashes still identify the original PDFs.
+
 | File | Role | Status recorded by the source |
 | --- | --- | --- |
 | `REWRITES_VOICED_150.pdf.xz.part-*` | Byte-preserving archive of the final voiced review copy for 150 practical lessons | All 150 are marked draft; the PDF says nothing was published or written to Firestore from this artifact |

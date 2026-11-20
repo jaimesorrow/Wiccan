@@ -5,6 +5,14 @@ content — a spell, a potion, or a lesson — per day on a subscription.
 Content is original writing inspired by public-domain folklore and
 grimoires.
 
+## Status
+
+Pre-release: the Play Console app is a draft and no bundle has been uploaded
+yet. See [docs/STATUS.md](docs/STATUS.md) for the current status, release
+blockers and next steps. The public policy pages are in `hosting/`, served by
+Firebase Hosting at <https://wiccan.app> (see
+[docs/GITHUB_PAGES_DOMAIN.md](docs/GITHUB_PAGES_DOMAIN.md)).
+
 ## Structure
 
 ```

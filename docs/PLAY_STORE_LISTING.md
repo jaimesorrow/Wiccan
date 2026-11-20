@@ -13,9 +13,9 @@ against the build uploaded to Play before submission.
 | Free or paid | Free download; a Google Play subscription (free trial eligible) is required for daily content and Grimoire access |
 | Category | Lifestyle |
 | Support email | `wiccan.android.app@gmail.com` |
-| Website | `https://app.wiccanandroid.com/` |
-| Privacy policy | `https://app.wiccanandroid.com/privacy.html` |
-| Account deletion | `https://app.wiccanandroid.com/delete-account.html` |
+| Website | `https://wiccan.app/` |
+| Privacy policy | `https://wiccan.app/privacy.html` |
+| Account deletion | `https://wiccan.app/delete-account.html` |
 
 ### Short description
 
@@ -106,7 +106,7 @@ this Play Console account rather than assuming it applies.
 > app through Google Play, try the daily lesson and Grimoire flows, and report
 > anything confusing or broken. Wiccan is intended for adults 18+.
 >
-> To join, visit https://app.wiccanandroid.com/#testing or reply with the Google
+> To join, visit https://wiccan.app/#testing or reply with the Google
 > account you use in the Play Store. Please remain opted in for the full testing
 > period and use the app on your normal Android device.
 
@@ -128,7 +128,8 @@ are configured. Test purchases must use Play's test environment.
 
 ## Launch sequence
 
-1. Finish DNS and publish `app.wiccanandroid.com` through GitHub Pages.
+1. Add the `wiccan.app` DNS records in Cloudflare, deploy `hosting/` to Firebase
+   Hosting and verify the policy URLs load (see `docs/GITHUB_PAGES_DOMAIN.md`).
 2. Configure the upload key and repository signing secrets; produce a signed AAB.
 3. Create the Wiccan Play app with package `com.jaimesorrow.wiccan` and enable
    Play App Signing.

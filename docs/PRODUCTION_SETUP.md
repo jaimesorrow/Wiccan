@@ -202,9 +202,10 @@ users. Never batch-publish unreviewed content simply to meet a numeric target.
 - Register the Play RTDN topic and grant the Google Play publisher permission.
 - Add the upload signing secrets used by `.github/workflows/release.yml`, then
   build and verify a signed AAB. Increase `versionCode` for each new submission.
-- Review and publish the configured `app.wiccanandroid.com` privacy, terms,
-  account-deletion, safety, and support pages before completing Play's Data
-  Safety form.
+- Point `wiccan.app` DNS (Cloudflare) at Firebase Hosting, deploy `hosting/`,
+  and verify the privacy, terms, account-deletion and safety pages at
+  `https://wiccan.app/` before completing Play's Data Safety form. See
+  [GITHUB_PAGES_DOMAIN.md](GITHUB_PAGES_DOMAIN.md).
 - Complete store assets, content rating, target audience, review access and
   applicable Play testing requirements. Test a Play license-tester purchase,
   renewal, restoration after reinstall, pending payment, cancellation, RTDN and

@@ -64,7 +64,7 @@ function createBillingRepository(): GooglePlayBillingRepository {
 // operational Play Console step, not something this code provisions.
 const PLAY_RTDN_TOPIC = process.env.PLAY_RTDN_TOPIC ?? "play-rtdn";
 const SMTP_URL = defineSecret("SMTP_URL");
-const SMTP_FROM = defineString("SMTP_FROM", { default: "Wiccan <noreply@wiccanandroid.com>" });
+const SMTP_FROM = defineString("SMTP_FROM", { default: "Wiccan <noreply@wiccan.app>" });
 const VERIFICATION_EMAIL_COOLDOWN_MS = 60_000;
 // Bound by name to generateContentDraftsJob alone. Deliberately not a
 // defineSecret() param: a module-level param is a *global* deploy requirement
