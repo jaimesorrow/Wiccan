@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { Content } from "./types";
+import { Content, isContentType } from "./types";
 import { isPracticalCategory, practicalContentHash } from "./practicalLesson";
 
 type SimilarityMetadata = Pick<Content, "similarityGroupId" | "sourceId" | "sourceCitation">;
@@ -37,6 +37,10 @@ export function similarityReservationId(key: string): string {
 }
 
 export function isEligibleForDailyDelivery(content: Content, ancientLessonSourceIds: ReadonlySet<string>): boolean {
+  // Never assign a document whose `type` the app cannot render (e.g. "ritual"):
+  // the assignment is recorded in history for the whole day and older app
+  // builds crash on it.
+  if (!isContentType(content.type)) return false;
   if (content.type !== "lesson") return true;
   const review = content.practicalReview;
   return typeof content.sourceId === "string" && ancientLessonSourceIds.has(content.sourceId) &&

@@ -1,9 +1,19 @@
 import { ACCEPTED_PRACTICAL_CATEGORIES } from "./practicalLesson";
 import type { AcceptedPracticalCategory, PracticalLessonFields } from "./practicalLesson";
 
-export type ContentType = "spell" | "potion" | "lesson";
+/** The only `content.type` values the Android app can render (see ContentType.kt). */
+export const CONTENT_TYPES = ["spell", "potion", "lesson"] as const;
+export type ContentType = (typeof CONTENT_TYPES)[number];
 export type ContentTier = "free" | "premium";
 export type ContentStatus = "draft" | "published";
+
+/**
+ * True only for a supported `content.type`. Values such as "ritual" belong in
+ * the v2 `lessonType` field, not `type`, and are rejected here.
+ */
+export function isContentType(value: unknown): value is ContentType {
+  return typeof value === "string" && (CONTENT_TYPES as readonly string[]).includes(value);
+}
 
 export const CONTENT_CATEGORIES = [
   "Protection",

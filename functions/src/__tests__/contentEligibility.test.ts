@@ -1,4 +1,20 @@
-import { contentSimilarityKey, sharesContentSimilarity, similarityReservationId } from "../contentEligibility";
+import { contentSimilarityKey, isEligibleForDailyDelivery, sharesContentSimilarity, similarityReservationId } from "../contentEligibility";
+import { Content, isContentType } from "../types";
+
+describe("supported content types", () => {
+  it("accepts only spell, potion and lesson", () => {
+    for (const type of ["spell", "potion", "lesson"]) expect(isContentType(type)).toBe(true);
+    for (const type of ["ritual", "Spell", "", " lesson", "unknown", null, undefined, 1]) expect(isContentType(type)).toBe(false);
+  });
+
+  it("never makes an unsupported type eligible for daily delivery", () => {
+    const spell = { id: "s", type: "spell", tier: "premium", status: "published" } as unknown as Content;
+    expect(isEligibleForDailyDelivery(spell, new Set())).toBe(true);
+    for (const type of ["ritual", "RITUAL", "", undefined]) {
+      expect(isEligibleForDailyDelivery({ ...spell, type } as unknown as Content, new Set())).toBe(false);
+    }
+  });
+});
 
 describe("editorial similarity metadata", () => {
   it("groups rewordings with the same explicit concept ID", () => {

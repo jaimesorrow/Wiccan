@@ -4,6 +4,7 @@ import type { SourcePassage } from "./sourcePassages";
 import { ContentAdminRepositoryPort, StoredContent } from "./contentAdminRepositoryPort";
 import type { PublicationRequest } from "./contentAdminRepositoryPort";
 import { ContentSource, isLessonGenerationSource, loadContentSources } from "./contentSource";
+import { CONTENT_TYPES, isContentType } from "./types";
 
 export class DraftNotFoundError extends Error {}
 export class UnsafeContentError extends Error {}
@@ -16,6 +17,11 @@ export class UnsafeContentError extends Error {}
  */
 function findSafetyViolations(content: StoredContent, sources: ContentSource[]): string[] {
   const violations: string[] = [];
+  // The app can only render the supported types; anything else (e.g. "ritual",
+  // which is a lessonType) must never go live as `type`.
+  if (!isContentType(content.type)) {
+    violations.push(`type '${String(content.type)}' is unsupported; use one of ${CONTENT_TYPES.join(", ")}.`);
+  }
 
   if (!nonblank(content.title)) violations.push("title is empty.");
   if (!nonblank(content.intro)) violations.push("intro is empty.");

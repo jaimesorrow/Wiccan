@@ -25,7 +25,8 @@ fun ContentTypePill(type: ContentType, modifier: Modifier = Modifier) {
     val label = when (type) {
         ContentType.SPELL -> stringResource(R.string.content_type_spell)
         ContentType.POTION -> stringResource(R.string.content_type_potion)
-        ContentType.LESSON -> stringResource(R.string.content_type_lesson)
+        // An unrecognised stored type reads as a generic lesson rather than crashing.
+        ContentType.LESSON, ContentType.UNKNOWN -> stringResource(R.string.content_type_lesson)
     }
     Box(
         modifier = modifier
