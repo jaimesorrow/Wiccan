@@ -3,6 +3,7 @@ package com.jaimesorrow.wiccan.data.remote
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.functions.FirebaseFunctions
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
 
 /**
@@ -25,6 +26,8 @@ class ContentFunctionsDataSource @Inject constructor(
             @Suppress("UNCHECKED_CAST")
             return result.getData() as? Map<String, Any?>
                 ?: error("Unexpected response shape from Cloud Function '$FUNCTION_NAME'")
+        } catch (t: CancellationException) {
+            throw t
         } catch (t: Throwable) {
             crashlytics.recordException(t)
             throw t
