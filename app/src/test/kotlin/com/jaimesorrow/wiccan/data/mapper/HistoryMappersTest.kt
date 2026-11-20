@@ -18,7 +18,7 @@ class HistoryMappersTest {
 
     @Test
     fun `a complete history row maps to an entry`() {
-        val entry = row.toHistoryEntry()
+        val entry = row.toHistoryEntryOrNull()!!
         assertEquals("content-1", entry.contentId)
         assertEquals(ContentType.SPELL, entry.type)
     }
