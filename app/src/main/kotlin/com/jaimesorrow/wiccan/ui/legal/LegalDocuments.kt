@@ -180,13 +180,13 @@ object WiccanLegalDocuments {
                     "If you are a consumer living outside Alaska, including outside the United States, you keep the " +
                         "protection of the mandatory consumer laws of the place where you live, and you may also bring a claim in " +
                         "the courts where you live if those laws allow it. Before starting a formal dispute, please email " +
-                        "wiccan.android.app@gmail.com so we can try to resolve it informally.",
+                        "hello@wiccan.app so we can try to resolve it informally.",
                 ),
             ),
             LegalSection(
                 "Contact and account deletion",
                 listOf(
-                    "Wiccan is operated by Jaime Sorrow. For questions, email wiccan.android.app@gmail.com or use Contact " +
+                    "Wiccan is operated by Jaime Sorrow. For questions, email hello@wiccan.app or use Contact " +
                         "Support in Settings.",
                     "You may delete your account in Settings → Delete Account, or request deletion without the app at " +
                         "https://wiccan.app/delete-account.html.",
@@ -245,7 +245,7 @@ object WiccanLegalDocuments {
                         "crash reports, which you can withdraw at any time in Settings; and legal obligations, such as tax and " +
                         "accounting records and responding to lawful requests.",
                     "You may object at any time to processing based on legitimate interests by emailing " +
-                        "wiccan.android.app@gmail.com.",
+                        "hello@wiccan.app.",
                 ),
             ),
             LegalSection(
@@ -291,7 +291,7 @@ object WiccanLegalDocuments {
                 listOf(
                     "Wiccan is intended only for adults (18 or older, or the age of majority where they live if higher) and " +
                         "is not directed to children. We do not knowingly collect personal information from anyone under 18. If " +
-                        "you believe a minor has created an account, email wiccan.android.app@gmail.com and we will delete it.",
+                        "you believe a minor has created an account, email hello@wiccan.app and we will delete it.",
                 ),
             ),
             LegalSection(
@@ -305,7 +305,7 @@ object WiccanLegalDocuments {
                         "and to opt out of its sale, sharing for targeted advertising, or profiling.",
                     "Wiccan does not sell personal information, share it for cross-context behavioral advertising, or use it " +
                         "for profiling with legal or similarly significant effects.",
-                    "To make a request, email wiccan.android.app@gmail.com from the address on your account. We will verify " +
+                    "To make a request, email hello@wiccan.app from the address on your account. We will verify " +
                         "the request against your account and respond within 30 days. If we decline a request, you may appeal by " +
                         "replying to our response. We will not discriminate against you for exercising these rights. If you are " +
                         "in the EEA, UK, or Switzerland, you may also complain to your local data-protection authority.",
@@ -318,7 +318,7 @@ object WiccanLegalDocuments {
                         "out, and delete your account. Manage your subscription in Google Play.",
                     "Wiccan is operated by Jaime Sorrow, an individual developer based in Alaska, United States, who is " +
                         "responsible for (the “controller” of) your personal information. For access, correction, privacy, or " +
-                        "deletion questions, email wiccan.android.app@gmail.com or use Contact Support in Settings.",
+                        "deletion questions, email hello@wiccan.app or use Contact Support in Settings.",
                     "When this policy changes materially, it receives a new version and the app asks you to review it before " +
                         "continuing.",
                 ),

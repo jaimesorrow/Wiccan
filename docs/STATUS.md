@@ -18,7 +18,7 @@ witchcraft content per day — a lesson, spell or potion — on a subscription
 (7-day trial for eligible new subscribers, then $5.99/month US base price).
 Content is original writing grounded in vetted ancient/public-domain sources.
 The operator is Jaime Sorrow, an individual developer in Alaska. Support and
-privacy contact: `wiccan.android.app@gmail.com`.
+privacy contact: `hello@wiccan.app`.
 
 Stack: Compose + Hilt + Room, Firebase Auth / Firestore / Functions / FCM /
 App Check / Analytics / Crashlytics, Play Billing 9.1.0, Cloud Functions on
