@@ -63,7 +63,8 @@ which resolve correctly at the `wiccan.app` root.
 https://jaimesorrow.github.io/Wiccan/ . Because that site lives under the
 `/Wiccan/` path, the workflow stages a copy of `hosting/` and prefixes the
 root-absolute `href`/`src` paths with `/Wiccan/`; the files in `hosting/` stay
-unchanged for Firebase. The old `hosting/CNAME` (which claimed the dead
-`app.wiccanandroid.com`) was removed, and no custom domain is configured in
-the repository's Pages settings. Do not set `wiccan.app` as the Pages custom
-domain: it is served by Firebase Hosting.
+unchanged for Firebase. The old `hosting/CNAME` for a previous unused
+hostname was removed, and no custom domain is configured in the
+repository's Pages settings. The public domain is now `wiccan.app`, which
+is served by Firebase Hosting, so do not set it as the Pages custom
+domain.
