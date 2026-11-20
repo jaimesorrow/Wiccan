@@ -107,6 +107,14 @@ describe("approveDraft", () => {
     expect(await repo.getStatus(contentId)).toBe("draft");
   });
 
+  it.each(["ritual", "RITUAL", "", "unknown"])("refuses to publish an unsupported type %p", async (type) => {
+    const repo = new FakeContentAdminRepository();
+    const contentId = await repo.createDraft({ ...BASE_DRAFT, type: type as NewDraftContent["type"] });
+
+    await expect(approveDraft(contentId, repo)).rejects.toThrow("is unsupported");
+    expect(await repo.getStatus(contentId)).toBe("draft");
+  });
+
   it("refuses to publish a potion with no safety note", async () => {
     const repo = new FakeContentAdminRepository();
     const contentId = await repo.createDraft({

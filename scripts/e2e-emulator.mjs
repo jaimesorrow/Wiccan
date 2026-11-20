@@ -82,7 +82,8 @@ async function seed() {
     notificationsEnabled: true,
   });
   const base = {
-    type: "ritual",
+    type: "spell",
+    lessonType: "ritual",
     tradition: "Eclectic",
     category: "MoonAndSeasonal",
     intro: "intro",

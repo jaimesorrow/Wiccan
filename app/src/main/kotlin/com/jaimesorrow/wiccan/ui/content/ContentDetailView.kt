@@ -59,7 +59,7 @@ fun ContentDetailView(
                     when (content.type) {
                         ContentType.SPELL -> R.string.today_spell
                         ContentType.POTION -> R.string.today_potion
-                        ContentType.LESSON -> R.string.today_lesson
+                        ContentType.LESSON, ContentType.UNKNOWN -> R.string.today_lesson
                     },
                 ),
                 style = MaterialTheme.typography.headlineSmall,
