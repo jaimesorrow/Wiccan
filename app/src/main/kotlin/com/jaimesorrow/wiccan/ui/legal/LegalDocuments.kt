@@ -239,7 +239,9 @@ object WiccanLegalDocuments {
                         "Settings, and you can turn them off at any time. App interactions include events such as completing " +
                         "sign-up, viewing the day's content (with its type and tier), viewing the subscription screen, starting or " +
                         "losing a subscription, and deleting an account. Device/app information includes the device model, " +
-                        "operating-system and app versions, and Firebase installation identifiers; crash reports include the stack " +
+                        "operating-system and app versions, and Firebase installation identifiers. Firebase Analytics also records " +
+                        "screen views, sessions, and Google Play subscription events (product and price), and derives an " +
+                        "approximate location, such as country or city, from a masked IP address. Crash reports include the stack " +
                         "trace and the app's state at the time of the crash. While analytics is on and your device allows it, " +
                         "Firebase Analytics may also collect the Android advertising ID; Wiccan uses it only for analytics " +
                         "measurement, never for advertising, and tells Google that ad storage, ad user data, and ad personalization " +
