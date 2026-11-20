@@ -20,6 +20,9 @@ sealed class AppError {
     /** Email/password sign-in rejected the password or credential. */
     object InvalidCredentials : AppError()
 
+    /** The server sent content (for example a new content type) that this build can't display. */
+    object UnsupportedContent : AppError()
+
     /** Restore Purchases could not be completed for a reason other than the network or auth. */
     object RestoreFailed : AppError()
     data class Unknown(val message: String? = null) : AppError()

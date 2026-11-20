@@ -10,9 +10,12 @@ import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.ContentStatus
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.ContentType
+import com.jaimesorrow.wiccan.domain.repository.ContentRepository
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -163,5 +166,44 @@ class TodayViewModelTest {
 
     private fun currentUser(uid: String?): CurrentUserProvider = object : CurrentUserProvider {
         override val currentUserId: String? = uid
+    }
+
+    @Test
+    fun `an unreadable lesson shows the retry panel instead of a blank screen, and retry recovers`() = runTest(dispatcher) {
+        repository.nextResult = AppResult.Failure(AppError.UnsupportedContent)
+        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger)
+
+        viewModel.effects.test {
+            assertEquals(TodayUiEffect.ShowSnackbar(AppError.UnsupportedContent), awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
+        dispatcher.scheduler.advanceUntilIdle()
+        assertTrue(viewModel.state.value.loadFailed)
+        assertFalse(viewModel.state.value.isLoading)
+        assertFalse(viewModel.state.value.poolExhausted)
+        assertNull(viewModel.state.value.content)
+
+        repository.nextResult = AppResult.Success(sampleContent)
+        viewModel.onEvent(TodayUiEvent.Retry)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertFalse(viewModel.state.value.loadFailed)
+        assertEquals(sampleContent, viewModel.state.value.content)
+    }
+
+    @Test
+    fun `a failing cache observer never crashes Today and leaves a retry path`() = runTest(dispatcher) {
+        val throwingRepository = object : ContentRepository {
+            override suspend fun refreshTodayContent(userId: String): AppResult<Content> =
+                AppResult.Failure(AppError.UnsupportedContent)
+
+            override fun observeTodayContent(): Flow<Content?> = flow {
+                throw IllegalArgumentException("No enum constant ContentType.RITUAL")
+            }
+        }
+        val viewModel = TodayViewModel(throwingRepository, currentUser("user-1"), analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertTrue(viewModel.state.value.loadFailed)
+        assertFalse(viewModel.state.value.isLoading)
     }
 }

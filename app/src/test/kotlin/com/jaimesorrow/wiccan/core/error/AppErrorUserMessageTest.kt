@@ -56,4 +56,11 @@ class AppErrorUserMessageTest {
             AppError.Network.toUserMessage(context.resources),
         )
     }
+
+    @Test
+    fun `unreadable content has its own message, not the generic failure`() {
+        val message = AppError.UnsupportedContent.toUserMessage(context.resources)
+        assertTrue(message.contains("update the app"))
+        assertNotEquals(AppError.Unknown(null).toUserMessage(context.resources), message)
+    }
 }

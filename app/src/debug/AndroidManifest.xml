@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug-only. Lets -PuseFirebaseEmulators=true builds reach the local Firebase
+  Emulator Suite over plain HTTP (10.0.2.2 from the Android emulator, or localhost).
+  Release builds never merge this manifest, so they keep the platform default
+  (cleartext blocked everywhere).
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application android:networkSecurityConfig="@xml/network_security_config_emulator" />
+</manifest>

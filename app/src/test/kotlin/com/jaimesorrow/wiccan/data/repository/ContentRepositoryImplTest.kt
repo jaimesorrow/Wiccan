@@ -7,7 +7,7 @@ import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.core.time.LocalCalendarProvider
 import com.jaimesorrow.wiccan.data.mapper.toCachedEntity
-import com.jaimesorrow.wiccan.data.mapper.toContent
+import com.jaimesorrow.wiccan.data.mapper.toContentOrNull
 import com.jaimesorrow.wiccan.data.remote.ContentFunctionsDataSource
 import com.jaimesorrow.wiccan.domain.model.ContentStatus
 import com.jaimesorrow.wiccan.domain.model.ContentTier
@@ -141,7 +141,7 @@ class ContentRepositoryImplTest {
 
     @Test
     fun `previous day cache is hidden and invalidated even when refresh is offline`() = runTest {
-        dao.upsert(payload.toContent().toCachedEntity("2026-10-05", userId, timezone))
+        dao.upsert(payload.toContentOrNull()!!.toCachedEntity("2026-10-05", userId, timezone))
         repository.observeTodayContent().test { assertNull(awaitItem()) }
         coEvery { functionsDataSource.getTodayContent(timezone) } throws IllegalStateException("Offline")
         repository.refreshTodayContent(userId)
@@ -150,13 +150,13 @@ class ContentRepositoryImplTest {
 
     @Test
     fun `other users cached lessons are never exposed`() = runTest {
-        dao.upsert(payload.toContent().toCachedEntity(today, "other-user", timezone))
+        dao.upsert(payload.toContentOrNull()!!.toCachedEntity(today, "other-user", timezone))
         repository.observeTodayContent().test { assertNull(awaitItem()) }
     }
 
     @Test
     fun `subscription expiry hides the cached lesson immediately`() = runTest {
-        dao.upsert(payload.toContent().toCachedEntity(today, userId, timezone))
+        dao.upsert(payload.toContentOrNull()!!.toCachedEntity(today, userId, timezone))
         repository.observeTodayContent().test {
             assertEquals("content-1", awaitItem()?.id)
             subscription.emitTier(ContentTier.FREE)
@@ -166,7 +166,7 @@ class ContentRepositoryImplTest {
 
     @Test
     fun `server subscription denial clears the daily cache`() = runTest {
-        dao.upsert(payload.toContent().toCachedEntity(today, userId, timezone))
+        dao.upsert(payload.toContentOrNull()!!.toCachedEntity(today, userId, timezone))
         val failure = mockk<FirebaseFunctionsException>()
         every { failure.code } returns FirebaseFunctionsException.Code.PERMISSION_DENIED
         every { failure.details } returns mapOf("reason" to "SUBSCRIPTION_REQUIRED")
@@ -177,7 +177,7 @@ class ContentRepositoryImplTest {
 
     @Test
     fun `exhaustion clears only the daily cache while Grimoire history remains server owned`() = runTest {
-        dao.upsert(payload.toContent().toCachedEntity(today, userId, timezone))
+        dao.upsert(payload.toContentOrNull()!!.toCachedEntity(today, userId, timezone))
         val failure = mockk<FirebaseFunctionsException>()
         every { failure.code } returns FirebaseFunctionsException.Code.RESOURCE_EXHAUSTED
         every { failure.details } returns mapOf("reason" to "NO_NEW_CONTENT")
@@ -188,7 +188,7 @@ class ContentRepositoryImplTest {
 
     @Test
     fun `temporarily unavailable assignment keeps today's cached lesson`() = runTest {
-        val cached = payload.toContent().toCachedEntity(today, userId, timezone)
+        val cached = payload.toContentOrNull()!!.toCachedEntity(today, userId, timezone)
         dao.upsert(cached)
         val failure = mockk<FirebaseFunctionsException>()
         every { failure.code } returns FirebaseFunctionsException.Code.FAILED_PRECONDITION
@@ -216,7 +216,7 @@ class ContentRepositoryImplTest {
 
     @Test
     fun `a restored unowned cache is hidden for both signed out and signed in users`() = runTest {
-        val legacy = payload.toContent().toCachedEntity(today, userId, timezone).copy(userId = null, timezone = null)
+        val legacy = payload.toContentOrNull()!!.toCachedEntity(today, userId, timezone).copy(userId = null, timezone = null)
         dao.upsert(legacy)
         currentUserId = null
         repository.observeTodayContent().test { assertNull(awaitItem()) }
@@ -237,7 +237,7 @@ class ContentRepositoryImplTest {
         val dates = MutableStateFlow(today)
         every { calendar.todayFlow() } returns dates
         repository = ContentRepositoryImpl(functionsDataSource, dao, currentUser, calendar, subscription)
-        dao.upsert(payload.toContent().toCachedEntity(today, userId, timezone))
+        dao.upsert(payload.toContentOrNull()!!.toCachedEntity(today, userId, timezone))
 
         repository.observeTodayContent().test {
             assertEquals("content-1", awaitItem()?.id)
@@ -245,5 +245,30 @@ class ContentRepositoryImplTest {
             assertNull(awaitItem())
             cancelAndConsumeRemainingEvents()
         }
+    }
+
+    @Test
+    fun `an unknown content type fails softly as UnsupportedContent and is not cached`() = runTest {
+        coEvery { functionsDataSource.getTodayContent(timezone) } returns (payload + ("type" to "ritual"))
+
+        val result = repository.refreshTodayContent(userId)
+
+        assertEquals(AppError.UnsupportedContent, (result as AppResult.Failure).error)
+        assertNull(dao.get())
+    }
+
+    @Test
+    fun `an unexpected status such as Publish is still delivered rather than rejected`() = runTest {
+        coEvery { functionsDataSource.getTodayContent(timezone) } returns (payload + ("status" to "Publish"))
+
+        val result = repository.refreshTodayContent(userId)
+
+        assertEquals("content-1", (result as AppResult.Success).data.id)
+    }
+
+    @Test
+    fun `an unreadable cached row is hidden instead of crashing the Today observer`() = runTest {
+        dao.upsert(payload.toContentOrNull()!!.toCachedEntity(today, userId, timezone).copy(type = "RITUAL"))
+        repository.observeTodayContent().test { assertNull(awaitItem()) }
     }
 }

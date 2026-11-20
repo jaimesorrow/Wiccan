@@ -8,8 +8,8 @@ import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.core.time.LocalCalendarProvider
 import com.jaimesorrow.wiccan.data.local.CachedDailyContentDao
 import com.jaimesorrow.wiccan.data.mapper.toCachedEntity
-import com.jaimesorrow.wiccan.data.mapper.toContent
-import com.jaimesorrow.wiccan.data.mapper.toDomain
+import com.jaimesorrow.wiccan.data.mapper.toContentOrNull
+import com.jaimesorrow.wiccan.data.mapper.toDomainOrNull
 import com.jaimesorrow.wiccan.data.remote.ContentFunctionsDataSource
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.domain.model.ContentTier
@@ -40,7 +40,9 @@ class ContentRepositoryImpl @Inject constructor(
                 dao.clear()
             }
             val payload = functionsDataSource.getTodayContent(calendar.timezone)
-            val content = payload.toContent()
+            // An unreadable document (e.g. a content type this build doesn't know) must fail
+            // softly so Today can offer a retry instead of going blank.
+            val content = payload.toContentOrNull() ?: return AppResult.Failure(AppError.UnsupportedContent)
             val deliveredDate = payload["deliveredDate"] as? String
                 ?: error("Missing server-assigned deliveredDate")
             val timezone = payload["timezone"] as? String
@@ -78,6 +80,6 @@ class ContentRepositoryImpl @Inject constructor(
             val uid = currentUserProvider.currentUserId
             entity?.takeIf {
                 tier == ContentTier.PREMIUM && uid != null && it.userId == uid && it.deliveredDate == today
-            }?.toDomain()
+            }?.toDomainOrNull()
         }
 }
