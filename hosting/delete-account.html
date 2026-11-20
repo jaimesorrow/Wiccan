@@ -3,46 +3,79 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b132b">
 <title>Delete your account · Wiccan</title>
 <meta name="description" content="How to delete your Wiccan account and data">
+<link rel="icon" type="image/png" href="/assets/wiccan-play-icon.png">
+<link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/cinzel-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css">
 </head>
-<body>
-<header><a class="brand" href="/">Wiccan</a><nav aria-label="Policies"><a href="/terms.html">Terms</a><a href="/privacy.html">Privacy</a><a href="/content-safety.html">Content &amp; Safety</a><a href="/potion-safety.html">Potion Safety</a><a href="/delete-account.html">Delete account</a></nav></header>
+<body class="policy-page">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="site-header">
+  <a class="brand" href="/" aria-label="Wiccan home"><img src="/assets/wiccan-emblem-192.png" width="36" height="36" alt=""><span>Wiccan</span></a>
+  <nav aria-label="Policies"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/content-safety">Content &amp; Safety</a><a href="/potion-safety">Potion Safety</a><a href="/delete-account" aria-current="page">Delete account</a></nav>
+</header>
+<div class="wheel" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+<div class="policy-layout">
+<nav class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ol><li><a href="#option-1-in-the-app">Option 1: in the app</a></li><li><a href="#option-2-without-the-app">Option 2: without the app</a></li><li><a href="#what-is-deleted">What is deleted</a></li><li><a href="#what-is-kept-and-for-how-long">What is kept, and for how long</a></li><li><a href="#your-subscription">Your subscription</a></li></ol></nav>
 <main>
+<article class="policy" id="content">
+<header class="policy-head">
 <h1>Delete your Wiccan account</h1>
 <p class="meta">Wiccan · developer: Jaime Sorrow</p>
-<p>You can delete your Wiccan account and its data at any time, with or without the app installed.</p>
+</header>
+<p class="lede">You can delete your Wiccan account and its data at any time, with or without the app installed.</p>
+<section id="option-1-in-the-app">
 <h2>Option 1: in the app</h2>
 <ol>
 <li>Open Wiccan and sign in.</li>
 <li>Go to <strong>Settings → Delete Account</strong>.</li>
 <li>Confirm. Deletion happens immediately.</li>
 </ol>
+<p>Uninstalling the app does not delete your account; use one of these options.</p>
+</section>
+<section id="option-2-without-the-app">
 <h2>Option 2: without the app</h2>
 <ol>
 <li>Email <a href="mailto:hello@wiccan.app?subject=Delete%20my%20Wiccan%20account">hello@wiccan.app</a> from the email address you use to sign in to Wiccan.</li>
 <li>Use the subject line <strong>Delete my Wiccan account</strong>.</li>
 <li>We verify that the request came from the account's email address, delete the account, and reply to confirm within 30 days.</li>
 </ol>
+</section>
+<section id="what-is-deleted">
 <h2>What is deleted</h2>
 <ul>
 <li>Your sign-in account (email address, name, Firebase user ID)</li>
 <li>Your profile and policy-acceptance records</li>
-<li>Your daily content delivery history and usage reservations</li>
-<li>Registered devices and push-notification tokens</li>
+<li>Your daily content delivery history, usage reservations, and content-availability records</li>
+<li>Registered devices, push-notification tokens, and time zones</li>
+<li>Your verification-email request record</li>
 <li>Your subscription record and stored purchase tokens</li>
 </ul>
+</section>
+<section id="what-is-kept-and-for-how-long">
 <h2>What is kept, and for how long</h2>
 <ul>
 <li>Pseudonymous purchase-token and account hashes, kept only for as long as needed to stop a Google Play purchase being reused on another account. They are not the raw purchase token or an account profile.</li>
-<li>Firebase Analytics event data (up to 14 months) and Crashlytics crash reports (about 90 days), which expire on their own schedule.</li>
+<li>Firebase Analytics event data (up to 14 months), Crashlytics crash reports (about 90 days), and server error logs (about 30 days), which expire on their own schedule. Analytics and crash reports exist only if you opted in.</li>
+<li>Copies in Google's encrypted backups, for a limited period until they are overwritten.</li>
 <li>Records we are legally required to keep, or need for security, fraud, or an open dispute, only as long as necessary.</li>
 </ul>
+</section>
+<section id="your-subscription">
 <h2>Your subscription</h2>
 <p>Deleting your account first tries to cancel an active Google Play subscription. Deletion does not itself issue a refund; refunds follow Google Play's rules. You can also cancel any time in Google Play → Payments &amp; subscriptions → Subscriptions.</p>
-<p>See the <a href="/privacy.html">Privacy Policy</a> for details.</p>
+<p>See the <a href="/privacy">Privacy Policy</a> for details.</p>
+</section>
+</article>
 </main>
-<footer><p>Wiccan is operated by Jaime Sorrow · <a href="mailto:hello@wiccan.app">hello@wiccan.app</a></p></footer>
+</div>
+<footer class="site-footer">
+  <div><p class="footer-brand">Wiccan</p><p>Wiccan is operated by Jaime Sorrow · <a href="mailto:hello@wiccan.app">hello@wiccan.app</a></p></div>
+  <nav class="footer-links" aria-label="Legal and support"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/content-safety">Content &amp; Safety</a><a href="/potion-safety">Potion Safety</a><a href="/delete-account">Delete account</a><a href="mailto:hello@wiccan.app">Support</a></nav>
+  <p class="copyright">© 2026 Jaime Sorrow. Wiccan is an independent Android app. This site uses no cookies, analytics, or trackers.</p>
+</footer>
 </body>
 </html>
