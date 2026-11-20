@@ -199,40 +199,75 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.PRIVACY,
         title = "Privacy Policy",
         version = PolicyVersions.PRIVACY,
-        effectiveDate = "November 7, 2026",
+        effectiveDate = "November 20, 2026",
         introduction =
-            "This Privacy Policy explains what information Jaime Sorrow (“Wiccan,” “we,” or “us”) handles when you " +
-                "use the Wiccan Android app, why it is used, and the choices available to you. Wiccan does not sell " +
-                "personal data and does not show advertising.",
+            "This Privacy Policy explains what information Jaime Sorrow (“Wiccan,” “we,” or “us”) handles when you use " +
+                "the Wiccan Android app and its related services, why it is used, which service providers process it, how " +
+                "long it is kept, and the choices available to you. Wiccan does not sell personal data and does not show " +
+                "advertising.",
         sections = listOf(
+            LegalSection(
+                "Who we are",
+                listOf(
+                    "Wiccan is developed and operated by Jaime Sorrow, an individual developer based in Alaska, United States, " +
+                        "who is responsible for (the “controller” of) your personal information. For any privacy question or " +
+                        "request, email hello@wiccan.app or use Contact Support in Settings.",
+                ),
+            ),
             LegalSection(
                 "Information handled",
                 listOf(
-                    "Account data: email address, first and last name, Firebase user ID, sign-in provider, and " +
-                        "policy-acceptance versions and timestamps.",
-                    "Service activity: delivered content IDs, dates, source metadata, daily-use reservations, time zone, " +
-                        "notification preference, and registered push token.",
+                    "Account data: email address, first and last name, Firebase user ID, sign-in provider, email-verification " +
+                        "status, and policy-acceptance versions and timestamps. If you sign up with an email address, your password " +
+                        "is stored only in hashed form by Firebase Authentication and is never visible to Wiccan. If you sign in " +
+                        "with Google, Google shares your Google account's name, email address, and profile-picture link with " +
+                        "Firebase Authentication; Wiccan does not display or otherwise use the profile picture.",
+                    "Service activity: delivered content IDs, dates, source metadata, daily-use reservations, records of when " +
+                        "the content library runs low for your account, time zone, notification preference, registered push token, " +
+                        "and the time of your most recent verification-email request (used to limit resends).",
                     "Purchase data: product ID, entitlement and renewal state, expiry, purchase token, and pseudonymous " +
-                        "account/token hashes used to prevent purchase fraud and replay.",
-                    "Security signals: App Check and Play Integrity attestations, used on every request to protect the " +
-                        "service from fraud and abuse.",
+                        "account/token hashes used to prevent purchase fraud and replay. Google Play processes your payment; Wiccan " +
+                        "never receives your card or other payment details, and it gives Google Play only a one-way hashed account " +
+                        "identifier, never your raw user ID.",
+                    "Security signals: App Check and Play Integrity attestations, used on every request to protect the service " +
+                        "from fraud and abuse. When the app connects, Google's servers also receive your device's IP address, which " +
+                        "Firebase Authentication and Cloud Functions use to process requests and protect sign-in from abuse. If a " +
+                        "request fails, the server records your user ID and the error in Google Cloud Logging so the problem can be " +
+                        "investigated.",
                     "Optional analytics and crash reports: app interactions and device/app information through Firebase " +
-                        "Analytics, and crash reports through Crashlytics, are collected only if you opt in during onboarding or " +
-                        "in Settings, and you can turn them off at any time. While analytics is on and your device allows it, " +
+                        "Analytics, and crash reports through Crashlytics, are collected only if you opt in during onboarding or in " +
+                        "Settings, and you can turn them off at any time. App interactions include events such as completing " +
+                        "sign-up, viewing the day's content (with its type and tier), viewing the subscription screen, starting or " +
+                        "losing a subscription, and deleting an account. Device/app information includes the device model, " +
+                        "operating-system and app versions, and Firebase installation identifiers. Firebase Analytics also records " +
+                        "screen views, sessions, and Google Play subscription events (product and price), and derives an " +
+                        "approximate location, such as country or city, from a masked IP address. Crash reports include the stack " +
+                        "trace and the app's state at the time of the crash. While analytics is on and your device allows it, " +
                         "Firebase Analytics may also collect the Android advertising ID; Wiccan uses it only for analytics " +
-                        "measurement, never for advertising, and tells Google that ad storage, ad user data, and ad " +
-                        "personalization are denied. You can reset or delete the advertising ID in your device's Google or " +
-                        "privacy settings.",
-                    "The app does not request precise location, contacts, photos, camera, microphone, or health permissions. " +
-                        "A device time-zone identifier is not used to infer precise location.",
+                        "measurement, never for advertising, and tells Google that ad storage, ad user data, and ad personalization " +
+                        "are denied. You can reset or delete the advertising ID in your device's Google or privacy settings.",
+                    "On your device: the app keeps today's content in a local cache and stores your theme, notification, and " +
+                        "analytics choices. The content cache and sign-in data are excluded from Android backups; your theme, " +
+                        "notification, and analytics choices may be included in your device's own Android backup. Uninstalling the " +
+                        "app removes this data from the device but does not delete your account.",
+                    "Support messages: if you email hello@wiccan.app, we receive your email address and whatever your message " +
+                        "contains.",
+                    "The app requests only the notification permission, for the optional daily reminder. It does not request " +
+                        "precise location, contacts, photos, camera, microphone, or health permissions. A device time-zone " +
+                        "identifier is not used to infer precise location.",
                 ),
             ),
             LegalSection(
                 "Why information is used",
                 listOf(
-                    "Information is used to authenticate accounts, avoid repeating daily content, show archive history, " +
-                        "deliver requested notifications, verify subscription access, prevent fraud, enforce security, meet legal " +
-                        "or platform obligations, and, only if you opt in, diagnose crashes and understand app performance.",
+                    "Information is used to authenticate accounts, send account emails (verification, password reset, and " +
+                        "email-change confirmation), avoid repeating daily content, show archive history, deliver requested " +
+                        "notifications, verify subscription access, answer support requests, prevent fraud, enforce security, meet " +
+                        "legal or platform obligations, and, only if you opt in, diagnose crashes and understand app performance.",
+                    "Wiccan uses an AI service (Anthropic's Claude) on its servers only to draft lesson text from historical " +
+                        "source passages, which a human reviews before publication. No account, usage, device, or other personal " +
+                        "information is sent to the AI provider, and the app has no feature that sends what you type to an AI " +
+                        "service.",
                 ),
             ),
             LegalSection(
@@ -240,20 +275,26 @@ object WiccanLegalDocuments {
                 listOf(
                     "Where the GDPR, UK GDPR, Swiss law, or a similar law applies, Wiccan relies on these legal bases: " +
                         "performance of its contract with you, to create and secure your account, deliver the daily content and " +
-                        "notifications you request, and provide your subscription; legitimate interests, to prevent fraud and " +
-                        "abuse and keep the service secure, balanced against your rights; your consent, for usage analytics and " +
-                        "crash reports, which you can withdraw at any time in Settings; and legal obligations, such as tax and " +
-                        "accounting records and responding to lawful requests.",
-                    "You may object at any time to processing based on legitimate interests by emailing " +
-                        "hello@wiccan.app.",
+                        "notifications you request, and provide your subscription; legitimate interests, to prevent fraud and abuse " +
+                        "and keep the service secure, balanced against your rights; your consent, for usage analytics and crash " +
+                        "reports, which you can withdraw at any time in Settings; and legal obligations, such as tax and accounting " +
+                        "records and responding to lawful requests.",
+                    "You may object at any time to processing based on legitimate interests by emailing hello@wiccan.app.",
                 ),
             ),
             LegalSection(
-                "Processors and disclosure",
+                "Service providers and disclosure",
                 listOf(
-                    "Google services process data on Wiccan's behalf or under their own terms: Firebase Authentication, " +
-                        "Firestore, Cloud Functions, Cloud Messaging, Analytics, Crashlytics, App Check, Play Integrity, and " +
-                        "Google Play Billing.",
+                    "Wiccan does not share personal data with third parties for their own marketing or other independent " +
+                        "purposes. It relies on these service providers, which process data on Wiccan's behalf or, where noted, " +
+                        "under their own terms:",
+                    "Google: Firebase Authentication, Cloud Firestore, Cloud Functions, Cloud Messaging, Firebase " +
+                        "Installations, Analytics, Crashlytics, App Check, Google Cloud Logging, and Secret Manager, for sign-in, " +
+                        "storage, server processing, notifications, optional diagnostics, and security; and the Gmail mailbox that " +
+                        "receives hello@wiccan.app support email.",
+                    "Google Play: subscription purchases, billing, refunds, and Play Integrity checks, under Google's own terms " +
+                        "and privacy policy.",
+                    "An email delivery provider, which sends Wiccan's account-verification emails to your email address.",
                     "Information may also be disclosed when required by law, to protect users or the service, or during a " +
                         "lawful business transfer. Wiccan does not sell personal data or share it for third-party behavioral " +
                         "advertising.",
@@ -263,23 +304,29 @@ object WiccanLegalDocuments {
                 "Retention and deletion",
                 listOf(
                     "Account and service data is kept while your account exists and is needed for the purposes above. " +
-                        "Event-level Firebase Analytics data is kept for no longer than 14 months, and Crashlytics crash reports " +
-                        "for about 90 days.",
+                        "Event-level Firebase Analytics data is kept for no longer than 14 months, Crashlytics crash reports for " +
+                        "about 90 days, and server error logs for about 30 days. Support emails are kept for as long as needed to " +
+                        "handle the request and keep a record of it.",
                     "Delete Account in Settings first attempts to cancel active Play auto-renewal, then deletes the Firebase " +
-                        "account, profile, delivery history, usage reservations, registered devices, and subscription record. If " +
-                        "cancellation cannot be confirmed, deletion stops so it can be retried safely.",
+                        "account, profile, delivery history, usage reservations, content-availability records, registered devices, " +
+                        "verification-email record, and subscription record. If cancellation cannot be confirmed, deletion stops so " +
+                        "it can be retried safely.",
                     "Limited pseudonymous purchase-token and account hashes may remain for fraud and anti-replay protection, " +
                         "for as long as needed to stop a purchase being reused on another account. They are not the raw purchase " +
                         "token or an active account profile.",
-                    "You may also request deletion without the app at https://wiccan.app/delete-account.html. " +
-                        "Legitimate legal, security, dispute, or fraud records may be retained only as necessary.",
+                    "You may also request deletion without the app at https://wiccan.app/delete-account.html; we verify the " +
+                        "request and confirm deletion within 30 days. Deleted data may remain in Google's encrypted backups for a " +
+                        "limited period until it is overwritten. Legitimate legal, security, dispute, or fraud records may be " +
+                        "retained only as necessary.",
                 ),
             ),
             LegalSection(
                 "Security and international processing",
                 listOf(
-                    "Wiccan uses transport encryption, Firebase security rules, server-authoritative writes, App Check, Play " +
-                        "Integrity, and restricted administrator workflows. No security method can guarantee absolute protection.",
+                    "Wiccan uses transport encryption (HTTPS/TLS) for all traffic, Google Cloud's encryption at rest, Firebase " +
+                        "security rules that block the app from writing account, purchase, or delivery records directly, " +
+                        "server-authoritative writes, App Check, Play Integrity, server credentials held in Secret Manager, and " +
+                        "restricted administrator workflows. No security method can guarantee absolute protection.",
                     "Wiccan is operated from the United States, and Google services may process information in the United " +
                         "States and other countries outside your own. Transfers of personal data from the EEA, UK, or Switzerland " +
                         "rely on the safeguards in Google's data processing terms, such as the EU-U.S. Data Privacy Framework and " +
@@ -289,26 +336,26 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Children",
                 listOf(
-                    "Wiccan is intended only for adults (18 or older, or the age of majority where they live if higher) and " +
-                        "is not directed to children. We do not knowingly collect personal information from anyone under 18. If " +
-                        "you believe a minor has created an account, email hello@wiccan.app and we will delete it.",
+                    "Wiccan is intended only for adults (18 or older, or the age of majority where they live if higher) and is " +
+                        "not directed to children. We do not knowingly collect personal information from anyone under 18. If you " +
+                        "believe a minor has created an account, email hello@wiccan.app and we will delete it.",
                 ),
             ),
             LegalSection(
                 "Your privacy rights",
                 listOf(
-                    "Depending on where you live, you may have rights over your personal information. In the European " +
-                        "Economic Area, the United Kingdom, and Switzerland, these include access, correction, deletion, " +
-                        "restriction, objection to processing based on legitimate interests, data portability, and withdrawing " +
-                        "any consent you gave. Residents of California and other U.S. states with privacy laws, Canada, Brazil, " +
-                        "Australia, and other countries may have similar rights, including the right to know what is collected " +
-                        "and to opt out of its sale, sharing for targeted advertising, or profiling.",
+                    "Depending on where you live, you may have rights over your personal information. In the European Economic " +
+                        "Area, the United Kingdom, and Switzerland, these include access, correction, deletion, restriction, " +
+                        "objection to processing based on legitimate interests, data portability, and withdrawing any consent you " +
+                        "gave. Residents of California and other U.S. states with privacy laws, Canada, Brazil, Australia, and " +
+                        "other countries may have similar rights, including the right to know what is collected and to opt out of " +
+                        "its sale, sharing for targeted advertising, or profiling.",
                     "Wiccan does not sell personal information, share it for cross-context behavioral advertising, or use it " +
                         "for profiling with legal or similarly significant effects.",
-                    "To make a request, email hello@wiccan.app from the address on your account. We will verify " +
-                        "the request against your account and respond within 30 days. If we decline a request, you may appeal by " +
-                        "replying to our response. We will not discriminate against you for exercising these rights. If you are " +
-                        "in the EEA, UK, or Switzerland, you may also complain to your local data-protection authority.",
+                    "To make a request, email hello@wiccan.app from the address on your account. We will verify the request " +
+                        "against your account and respond within 30 days. If we decline a request, you may appeal by replying to " +
+                        "our response. We will not discriminate against you for exercising these rights. If you are in the EEA, UK, " +
+                        "or Switzerland, you may also complain to your local data-protection authority.",
                 ),
             ),
             LegalSection(
@@ -316,11 +363,15 @@ object WiccanLegalDocuments {
                 listOf(
                     "In Settings you can disable daily notifications, turn usage analytics and crash reports on or off, sign " +
                         "out, and delete your account. Manage your subscription in Google Play.",
-                    "Wiccan is operated by Jaime Sorrow, an individual developer based in Alaska, United States, who is " +
-                        "responsible for (the “controller” of) your personal information. For access, correction, privacy, or " +
-                        "deletion questions, email hello@wiccan.app or use Contact Support in Settings.",
-                    "When this policy changes materially, it receives a new version and the app asks you to review it before " +
-                        "continuing.",
+                    "For access, correction, privacy, or deletion questions, email hello@wiccan.app or use Contact Support in " +
+                        "Settings. Wiccan is operated by Jaime Sorrow.",
+                ),
+            ),
+            LegalSection(
+                "Changes to this policy",
+                listOf(
+                    "The effective date at the top of this policy shows when it last changed. When this policy changes " +
+                        "materially, it receives a new version and the app asks you to review it before continuing.",
                 ),
             ),
         ),
