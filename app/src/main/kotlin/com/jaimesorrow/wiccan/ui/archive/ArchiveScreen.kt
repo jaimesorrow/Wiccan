@@ -99,15 +99,18 @@ internal fun ArchiveScreenContent(
                 ) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
-                state.entries.isEmpty() && state.error != null -> Box(
-                    Modifier.fillMaxSize().padding(32.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = state.error.toUserMessage(LocalResources.current),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                state.entries.isEmpty() && state.error != null -> {
+                    val historyError = checkNotNull(state.error)
+                    Box(
+                        Modifier.fillMaxSize().padding(32.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = historyError.toUserMessage(LocalResources.current),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
                 state.entries.isEmpty() -> EmptyArchive()
                 else -> Box(Modifier.fillMaxSize()) {
