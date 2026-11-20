@@ -4,20 +4,36 @@ import com.jaimesorrow.wiccan.data.local.CachedDailyContentEntity
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.ContentCitation
-import com.jaimesorrow.wiccan.domain.model.ContentStatus
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.ContentType
-import java.util.Locale
 
-/** Maps the raw callable-function payload into the domain [Content] model. */
+/**
+ * Maps the raw callable-function or Firestore payload into the domain [Content] model.
+ * Never throws: a payload with a missing id or an unknown/missing type or tier is
+ * logged and returns null so one bad document can't crash or blank a screen.
+ */
 @Suppress("UNCHECKED_CAST")
-fun Map<String, Any?>.toContent(): Content {
-    val structuredCitation = (this["citations"] as? List<Map<String, Any?>>)?.firstOrNull()
+fun Map<String, Any?>.toContentOrNull(): Content? = runCatching { toContentInternal() }
+    .onFailure { logSkipped("Skipping unreadable content '${this["id"]}': ${it.message}") }
+    .getOrNull()
+
+@Suppress("UNCHECKED_CAST")
+private fun Map<String, Any?>.toContentInternal(): Content? {
+    val id = this["id"] as? String
+    val rawType = this["type"] as? String
+    val rawTier = this["tier"] as? String
+    val type = parseDisplayableTypeOrNull(rawType)
+    val tier = parseTierOrNull(rawTier)
+    if (id.isNullOrBlank() || type == null || tier == null) {
+        logSkipped("Skipping content '$id': type='$rawType' tier='$rawTier'")
+        return null
+    }
+    val structuredCitation = (this["citations"] as? List<*>)?.firstOrNull() as? Map<String, Any?>
     val toolNames = (this["tools"] ?: this["materials"]).toToolNames()
     return Content(
-        id = this["id"] as? String ?: error("Missing 'id' in content payload"),
-        type = ContentType.valueOf((this["type"] as? String ?: error("Missing 'type' in content payload")).uppercase(Locale.ROOT)),
-        tier = ContentTier.valueOf((this["tier"] as? String ?: error("Missing 'tier' in content payload")).uppercase(Locale.ROOT)),
+        id = id,
+        type = type,
+        tier = tier,
         tradition = (this["tradition"] as? String).orEmpty(),
         category = ((this["primaryCategoryId"] ?: this["category"]) as? String)?.let {
             runCatching { ContentCategory.fromWireValue(it) }.getOrDefault(ContentCategory.MOON_AND_SEASONAL)
@@ -29,8 +45,8 @@ fun Map<String, Any?>.toContent(): Content {
         practice = this["practice"] as? String,
         materials = toolNames.ifEmpty { null },
         safetyNote = this["safetyNote"] as? String,
-        tags = (this["tags"] as? List<String>).orEmpty(),
-        status = ContentStatus.valueOf(((this["contentStatus"] ?: this["status"]) as? String ?: "published").uppercase(Locale.ROOT)),
+        tags = (this["tags"] as? List<*>).orEmpty().filterIsInstance<String>(),
+        status = parseStatus((this["contentStatus"] ?: this["status"]) as? String ?: "published"),
         sourceId = this["sourceId"] as? String,
         sourceCitation = this["sourceCitation"] as? String,
         sourceUrl = this["sourceUrl"] as? String,
@@ -130,10 +146,23 @@ fun Content.toCachedEntity(deliveredDate: String, userId: String, timezone: Stri
     citationUrl = citation?.url,
 )
 
-fun CachedDailyContentEntity.toDomain(): Content = Content(
+/** Never throws: a cached row this build can't read (unknown type or tier) maps to null. */
+fun CachedDailyContentEntity.toDomainOrNull(): Content? {
+    val parsedType = parseDisplayableTypeOrNull(type)
+    val parsedTier = parseTierOrNull(tier)
+    if (parsedType == null || parsedTier == null) {
+        logSkipped("Skipping cached content '$contentId': type='$type' tier='$tier'")
+        return null
+    }
+    return runCatching { toDomain(parsedType, parsedTier) }
+        .onFailure { logSkipped("Skipping cached content '$contentId': ${it.message}") }
+        .getOrNull()
+}
+
+private fun CachedDailyContentEntity.toDomain(parsedType: ContentType, parsedTier: ContentTier): Content = Content(
     id = contentId,
-    type = ContentType.valueOf(type),
-    tier = ContentTier.valueOf(tier),
+    type = parsedType,
+    tier = parsedTier,
     tradition = tradition,
     category = ContentCategory.fromStoredValue(category),
     title = title,
@@ -144,7 +173,7 @@ fun CachedDailyContentEntity.toDomain(): Content = Content(
     materials = materials,
     safetyNote = safetyNote,
     tags = tags,
-    status = ContentStatus.valueOf(status),
+    status = parseStatus(status),
     sourceId = sourceId,
     sourceCitation = sourceCitation,
     sourceUrl = sourceUrl,

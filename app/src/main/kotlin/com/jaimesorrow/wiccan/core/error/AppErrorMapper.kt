@@ -24,5 +24,6 @@ fun AppError.userMessageRes(): Int = when (this) {
     is AppError.PurchaseVerificationFailed -> R.string.error_purchase_verification
     is AppError.InvalidCredentials -> R.string.error_invalid_credentials
     is AppError.RestoreFailed -> R.string.error_restore_purchases
+    is AppError.UnsupportedContent -> R.string.error_unsupported_content
     is AppError.Unknown -> R.string.error_unknown
 }

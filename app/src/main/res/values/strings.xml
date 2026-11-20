@@ -106,6 +106,8 @@
     <string name="today_open_grimoire">Open your Grimoire</string>
     <string name="today_look_again">Look again</string>
     <string name="today_retry">Try again</string>
+    <string name="today_error_title">Today\'s page is hidden for now</string>
+    <string name="today_error_body">We couldn\'t open today\'s practice. Try again, or visit your Grimoire.</string>
     <string name="today_loading">Loading today\'s practice</string>
     <string name="today_logo_description">Wiccan</string>
 
@@ -257,6 +259,7 @@
     <string name="error_purchase_verification">We couldn\'t verify that purchase with Google Play. Try again, or contact support.</string>
     <string name="error_invalid_credentials">The gate stayed shut. Check your email and password, then try again.</string>
     <string name="error_restore_purchases">The restore faltered. Check this account in Google Play, then try again.</string>
+    <string name="error_unsupported_content">This page is written in a form this version of Wiccan can\'t read yet. Try again later, or update the app.</string>
     <string name="error_unknown">The working stumbled. Try again in a moment.</string>
 
     <!-- Home-screen widget and the daily notification channel -->

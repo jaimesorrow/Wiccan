@@ -7,7 +7,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.jaimesorrow.wiccan.data.mapper.toContent
+import com.jaimesorrow.wiccan.data.mapper.toContentOrNull
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -63,7 +63,7 @@ class TodayScreenTest {
             "safetyNote" to "Stay within comfortable movement and breathing.",
             "sourceCitation" to "Modern Wiccan practice guide",
             "rightsNotes" to "Original educational synthesis",
-        ).toContent()
+        ).toContentOrNull()!!
         var openedGrimoire = false
         composeRule.setContent {
             MaterialTheme {
@@ -88,5 +88,26 @@ class TodayScreenTest {
         composeRule.onNodeWithText("Beginner").assertDoesNotExist()
         composeRule.onNodeWithText("Intermediate").assertDoesNotExist()
         composeRule.onNodeWithText("Advanced").assertDoesNotExist()
+    }
+
+    @Test
+    fun `a failed load shows a retry panel instead of a blank screen`() {
+        val events = mutableListOf<TodayUiEvent>()
+        var openedGrimoire = false
+        composeRule.setContent {
+            MaterialTheme {
+                TodayScreenContent(
+                    state = TodayUiState(isLoading = false, loadFailed = true),
+                    effects = emptyFlow(),
+                    onEvent = { events += it },
+                    onOpenGrimoire = { openedGrimoire = true },
+                )
+            }
+        }
+        composeRule.onNodeWithTag("today-error").assertIsDisplayed()
+        composeRule.onNodeWithTag("today-retry").performScrollTo().performClick()
+        assertTrue(TodayUiEvent.Retry in events)
+        composeRule.onNodeWithText("Open your Grimoire").performScrollTo().performClick()
+        assertTrue(openedGrimoire)
     }
 }

@@ -2,15 +2,18 @@ package com.jaimesorrow.wiccan.ui.archive
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.repository.ArchiveRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -34,16 +37,22 @@ class ArchiveViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            archiveRepository.observeHistory().collect { result ->
-                when (result) {
-                    is AppResult.Success -> _state.update {
-                        it.copy(isLoading = false, entries = result.data, error = null)
-                    }
-                    is AppResult.Failure -> _state.update {
-                        it.copy(isLoading = false, error = result.error)
+            archiveRepository.observeHistory()
+                // Never let an unexpected stream failure crash the Grimoire; surface it as an error.
+                .catch { t ->
+                    if (t is CancellationException) throw t
+                    emit(AppResult.Failure(AppError.Unknown(t.message)))
+                }
+                .collect { result ->
+                    when (result) {
+                        is AppResult.Success -> _state.update {
+                            it.copy(isLoading = false, entries = result.data, error = null)
+                        }
+                        is AppResult.Failure -> _state.update {
+                            it.copy(isLoading = false, error = result.error)
+                        }
                     }
                 }
-            }
         }
     }
 

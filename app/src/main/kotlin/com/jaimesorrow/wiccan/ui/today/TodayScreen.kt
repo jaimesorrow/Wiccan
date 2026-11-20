@@ -154,11 +154,50 @@ internal fun TodayScreenContent(
                     isDailyLesson = true,
                     onOpenGrimoire = onOpenGrimoire,
                 )
+                // Post-error, cache-empty: never leave a blank screen — always offer a way forward.
+                state.loadFailed -> TodayErrorPanel(onEvent = onEvent, onOpenGrimoire = onOpenGrimoire)
                 else -> {
-                    // Post-error, cache-empty: keep the ground quiet — the snackbar carries the message.
                     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun TodayErrorPanel(onEvent: (TodayUiEvent) -> Unit, onOpenGrimoire: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize().testTag("today-error"),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(32.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            WiccanEmblem(
+                size = 48.dp,
+                contentDescription = stringResource(R.string.today_logo_description),
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = stringResource(R.string.today_error_title),
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Text(
+                text = stringResource(R.string.today_error_body),
+                modifier = Modifier.padding(top = 12.dp, bottom = 24.dp),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Button(
+                onClick = { onEvent(TodayUiEvent.Retry) },
+                modifier = Modifier.testTag("today-retry"),
+            ) { Text(stringResource(R.string.today_retry)) }
+            TextButton(onClick = onOpenGrimoire) { Text(stringResource(R.string.today_open_grimoire)) }
         }
     }
 }
