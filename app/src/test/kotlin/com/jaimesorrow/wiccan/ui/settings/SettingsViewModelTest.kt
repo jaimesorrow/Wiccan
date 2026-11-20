@@ -212,4 +212,13 @@ class SettingsViewModelTest {
 
         assertEquals(WiccanThemeMode.ROYAL_PLUM, viewModelWithPlum.state.value.themeMode)
     }
+
+    @Test
+    fun `a second ConfirmDeleteAccount is ignored while deletion is already in progress`() = runTest(dispatcher) {
+        viewModel.onEvent(SettingsUiEvent.ConfirmDeleteAccount)
+        viewModel.onEvent(SettingsUiEvent.ConfirmDeleteAccount)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(1, repository.deleteAccountCallCount)
+    }
 }

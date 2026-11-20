@@ -4,7 +4,7 @@ import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.error.toAppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.data.mapper.toContent
-import com.jaimesorrow.wiccan.data.mapper.toHistoryEntry
+import com.jaimesorrow.wiccan.data.mapper.toHistoryEntryOrNull
 import com.jaimesorrow.wiccan.data.remote.ArchiveFirestoreDataSource
 import com.jaimesorrow.wiccan.data.remote.ContentNotFoundException
 import com.jaimesorrow.wiccan.domain.model.Content
@@ -18,8 +18,13 @@ class ArchiveRepositoryImpl @Inject constructor(
     private val dataSource: ArchiveFirestoreDataSource,
 ) : ArchiveRepository {
 
-    override fun observeHistory(): Flow<List<HistoryEntry>> =
-        dataSource.observeHistory().map { rows -> rows.map { it.toHistoryEntry() } }
+    override fun observeHistory(): Flow<AppResult<List<HistoryEntry>>> =
+        dataSource.observeHistory().map { result ->
+            when (result) {
+                is AppResult.Success -> AppResult.Success(result.data.mapNotNull { it.toHistoryEntryOrNull() })
+                is AppResult.Failure -> result
+            }
+        }
 
     override suspend fun getContentById(contentId: String): AppResult<Content> = try {
         AppResult.Success(dataSource.getContentById(contentId).toContent())

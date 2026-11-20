@@ -6,6 +6,7 @@ import com.jaimesorrow.wiccan.domain.model.Content
 data class ArchiveDetailUiState(
     val isLoading: Boolean = true,
     val content: Content? = null,
+    val error: AppError? = null,
 )
 
 sealed class ArchiveDetailUiEffect {

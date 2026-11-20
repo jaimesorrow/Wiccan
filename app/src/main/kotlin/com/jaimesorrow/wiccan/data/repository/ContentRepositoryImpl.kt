@@ -73,10 +73,11 @@ class ContentRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun observeTodayContent(): Flow<Content?> = combine(dao.observe(), subscriptionRepository.observeTier()) { entity, tier ->
-        val uid = currentUserProvider.currentUserId
-        entity?.takeIf {
-            tier == ContentTier.PREMIUM && uid != null && it.userId == uid && it.deliveredDate == calendar.today
-        }?.toDomain()
-    }
+    override fun observeTodayContent(): Flow<Content?> =
+        combine(dao.observe(), subscriptionRepository.observeTier(), calendar.todayFlow()) { entity, tier, today ->
+            val uid = currentUserProvider.currentUserId
+            entity?.takeIf {
+                tier == ContentTier.PREMIUM && uid != null && it.userId == uid && it.deliveredDate == today
+            }?.toDomain()
+        }
 }

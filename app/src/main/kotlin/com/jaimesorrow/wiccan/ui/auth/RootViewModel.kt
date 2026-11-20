@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
@@ -39,6 +40,12 @@ class RootViewModel @Inject constructor(
 
     private val _rootState = MutableStateFlow<RootState>(RootState.Loading)
     val rootState: StateFlow<RootState> = _rootState.asStateFlow()
+    private val accountStatusRetry = MutableStateFlow(0)
+
+    /** Re-attaches the profile listener after a terminal Firestore failure. */
+    fun retryAccountStatus() {
+        accountStatusRetry.update { it + 1 }
+    }
 
     init {
         viewModelScope.launch {
@@ -47,7 +54,9 @@ class RootViewModel @Inject constructor(
                 .flatMapLatest { authState ->
                     when (authState) {
                         AuthState.SignedOut -> flowOf(RootState.SignedOut)
-                        is AuthState.SignedIn -> authRepository.observeAccountStatus(authState.uid)
+                        is AuthState.SignedIn -> accountStatusRetry.flatMapLatest {
+                            authRepository.observeAccountStatus(authState.uid)
+                        }
                             .distinctUntilChanged()
                             .flatMapLatest { status ->
                                 when (status) {
@@ -55,6 +64,7 @@ class RootViewModel @Inject constructor(
                                     AccountStatus.RequiresEmailVerification -> flowOf(RootState.RequiresEmailVerification)
                                     AccountStatus.RequiresProfileCompletion -> flowOf(RootState.RequiresProfileCompletion)
                                     AccountStatus.RequiresPolicyAcceptance -> flowOf(RootState.RequiresPolicyAcceptance)
+                                    is AccountStatus.Unavailable -> flowOf(RootState.AccountUnavailable(status.error))
                                     AccountStatus.Ready -> subscriptionRepository.observeTier()
                                         .map<ContentTier, RootState> { tier ->
                                             if (tier == ContentTier.PREMIUM) {
