@@ -71,10 +71,13 @@ fun ArchiveDetailScreen(
                 state.content != null -> ContentDetailView(content = state.content!!, modifier = Modifier.fillMaxSize())
                 else -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = if (state.error == null || state.error is AppError.NotFound) {
-                            stringResource(R.string.grimoire_missing)
-                        } else {
-                            state.error.toUserMessage(resources)
+                        text = run {
+                            val error = state.error
+                            if (error == null || error is AppError.NotFound) {
+                                stringResource(R.string.grimoire_missing)
+                            } else {
+                                error.toUserMessage(resources)
+                            }
                         },
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

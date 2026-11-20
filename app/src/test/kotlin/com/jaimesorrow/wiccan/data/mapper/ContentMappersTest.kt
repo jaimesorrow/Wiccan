@@ -2,11 +2,11 @@ package com.jaimesorrow.wiccan.data.mapper
 
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.ContentStatus
+import java.util.Locale
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Test
-import java.util.Locale
 
 class ContentMappersTest {
     private val lesson = mapOf<String, Any?>(

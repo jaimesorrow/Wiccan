@@ -162,7 +162,8 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     is RootState.AccountUnavailable -> AccountStatusError(
-                        message = rootState.error.toUserMessage(LocalResources.current),
+                        message = (rootState as RootState.AccountUnavailable).error
+                            .toUserMessage(LocalResources.current),
                         onRetry = rootViewModel::retryAccountStatus,
                     )
                     RootState.Loading, RootState.InitializingProfile -> LoadingIndicator()
