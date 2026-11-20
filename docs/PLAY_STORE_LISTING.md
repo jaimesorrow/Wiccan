@@ -12,7 +12,7 @@ against the build uploaded to Play before submission.
 | App or game | App |
 | Free or paid | Free download; a Google Play subscription (free trial eligible) is required for daily content and Grimoire access |
 | Category | Lifestyle |
-| Support email | `wiccan.android.app@gmail.com` |
+| Support email | `hello@wiccan.app` |
 | Website | `https://wiccan.app/` |
 | Privacy policy | `https://wiccan.app/privacy.html` |
 | Account deletion | `https://wiccan.app/delete-account.html` |

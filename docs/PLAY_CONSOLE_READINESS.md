@@ -17,7 +17,7 @@ truthfully completed from the repository:
 
 - finish the `wiccan.app` DNS records in Cloudflare, deploy `hosting/` to
   Firebase Hosting and confirm `https://wiccan.app/terms.html`, `/privacy.html`
-  and `/delete-account.html` load; monitor `wiccan.android.app@gmail.com`, which the app,
+  and `/delete-account.html` load; monitor `hello@wiccan.app`, which the app,
   policies and deletion page name as the support and privacy contact;
 - select the **18+** target audience in Play Console (Terms v4 requires users
   to be 18 or older, and the policy gate asks them to confirm it);
