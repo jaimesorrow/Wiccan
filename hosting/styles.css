@@ -410,7 +410,9 @@ details p { margin-top: -8px; padding-bottom: 18px; color: var(--muted); }
   .site-header nav, .toc, .wheel, .skip-link, .site-footer nav { display: none; }
   .policy-layout { display: block; width: auto; padding: 0; }
   .policy { max-width: none; padding: 0; border: 0; background: none; box-shadow: none; }
-  h1, h2, h3, .brand, .policy p, .policy li, strong { color: #000; }
+  h1, h2, h3, .brand, strong,
+  .policy h1, .policy h2, .policy .lede, .policy p, .policy li { color: #000; }
+  .policy h2::before, .policy li::marker { color: #000; }
   .meta { color: #000; border-color: #000; }
   a { color: #000; }
 }
