@@ -182,7 +182,7 @@ sender domain:
 firebase functions:secrets:set SMTP_URL --project production
 
 # In functions/.env.wiccan-android (gitignored):
-SMTP_FROM=Wiccan <noreply@wiccanandroid.com>
+SMTP_FROM=Wiccan <noreply@wiccan.app>
 
 firebase deploy --only functions:sendVerificationEmail --project production
 ```
@@ -264,9 +264,10 @@ fails rather than silently shipping to production.
 ## Still outstanding after all of the above
 
 - The policy pages in `hosting/` (`PolicyUrls`:
-  `https://app.wiccanandroid.com/terms.html`, `/privacy.html`,
-  `/delete-account.html`) must be deployed through `.github/workflows/pages.yml`
-  before Play submission. Complete the GitHub Pages and DNS steps in
+  `https://wiccan.app/terms.html`, `/privacy.html`,
+  `/delete-account.html`) must be deployed to Firebase Hosting
+  (`firebase deploy --only hosting --project wiccan-android`) before Play
+  submission. Complete the Cloudflare DNS steps in
   `docs/GITHUB_PAGES_DOMAIN.md`, then open each URL to confirm it loads.
 - `handlePlayRtdn` and `verifyPurchase`'s field shapes have never run
   against a real Play Console — they need a real purchase token, which no

@@ -78,7 +78,10 @@ Intentions (protection, love, abundance, rest, focus...) are tags.
 
 Mapping never invents content. An incomplete record fails validation and is
 excluded from delivery rather than crashing a reader. The dry-run mapping and
-audit of the 296 checked-in records is `docs/archive/LEGACY_LESSON_AUDIT.md`.
+audit of the 296 checked-in records was a generated report that has since
+been removed from the tree (see git history at `5d0742f`,
+`docs/archive/LEGACY_LESSON_AUDIT.md`); regenerate it with the migration
+dry-run when needed.
 
 ## Validation (`validateLesson`)
 

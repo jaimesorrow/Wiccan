@@ -1,6 +1,6 @@
 # Google Play release compliance — Wiccan
 
-Last audited: **2026-10-12** against the repository and Google Play's official
+Last audited: **2026-10-12**; status and domain references refreshed **2026-11-19** (see [STATUS.md](STATUS.md)). Audited against the repository and Google Play's official
 developer-policy/help pages. Recheck the linked policies immediately before
 submission because Play requirements and Console questions change.
 
@@ -15,21 +15,30 @@ the final public documents.
 disclosures are implemented, but the following owner/Console work cannot be
 truthfully completed from the repository:
 
-- deploy the policy pages through the GitHub Pages workflow and confirm
-  `https://app.wiccanandroid.com/terms.html`, `/privacy.html` and
-  `/delete-account.html` load; monitor `wiccan.android.app@gmail.com`, which the app,
+- finish the `wiccan.app` DNS records in Cloudflare, deploy `hosting/` to
+  Firebase Hosting and confirm `https://wiccan.app/terms.html`, `/privacy.html`
+  and `/delete-account.html` load; monitor `wiccan.android.app@gmail.com`, which the app,
   policies and deletion page name as the support and privacy contact;
 - select the **18+** target audience in Play Console (Terms v4 requires users
   to be 18 or older, and the policy gate asks them to confirm it);
 - complete Data Safety, content-rating, app-access, ads, and health declarations;
 - provide a reusable reviewer account plus free review access to premium content;
-- configure the subscription products, Play Developer API, RTDN, app signing,
-  store listing, screenshots, and production Firebase/App Check settings;
+- build a signed bundle (the release workflow needs its four `RELEASE_*`
+  secrets) and upload it; configure the subscription products, Play Developer
+  API, RTDN, app signing, store listing, screenshots, and production Firebase/App Check settings;
 - have a qualified reviewer approve the Terms, Privacy, rights, retention, and
   regional consumer/subscription language.
 
 Do not mark these complete until the Play Console and public URLs can be opened
 and verified from a signed-out browser/device.
+
+### Play Console state (2026-11-19)
+
+The Play Console app is a **draft**: no bundle uploaded, no store listing, and
+all 11 App content declarations pending. The developer account is a **personal
+account**, so production access requires a closed test with **at least 12
+testers opted in for 14 days**; there are **0 testers so far**. Plan the first
+upload as Internal testing, then Closed testing.
 
 ## Curated Play Console answers
 
@@ -39,7 +48,7 @@ These answers reflect the current code. Re-audit if functionality or SDKs change
 |---|---|---|
 | Contains ads | **No** | No ads SDK or ad surface is present. |
 | In-app purchases | **Yes — subscriptions** | Google Play Billing; monthly UI today, monthly/yearly product IDs accepted by the backend. |
-| App access restricted | **Yes** | Sign-in and policy acceptance gate the app; premium content is paywalled. Supply reviewer instructions and credentials. |
+| App access restricted | **Yes** | Sign-in, policy acceptance and an active subscription or trial gate the app. Supply reviewer instructions and credentials. |
 | User-generated content | **No** | Users cannot post, message, upload, or share content. |
 | Social/chat features | **No** | No user-to-user interaction. |
 | User-facing generative AI | **No** | The app cannot generate content. An operator-only offline tool creates ancient-grimoire-grounded drafts for human review. This is an inference from the current Play definition; recheck if generation is ever exposed in-app. |
@@ -118,7 +127,7 @@ Additional form answers:
 
 - **Encrypted in transit:** Yes, for the app/Firebase/Play paths in this repo.
 - **Users can request deletion:** Yes — in app (Settings → Delete Account) and at
-  `https://app.wiccanandroid.com/delete-account.html` once GitHub Pages and DNS are live.
+  `https://wiccan.app/delete-account.html` once the `wiccan.app` DNS records and Firebase Hosting deploy are live.
 - **Independent security review:** Do not claim one unless a qualifying review
   has actually been completed and remains valid.
 - **Data sale:** No.
@@ -149,8 +158,8 @@ and account hashes may remain for anti-fraud/anti-replay purposes; the Privacy
 Policy and deletion page state that purpose and that they are kept only as long
 as needed to stop a purchase being reused on another account.
 
-The public pages live in `hosting/` and deploy to GitHub Pages at
-`app.wiccanandroid.com`: `/terms.html`, `/privacy.html`,
+The public pages live in `hosting/` and are served by Firebase Hosting
+(project `wiccan-android`) at `https://wiccan.app`: `/terms.html`, `/privacy.html`,
 `/content-safety.html`, `/potion-safety.html`, `/delete-account.html`. Terms, Privacy and
 Content & Safety are word-for-word copies of `WiccanLegalDocuments`;
 `LegalDocumentsTest` fails if they drift, so change both together and bump
@@ -185,7 +194,8 @@ Placement is intentionally layered:
 | Paywall | Terms and Privacy sit beside the localized recurring price and renewal/cancellation disclosure. |
 | Settings | Permanent access to Terms, Privacy, Content & Safety, support, subscription management, and account deletion. |
 
-Android and Functions policy constants are both version `2`; any future material
+Android and Functions policy constants are both version `4`
+(`PolicyVersions` and `functions/src/policyVersions.ts`); any future material
 change must bump the applicable versions together.
 
 ## Subscription compliance
@@ -198,7 +208,8 @@ The paywall must keep all of these visible before purchase:
 - cancellation through Google Play and normal access through the paid period;
 - Terms and Privacy links;
 - clear premium benefits and a working Restore Purchases action;
-- free daily content remains usable without subscribing.
+- the required subscription (7-day trial for eligible new subscribers) is
+  disclosed before purchase; there is no free content plan.
 
 The current UI purchases only `wiccan_premium_monthly`. The backend also
 allow-lists `wiccan_premium_yearly`, but do not advertise annual pricing until a
@@ -223,11 +234,13 @@ Manager/Google ID, and Google Play Billing.
 
 ## Store listing and technical release checklist
 
-- [ ] 512×512 PNG app icon and 1024×500 feature graphic (current launcher art
-  is not proof of store readiness).
+- [ ] 512×512 PNG app icon and 1024×500 feature graphic (prepared in
+  `brand/exports/google-play/`; not yet uploaded).
 - [ ] At least two current phone screenshots and accurate short/full descriptions.
 - [ ] “Contains ads” set to No and “In-app purchases” displayed.
-- [ ] Production signing/App Signing configured; version code incremented.
+- [ ] Production signing/App Signing configured (upload keystore + the four
+  `RELEASE_*` repository secrets; none exist yet); version code incremented
+  for every new upload after the first (`versionCode` is currently 1).
 - [ ] Current target API policy rechecked. Repo currently uses `targetSdk = 36`.
 - [ ] Production Firebase, App Check/Play Integrity, Auth certificates, Functions,
   Firestore rules/indexes, content, billing, RTDN, and alerts verified.

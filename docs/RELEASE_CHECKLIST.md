@@ -6,6 +6,11 @@ project, or a human decision this sandbox can't make safely. Nothing here
 is guessed at — where a step can't be verified without real infrastructure,
 it says so instead of pretending.
 
+> **Status 2026-11-19:** no signed bundle has been built yet — the four
+> `RELEASE_*` secrets below are not set. See [STATUS.md](STATUS.md) for the
+> current blockers and the ordered next steps. `versionCode` is 1 and has
+> never been uploaded.
+
 ## Signing
 
 - [ ] Use **Play App Signing** for the production listing. Google holds the app-signing key; your locally generated keystore should be treated as the **upload key**, not as the irreplaceable app-signing key.
@@ -65,6 +70,29 @@ Run it from the **Actions** tab, or push a `v*` tag.
   App Check both fail in production if only the upload key's fingerprint
   is registered.
 
+### Reading the fingerprints
+
+`scripts/signing-fingerprints.sh` prints the SHA-1 and SHA-256 Firebase
+needs, from whichever signing material is to hand:
+
+```bash
+scripts/signing-fingerprints.sh                                   # the debug keystore
+scripts/signing-fingerprints.sh --keystore upload.keystore.jks    # prompts for the password
+scripts/signing-fingerprints.sh --aab app/build/outputs/bundle/prodRelease/app-prod-release.aab
+```
+
+The `--apk`/`--aab` forms read the certificate out of a built artifact, so
+they report what a bundle was *actually* signed with rather than what it was
+meant to be — on an unsigned bundle they say so and exit nonzero. The
+password is prompted for, never taken as an argument, so it stays out of the
+shell history and out of `ps`.
+
+Three separate certificates sign this app over its life and all three need
+registering: the per-machine **debug** key, the **upload** key, and the
+**Play App Signing** key Google generates at first upload. Only the first
+two are derivable locally; the third has to be copied from Play Console →
+Test and release → Setup → App signing.
+
 ## Minification (R8/ProGuard)
 
 - **Current state: `isMinifyEnabled = false`.** `app/proguard-rules.pro` is empty.
@@ -85,18 +113,17 @@ Run it from the **Actions** tab, or push a `v*` tag.
 - The app builds three product flavors, one per environment (see the README's Environments section) — `dev`/`staging`/`prod`, matching `.firebaserc`'s aliases. Production uses the verified source-specific config at `app/src/prod/google-services.json` for Firebase project `wiccan-android` and application ID `com.jaimesorrow.wiccan`. CI still copies `app/google-services.ci.json` as a non-production fallback, but the prod source-set config is authoritative for the prod variant. `dev`/`staging` still need their own real Firebase projects/configs before those variants can be treated as connected environments.
 - [ ] Once real dev/staging Firebase projects exist, add their `google-services.json` files and confirm `./gradlew :app:assembleDevDebug` / `:app:assembleStagingDebug` build cleanly.
 
-## Automated checks (branch integration run on 2026-10-02; rerun before release)
+## Automated checks (rerun before every release)
 
 See [BUILD_VALIDATION.md](BUILD_VALIDATION.md) for exact results and limits.
-The baseline is Java 17, Gradle 9.8.1, AGP 9.4.1, Kotlin 2.4.21 and
+The baseline is Java 17, Gradle 9.9.1, AGP 9.5.1, Kotlin 2.4.21 and
 Billing 9.1.0, with `compileSdk` 37 / `targetSdk` 36; the SDK package is
-`platforms;android-37.0`. Hosted Actions reports `startup_failure` before
-jobs execute; its exact cause is unconfirmed. Local Android tests: 86
-passed across 18 suites. Functions on Node 22: fresh `npm ci`, build, lint and 98
-tests across 14 suites passed. Ktlint plugin 14.2.0 restores Android source
-coverage with engine 1.8.0. Debug and release builds, instrumented-test
-compilation and 16 KB alignment pass. Release lint reports zero errors and
-62 nonblocking warnings. The release bundle is unsigned.
+`platforms;android-37.0`. Hosted CI (`ci.yml`: Android and Functions jobs) runs
+on every PR and push and is passing on `main` as of 2026-11-19. Latest local
+runs (2026-11-15/16): 207 prod-debug unit tests, `ktlintCheck`, debug build,
+Functions build/lint/tests, and Firestore rules tests all pass. No signed
+release bundle has been built yet; an unsigned `bundleProdRelease` is only a
+build check.
 
 - [x] `bash scripts/release-preflight.sh` — verifies package/Firebase identity, App Check wiring, protected writes, RTDN retry behavior, WorkManager initialization, and obvious committed server-secret patterns
 - [x] `python3 scripts/test-check-toolchain.py` and `python3 scripts/check-toolchain.py` — 21 regression tests and package/runtime consistency

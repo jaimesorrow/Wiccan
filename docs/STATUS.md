@@ -1,304 +1,141 @@
-# Wiccan — repair-order status
+# Wiccan — project status
 
-For the latest Play Billing hardening, structured Android lessons, 200-lesson
-manifest and measured validation, see [PRODUCTION_VALIDATION.md](PRODUCTION_VALIDATION.md)
-and [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md). The notes below record earlier
-repair work and do not establish live production account setup.
+**As of 2026-11-19.** This page is the current snapshot; it replaces the
+long repair-order log that used to live here (still available in git history
+at `5d0742f`). Other docs record detail: [PRODUCTION_VALIDATION.md](PRODUCTION_VALIDATION.md),
+[PRODUCTION_SETUP.md](PRODUCTION_SETUP.md), [PLAY_CONSOLE_READINESS.md](PLAY_CONSOLE_READINESS.md),
+[RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) and [FIREBASE_SETUP.md](FIREBASE_SETUP.md).
 
-Honest status against the repair order this branch worked through. PASS
-means built and verified by this repo's own automated checks. FIXED means
-a real gap was found and closed in this pass. BLOCKED means it needs
-something this sandbox genuinely cannot provide (real credentials, a real
-project, a device/emulator) — never worked around with a placeholder
-pretending to be real.
+**Release status: NOT READY for production. Ready to prepare a first
+internal/closed-test upload once the blockers below marked "before first
+upload" are cleared.**
 
-**Revision note**: an earlier version of this file claimed "every gap
-that isn't [a real Firebase project/keystore/Play listing] has been
-closed." An external audit of the codebase correctly caught that this was
-an overclaim — several real, code-level gaps were still open despite not
-depending on external infrastructure. This revision corrects that: the
-audit's findings are listed below, and every one of them either has been
-fixed (with the fix verified the same way as everything else in this
-file) or is named explicitly as still open, with a reason.
+## What the app is
 
-## Core app (pre-existing, prior sessions)
+Wiccan is a Kotlin / Jetpack Compose Android app (`com.jaimesorrow.wiccan`,
+Firebase project `wiccan-android`) that delivers one piece of practical
+witchcraft content per day — a lesson, spell or potion — on a subscription
+(7-day trial for eligible new subscribers, then $5.99/month US base price).
+Content is original writing grounded in vetted ancient/public-domain sources.
+The operator is Jaime Sorrow, an individual developer in Alaska. Support and
+privacy contact: `wiccan.android.app@gmail.com`.
 
-| Area | Status |
-|---|---|
-| Daily content selection (deterministic, subscription-gated, transactional) | PASS |
-| Room cache + DAO | PASS |
-| Today/Archive/Settings/Paywall screens (MVI) | PASS |
-| Auth (Credential Manager Google sign-in + Firebase email/password) | PASS |
-| Billing (Play Billing Library 9.1.0, server-verified entitlement) | IN REVIEW — local and hosted Android build/test/lint PASS on 2026-10-02; live Play validation pending |
-| Content generation pipeline (Claude-backed, admin-only) | PASS |
-| Home-screen widget | PASS |
-| Shared AppResult/AppError error taxonomy | PASS |
-| Full Nyxwell → Wiccan rebrand (including applicationId) | PASS |
-| compileSdk 37 / targetSdk 36 baseline | PASS — local debug and release builds |
+Stack: Compose + Hilt + Room, Firebase Auth / Firestore / Functions / FCM /
+App Check / Analytics / Crashlytics, Play Billing 9.1.0, Cloud Functions on
+Node 22. Build: Java 17, Gradle 9.9.1, AGP 9.5.1, Kotlin 2.4.21,
+`compileSdk` 37, `targetSdk` 36, `minSdk` 24, `versionCode` 1 / `versionName` 1.0.
 
-## This pass's repair order
+## What is done
 
-| Area | Status |
-|---|---|
-| Navigation Compose app shell + real `RootState` | PASS |
-| Server-controlled profile mutations (device token, time zone, terms) | PASS |
-| Versioned Terms/Privacy acceptance gate | PASS |
-| Subscription lifecycle hardening (entitlement fix, RTDN, acknowledgement) | PASS |
-| Required subscription after onboarding, 7-day eligible trial then $5.99/month US base price | IN REVIEW — [PR #70](https://github.com/jaimesorrow/Wiccan/pull/70); one content pool, expiry gates Android/callable/rules, Terms v3. [Console setup and coordinated rollout](SUBSCRIPTION_ACCESS.md) remain required before release. |
-| Category-organized Grimoire (automatically delivered history) | PASS |
-| Multi-device FCM (per-device registration, no cross-device clobbering) | FIXED |
-| Content safety gate + duplicate-title prevention | FIXED |
-| Account deletion completeness (devices subcollection + subscription record were orphaned) | FIXED |
-| Room migration test infra + Android backup safety | FIXED |
-| Environment separation (`.firebaserc`, `.env.example`) + admin CLI project-ID guard | FIXED |
-| Technical release preflight + Play Console readiness | DOCUMENTED — `docs/RELEASE_CHECKLIST.md`, `docs/PLAY_CONSOLE_READINESS.md` |
+- Core app: server-side daily selection, Today / Grimoire / Settings / Paywall
+  screens, Google and email sign-in, FCM reminders at local 9am, home-screen
+  widget, in-app account deletion (cancels the active Play subscription first).
+- Subscription access: required after onboarding, verified server-side
+  (Play Developer API, RTDN, daily lapse re-check). See
+  [SUBSCRIPTION_ACCESS.md](SUBSCRIPTION_ACCESS.md).
+- Legal: native Terms, Privacy, Content & Safety and Potion Safety documents
+  (policy version 4), a blocking acceptance gate enforced on the server,
+  opt-in analytics/crash reporting, and matching public pages in `hosting/`.
+- Brand identity (icons, full logo, six palettes); Play icon (512×512) and
+  feature graphic (1024×500) are prepared in `brand/exports/google-play/`.
+- Release plumbing: `release.yml` builds a signed `.aab` on a runner and
+  refuses to publish an unsigned one; CI runs Android and Functions jobs,
+  a 16 KB alignment check, and repository validation. All open PRs are merged
+  and `main` CI is passing.
+- Play-readiness audit: only `INTERNET` and `POST_NOTIFICATIONS` permissions,
+  no ads, no leaked keys, `.gitignore` covers keystores and credentials.
+- Domain: `wiccan.app` was bought on Cloudflare Registrar on 2026-11-19 and
+  added to Firebase Hosting for `wiccan-android`. Policy URLs in the app,
+  `hosting/` pages and docs now use `https://wiccan.app/<page>.html`.
 
-## Audit remediation round (this revision)
+## Google Play Console — current state
 
-An external audit reviewed the codebase directly (not just this file) and
-found the following. Each is now addressed as noted:
+- The Play Console app for `com.jaimesorrow.wiccan` is a **draft**.
+- **No app bundle has been uploaded** (no release in any track).
+- **No store listing** (descriptions, screenshots, graphics, category).
+- **All 11 App content declarations are pending** (e.g. privacy policy, ads,
+  app access, content rating, target audience, data safety, account
+  deletion). Draft answers
+  are in [PLAY_CONSOLE_READINESS.md](PLAY_CONSOLE_READINESS.md) and
+  [PLAY_STORE_LISTING.md](PLAY_STORE_LISTING.md).
+- The developer account is a **personal account**, so production access
+  requires a **closed test with at least 12 testers opted in for 14
+  continuous days** first. **0 testers so far**; the 14 days only start once a
+  closed-test release is live and 12 testers have opted in. The realistic first
+  upload is therefore to the internal or closed testing track.
 
-| Finding | Resolution |
-|---|---|
-| CI never ran Cloud Functions build/test/lint | **FIXED** — CI split into `android` and `functions` jobs; `functions` job verified green on its first real run |
-| No dependency-update automation | **FIXED** — `.github/dependabot.yml` (npm, gradle, github-actions) |
-| Account deletion didn't cancel the live Play subscription (local record deleted, but Google kept billing) | **FIXED** — `cancelActiveSubscription` calls `purchases.subscriptions.cancel` before the local record is erased |
-| App Check's debug provider shipped inside release builds | **FIXED** — split into build-variant source sets (`src/debug`, `src/release`); verified absent from the release `.aab`'s dex strings |
-| Notifications fired once at a fixed UTC instant, not per-device local 9am | **FIXED** — hourly job now filters to devices whose local time currently reads 9am (`getUserLocalHour`); see the documented hourly-poll-vs-exact-dispatch limitation below |
-| No automated 16KB/ABI native-library check | **FIXED** — `scripts/check-16kb-alignment.sh` runs in CI against the release `.aab`; all eight libraries pass on the 2026-10-02 Billing 9.1.0 bundle |
-| No disaster recovery / incident response / maintenance docs | **FIXED** — `docs/DISASTER_RECOVERY.md`, `docs/INCIDENT_RESPONSE.md`, `docs/MAINTENANCE.md` |
-| Billing Library version | **9.1.0** with Java 17, Gradle 9.9.1, AGP 9.5.1 and Kotlin 2.4.21. Live Play validation remains pending. |
-| Device registration and daily reminder preferences | Registration stores the token, time zone, platform, `createdAt`, `updatedAt`, and the per-device notification choice. Android caches the choice per signed-in account and sends it when registering a replacement token. Daily delivery skips opted-out devices. |
-| Visual theme is still near-black (`#0A0810`-direction) / generic serif+sans typography, not a distinct final direction | **IN REVIEW** — PR #24 adds six seasonal palettes and typography on main. The local build, tests, lint and six JVM palette specimens pass on 2026-10-02; actual fonts, transitions and app/device visual validation remain required. |
-| No Android product flavors for dev/staging/prod (environment separation is `.firebaserc` + `.env` only) | **FIXED** — `dev`/`staging`/`prod` product flavors added (`app/build.gradle.kts`). Prod has the registered client config for `com.jaimesorrow.wiccan` at `app/src/prod/google-services.json`; that source-set config takes precedence over CI's fake root fallback. Dev/staging still need their own configurations. |
-| No runtime kill switches (`dailyContentEnabled`, `notificationsEnabled`, etc.) | **FIXED** — `systemConfig/global` (Firestore, no client access) with both flags, fail-open by default. `getTodayContent` and the hourly notification job both check it before doing anything. |
-| Launch content pool needs approved entries | **Still open** — four curated source records and a 296-entry draft seed (200 lessons, 59 spells, 37 potions) are on main; drafts need human editorial/rights review and approval before delivery. |
-| Account deletion + active subscription | **FIXED** (see above) — this was the same finding as the billing-cancellation gap. |
+## Release blockers
 
-## Known remaining gaps
+Before the first upload (internal / closed testing):
 
-- **Visual/typography redesign** — local build/test/lint and six JVM palette specimens pass; real-device app screens, transitions and actual font appearance still need review before release.
-- **Billing runtime validation** — 9.1.0 is integrated with the modernized toolchain and local unit tests pass; live purchases, acknowledgement, restore and RTDN still need Play/Firebase verification.
-- Policy pages (Terms, Privacy, Content & Safety, account deletion) are written in `hosting/` with a GitHub Pages workflow. The `app.wiccanandroid.com` custom-domain setting, DNS, HTTPS, and each `PolicyUrls` response still require live verification before Play submission.
-- `handlePlayRtdn`, `verifyPurchase`'s field shapes, and the `users/{uid}/devices` collection-group query have never been exercised against a real Play Console / Firebase project.
-- `dev`/`staging` product flavors exist but need their own real `google-services.json` (from their own real Firebase projects) before they'll build.
-- The production Firebase client config identifies `wiccan-android` and includes its verified web OAuth client ID. Build/signing-certificate matching, device sign-in, live Firebase/Play flows and release setup remain unverified.
+1. **No signed AAB.** `release.yml` needs four repository secrets:
+   `RELEASE_KEYSTORE_BASE64`, `RELEASE_KEYSTORE_PASSWORD`,
+   `RELEASE_KEY_ALIAS` and `RELEASE_KEY_PASSWORD`. Create the upload keystore
+   (steps in [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md)), back it up outside
+   the repo, add the secrets, then run the workflow.
+2. **Policy URLs are not live yet.** The app and Play listing point to
+   `https://wiccan.app/...`, which only resolves once the Cloudflare DNS
+   records exist (A `199.36.158.100`, TXT `hosting-site=wiccan-android`; see
+   [GITHUB_PAGES_DOMAIN.md](GITHUB_PAGES_DOMAIN.md)) and `hosting/` is deployed
+   with `firebase deploy --only hosting`. Verify with `curl -I` before entering
+   the URLs in Play Console. Tracked by
+   [#162](https://github.com/jaimesorrow/Wiccan/issues/162).
+3. **Play Console forms** — store listing and all App content declarations.
 
-## Firebase and Google Play console verification — 2026-10-06 UTC
+Before production (can overlap with the 14-day closed test):
 
-- Firebase's Android registration matches `com.jaimesorrow.wiccan`; SHA-1
-  and SHA-256 certificates are registered. The build and Play App Signing
-  certificates still need to be matched to those registrations.
-- Google and Email/Password authentication are enabled. The registered
-  public web OAuth client ID is included in the production config.
-  Android resource generation and device sign-in have not been run for
-  this configuration update.
-- Google Play is linked to Firebase for App Distribution, Crashlytics and
-  Google Analytics. The Wiccan Play app remains **Draft**.
-- Cloud Firestore has not been created: the console shows **Create database**.
-  The repository's seed has 296 draft entries: **200 lessons, 59 spells and
-  37 potions**. They are not uploaded, approved or published merely because
-  they are checked into the repository.
-- The Firebase project is on **Spark**. Cloud Functions deployment still
-  requires the billing-plan setup in [FIREBASE_SETUP.md](FIREBASE_SETUP.md).
+4. **[#86](https://github.com/jaimesorrow/Wiccan/issues/86) — branded
+   verification email.** Needs a production SMTP provider, `SMTP_URL` secret,
+   `SMTP_FROM` (wiccan.app can be the verified sender domain, e.g.
+   `noreply@wiccan.app`, with SPF/DKIM/DMARC records) and a deploy of
+   `sendVerificationEmail`. Until then new accounts use Firebase's built-in
+   verification email. Deploy the callable before shipping an Android build
+   that invokes it.
+5. **[#162](https://github.com/jaimesorrow/Wiccan/issues/162) — legal review.**
+   Product/legal review of Terms, Privacy, Content & Safety and the new Potion
+   Safety page, and the policy-version / renewed-acceptance decision.
+6. **Firebase production deploy still unverified.** Firestore rules and
+   indexes, Functions, App Check enforcement and the Firestore database itself
+   have not been confirmed live for `wiccan-android` from this repo. The
+   Firebase project may still be on Spark; Functions need Blaze.
+7. **Content and legal review gaps.** The 296-entry seed (200 lessons, 59
+   spells, 37 potions) is draft; source passages, citations and rights still
+   need human review and approval before anything is published to Firestore.
+   Trademark review of the WICCAN name is also open.
+8. **After the first upload:** copy the **Play App Signing** certificate
+   SHA-1 (and SHA-256) from Play Console → Test and release → Setup → App
+   signing into Firebase (Project settings → your Android app). Without it,
+   Google sign-in and App Check fail for Play-distributed builds. Use
+   `scripts/signing-fingerprints.sh` to print the debug/upload fingerprints.
 
-## Latest automated validation
+Other open item: [#156](https://github.com/jaimesorrow/Wiccan/issues/156)
+(review-thread cleanup from merged PRs; not a release blocker).
 
-The current baseline uses Java 17, Gradle 9.9.1, AGP 9.5.1,
-Kotlin 2.4.21 and Billing 9.1.0, with `compileSdk` 37 / `targetSdk` 36.
-A local revalidation on 2026-11-15, with Gradle running on JDK 21 and the
-app still compiling to JVM 17, passed `ktlintCheck`, 207 prod-debug unit
-tests across 36 suites, and `:app:assembleProdDebug`. Functions on Node 22
-passed a fresh `npm ci`, `npm audit --audit-level=moderate`, build, lint, and
-368 tests (25 skipped) across 40 suites. Firestore emulator rules tests
-(25) and the two Functions integration suites (25) passed on Firebase CLI
-15.36.0 with Java 21. Six low-severity `deepmerge` findings remain below that
-audit gate. Ktlint plugin 14.2.0 restores Android
-source checks after AGP 9; the pinned 1.8.0 engine passes the source
-formatting checks.
+## Next steps, in order
 
-The 2026-10-02 validation, on that date's toolchain, reported 86 Android
-unit tests across 18 suites and 98 Functions tests across 14 suites, plus
-debug and unsigned release builds, instrumented-test compilation, 16 KB
-alignment, and release lint with zero errors and 62 nonblocking warnings.
-Re-run the release lint, bundle, and alignment checks on the current
-toolchain before a release cut.
+1. Merge this cleanup PR.
+2. Add the Cloudflare DNS records for `wiccan.app`, wait for Firebase to show
+   the domain as connected, deploy `hosting/`, verify the policy URLs load.
+3. Create the upload keystore, add the four `RELEASE_*` secrets, run the
+   *Release bundle* workflow and download the signed `.aab`.
+4. Upload it to **Internal testing** in Play Console (accept Play App Signing),
+   then add the Play App Signing SHA-1/SHA-256 to Firebase and re-test Google
+   sign-in from the Play-installed build.
+5. Fill in the store listing and the 11 App content declarations (privacy
+   policy URL `https://wiccan.app/privacy.html`, account deletion URL
+   `https://wiccan.app/delete-account.html`).
+6. Create a **Closed testing** release, recruit 12+ testers, and keep them
+   opted in for 14 days.
+7. In parallel: finish #86 (SMTP + deploy), #162 (legal review), the Firebase
+   production deploy and verification, and the content review.
+8. Apply for production access, then promote with a higher `versionCode`.
 
-The 2026-10-02 isolated backend emulator on Node 22, Firebase CLI 15 and
-Java 21 passed all 18 business-flow assertions, after separately verifying
-App Check rejection. A generated-output-only bypass was rebuilt afterward,
-restoring all eight enforcement settings; Functions source hashes are unchanged.
-A separate Auth-trigger diagnostic passed three assertions after an isolated
-loopback CLI proxy workaround; that tool-only change was restored. Hosted main
-[CI run 37000862807](https://github.com/jaimesorrow/Wiccan/actions/runs/37000862807)
-subsequently passed the full Android and Functions matrix after the Firebase
-package migration. It supersedes the earlier startup failures. See
-[BUILD_VALIDATION.md](BUILD_VALIDATION.md) for the baseline and remaining limits.
+## Validation
 
-The pre-migration integration audit verifies all 36 previously merged PRs and preserves
-all 28 audited branch heads. Google sign-in is hidden when OAuth is absent,
-with email authentication retained; six new tests cover availability and
-Credential Manager context. CI reads the Functions Node runtime declaration
-and cancels superseded runs. Draft PR #42's safe Node/locked-install fixes
-and adapted package/toolchain gate pass 21 regression tests; its namespace/flavor
-migration branch is retained for widget upgrade and installation-identity work. See
-`BRANCH_INTEGRATION_AUDIT.md` (retired 2026-11-07; git history at `1894139`).
-
-The run driver installs API 37.0 / Build Tools 37.0.0, reuses an existing
-SDK manager and preserves local properties. It handles fresh checkouts and
-honors `ANDROID_HOME` after `ANDROID_SDK_ROOT`; six isolated SDK setup
-checks pass. PR #31's structured Android lesson metadata remains follow-up work.
-
-## Final status
-
-**NOT READY FOR RELEASE — BLOCKED BY:** live Firebase/Play validation,
-the signing key, Play Console setup, and the unreviewed content pool.
-
-The visual/typography implementation remains in review for actual fonts
-and device behavior. Its local build/lint, theme tests and JVM palette
-specimens pass. These specimens do not replace
-a real-device visual pass or live production validation.
-
-## Package/toolchain consolidation proposal — 2026-10-02
-
-The proposed consolidation combines #40/#41 and aligns all Android flavors,
-Kotlin packages and namespace with Firebase's `com.jaimesorrow.wiccan`.
-Node 22 now agrees across deployment, CI, local selection and lock metadata.
-Configuration/preflight checks and the hosted production build matrix pass;
-upgrade-device checks remain outstanding. The complete PR/branch inventory and
-explicitly unmerged proposals were in `PR_RECONCILIATION.md` (retired 2026-11-07;
-git history at `1894139`).
-
-## PR #42 conflict reconciliation
-
-PR #42 merged the Firebase package migration and main `6a375a0e` into main
-`b13dc64b`, including Google sign-in availability handling and all six auth
-tests from PR #43.
-All source/test packages and flavor application IDs use `com.jaimesorrow.wiccan`.
-Its merged gate retains the environment project/alias separation checks, CI
-cancellation and runtime selection from package.json. The earlier local build
-evidence preceded this namespace migration; upgraded widget and app behavior
-still need device verification.
-The resolved branch passes 25 package/toolchain regression tests, eight validator
-regression tests and all 31 release preflight checks. Its source migration has
-received the full Android build matrix in hosted main CI after PR #42 merged.
-
-## CI/dependency follow-up — 2026-10-03
-
-PR #44's initial push matrix also passed with 25 package/toolchain regression
-tests. CI/release actions now use their supported Node 24 runtimes; app builds
-still use Java 17 and Functions use Node 22. The UUID advisory inherited through
-Gaxios is resolved with a targeted override. A fresh locked Functions install,
-build, all 98 tests and lint pass locally; `npm audit` reports zero vulnerabilities.
-
-## Build and security audit — 2026-11-05
-
-Full CI matrix reproduced locally on `main` (`1894139`) with the CI toolchains
-(Java 17 + Android SDK 37 for the app, Node 22 for Functions, Java 21 for the
-Firestore emulator). Two CI gates were red on `main` and are fixed here:
-
-- `ktlintCheck` failed with 22 formatting violations in auth/onboarding code;
-  fixed with `ktlintFormat` (no behavior change).
-- `npm audit --audit-level=moderate` in `functions/` failed on new `minimatch`
-  and `glob` advisories; resolved with targeted overrides (see
-  `docs/MAINTENANCE.md`). One low-severity `deepmerge` advisory has no fix.
-
-An OSV scan of the resolved Gradle classpaths found one high advisory in the
-shipped app (Guava) and six on AGP 9.5.0's build classpath (including a
-critical Bouncy Castle advisory); catalog-managed constraints now raise all of
-them, and a re-scan reports none. `WiccanDatabase` v5's schema export is now
-committed; the v4 export was never committed and cannot be regenerated without
-rebuilding the commit that introduced it.
-
-Verified after the fixes: structural/toolchain regression scripts and 44
-release-preflight checks; ktlint, 153 unit tests, debug APK with emulator
-routing, androidTest compilation, release bundle, release lint and 16KB
-alignment; a bundle signed with a throwaway key passes `jarsigner -verify`;
-the release dex contains Play Integrity App Check and no debug provider;
-Functions build, 315 tests and lint; 21 Firestore rules tests, 21 repository
-integration tests and the 43-check callable end-to-end run on the emulators.
-
-Still not verifiable here: everything in `docs/RELEASE_CHECKLIST.md` that needs
-a device, a live Firebase project, Play Console or the real upload key.
-
-## App, navigation and Play-readiness audit — 2026-11-07
-
-Every interactive control was traced to its handler: all navigate or act as
-intended, with no dead ends. Fixed: "Contact Support" and "Manage
-Subscription" crashed on devices without an email app/browser
-(`ActivityNotFoundException`); dismissing the Google account picker showed a
-generic error (now silent), and a device with no Google account now points to
-email sign-in; the account screen's back label is now "← Back". Sixteen
-superseded point-in-time reports and `functions/reviewOnly/` were retired
-(copies remain in git history at `1894139`).
-
-`.github/workflows/instrumented-tests.yml` now runs `connectedProdDebugAndroidTest`
-on an API 34 emulator. Its first run (Actions run 42383365512, PR #111 head
-`0252801`) passed: the emulator booted and all three `WiccanDatabaseMigrationTest`
-cases (1→2, 1→4, 2→4) ran green against a real SQLite engine.
-
-Still open for Play submission: deploying the new policy pages (below), the
-18+ target-audience selection in Play Console, the Advertising ID declaration (`AD_ID` remains in the
-merged manifest via Firebase Analytics), the Data Safety form, and launcher
-icon fallbacks for API 24–25 plus a monochrome layer for themed icons.
-
-## Public policy pages — 2026-11-07
-
-Terms of Service and Privacy Policy are now version 4, naming the operator
-(Jaime Sorrow, an individual developer in Alaska) and contact (`wiccan.android.app@gmail.com`). Terms add an
-18+ age requirement, disclaimers/limitation of liability and governing law;
-Privacy adds the Android advertising ID (collected by Firebase Analytics,
-not used for ads), concrete Analytics/Crashlytics retention, a children
-section, U.S. state privacy rights, and the deletion URL. Terms also carry an
-explicit “No promise or guarantee of results” section (no spell, potion,
-ritual, ceremony or other practice is promised to produce any effect;
-descriptions of a practice's purpose report historical claims, not facts),
-mirrored in Content & Safety. Existing accounts are re-prompted because both
-versions changed.
-
-Onboarding now requires four separate acknowledgements before Continue
-enables: 18 or older, the Terms, the Privacy Policy, and that Wiccan promises
-no result from any practice (with the Content & Safety guidance). Acceptance
-is also enforced on the server: `getTodayContent` returns
-`failed-precondition` / `POLICY_ACCEPTANCE_REQUIRED` and the daily
-notification job skips users until the current Terms and Privacy versions are
-recorded, so a modified client cannot skip the gate. The emulator callable
-run (45 checks) covers the refusal, a stale-version rejection and acceptance.
-
-`hosting/` publishes the same text at `https://app.wiccanandroid.com`
-(`/terms.html`, `/privacy.html`, `/content-safety.html`, `/delete-account.html`)
-through GitHub Pages. `LegalDocumentsTest` fails if any hosted page
-drifts from the in-app text or a `PolicyUrls` link has no page. Not yet
-deployed: no authenticated Firebase access exists in this sandbox. Terms are
-governed by Alaska law, keeping users' mandatory local consumer protections and
-home-court rights; Privacy adds GDPR/UK legal bases, worldwide rights, a
-30-day response window and the transfer basis.
-
-Analytics and crash reporting are now opt-in worldwide. The merged release
-manifest disables Firebase Analytics and Crashlytics collection and denies
-every consent-mode signal by default (verified: all six values `false`);
-`AnalyticsConsentManager` enables collection only after the user checks the
-optional box on the agreement screen or turns on "Usage analytics & crash
-reports" in Settings. Ad storage, ad user data and ad personalization stay
-denied even after opt-in. Withdrawing consent resets the Analytics instance
-data and deletes unsent crash reports. Privacy lists consent as the legal basis
-for analytics. Still open for a worldwide launch: a non-EU operator serving EU
-users may need an EU/UK representative (GDPR Art. 27). Have a qualified
-reviewer approve the text before release.
-
-## Brand identity — 2026-11-08
-
-The two approved identities from the owner's brand kit (`brand/source/`) are
-implemented without redesign: the gold seal (no lettering) is the adaptive
-launcher icon (108dp layers, emblem inside the 66dp safe zone, no baked mask,
-Midnight Blue background), the Android 13+ themed monochrome icon, legacy
-API 24–25 icons and the splash icon; the full logo (thinner emblem + WICCAN
-wordmark) appears on sign-in, onboarding, paywall and the loading screen; the
-compact seal heads the policy gate and lesson content. Both render in all six
-palettes (gold on dark, dark primary on Light/Ivory; see
-`brand/exports/previews/six_palette_brand_render.png`). Google Play icon
-(512×512 RGBA, Midnight Blue) and feature graphic (1024×500) are prepared in
-`brand/exports/google-play/` but not uploaded. Open: a higher-resolution full
-logo source for large marketing exports, owner confirmation of the extracted
-full logo, and **trademark review of the WICCAN name and marks by qualified
-counsel before launch** (brand approval is not legal clearance).
+Latest recorded automated validation (2026-11-15 and 2026-11-16, see
+[BUILD_VALIDATION.md](BUILD_VALIDATION.md) and
+[PRODUCTION_VALIDATION.md](PRODUCTION_VALIDATION.md)): `ktlintCheck`, 207
+prod-debug unit tests, `:app:assembleProdDebug`, Functions build/lint and tests
+(398 passed, 34 skipped on 2026-11-19), Firestore rules tests, and the hosted CI matrix. Not yet exercised:
+a real-device pass, live Play Billing purchase, RTDN, and Google sign-in on a
+Play-distributed build.
