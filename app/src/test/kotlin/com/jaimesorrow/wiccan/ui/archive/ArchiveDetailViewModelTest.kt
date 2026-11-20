@@ -83,5 +83,18 @@ class ArchiveDetailViewModelTest {
             cancelAndConsumeRemainingEvents()
         }
         assertNull(viewModel.state.value.content)
+        assertEquals(AppError.NotFound, viewModel.state.value.error)
+    }
+
+    @Test
+    fun `a network failure is kept in state so the screen does not say the page is missing`() = runTest(dispatcher) {
+        repository.contentResults["content-1"] = AppResult.Failure(AppError.Network)
+
+        val viewModel = viewModel("content-1")
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertNull(viewModel.state.value.content)
+        assertEquals(AppError.Network, viewModel.state.value.error)
+        assertEquals(false, viewModel.state.value.isLoading)
     }
 }

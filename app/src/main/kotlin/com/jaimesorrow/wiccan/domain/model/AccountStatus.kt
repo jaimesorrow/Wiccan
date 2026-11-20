@@ -1,5 +1,7 @@
 package com.jaimesorrow.wiccan.domain.model
 
+import com.jaimesorrow.wiccan.core.error.AppError
+
 /**
  * Where a signed-in user's server-side account stands, beyond bare
  * authentication. Drives [RootState] once [AuthState.SignedIn] is true.
@@ -14,4 +16,7 @@ sealed interface AccountStatus {
     data object RequiresEmailVerification : AccountStatus
     data object RequiresProfileCompletion : AccountStatus
     data object Ready : AccountStatus
+
+    /** The profile listener failed; [error] is retryable from the root screen. */
+    data class Unavailable(val error: AppError) : AccountStatus
 }

@@ -1,10 +1,12 @@
 package com.jaimesorrow.wiccan.data.mapper
 
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
+import com.jaimesorrow.wiccan.domain.model.ContentStatus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Test
+import java.util.Locale
 
 class ContentMappersTest {
     private val lesson = mapOf<String, Any?>(
@@ -111,5 +113,17 @@ class ContentMappersTest {
         assertEquals("2025-04-01", entry.deliveredDate)
         assertEquals(ContentCategory.MOON_AND_SEASONAL, entry.category)
         assertEquals(ContentCategory.PROTECTION, (row + ("category" to "Protection")).toHistoryEntry().category)
+    }
+
+    @Test
+    fun `status wire values still parse under a Turkish default locale`() {
+        val previous = Locale.getDefault()
+        Locale.setDefault(Locale.forLanguageTag("tr-TR"))
+        try {
+            val content = lesson.toContent()
+            assertEquals(ContentStatus.PUBLISHED, content.status)
+        } finally {
+            Locale.setDefault(previous)
+        }
     }
 }

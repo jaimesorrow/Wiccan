@@ -67,7 +67,11 @@ class AuthRepositoryImpl @Inject constructor(
             )
         }
         val registration = firestore.collection(USERS_COLLECTION).document(uid)
-            .addSnapshotListener { snapshot, _ ->
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    trySend(AccountStatus.Unavailable(error.toAppError()))
+                    return@addSnapshotListener
+                }
                 latestSnapshot = snapshot
                 publish()
             }

@@ -1,5 +1,7 @@
 package com.jaimesorrow.wiccan.ui.archive
 
+import com.jaimesorrow.wiccan.core.error.AppError
+
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.HistoryEntry
 
@@ -12,6 +14,7 @@ enum class ArchiveTab {
 data class ArchiveUiState(
     val isLoading: Boolean = true,
     val entries: List<HistoryEntry> = emptyList(),
+    val error: AppError? = null,
     val selectedTab: ArchiveTab = ArchiveTab.TIMELINE,
     /** Categories the user has collapsed in the category view. Expanded is the default. */
     val collapsedCategories: Set<ContentCategory> = emptySet(),

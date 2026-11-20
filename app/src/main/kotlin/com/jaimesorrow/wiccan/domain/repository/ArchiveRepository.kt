@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
  */
 interface ArchiveRepository {
     /** Newest first. */
-    fun observeHistory(): Flow<List<HistoryEntry>>
+    fun observeHistory(): Flow<AppResult<List<HistoryEntry>>>
 
     suspend fun getContentById(contentId: String): AppResult<Content>
 }

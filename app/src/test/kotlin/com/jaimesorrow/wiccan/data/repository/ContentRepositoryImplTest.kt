@@ -17,6 +17,8 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -68,6 +70,7 @@ class ContentRepositoryImplTest {
     fun setUp() {
         dao = FakeCachedDailyContentDao()
         every { calendar.today } returns today
+        every { calendar.todayFlow() } returns flowOf(today)
         every { calendar.timezone } returns timezone
         subscription.emitTier(ContentTier.PREMIUM)
         repository = ContentRepositoryImpl(functionsDataSource, dao, currentUser, calendar, subscription)
@@ -227,5 +230,20 @@ class ContentRepositoryImplTest {
         coEvery { functionsDataSource.getTodayContent(timezone) } returns (payload - "deliveredDate")
         assertTrue(repository.refreshTodayContent(userId) is AppResult.Failure)
         assertNull(dao.get())
+    }
+
+    @Test
+    fun `observeTodayContent drops yesterday's cache when the local date rolls over`() = runTest {
+        val dates = MutableStateFlow(today)
+        every { calendar.todayFlow() } returns dates
+        repository = ContentRepositoryImpl(functionsDataSource, dao, currentUser, calendar, subscription)
+        dao.upsert(payload.toContent().toCachedEntity(today, userId, timezone))
+
+        repository.observeTodayContent().test {
+            assertEquals("content-1", awaitItem()?.id)
+            dates.value = "2026-10-07"
+            assertNull(awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
     }
 }

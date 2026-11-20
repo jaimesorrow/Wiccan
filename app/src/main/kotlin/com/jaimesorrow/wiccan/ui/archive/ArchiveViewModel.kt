@@ -2,6 +2,7 @@ package com.jaimesorrow.wiccan.ui.archive
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.repository.ArchiveRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -33,8 +34,15 @@ class ArchiveViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            archiveRepository.observeHistory().collect { entries ->
-                _state.update { it.copy(isLoading = false, entries = entries) }
+            archiveRepository.observeHistory().collect { result ->
+                when (result) {
+                    is AppResult.Success -> _state.update {
+                        it.copy(isLoading = false, entries = result.data, error = null)
+                    }
+                    is AppResult.Failure -> _state.update {
+                        it.copy(isLoading = false, error = result.error)
+                    }
+                }
             }
         }
     }

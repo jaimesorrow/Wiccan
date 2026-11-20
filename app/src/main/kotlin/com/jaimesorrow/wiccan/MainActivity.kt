@@ -12,9 +12,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -28,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -36,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.domain.model.RootState
 import com.jaimesorrow.wiccan.ui.auth.OnboardingScreen
 import com.jaimesorrow.wiccan.ui.auth.RootViewModel
@@ -156,6 +161,10 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
+                    is RootState.AccountUnavailable -> AccountStatusError(
+                        message = rootState.error.toUserMessage(LocalResources.current),
+                        onRetry = rootViewModel::retryAccountStatus,
+                    )
                     RootState.Loading, RootState.InitializingProfile -> LoadingIndicator()
                 }
             }
@@ -193,6 +202,26 @@ private fun LoadingIndicator() {
                 modifier = Modifier.semantics { contentDescription = loadingDescription },
                 color = MaterialTheme.colorScheme.primary,
             )
+        }
+    }
+}
+
+@Composable
+private fun AccountStatusError(message: String, onRetry: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(onClick = onRetry) {
+                Text(stringResource(R.string.today_retry))
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.jaimesorrow.wiccan.ui.archive
 
 import app.cash.turbine.test
+import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.ContentType
 import com.jaimesorrow.wiccan.domain.model.HistoryEntry
@@ -12,6 +13,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -73,5 +75,17 @@ class ArchiveViewModelTest {
             assertEquals("content-1", (effect as ArchiveUiEffect.NavigateToDetail).contentId)
             cancelAndConsumeRemainingEvents()
         }
+    }
+
+    @Test
+    fun `a history listener failure is surfaced instead of an empty Grimoire`() = runTest(dispatcher) {
+        repository.emitHistory(listOf(entry))
+        dispatcher.scheduler.advanceUntilIdle()
+        repository.emitHistoryError(AppError.Network)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(listOf(entry), viewModel.state.value.entries)
+        assertEquals(AppError.Network, viewModel.state.value.error)
+        assertEquals(false, viewModel.state.value.isLoading)
     }
 }

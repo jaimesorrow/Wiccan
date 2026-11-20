@@ -7,6 +7,7 @@ import com.jaimesorrow.wiccan.domain.model.ContentCitation
 import com.jaimesorrow.wiccan.domain.model.ContentStatus
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.ContentType
+import java.util.Locale
 
 /** Maps the raw callable-function payload into the domain [Content] model. */
 @Suppress("UNCHECKED_CAST")
@@ -15,8 +16,8 @@ fun Map<String, Any?>.toContent(): Content {
     val toolNames = (this["tools"] ?: this["materials"]).toToolNames()
     return Content(
         id = this["id"] as? String ?: error("Missing 'id' in content payload"),
-        type = ContentType.valueOf((this["type"] as? String ?: error("Missing 'type' in content payload")).uppercase()),
-        tier = ContentTier.valueOf((this["tier"] as? String ?: error("Missing 'tier' in content payload")).uppercase()),
+        type = ContentType.valueOf((this["type"] as? String ?: error("Missing 'type' in content payload")).uppercase(Locale.ROOT)),
+        tier = ContentTier.valueOf((this["tier"] as? String ?: error("Missing 'tier' in content payload")).uppercase(Locale.ROOT)),
         tradition = (this["tradition"] as? String).orEmpty(),
         category = ((this["primaryCategoryId"] ?: this["category"]) as? String)?.let {
             runCatching { ContentCategory.fromWireValue(it) }.getOrDefault(ContentCategory.MOON_AND_SEASONAL)
@@ -29,7 +30,7 @@ fun Map<String, Any?>.toContent(): Content {
         materials = toolNames.ifEmpty { null },
         safetyNote = this["safetyNote"] as? String,
         tags = (this["tags"] as? List<String>).orEmpty(),
-        status = ContentStatus.valueOf(((this["contentStatus"] ?: this["status"]) as? String ?: "published").uppercase()),
+        status = ContentStatus.valueOf(((this["contentStatus"] ?: this["status"]) as? String ?: "published").uppercase(Locale.ROOT)),
         sourceId = this["sourceId"] as? String,
         sourceCitation = this["sourceCitation"] as? String,
         sourceUrl = this["sourceUrl"] as? String,
