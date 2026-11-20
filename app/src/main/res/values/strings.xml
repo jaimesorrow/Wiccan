@@ -106,6 +106,8 @@
     <string name="today_open_grimoire">Open your Grimoire</string>
     <string name="today_look_again">Look again</string>
     <string name="today_retry">Try again</string>
+    <string name="today_error_title">Today\'s page is hidden for now</string>
+    <string name="today_error_body">We couldn\'t open today\'s practice. Try again, or visit your Grimoire.</string>
     <string name="today_loading">Loading today\'s practice</string>
     <string name="today_logo_description">Wiccan</string>
 

@@ -9,11 +9,13 @@ import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.repository.ContentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -49,12 +51,18 @@ class TodayViewModel @Inject constructor(
 
     private fun observeCache() {
         viewModelScope.launch {
-            contentRepository.observeTodayContent().collect { cached ->
-                _state.update { it.copy(content = cached) }
-                if (cached != null) {
-                    analyticsLogger.logDailyContentViewed(cached.type, cached.tier)
+            contentRepository.observeTodayContent()
+                // A cache read failure must never take the screen down; show the retry panel instead.
+                .catch { t ->
+                    if (t is CancellationException) throw t
+                    _state.update { it.copy(isLoading = false, loadFailed = true) }
                 }
-            }
+                .collect { cached ->
+                    _state.update { it.copy(content = cached) }
+                    if (cached != null) {
+                        analyticsLogger.logDailyContentViewed(cached.type, cached.tier)
+                    }
+                }
         }
     }
 
@@ -68,10 +76,13 @@ class TodayViewModel @Inject constructor(
         _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             when (val result = contentRepository.refreshTodayContent(uid)) {
-                is AppResult.Success -> _state.update { it.copy(isLoading = false, poolExhausted = false) }
+                is AppResult.Success -> _state.update {
+                    it.copy(isLoading = false, poolExhausted = false, loadFailed = false)
+                }
                 is AppResult.Failure -> {
+                    val exhausted = result.error is AppError.NoNewLesson
                     _state.update {
-                        it.copy(isLoading = false, poolExhausted = result.error is AppError.NoNewLesson)
+                        it.copy(isLoading = false, poolExhausted = exhausted, loadFailed = !exhausted)
                     }
                     if (result.error !is AppError.NoNewLesson) {
                         effectChannel.send(TodayUiEffect.ShowSnackbar(result.error))
