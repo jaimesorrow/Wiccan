@@ -25,6 +25,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.ui.content.ContentDetailView
 import com.wiccan.app.R
@@ -70,7 +71,14 @@ fun ArchiveDetailScreen(
                 state.content != null -> ContentDetailView(content = state.content!!, modifier = Modifier.fillMaxSize())
                 else -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = stringResource(R.string.grimoire_missing),
+                        text = run {
+                            val error = state.error
+                            if (error == null || error is AppError.NotFound) {
+                                stringResource(R.string.grimoire_missing)
+                            } else {
+                                error.toUserMessage(resources)
+                            }
+                        },
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

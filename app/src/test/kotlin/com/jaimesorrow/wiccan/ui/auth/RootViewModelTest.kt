@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan.ui.auth
 
+import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.domain.model.AccountStatus
 import com.jaimesorrow.wiccan.domain.model.AuthState
 import com.jaimesorrow.wiccan.domain.model.ContentTier
@@ -158,6 +159,22 @@ class RootViewModelTest {
         assertEquals(RootState.RequiresPolicyAcceptance, viewModel.rootState.value)
 
         repository.setAccountStatus("uid-1", AccountStatus.Ready)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(RootState.SignedIn("uid-1"), viewModel.rootState.value)
+    }
+
+    @Test
+    fun `a profile listener failure is a retryable account error, not an infinite spinner`() = runTest(dispatcher) {
+        repository.setAccountStatus("uid-1", AccountStatus.Unavailable(AppError.Unauthorized))
+        viewModel = RootViewModel(repository, subscription)
+        repository.setAuthState(AuthState.SignedIn("uid-1"))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(RootState.AccountUnavailable(AppError.Unauthorized), viewModel.rootState.value)
+
+        repository.setAccountStatus("uid-1", AccountStatus.Ready)
+        viewModel.retryAccountStatus()
         dispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(RootState.SignedIn("uid-1"), viewModel.rootState.value)

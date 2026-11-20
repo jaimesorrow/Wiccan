@@ -1,4 +1,4 @@
-import { Content, ContentCategory, ContentTier } from "../types";
+import { Content, ContentCategory, ContentTier, ContentType } from "../types";
 import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort, SubscriptionRequiredError } from "../contentRepositoryPort";
 import { contentSimilarityKey, isEligibleForDailyDelivery, sharesContentSimilarity } from "../contentEligibility";
 import { practicalContentHash } from "../practicalLesson";
@@ -13,7 +13,7 @@ export class FakeContentRepository implements ContentRepositoryPort {
     contentId: string;
     deliveredDate: string;
     title: string;
-    type: string;
+    type: ContentType;
     tradition: string;
     category: ContentCategory;
     similarityGroupId?: string;

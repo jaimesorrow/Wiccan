@@ -1,5 +1,7 @@
 package com.jaimesorrow.wiccan.domain.model
 
+import com.jaimesorrow.wiccan.core.error.AppError
+
 /**
  * Root application state, resolved before the signed-in app is entered.
  * [SignedIn] requires a live Firebase Auth session, a fully initialized
@@ -14,6 +16,7 @@ sealed interface RootState {
     data object Loading : RootState
     data object SignedOut : RootState
     data object InitializingProfile : RootState
+    data class AccountUnavailable(val error: AppError) : RootState
     data object RequiresEmailVerification : RootState
     data object RequiresProfileCompletion : RootState
     data object RequiresPolicyAcceptance : RootState

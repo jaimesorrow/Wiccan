@@ -36,9 +36,9 @@ class ArchiveDetailViewModel @Inject constructor(
         }
         viewModelScope.launch {
             when (val result = archiveRepository.getContentById(contentId)) {
-                is AppResult.Success -> _state.update { it.copy(isLoading = false, content = result.data) }
+                is AppResult.Success -> _state.update { it.copy(isLoading = false, content = result.data, error = null) }
                 is AppResult.Failure -> {
-                    _state.update { it.copy(isLoading = false) }
+                    _state.update { it.copy(isLoading = false, error = result.error) }
                     effectChannel.send(ArchiveDetailUiEffect.ShowSnackbar(result.error))
                 }
             }

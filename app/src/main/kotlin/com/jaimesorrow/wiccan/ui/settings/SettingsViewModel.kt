@@ -190,7 +190,16 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun deleteAccount() {
-        _state.update { it.copy(isDeleting = true, showDeleteConfirmation = false) }
+        var alreadyDeleting = false
+        _state.update { current ->
+            if (current.isDeleting) {
+                alreadyDeleting = true
+                current
+            } else {
+                current.copy(isDeleting = true, showDeleteConfirmation = false)
+            }
+        }
+        if (alreadyDeleting) return
         viewModelScope.launch {
             when (val result = deleteAccountUseCase()) {
                 is AppResult.Success -> _state.update { it.copy(isDeleting = false) }

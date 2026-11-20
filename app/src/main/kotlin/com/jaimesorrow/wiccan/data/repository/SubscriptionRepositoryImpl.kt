@@ -49,7 +49,9 @@ class SubscriptionRepositoryImpl @Inject constructor(
     init {
         scope.launch {
             billingClient.purchaseUpdates.collect { purchases ->
-                purchases.forEach { purchase -> handlePurchase(purchase) }
+                for (purchase in purchases) {
+                    handlePurchase(purchase)
+                }
             }
         }
     }
