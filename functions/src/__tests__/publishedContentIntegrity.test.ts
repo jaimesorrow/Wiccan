@@ -36,16 +36,29 @@ function ancientSources(fixture: Fixture): Set<string> {
 }
 
 describe("published content integrity", () => {
-  it.each(fixtures)("$name: the publisher and the delivery mapper hash the same reviewed fields", ({ file }) => {
+  it.each(fixtures)("$name: the stored review checksum matches the raw published fields", ({ file }) => {
     const fixture = loadFixture(file);
     const rawHash = practicalContentHash(storedFields(fixture));
-    const mappedHash = practicalContentHash(mapped(fixture));
-    expect(mappedHash).toBe(rawHash);
     const storedHash = (fixture.practicalReview as { contentHash?: string } | undefined)?.contentHash;
     if (typeof storedHash === "string") {
       expect(rawHash).toBe(storedHash);
-      expect(mappedHash).toBe(storedHash);
     }
+  });
+
+  it("keeps delivery defaults and category validation separate from the stored checksum", () => {
+    const fixture = loadFixture("published-spell-maqlu-088.json");
+    const content = contentFromStoredDocument(fixture.id, {
+      ...storedFields(fixture),
+      primaryCategoryId: "altars-sacred-space",
+      category: "HomeAndHearth",
+      tags: undefined,
+      materials: null,
+      adaptationNotes: undefined,
+    });
+    expect(content.category).toBe("altars-sacred-space");
+    expect(content.tags).toEqual([]);
+    expect(content.materials).toBeNull();
+    expect(content.adaptationNotes).toEqual([]);
   });
 
   it.each(fixtures)("$name: is served by getTodayContent", async ({ file }) => {
@@ -66,8 +79,6 @@ describe("published content integrity", () => {
       const mutatedFields = { ...storedFields(fixture), [field]: `${fixture[field]} tampered` };
       const mutatedHash = practicalContentHash(mutatedFields);
       expect(mutatedHash).not.toBe(originalHash);
-      expect(practicalContentHash(contentFromStoredDocument(fixture.id, mutatedFields))).toBe(mutatedHash);
-
       const mutatedContent = contentFromStoredDocument(fixture.id, mutatedFields);
       if (fixture.type === "lesson") {
         expect(isEligibleForDailyDelivery(mutatedContent, ancientSources(fixture))).toBe(false);

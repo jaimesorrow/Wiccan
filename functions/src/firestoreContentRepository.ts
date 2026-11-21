@@ -1,8 +1,8 @@
 import { Firestore, Timestamp } from "firebase-admin/firestore";
 import { Content, ContentCategory, ContentTier, isContentCategory } from "./types";
-import { AUTHORED_FIELDS } from "./practicalLesson";
+import { practicalContentHash } from "./practicalLesson";
 import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort, SubscriptionRequiredError } from "./contentRepositoryPort";
-import { contentSimilarityKey, isEligibleForDailyDelivery, sharesContentSimilarity, similarityReservationId } from "./contentEligibility";
+import { contentSimilarityKey, isEligibleForDailyDelivery, rememberStoredContentHash, sharesContentSimilarity, similarityReservationId } from "./contentEligibility";
 import { assertAccountWriteAllowed } from "./accountWriteGuard";
 import { hasSubscriptionAccess } from "./subscriptionAccess";
 
@@ -26,10 +26,9 @@ function historyDocId(uid: string, today: string): string {
 }
 
 /**
- * Maps a stored `content` document into the Content object used by daily
- * delivery. Must forward every AUTHORED_FIELDS key the publisher hashed
- * (including slug, introduction, and lesson) so practicalContentHash of the
- * mapped object matches practicalContentHash of the raw document.
+ * Maps a stored `content` document into the normalized Content object used by
+ * daily delivery. The publisher's checksum is retained separately as
+ * non-serializable WeakMap metadata so display defaults cannot alter it.
  */
 export function contentFromStoredDocument(id: string, data: FirebaseFirestore.DocumentData): Content {
   const content: Content = {
@@ -75,17 +74,7 @@ export function contentFromStoredDocument(id: string, data: FirebaseFirestore.Do
     sourcePassageId: typeof data.sourcePassageId === "string" ? data.sourcePassageId : undefined,
     practicalReview: data.practicalReview,
   };
-  // Display fallbacks above must not invent authored values the publisher
-  // never hashed (e.g. [] for a missing adaptationNotes). Copy the stored
-  // reviewed fields last so practicalContentHash matches the raw document.
-  const authored = content as unknown as Record<string, unknown>;
-  for (const key of AUTHORED_FIELDS) {
-    if (data[key] === undefined || data[key] === null) {
-      delete authored[key];
-    } else {
-      authored[key] = data[key];
-    }
-  }
+  rememberStoredContentHash(content, practicalContentHash(data));
   return content;
 }
 
