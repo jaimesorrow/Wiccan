@@ -36,10 +36,16 @@ class OnboardingViewModel @Inject constructor(
     private val _state = MutableStateFlow(OnboardingUiState())
     val state: StateFlow<OnboardingUiState> = _state.asStateFlow()
 
+    /** Bumped on every account change; results of requests started for an earlier account are dropped. */
+    private var accountGeneration = 0
+
     init {
         // Activity-scoped: never show one account's typed names or notices to the next.
         viewModelScope.launch {
-            authRepository.accountChanges().collect { _state.update { OnboardingUiState(step = it.step) } }
+            authRepository.accountChanges().collect {
+                accountGeneration++
+                _state.update { OnboardingUiState(step = it.step) }
+            }
         }
     }
 
@@ -83,9 +89,12 @@ class OnboardingViewModel @Inject constructor(
     ) {
         if (state.value.busy) return
         val startedOn = state.value.step
+        val generation = accountGeneration
         _state.update { it.copy(busy = true, notice = null) }
         viewModelScope.launch {
             val result = operation()
+            // Started for a previous account: its busy flag and notice were already reset.
+            if (generation != accountGeneration) return@launch
             val message = if (result is AppResult.Success) successMessage else R.string.onboarding_notice_failed
             _state.update {
                 // If the user was moved to another step meanwhile, the result
