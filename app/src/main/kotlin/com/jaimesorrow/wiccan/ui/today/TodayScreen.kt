@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan.ui.today
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -85,6 +86,10 @@ internal fun TodayScreenContent(
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
     val retryLabel = stringResource(R.string.today_retry)
+    // Hoisted (and saveable) so pressing "Check again" / "Try again" doesn't
+    // reset the panel to the top on short screens or with large text.
+    val emptyScrollState = rememberScrollState()
+    val errorScrollState = rememberScrollState()
 
     LaunchedEffect(effects) {
         effects.collect { effect ->
@@ -112,7 +117,10 @@ internal fun TodayScreenContent(
     ) { insets ->
         Box(modifier = Modifier.padding(insets).fillMaxSize()) {
             when {
-                state.isLoading && state.content == null -> TodaySkeleton()
+                // A retry from the exhausted or error panel keeps that panel on
+                // screen (and its scroll position) instead of swapping in the skeleton.
+                state.isLoading && state.content == null && !state.poolExhausted && !state.loadFailed ->
+                    TodaySkeleton()
                 // Centered when it fits; scrollable on short viewports or with
                 // enlarged text so the actions below always stay reachable.
                 state.poolExhausted -> Box(
@@ -121,7 +129,8 @@ internal fun TodayScreenContent(
                 ) {
                     Column(
                         modifier = Modifier
-                            .verticalScroll(rememberScrollState())
+                            .testTag("today-empty")
+                            .verticalScroll(emptyScrollState)
                             .padding(32.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -144,7 +153,11 @@ internal fun TodayScreenContent(
                             color = MaterialTheme.colorScheme.onBackground,
                         )
                         Button(onClick = onOpenGrimoire) { Text(stringResource(R.string.today_open_grimoire)) }
-                        TextButton(onClick = { onEvent(TodayUiEvent.Retry) }) {
+                        TextButton(
+                            onClick = { onEvent(TodayUiEvent.Retry) },
+                            enabled = !state.isLoading,
+                            modifier = Modifier.testTag("today-check-again"),
+                        ) {
                             Text(stringResource(R.string.today_look_again))
                         }
                     }
@@ -155,7 +168,12 @@ internal fun TodayScreenContent(
                     onOpenGrimoire = onOpenGrimoire,
                 )
                 // Post-error, cache-empty: never leave a blank screen — always offer a way forward.
-                state.loadFailed -> TodayErrorPanel(onEvent = onEvent, onOpenGrimoire = onOpenGrimoire)
+                state.loadFailed -> TodayErrorPanel(
+                    onEvent = onEvent,
+                    onOpenGrimoire = onOpenGrimoire,
+                    scrollState = errorScrollState,
+                    retrying = state.isLoading,
+                )
                 else -> {
                     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
                 }
@@ -165,14 +183,19 @@ internal fun TodayScreenContent(
 }
 
 @Composable
-private fun TodayErrorPanel(onEvent: (TodayUiEvent) -> Unit, onOpenGrimoire: () -> Unit) {
+private fun TodayErrorPanel(
+    onEvent: (TodayUiEvent) -> Unit,
+    onOpenGrimoire: () -> Unit,
+    scrollState: ScrollState,
+    retrying: Boolean,
+) {
     Box(
         modifier = Modifier.fillMaxSize().testTag("today-error"),
         contentAlignment = Alignment.Center,
     ) {
         Column(
             modifier = Modifier
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(32.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -195,6 +218,7 @@ private fun TodayErrorPanel(onEvent: (TodayUiEvent) -> Unit, onOpenGrimoire: () 
             )
             Button(
                 onClick = { onEvent(TodayUiEvent.Retry) },
+                enabled = !retrying,
                 modifier = Modifier.testTag("today-retry"),
             ) { Text(stringResource(R.string.today_retry)) }
             TextButton(onClick = onOpenGrimoire) { Text(stringResource(R.string.today_open_grimoire)) }
