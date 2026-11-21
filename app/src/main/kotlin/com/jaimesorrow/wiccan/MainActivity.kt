@@ -52,6 +52,7 @@ import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentScreen
 import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
+import com.jaimesorrow.wiccan.ui.navigation.RootRouter
 import com.jaimesorrow.wiccan.ui.navigation.WiccanAppShell
 import com.jaimesorrow.wiccan.ui.navigation.WiccanDeepLinks
 import com.jaimesorrow.wiccan.ui.notification.NotificationSetupEffect
@@ -121,8 +122,9 @@ class MainActivity : ComponentActivity() {
                         document = WiccanLegalDocuments.get(documentId),
                         onBack = { openLegalDocument = null },
                     )
-                } ?: when (rootState) {
-                    is RootState.SignedIn -> key(subscriptionUid) {
+                } ?: RootRouter(
+                    rootState = rootState,
+                    signedIn = { uid ->
                         NotificationSetupEffect()
                         // Account deletion must finish/sign out even if the
                         // server revokes access and removes this navigation shell.
@@ -130,63 +132,67 @@ class MainActivity : ComponentActivity() {
                             startOnPaywall = startOnPaywall,
                             openTodayRequested = openTodayRequested,
                             onOpenTodayHandled = { openTodayRequested = false },
-                            settingsViewModel = hiltViewModel(key = "subscription-account-$subscriptionUid"),
+                            settingsViewModel = hiltViewModel(key = "subscription-account-$uid"),
                         )
-                    }
-                    is RootState.RequiresSubscription -> key(subscriptionUid) {
-                        if (openAccount) {
-                            SettingsScreen(
-                                accountOnly = true,
-                                onBack = { openAccount = false },
-                                onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
-                                onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
-                                onContentSafetyClick = { openLegalDocument = LegalDocumentId.CONTENT_SAFETY },
-                                onPotionSafetyClick = { openLegalDocument = LegalDocumentId.POTION_SAFETY },
-                                viewModel = hiltViewModel(key = "subscription-account-$subscriptionUid"),
-                            )
-                            BackHandler { openAccount = false }
-                        } else {
-                            PaywallScreen(
-                                onAccountClick = { openAccount = true },
-                                onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
-                                onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
-                                viewModel = hiltViewModel(key = "subscription-paywall-$subscriptionUid"),
-                            )
+                    },
+                    signedOut = { SignInScreen(onOpenLegalDocument = { openLegalDocument = it }) },
+                ) { state ->
+                    when (state) {
+                        is RootState.RequiresSubscription -> key(subscriptionUid) {
+                            if (openAccount) {
+                                SettingsScreen(
+                                    accountOnly = true,
+                                    onBack = { openAccount = false },
+                                    onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
+                                    onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
+                                    onContentSafetyClick = { openLegalDocument = LegalDocumentId.CONTENT_SAFETY },
+                                    onPotionSafetyClick = { openLegalDocument = LegalDocumentId.POTION_SAFETY },
+                                    viewModel = hiltViewModel(key = "subscription-account-$subscriptionUid"),
+                                )
+                                BackHandler { openAccount = false }
+                            } else {
+                                PaywallScreen(
+                                    onAccountClick = { openAccount = true },
+                                    onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
+                                    onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
+                                    viewModel = hiltViewModel(key = "subscription-paywall-$subscriptionUid"),
+                                )
+                            }
                         }
-                    }
-                    RootState.SignedOut -> SignInScreen(onOpenLegalDocument = { openLegalDocument = it })
-                    RootState.RequiresEmailVerification, RootState.RequiresProfileCompletion,
-                    RootState.RequiresPolicyAcceptance -> {
-                        if (openAccount) {
-                            SettingsScreen(
-                                accountOnly = true,
-                                onBack = { openAccount = false },
-                                onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
-                                onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
-                                onContentSafetyClick = { openLegalDocument = LegalDocumentId.CONTENT_SAFETY },
-                                onPotionSafetyClick = { openLegalDocument = LegalDocumentId.POTION_SAFETY },
-                                viewModel = hiltViewModel(key = "onboarding-account"),
-                            )
-                            BackHandler { openAccount = false }
-                        } else if (rootState == RootState.RequiresPolicyAcceptance) {
-                            PolicyAcceptanceScreen(
-                                onOpenLegalDocument = { openLegalDocument = it },
-                                onAccountClick = { openAccount = true },
-                            )
-                        } else {
-                            OnboardingScreen(
-                                verification = rootState == RootState.RequiresEmailVerification,
-                                onOpenLegalDocument = { openLegalDocument = it },
-                                onAccountClick = { openAccount = true },
-                            )
+                        RootState.RequiresEmailVerification, RootState.RequiresProfileCompletion,
+                        RootState.RequiresPolicyAcceptance -> {
+                            if (openAccount) {
+                                SettingsScreen(
+                                    accountOnly = true,
+                                    onBack = { openAccount = false },
+                                    onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
+                                    onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
+                                    onContentSafetyClick = { openLegalDocument = LegalDocumentId.CONTENT_SAFETY },
+                                    onPotionSafetyClick = { openLegalDocument = LegalDocumentId.POTION_SAFETY },
+                                    viewModel = hiltViewModel(key = "onboarding-account"),
+                                )
+                                BackHandler { openAccount = false }
+                            } else if (state == RootState.RequiresPolicyAcceptance) {
+                                PolicyAcceptanceScreen(
+                                    onOpenLegalDocument = { openLegalDocument = it },
+                                    onAccountClick = { openAccount = true },
+                                )
+                            } else {
+                                OnboardingScreen(
+                                    verification = state == RootState.RequiresEmailVerification,
+                                    onOpenLegalDocument = { openLegalDocument = it },
+                                    onAccountClick = { openAccount = true },
+                                )
+                            }
                         }
+                        is RootState.AccountUnavailable -> AccountStatusError(
+                            message = state.error
+                                .toUserMessage(LocalResources.current),
+                            onRetry = rootViewModel::retryAccountStatus,
+                        )
+                        RootState.Loading, RootState.InitializingProfile -> LoadingIndicator()
+                        is RootState.SignedIn, RootState.SignedOut -> Unit // routed above
                     }
-                    is RootState.AccountUnavailable -> AccountStatusError(
-                        message = (rootState as RootState.AccountUnavailable).error
-                            .toUserMessage(LocalResources.current),
-                        onRetry = rootViewModel::retryAccountStatus,
-                    )
-                    RootState.Loading, RootState.InitializingProfile -> LoadingIndicator()
                 }
             }
         }

@@ -29,6 +29,17 @@ class SignInViewModel @Inject constructor(private val authRepository: AuthReposi
     private val effectChannel = Channel<SignInUiEffect>(Channel.BUFFERED)
     val effects: Flow<SignInUiEffect> = effectChannel.receiveAsFlow()
 
+    init {
+        // Activity-scoped, so it survives signing in and out. Any account change
+        // resets the form: after sign-out the user lands on Sign In with no
+        // previous email, password, or "show password" carried over.
+        viewModelScope.launch {
+            authRepository.accountChanges().collect {
+                _state.value = SignInUiState(isGoogleSignInAvailable = authRepository.isGoogleSignInAvailable())
+            }
+        }
+    }
+
     fun onEvent(event: SignInUiEvent) {
         when (event) {
             is SignInUiEvent.EmailChanged -> _state.update {
