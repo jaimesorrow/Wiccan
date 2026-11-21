@@ -1,25 +1,33 @@
 import { renderVerificationEmail } from "../verificationEmail";
 
 describe("renderVerificationEmail", () => {
-  it("renders the Wiccan mystical treatment and plain-text fallback", () => {
+  it("renders a plain verification message and plain-text fallback", () => {
     const message = renderVerificationEmail(
       "https://example.test/verify?mode=verifyEmail&oobCode=moon",
       "Rowan",
     );
 
-    expect(message.subject).toBe("The moon is waiting — verify your Wiccan email");
-    expect(message.html).toContain("◐ ○ ● ○ ◑");
-    expect(message.html).toContain("The circle is almost open, Rowan");
+    expect(message.subject).toBe("Verify your Wiccan email");
+    expect(message.html).toContain("Hi Rowan,");
+    expect(message.html).toContain(
+      "Confirm your email address to finish setting up your Wiccan account.",
+    );
     expect(message.html).toContain("Verify your email");
     expect(message.html).toContain("https://example.test/verify?mode=verifyEmail&amp;oobCode=moon");
     expect(message.text).toContain("https://example.test/verify?mode=verifyEmail&oobCode=moon");
-    expect(message.text).toContain("Moonlight on the threshold");
+    expect(message.text).toContain("Hi Rowan,");
     expect(message.text).toContain(
-      "This link is yours alone and expires automatically. Wiccan will never ask you to share your password or verification link.",
+      "This link is just for you and expires automatically. Wiccan will never ask you to share your password or this link.",
     );
-    expect(message.html).toContain("If you did not create a Wiccan account, no action is needed.");
+    expect(message.html).toContain(
+      "If you didn't create a Wiccan account, you can ignore this email.",
+    );
     expect(message.text).toContain("The Wiccan Circle");
     expect(message.html).toContain("© Wiccan");
+    expect(message.html).not.toContain("The moon is waiting");
+    expect(message.html).not.toContain("The circle is almost open");
+    expect(message.html).not.toContain("Moonlight on the threshold");
+    expect(message.text).not.toContain("May your path be clear");
   });
 
   it("escapes user-controlled names and action links", () => {
@@ -36,6 +44,7 @@ describe("renderVerificationEmail", () => {
   it("uses an intentional generic greeting when no display name exists", () => {
     const message = renderVerificationEmail("https://example.test/verify");
 
-    expect(message.html).toContain("The circle is almost open, friend");
+    expect(message.html).toContain("Hi friend,");
+    expect(message.text).toContain("Hi friend,");
   });
 });
