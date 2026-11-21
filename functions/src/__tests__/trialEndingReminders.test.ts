@@ -78,7 +78,10 @@ describe("sendTrialEndingReminders", () => {
     const { trials, billing, devices, fcm } = setup();
     await sendTrialEndingReminders(trials, billing, devices, fcm, NOW);
     for (const sent of fcm.sentTo) {
-      expect(sent.options).toEqual({ dataOnly: true, data: { type: BILLING_REMINDER_TYPE, uid: "user-1" } });
+      expect(sent.options).toEqual({
+        dataOnly: true,
+        data: { type: BILLING_REMINDER_TYPE, uid: "user-1", productId: "wiccan_premium_yearly" },
+      });
     }
   });
 

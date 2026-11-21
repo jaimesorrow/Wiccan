@@ -94,6 +94,11 @@ export async function sendTrialEndingReminders(
         summary.skipped++;
         continue;
       }
+      const productId = info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id));
+      if (!productId) {
+        summary.skipped++;
+        continue;
+      }
       if (!(await trials.claimReminder(candidate.uid, candidate.purchaseToken, expiry))) {
         summary.skipped++;
         continue;
@@ -105,7 +110,7 @@ export async function sendTrialEndingReminders(
         const copy = trialEndingCopy(expiry, device.timeZone);
         const result = await fcm.send(device.token, copy.title, copy.body, BILLING_REMINDERS_CHANNEL_ID, {
           dataOnly: true,
-          data: { type: BILLING_REMINDER_TYPE, uid: candidate.uid },
+          data: { type: BILLING_REMINDER_TYPE, uid: candidate.uid, productId },
         });
         if (result.delivered) {
           summary.sent++;

@@ -11,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.jaimesorrow.wiccan.MainActivity
+import com.wiccan.app.BuildConfig
 import com.wiccan.app.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -31,11 +32,17 @@ fun isOpenTodayRequest(intent: Intent?): Boolean = intent?.getBooleanExtra(EXTRA
 /** `data.type` the server sets on a trial-ending reminder (functions/src/trialEndingReminders.ts). */
 const val BILLING_REMINDER_TYPE = "billing_reminder"
 
-/** Google Play's subscription management page (all of this account's subscriptions). */
+/** Google Play's subscription management page. */
 const val PLAY_SUBSCRIPTIONS_URL = "https://play.google.com/store/account/subscriptions"
 
-/** Opens Google Play's subscription management, where the user can cancel or change a plan. */
-fun manageSubscriptionIntent(): Intent = Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_SUBSCRIPTIONS_URL))
+/** Opens this app's Google Play subscription, where the user can cancel or change the plan. */
+fun manageSubscriptionIntent(productId: String? = null): Intent {
+    val uri = Uri.parse(PLAY_SUBSCRIPTIONS_URL).buildUpon()
+        .appendQueryParameter("package", BuildConfig.APPLICATION_ID)
+        .apply { productId?.takeIf(String::isNotBlank)?.let { appendQueryParameter("sku", it) } }
+        .build()
+    return Intent(Intent.ACTION_VIEW, uri)
+}
 
 /** What to show for an FCM message the app draws itself. */
 data class ForegroundNotificationContent(
@@ -47,6 +54,8 @@ data class ForegroundNotificationContent(
     val type: String? = null,
     /** The account the server addressed; when set, only that signed-in account sees it. */
     val accountUid: String? = null,
+    /** Verified Play product whose management page the billing reminder should open. */
+    val productId: String? = null,
 ) {
     val isBillingReminder: Boolean
         get() = channelId == BILLING_REMINDERS_CHANNEL_ID || type == BILLING_REMINDER_TYPE
@@ -72,6 +81,7 @@ fun resolveForegroundContent(
         channelId = channelId?.takeIf { it.isNotBlank() } ?: data["channelId"]?.takeIf { it.isNotBlank() },
         type = data["type"]?.takeIf { it.isNotBlank() },
         accountUid = data["uid"]?.takeIf { it.isNotBlank() },
+        productId = data["productId"]?.takeIf { it.isNotBlank() },
     )
 }
 
@@ -113,7 +123,7 @@ class ForegroundNotificationPoster @Inject constructor(
             PendingIntent.getActivity(
                 context,
                 BILLING_REMINDER_NOTIFICATION_ID,
-                manageSubscriptionIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                manageSubscriptionIntent(content.productId).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
         } else {

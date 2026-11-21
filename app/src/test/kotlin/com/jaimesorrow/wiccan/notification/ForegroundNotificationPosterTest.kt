@@ -77,6 +77,7 @@ class ForegroundNotificationPosterTest {
                 "title" to "Your free trial ends soon",
                 "body" to "Ends Jan 7",
                 "channelId" to BILLING_REMINDERS_CHANNEL_ID,
+                "productId" to "wiccan_premium_yearly",
             ),
         )!!
         assertTrue(content.isBillingReminder)
@@ -88,11 +89,8 @@ class ForegroundNotificationPosterTest {
         assertEquals(BILLING_REMINDERS_CHANNEL_ID, reminder.channelId)
         val tapIntent = shadowOf(reminder.contentIntent).savedIntent
         assertEquals(Intent.ACTION_VIEW, tapIntent.action)
-        assertEquals("https://play.google.com/store/account/subscriptions", tapIntent.dataString)
-        assertEquals(PLAY_SUBSCRIPTIONS_URL, tapIntent.dataString)
-        // The generic management page (all of this account's subscriptions), not a sku deep link.
-        assertNull(tapIntent.data?.getQueryParameter("sku"))
-        assertNull(tapIntent.data?.getQueryParameter("package"))
+        assertEquals("wiccan_premium_yearly", tapIntent.data?.getQueryParameter("sku"))
+        assertEquals("com.jaimesorrow.wiccan", tapIntent.data?.getQueryParameter("package"))
         assertFalse(isOpenTodayRequest(tapIntent))
         assertNull(tapIntent.component)
     }
@@ -169,6 +167,7 @@ class ForegroundNotificationPosterTest {
             "title" to "Your free trial ends soon",
             "body" to "Ends Jan 7",
             "channelId" to BILLING_REMINDERS_CHANNEL_ID,
+            "productId" to "wiccan_premium_yearly",
         ),
     )!!
 
