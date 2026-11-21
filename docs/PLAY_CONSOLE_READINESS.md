@@ -51,15 +51,15 @@ These answers reflect the current code. Re-audit if functionality or SDKs change
 | App access restricted | **Yes** | Sign-in, policy acceptance and an active subscription or trial gate the app. Supply reviewer instructions and credentials. |
 | User-generated content | **No** | Users cannot post, message, upload, or share content. |
 | Social/chat features | **No** | No user-to-user interaction. |
-| User-facing generative AI | **No** | The app cannot generate content. An operator-only offline tool creates ancient-grimoire-grounded drafts for human review. This is an inference from the current Play definition; recheck if generation is ever exposed in-app. |
+| User-facing generative AI | **No** | The app cannot generate content. An operator tool drafts lessons from historical source passages; they are published after an automated and AI review under the owner's authorization. This is an inference from the current Play definition; recheck if generation is ever exposed in-app. |
 | News app | **No** | Historical/spiritual daily content, not news. |
 | Government app | **No** | No government affiliation or service. |
 | Health app declaration | **Recommended: No health features** | Wiccan is educational/spiritual reflection and disclaims diagnosis/treatment. Confirm that the store listing and every published lesson avoid health/medical claims; otherwise reassess. |
 | Target audience | **Recommended: adults 18+ only** | Conservative fit for occult themes, potions/materials, and safety responsibility. The owner must confirm this selection; do not market to children. |
 | Store category | **Recommended: Lifestyle** | Best fit for spiritual reflection and daily practice; owner may choose Books & Reference only if the listing is framed primarily as historical education. |
-| Precise/approximate location | **No** | No location permission or location API. An IANA time-zone string is stored for notification timing and is not used to derive precise location. |
+| Approximate location | **Yes — optional, analytics only** | Analytics-derived approximate location is collected only after the user opts in to analytics. Precise location is not collected. No location permission or location API is used. An IANA time-zone string is stored for notification timing and is not used to derive location. |
 | Account creation | **Yes** | Email/password or Google sign-in. |
-| Account deletion | **Yes** | In-app Settings flow exists; external deletion-request page is still a release blocker. |
+| Account deletion | **Yes** | In-app Settings → Delete Account, and the public page at https://wiccan.app/delete-account, which is live. |
 
 ### Google sign-in production state
 
@@ -109,12 +109,13 @@ Recommended rows for the current build:
 |---|---:|---:|---|---|
 | Email address | Yes | No* | Required for email auth; Google account choice is optional | Account management, app functionality, security |
 | User IDs | Yes | No* | Required | Account management, app functionality, fraud prevention/security |
-| Purchase history | Yes | No* | Optional (only subscribers/restores) | App functionality, account management, fraud prevention/security |
+| Purchase history | Yes | No* | Optional (only subscribers/restores) | App functionality, Analytics, account management, fraud prevention/security |
 | App interactions | Yes | No* | **Optional** — Firebase Analytics runs only after opt-in (onboarding or Settings) | Analytics |
 | Crash logs | Yes | No* | **Optional** — Crashlytics runs only after opt-in | Analytics, app functionality |
 | Diagnostics | Yes | No* | **Optional** — Crashlytics diagnostics only after opt-in | Analytics, app functionality |
 | Device or other IDs | Yes | No* | FCM/App Check identifiers are handled by current SDKs | App functionality, security, developer communications |
-| Precise/approximate location | No | No | Not collected | — |
+| Approximate location | Yes | No* | **Optional** — Analytics-derived; collected only after analytics opt-in | Analytics |
+| Precise location | No | No | Not collected | — |
 | Contacts, messages, photos/videos, audio, files | No | No | Not collected | — |
 | Health/fitness data | No | No | Not collected | — |
 | Payment card/bank details | No | No | Handled by Google Play, not Wiccan | — |
@@ -127,7 +128,7 @@ Additional form answers:
 
 - **Encrypted in transit:** Yes, for the app/Firebase/Play paths in this repo.
 - **Users can request deletion:** Yes — in app (Settings → Delete Account) and at
-  `https://wiccan.app/delete-account.html` once the `wiccan.app` DNS records and Firebase Hosting deploy are live.
+  the live public page `https://wiccan.app/delete-account`.
 - **Independent security review:** Do not claim one unless a qualifying review
   has actually been completed and remains valid.
 - **Data sale:** No.
@@ -168,7 +169,7 @@ Terms/Privacy changes. The operator is Jaime Sorrow (individual developer, Alask
 
 ## Terms, user responsibilities, and screen placement
 
-Native policy version 4 includes Wiccan-specific terms and disclosures:
+Native policy version 5 includes Wiccan-specific terms and disclosures:
 
 - historical, educational, and spiritual-reflection purpose;
 - an explicit “No promise or guarantee of results” section: no spell, potion,
@@ -178,8 +179,10 @@ Native policy version 4 includes Wiccan-specific terms and disclosures:
 - no ingestion, inhalation, topical use, burning, or mixing of unknown or
   hazardous materials; fire, ventilation, allergy, poison-control, wildlife,
   property, consent, and local-law responsibilities;
-- AI-assisted drafts are limited to vetted ancient-grimoire records and require
-  human source, duplication, safety, and rights review before publication;
+- AI-assisted drafts are drawn from historical grimoires and ancient magical texts
+  and are published after an automated and AI review under the owner's authorization,
+  checking source citation, that each lesson is a full step-by-step practice, and
+  safety, rights, and originality;
 - recurring Play billing, localized price/period, cancellation, continued access
   through the paid period, refunds, restoration, and account-deletion effects;
 - privacy categories, processors, no sale/no ads, security, retention, deletion,
@@ -194,7 +197,7 @@ Placement is intentionally layered:
 | Paywall | Terms and Privacy sit beside the localized recurring price and renewal/cancellation disclosure. |
 | Settings | Permanent access to Terms, Privacy, Content & Safety, support, subscription management, and account deletion. |
 
-Android and Functions policy constants are both version `4`
+Android and Functions policy constants are both version `5`
 (`PolicyVersions` and `functions/src/policyVersions.ts`); any future material
 change must bump the applicable versions together.
 

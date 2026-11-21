@@ -41,7 +41,7 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.TERMS,
         title = "Terms of Service",
         version = PolicyVersions.TERMS,
-        effectiveDate = "November 7, 2026",
+        effectiveDate = "November 21, 2026",
         introduction =
             "These Terms of Service (“Terms”) are an agreement between you and Jaime Sorrow (“Wiccan,” “we,” or “us”) " +
                 "and govern your use of the Wiccan app and related services. By accepting them, you agree to use the app " +
@@ -50,10 +50,10 @@ object WiccanLegalDocuments {
             LegalSection(
                 "What Wiccan provides",
                 listOf(
-                    "Wiccan presents educational, historical, and spiritual-reflection content inspired by ancient grimoires " +
-                        "and related primary sources. It is an educational and reflective service; it does not perform, sell, or " +
-                        "deliver magical, spiritual, or other services that produce results. See “No promise or guarantee of " +
-                        "results” below.",
+                    "Wiccan presents educational, historical, and spiritual-reflection content: practical lessons, spells, and " +
+                        "potions drawn from historical grimoires and ancient magical texts, each cited where available. It " +
+                        "is an educational and reflective service; it does not perform, sell, or deliver magical, spiritual, or " +
+                        "other services that produce results. See “No promise or guarantee of results” below.",
                     "Source citations and editorial notes are provided where available. Historical materials can be " +
                         "incomplete, contested, symbolic, or difficult to translate.",
                 ),
@@ -138,9 +138,10 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Content, sources, and AI assistance",
                 listOf(
-                    "Some editorial drafts may be created with AI assistance from vetted ancient-grimoire source records. " +
-                        "Drafts require human source, duplication, safety, and rights review before publication. Wiccan remains " +
-                        "responsible for the content it publishes.",
+                    "Some editorial drafts may be created with AI assistance from historical grimoires and ancient magical " +
+                        "texts. Drafts are published after an automated and AI review under the owner's authorization, which " +
+                        "checks that each lesson is a full step-by-step practice correctly cited to those sources, and includes " +
+                        "safety, rights, and originality checks. Wiccan remains responsible for the content it publishes.",
                     "The app and its original presentation are licensed for personal, non-commercial use. Source works and " +
                         "third-party material remain subject to their own rights.",
                 ),
@@ -199,7 +200,7 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.PRIVACY,
         title = "Privacy Policy",
         version = PolicyVersions.PRIVACY,
-        effectiveDate = "November 20, 2026",
+        effectiveDate = "November 21, 2026",
         introduction =
             "This Privacy Policy explains what information Jaime Sorrow (“Wiccan,” “we,” or “us”) handles when you use " +
                 "the Wiccan Android app and its related services, why it is used, which service providers process it, how " +
@@ -265,9 +266,9 @@ object WiccanLegalDocuments {
                         "notifications, verify subscription access, answer support requests, prevent fraud, enforce security, meet " +
                         "legal or platform obligations, and, only if you opt in, diagnose crashes and understand app performance.",
                     "Wiccan uses an AI service (Anthropic's Claude) on its servers only to draft lesson text from historical " +
-                        "source passages, which a human reviews before publication. No account, usage, device, or other personal " +
-                        "information is sent to the AI provider, and the app has no feature that sends what you type to an AI " +
-                        "service.",
+                        "source passages. Lessons are then checked by automated tools and an AI assistant under the owner's " +
+                        "authorization before publishing. No account, usage, device, or other personal information is sent to the " +
+                        "AI provider, and the app has no feature that sends what you type to an AI service.",
                 ),
             ),
             LegalSection(
@@ -294,7 +295,8 @@ object WiccanLegalDocuments {
                         "receives hello@wiccan.app support email.",
                     "Google Play: subscription purchases, billing, refunds, and Play Integrity checks, under Google's own terms " +
                         "and privacy policy.",
-                    "An email delivery provider, which sends Wiccan's account-verification emails to your email address.",
+                    "Cloudflare Email Routing: handles mail to hello@wiccan.app.",
+                    "Firebase Authentication: sends the verification, password-reset, and change-email messages.",
                     "Information may also be disclosed when required by law, to protect users or the service, or during a " +
                         "lawful business transfer. Wiccan does not sell personal data or share it for third-party behavioral " +
                         "advertising.",
@@ -381,10 +383,10 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.CONTENT_SAFETY,
         title = "Content & Safety",
         version = null,
-        effectiveDate = "November 7, 2026",
+        effectiveDate = "November 21, 2026",
         introduction =
             "Wiccan treats historical spiritual material as education and reflection. This guidance applies to every " +
-                "lesson, spell, potion, and optional practice in the app.",
+                "practical lesson, spell, potion, and optional practice in the app.",
         sections = listOf(
             LegalSection(
                 "No promised outcomes",
@@ -424,8 +426,10 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Editorial standard",
                 listOf(
-                    "AI-assisted drafts can only use vetted ancient-grimoire source records. A human must review source " +
-                        "grounding, duplication, safety, rights, and wording before publication.",
+                    "Published lessons, spells, and potions are practical step-by-step practices drawn from historical " +
+                        "grimoires and ancient magical texts, each cited where available. AI-assisted drafts are published after " +
+                        "an automated and AI review under the owner's authorization, which checks that each item is a full " +
+                        "practice correctly cited to those sources, and includes safety, rights, originality, and wording checks.",
                     "Report a safety, rights, or accuracy concern through Contact Support. Content may be corrected or " +
                         "withdrawn while it is reviewed.",
                 ),
