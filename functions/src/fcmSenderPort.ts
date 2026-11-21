@@ -7,5 +7,6 @@ export type FcmSendResult =
  * send loop is unit tested against a fake instead of making real pushes.
  */
 export interface FcmSenderPort {
-  send(token: string, title: string, body: string): Promise<FcmSendResult>;
+  /** `channelId` defaults to the daily-practice channel when omitted. */
+  send(token: string, title: string, body: string, channelId?: string): Promise<FcmSendResult>;
 }

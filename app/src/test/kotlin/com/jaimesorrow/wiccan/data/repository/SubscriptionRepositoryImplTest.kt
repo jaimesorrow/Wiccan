@@ -7,6 +7,7 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.billing.PREMIUM_MONTHLY_PRODUCT_ID
+import com.jaimesorrow.wiccan.billing.PREMIUM_YEARLY_PRODUCT_ID
 import com.jaimesorrow.wiccan.billing.WiccanBillingClient
 import com.jaimesorrow.wiccan.billing.obfuscatedAccountId
 import com.jaimesorrow.wiccan.core.auth.CurrentUserProvider
@@ -16,6 +17,7 @@ import com.jaimesorrow.wiccan.data.remote.SubscriptionFunctionsDataSource
 import com.jaimesorrow.wiccan.data.remote.UserTierDataSource
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
+import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -187,6 +189,59 @@ class SubscriptionRepositoryImplTest {
         every { currentUser.currentUserId } returns "another-account"
         assertTrue(repository.launchPurchaseFlow(mockk()) is AppResult.Failure)
         coVerify(exactly = 0) { billingClient.launchPurchaseFlow(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `a missing yearly product hides the yearly plan without failing the paywall`() = runTest {
+        coEvery { billingClient.queryProductDetails(PREMIUM_YEARLY_PRODUCT_ID) } throws IllegalStateException("not found")
+        assertEquals(AppResult.Success(null), repository.getYearlyOffer())
+        assertTrue(repository.launchPurchaseFlow(mockk(), SubscriptionPlan.YEARLY) is AppResult.Failure)
+        coVerify(exactly = 0) { billingClient.launchPurchaseFlow(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `yearly checkout launches the yearly product with the yearly offer`() = runTest {
+        val activity = mockk<Activity>()
+        val billingResult = mockk<BillingResult>()
+        every { billingResult.responseCode } returns BillingClient.BillingResponseCode.OK
+        val monthly = loadOffer()
+        val yearly = loadYearlyOffer()
+        assertEquals(SubscriptionPlan.YEARLY, yearly.plan)
+        coEvery { billingClient.launchPurchaseFlow(activity, "uid-123", PREMIUM_YEARLY_PRODUCT_ID, yearly) } returns billingResult
+
+        assertTrue(repository.launchPurchaseFlow(activity, SubscriptionPlan.YEARLY) is AppResult.Success)
+        coVerify(exactly = 1) { billingClient.launchPurchaseFlow(activity, "uid-123", PREMIUM_YEARLY_PRODUCT_ID, yearly) }
+        coVerify(exactly = 0) { billingClient.launchPurchaseFlow(any(), any(), PREMIUM_MONTHLY_PRODUCT_ID, monthly) }
+    }
+
+    @Test
+    fun `a yearly purchase is verified with the server as the yearly product`() = runTest {
+        coEvery { billingClient.queryOwnedSubscriptions() } returns listOf(purchase(product = PREMIUM_YEARLY_PRODUCT_ID))
+        coEvery { functions.verifyPurchase("token", PREMIUM_YEARLY_PRODUCT_ID) } returns Unit
+        assertTrue(repository.restorePurchases() is AppResult.Success)
+        coVerify(exactly = 1) { functions.verifyPurchase("token", PREMIUM_YEARLY_PRODUCT_ID) }
+    }
+
+    private suspend fun loadYearlyOffer(): SubscriptionOffer {
+        val phase = mockk<ProductDetails.PricingPhase> {
+            every { recurrenceMode } returns ProductDetails.RecurrenceMode.INFINITE_RECURRING
+            every { billingPeriod } returns "P1Y"
+            every { priceAmountMicros } returns 39_990_000L
+            every { priceCurrencyCode } returns "USD"
+            every { formattedPrice } returns "$39.99"
+        }
+        val phases = mockk<ProductDetails.PricingPhases> { every { pricingPhaseList } returns listOf(phase) }
+        val offer = mockk<ProductDetails.SubscriptionOfferDetails> {
+            every { offerId } returns null
+            every { offerToken } returns "yearly-token"
+            every { pricingPhases } returns phases
+        }
+        val product = mockk<ProductDetails> {
+            every { productId } returns PREMIUM_YEARLY_PRODUCT_ID
+            every { subscriptionOfferDetails } returns listOf(offer)
+        }
+        coEvery { billingClient.queryProductDetails(PREMIUM_YEARLY_PRODUCT_ID) } returns product
+        return (repository.getYearlyOffer() as AppResult.Success).data!!
     }
 
     private suspend fun loadOffer(): SubscriptionOffer {
