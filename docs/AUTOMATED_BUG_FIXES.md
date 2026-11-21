@@ -14,9 +14,9 @@ does not replace device, Firebase, billing, or product review.
 
 ## Google Play workflow
 
-Create a GitHub Environment named `google-play` and configure yourself (or the
-release owners) as required reviewers. Store these as environment secrets so
-they are unavailable until approval:
+The manual **Run workflow** action is the release approval: choose the existing
+Google Play testing track and whether the release should remain a draft. Store
+these as repository Actions secrets:
 
 - `PLAY_SERVICE_ACCOUNT_JSON`
 - `RELEASE_KEYSTORE_BASE64`
@@ -25,10 +25,12 @@ they are unavailable until approval:
 - `RELEASE_KEY_PASSWORD`
 
 Give the Play service account only the app-level release permissions it needs.
-Run `Publish approved build to Google Play` from the `main` branch, choose the
-track, and approve the protected environment. The default is an internal-track
-draft. The job rebuilds and validates the exact approved commit, verifies the
-bundle signature, and only then uploads it.
+Run `Publish approved build to Google Play` from the `main` branch and enter the
+track ID shown by Play Console. Standard IDs include `internal`, `alpha`,
+`beta`, and `production`; a custom closed-testing track uses its configured
+track ID. The default is an internal-track draft. The job rebuilds and
+validates the exact approved commit, verifies the bundle signature, and only
+then uploads it.
 
 Before every upload, increment `versionCode` and set the intended
 `versionName` in `app/build.gradle.kts`; Google Play rejects reused version
