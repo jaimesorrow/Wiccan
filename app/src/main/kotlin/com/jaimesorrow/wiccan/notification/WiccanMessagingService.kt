@@ -12,11 +12,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 /**
- * Registers a rotated FCM token with the server, and shows messages that
- * arrive while the app is in the foreground. (In the background the FCM SDK
- * draws `notification` messages in the tray itself and never calls
- * [onMessageReceived] for them.) Foreground pushes are shown only while a
- * user is signed in with the daily reminder on; tapping one opens Today.
+ * Registers a rotated FCM token with the server, and shows the messages the
+ * app draws itself: daily `notification` messages that arrive while the app
+ * is in the foreground (in the background the FCM SDK draws those and never
+ * calls [onMessageReceived]), and data-only trial/billing reminders in any
+ * app state. Nothing is shown after sign-out; see [ForegroundPushHandler].
+ * A daily push opens Today; a billing reminder opens Play subscriptions.
  */
 @AndroidEntryPoint
 class WiccanMessagingService : FirebaseMessagingService() {
@@ -42,7 +43,7 @@ class WiccanMessagingService : FirebaseMessagingService() {
             data = message.data,
             channelId = message.notification?.channelId,
         ) ?: return
-        // Runs on FCM's worker thread; the handler only reads the local reminder choice.
+        // Runs on FCM's worker thread; the handler only reads local state.
         runBlocking { foregroundPushHandler.handle(content) }
     }
 }

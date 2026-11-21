@@ -41,7 +41,7 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.TERMS,
         title = "Terms of Service",
         version = PolicyVersions.TERMS,
-        effectiveDate = "November 7, 2026",
+        effectiveDate = "November 21, 2026",
         introduction =
             "These Terms of Service (“Terms”) are an agreement between you and Jaime Sorrow (“Wiccan,” “we,” or “us”) " +
                 "and govern your use of the Wiccan app and related services. By accepting them, you agree to use the app " +
@@ -50,10 +50,10 @@ object WiccanLegalDocuments {
             LegalSection(
                 "What Wiccan provides",
                 listOf(
-                    "Wiccan presents educational, historical, and spiritual-reflection content inspired by ancient grimoires " +
-                        "and related primary sources. It is an educational and reflective service; it does not perform, sell, or " +
-                        "deliver magical, spiritual, or other services that produce results. See “No promise or guarantee of " +
-                        "results” below.",
+                    "Wiccan presents educational, historical, and spiritual-reflection content: practical lessons, spells, and " +
+                        "potions drawn from historical grimoires and ancient magical texts, each cited where available. It " +
+                        "is an educational and reflective service; it does not perform, sell, or deliver magical, spiritual, or " +
+                        "other services that produce results. See “No promise or guarantee of results” below.",
                     "Source citations and editorial notes are provided where available. Historical materials can be " +
                         "incomplete, contested, symbolic, or difficult to translate.",
                 ),
@@ -111,18 +111,22 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Subscriptions and billing",
                 listOf(
-                    "Wiccan requires a Google Play subscription after sign-in and onboarding. There is no free content plan. " +
-                        "Eligible new subscribers receive a 7-day free trial, followed by an automatically renewing monthly " +
-                        "subscription with a US base price of \$5.99. The purchase screen and Google Play show your actual " +
-                        "eligibility, localized price, and billing terms before you confirm.",
-                    "If a trial is offered, cancel before its end to avoid the first monthly charge. If no trial is " +
-                        "available, Google Play charges when you confirm. An active trial or subscription is required for all " +
-                        "daily content and Grimoire access.",
-                    "Unless canceled before renewal, the subscription renews at the then-current price and period shown by " +
-                        "Google Play. Manage or cancel it through Google Play → Payments & subscriptions → Subscriptions. " +
-                        "Cancellation normally preserves access until the verified expiry date. When access expires, the app " +
-                        "returns to the subscription screen; delivery history is preserved for renewal. Refund eligibility is " +
-                        "governed by applicable law and Google Play's refund rules.",
+                    "Wiccan requires a Google Play subscription after sign-in and onboarding. There is no free content " +
+                        "plan. Wiccan Premium comes in two plans: a monthly plan with a US base price of \$5.99 per month, " +
+                        "and a yearly plan with a US base price of \$39.99 per year. Eligible new subscribers receive a 7-day " +
+                        "free trial, followed by the automatically renewing plan they chose. The purchase screen and Google " +
+                        "Play show your actual eligibility, localized price, billing period, and terms before you confirm.",
+                    "Monthly plan: after any free trial, Google Play charges the monthly price once a month until you " +
+                        "cancel. Yearly plan: after any free trial, Google Play charges the yearly price once a year until " +
+                        "you cancel. If a trial is offered, cancel before it ends to avoid the first charge for your plan. If " +
+                        "no trial is available, Google Play charges when you confirm. During a free trial, the app may send a " +
+                        "reminder before the trial ends. An active trial or subscription is required for all daily content " +
+                        "and Grimoire access.",
+                    "Unless canceled before renewal, either plan renews at the then-current price and period shown by " +
+                        "Google Play. You can cancel either plan at any time through Google Play → Payments & subscriptions → " +
+                        "Subscriptions. Cancellation normally preserves access until the verified expiry date. When access " +
+                        "expires, the app returns to the subscription screen; delivery history is preserved for renewal. " +
+                        "Refund eligibility is governed by applicable law and Google Play's refund rules.",
                     "Restoring a purchase verifies entitlement with Google Play. Deleting an account first attempts to cancel " +
                         "active auto-renewal; deletion does not itself promise a refund.",
                 ),
@@ -138,9 +142,10 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Content, sources, and AI assistance",
                 listOf(
-                    "Some editorial drafts may be created with AI assistance from vetted ancient-grimoire source records. " +
-                        "Drafts require human source, duplication, safety, and rights review before publication. Wiccan remains " +
-                        "responsible for the content it publishes.",
+                    "Some editorial drafts may be created with AI assistance from historical grimoires and ancient magical " +
+                        "texts. Drafts are published after an automated and AI review under the owner's authorization, which " +
+                        "checks that each lesson is a full step-by-step practice correctly cited to those sources, and includes " +
+                        "safety, rights, and originality checks. Wiccan remains responsible for the content it publishes.",
                     "The app and its original presentation are licensed for personal, non-commercial use. Source works and " +
                         "third-party material remain subject to their own rights.",
                 ),
@@ -199,7 +204,7 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.PRIVACY,
         title = "Privacy Policy",
         version = PolicyVersions.PRIVACY,
-        effectiveDate = "November 20, 2026",
+        effectiveDate = "November 21, 2026",
         introduction =
             "This Privacy Policy explains what information Jaime Sorrow (“Wiccan,” “we,” or “us”) handles when you use " +
                 "the Wiccan Android app and its related services, why it is used, which service providers process it, how " +
@@ -252,7 +257,9 @@ object WiccanLegalDocuments {
                         "app removes this data from the device but does not delete your account.",
                     "Support messages: if you email hello@wiccan.app, we receive your email address and whatever your message " +
                         "contains.",
-                    "The app requests only the notification permission, for the optional daily reminder. It does not request " +
+                    "The app requests only the notification permission, for the optional daily reminder and, during a free " +
+                        "trial, a reminder before the trial ends. You can turn either off in Android's notification settings " +
+                        "for Wiccan. It does not request " +
                         "precise location, contacts, photos, camera, microphone, or health permissions. A device time-zone " +
                         "identifier is not used to infer precise location.",
                 ),
@@ -262,12 +269,13 @@ object WiccanLegalDocuments {
                 listOf(
                     "Information is used to authenticate accounts, send account emails (verification, password reset, and " +
                         "email-change confirmation), avoid repeating daily content, show archive history, deliver requested " +
-                        "notifications, verify subscription access, answer support requests, prevent fraud, enforce security, meet " +
-                        "legal or platform obligations, and, only if you opt in, diagnose crashes and understand app performance.",
+                        "notifications, remind you before a free trial ends, verify subscription access, answer support " +
+                        "requests, prevent fraud, enforce security, meet legal or platform obligations, and, only if you opt " +
+                        "in, diagnose crashes and understand app performance.",
                     "Wiccan uses an AI service (Anthropic's Claude) on its servers only to draft lesson text from historical " +
-                        "source passages, which a human reviews before publication. No account, usage, device, or other personal " +
-                        "information is sent to the AI provider, and the app has no feature that sends what you type to an AI " +
-                        "service.",
+                        "source passages. Lessons are then checked by automated tools and an AI assistant under the owner's " +
+                        "authorization before publishing. No account, usage, device, or other personal information is sent to the " +
+                        "AI provider, and the app has no feature that sends what you type to an AI service.",
                 ),
             ),
             LegalSection(
@@ -294,7 +302,8 @@ object WiccanLegalDocuments {
                         "receives hello@wiccan.app support email.",
                     "Google Play: subscription purchases, billing, refunds, and Play Integrity checks, under Google's own terms " +
                         "and privacy policy.",
-                    "An email delivery provider, which sends Wiccan's account-verification emails to your email address.",
+                    "Cloudflare Email Routing: handles mail to hello@wiccan.app.",
+                    "Firebase Authentication: sends the verification, password-reset, and change-email messages.",
                     "Information may also be disclosed when required by law, to protect users or the service, or during a " +
                         "lawful business transfer. Wiccan does not sell personal data or share it for third-party behavioral " +
                         "advertising.",
@@ -381,10 +390,10 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.CONTENT_SAFETY,
         title = "Content & Safety",
         version = null,
-        effectiveDate = "November 7, 2026",
+        effectiveDate = "November 21, 2026",
         introduction =
             "Wiccan treats historical spiritual material as education and reflection. This guidance applies to every " +
-                "lesson, spell, potion, and optional practice in the app.",
+                "practical lesson, spell, potion, and optional practice in the app.",
         sections = listOf(
             LegalSection(
                 "No promised outcomes",
@@ -424,8 +433,10 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Editorial standard",
                 listOf(
-                    "AI-assisted drafts can only use vetted ancient-grimoire source records. A human must review source " +
-                        "grounding, duplication, safety, rights, and wording before publication.",
+                    "Published lessons, spells, and potions are practical step-by-step practices drawn from historical " +
+                        "grimoires and ancient magical texts, each cited where available. AI-assisted drafts are published after " +
+                        "an automated and AI review under the owner's authorization, which checks that each item is a full " +
+                        "practice correctly cited to those sources, and includes safety, rights, originality, and wording checks.",
                     "Report a safety, rights, or accuracy concern through Contact Support. Content may be corrected or " +
                         "withdrawn while it is reviewed.",
                 ),

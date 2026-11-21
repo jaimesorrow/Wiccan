@@ -49,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.config.PolicyUrls
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
+import com.jaimesorrow.wiccan.notification.manageSubscriptionIntent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.theme.description
 import com.jaimesorrow.wiccan.ui.theme.displayName
@@ -394,9 +395,6 @@ internal fun ThemeModePicker(
         }
     }
 }
-
-private fun manageSubscriptionIntent(): Intent =
-    Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/account/subscriptions"))
 
 private fun supportEmailIntent(): Intent =
     Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${PolicyUrls.SUPPORT_EMAIL}"))
