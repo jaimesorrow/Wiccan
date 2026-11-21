@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -21,6 +22,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -42,6 +44,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.domain.model.RootState
+import com.jaimesorrow.wiccan.notification.isOpenTodayRequest
 import com.jaimesorrow.wiccan.ui.auth.OnboardingScreen
 import com.jaimesorrow.wiccan.ui.auth.RootViewModel
 import com.jaimesorrow.wiccan.ui.auth.SignInScreen
@@ -75,12 +78,23 @@ class MainActivity : ComponentActivity() {
     private val rootViewModel: RootViewModel by viewModels()
     private val themeViewModel: ThemeViewModel by viewModels()
 
+    /** Set by a notification tap (cold start or [onNewIntent]); cleared once the shell shows Today. */
+    private var openTodayRequested by mutableStateOf(false)
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (isOpenTodayRequest(intent)) openTodayRequested = true
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         splashScreen.setKeepOnScreenCondition { rootViewModel.rootState.value == RootState.Loading }
 
         val startOnPaywall = intent?.data == Uri.parse(WiccanDeepLinks.PREMIUM_URI)
+        // Only a fresh launch: a recreated activity has already handled its intent.
+        if (savedInstanceState == null && isOpenTodayRequest(intent)) openTodayRequested = true
         setContent {
             val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
             WiccanTheme(themeMode = themeMode) {
@@ -88,6 +102,10 @@ class MainActivity : ComponentActivity() {
                 val rootState by rootViewModel.rootState.collectAsStateWithLifecycle()
                 var openLegalDocument by remember { mutableStateOf<LegalDocumentId?>(null) }
                 var openAccount by remember(rootState) { mutableStateOf(false) }
+                if (openTodayRequested) {
+                    // Close root-level overlays so Today is actually visible.
+                    LaunchedEffect(Unit) { openLegalDocument = null }
+                }
                 val subscriptionUid = when (val state = rootState) {
                     is RootState.SignedIn -> state.uid
                     is RootState.RequiresSubscription -> state.uid
@@ -110,6 +128,8 @@ class MainActivity : ComponentActivity() {
                         // server revokes access and removes this navigation shell.
                         WiccanAppShell(
                             startOnPaywall = startOnPaywall,
+                            openTodayRequested = openTodayRequested,
+                            onOpenTodayHandled = { openTodayRequested = false },
                             settingsViewModel = hiltViewModel(key = "subscription-account-$subscriptionUid"),
                         )
                     }

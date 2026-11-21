@@ -8,6 +8,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -96,6 +97,8 @@ private fun productionScreens(settingsViewModel: SettingsViewModel) = WiccanNavS
 fun WiccanAppShell(
     modifier: Modifier = Modifier,
     startOnPaywall: Boolean = false,
+    openTodayRequested: Boolean = false,
+    onOpenTodayHandled: () -> Unit = {},
     settingsViewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val screens = remember(settingsViewModel) { productionScreens(settingsViewModel) }
@@ -104,6 +107,8 @@ fun WiccanAppShell(
         navController = rememberNavController(),
         modifier = modifier,
         startOnPaywall = startOnPaywall,
+        openTodayRequested = openTodayRequested,
+        onOpenTodayHandled = onOpenTodayHandled,
     )
 }
 
@@ -113,7 +118,20 @@ internal fun WiccanAppShellContent(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     startOnPaywall: Boolean = false,
+    openTodayRequested: Boolean = false,
+    onOpenTodayHandled: () -> Unit = {},
 ) {
+    // A notification tap asks for Today from wherever the user is in the shell.
+    LaunchedEffect(openTodayRequested) {
+        if (openTodayRequested) {
+            navController.navigate(WiccanDestinations.TODAY) {
+                popUpTo(navController.graph.findStartDestination().id)
+                launchSingleTop = true
+            }
+            onOpenTodayHandled()
+        }
+    }
+
     fun settingsLinks(accountOnly: Boolean, onBack: () -> Unit) = SettingsLinks(
         accountOnly = accountOnly,
         onBack = onBack,
