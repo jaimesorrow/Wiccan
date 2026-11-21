@@ -92,5 +92,27 @@
       "spell",
       "potion"
     ]
+  },
+  {
+    "id": "metternich-stela-budge-1912",
+    "title": "Metternich Stela (Budge 1912 translation)",
+    "tradition": "Late Period Egyptian healing and protective magic",
+    "era": "ancient",
+    "sourceKind": "ancient-grimoire",
+    "period": "Dynasty 30, 360-343 BCE (Metropolitan Museum of Art record)",
+    "publicDomainBasis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT. The page images cited (archive.org item egyptianliteratu0001eawa) and the Gutenberg transcription are the same 1912 edition.",
+    "sourceReference": "Metropolitan Museum of Art 50.85, https://www.metmuseum.org/art/collection/search/546037; E. A. Wallis Budge, Legends of the Gods (London 1912), Legend of the Death of Horus, https://archive.org/details/egyptianliteratu0001eawa; the same edition is transcribed as Project Gutenberg #9411, https://archive.org/details/legendsofthegods09411gut",
+    "summary": "A Late Period Egyptian magical stela, now in the Metropolitan Museum of Art (50.85), inscribed with spells against scorpion stings and serpents and with the legend of Isis and the child Horus. Lessons quote E. A. Wallis Budge's public-domain 1912 translation.",
+    "groundedFacts": [
+      "The Metropolitan Museum of Art dates the Metternich Stela (50.85) to 360-343 BCE, in the reign of Nectanebo II of Dynasty 30; Budge (1912) attributed it to Nectanebus I.",
+      "In Budge's 1912 translation the stela's texts form the Legend of the Death of Horus, in which Isis's child Horus is stung by a scorpion and the gods are called to drive out the poison.",
+      "In Budge's translation Isis calls herself the lady (or mistress) of words of power, and Thoth says he has come from heaven to make protection of Horus.",
+      "The spells name Rā, Sekhet, Thoth and Heka as the four great gods who protect Osiris by their magical power, and address the body of Horus part by part, beginning with his head.",
+      "The stela's spells address scorpions, serpents and creatures of the water, and name remedies such as a barley bread-cake and natron against poison.",
+      "Lessons may draw inspiration from the stela but must not present its remedies as medical treatment or describe it as a Wiccan text."
+    ],
+    "eligibleTypes": [
+      "lesson"
+    ]
   }
 ]

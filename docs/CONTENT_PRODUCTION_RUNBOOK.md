@@ -6,7 +6,7 @@ This workflow targets only Firebase project `wiccan-android`. It is fail-closed:
 
 - Canonical seed: 296 unique draft IDs (200 lessons, 59 spells, 37 potions).
 - Practical review-only set: 150 drafts.
-- `sourcePassages.json`: empty. No practical lesson can pass source verification or hash-bound editorial review until a human editor supplies verified evidence.
+- `sourcePassages.json`: 11 records (London-Leiden, Metternich Stela), added in #189. Each was checked word for word against the printed scan and reviewed by Grok Bot (AI review) under Jaime Sorrow's written authorization (2026-11-21), not by a human editor. Every other practical lesson still needs a verified passage before it can pass source verification and hash-bound editorial review.
 - Production Android application ID: `com.jaimesorrow.wiccan`.
 
 These are repository facts, not a live Firestore inventory. Never reuse historical live counts in a production report.
