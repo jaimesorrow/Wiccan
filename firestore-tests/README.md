@@ -9,8 +9,10 @@ npm --prefix firestore-tests test
 ```
 
 The runner starts only the Firestore emulator with the `demo-wiccan` project,
-loads the repository's actual `firestore.rules`, and stops the emulator after
-the security suite and the production-repository transaction integration suite.
+loads the repository's actual `firestore.rules` and `firestore.indexes.json`,
+and stops the emulator after the security suite and the production-repository
+transaction integration suite (including the trial-ending reminder index
+query and claim transaction).
 No Firebase credentials or deployed project are used. The first run downloads
 the Firestore emulator JAR. `npm --prefix firestore-tests run test:rules` runs
 only the security suite.

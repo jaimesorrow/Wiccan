@@ -40,6 +40,7 @@ class WiccanMessagingService : FirebaseMessagingService() {
             notificationTitle = message.notification?.title,
             notificationBody = message.notification?.body,
             data = message.data,
+            channelId = message.notification?.channelId,
         ) ?: return
         // Runs on FCM's worker thread; the handler only reads the local reminder choice.
         runBlocking { foregroundPushHandler.handle(content) }

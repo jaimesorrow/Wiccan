@@ -4,7 +4,10 @@ import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
+import com.jaimesorrow.wiccan.billing.yearlyMonthlyEquivalent
+import com.jaimesorrow.wiccan.billing.yearlySavingsPercent
 import com.jaimesorrow.wiccan.core.result.AppResult
+import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -27,6 +30,9 @@ class PaywallViewModel @Inject constructor(
     val state: StateFlow<PaywallUiState> = _state.asStateFlow()
 
     private val effectChannel = Channel<PaywallUiEffect>(Channel.BUFFERED)
+
+    /** Set once the user taps a plan, so a refreshed offer never overrides their choice. */
+    private var userPickedPlan = false
     val effects: Flow<PaywallUiEffect> = effectChannel.receiveAsFlow()
 
     init {
@@ -38,7 +44,14 @@ class PaywallViewModel @Inject constructor(
         when (event) {
             PaywallUiEvent.RestorePurchasesClicked -> restorePurchases()
             PaywallUiEvent.RetryPriceClicked -> loadPrice()
+            is PaywallUiEvent.PlanSelected -> selectPlan(event.plan)
         }
+    }
+
+    private fun selectPlan(plan: SubscriptionPlan) {
+        if (plan == SubscriptionPlan.YEARLY && !_state.value.hasYearlyPlan) return
+        userPickedPlan = true
+        _state.update { it.copy(selectedPlan = plan) }
     }
 
     /** A returning subscriber may no longer be eligible for the trial shown last time. */
@@ -48,7 +61,8 @@ class PaywallViewModel @Inject constructor(
 
     fun subscribe(activity: Activity) {
         viewModelScope.launch {
-            when (val result = subscriptionRepository.launchPurchaseFlow(activity)) {
+            val plan = _state.value.let { if (it.hasYearlyPlan) it.selectedPlan else SubscriptionPlan.MONTHLY }
+            when (val result = subscriptionRepository.launchPurchaseFlow(activity, plan)) {
                 is AppResult.Success -> Unit
                 is AppResult.Failure -> {
                     effectChannel.send(PaywallUiEffect.ShowSnackbar(result.error))
@@ -58,12 +72,45 @@ class PaywallViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Loads the monthly offer exactly as before, then the yearly offer. A
+     * missing yearly plan only hides it; the monthly checkout still works.
+     * Yearly is preselected as the best value whenever both are available,
+     * unless the user already picked monthly on this screen.
+     */
     private fun loadPrice() {
-        _state.update { it.copy(isLoadingPrice = true, price = null, hasFreeTrial = false) }
+        _state.update {
+            it.copy(
+                isLoadingPrice = true,
+                price = null,
+                hasFreeTrial = false,
+                yearlyPrice = null,
+                yearlyHasFreeTrial = false,
+                yearlyMonthlyEquivalent = null,
+                yearlySavingsPercent = null,
+            )
+        }
         viewModelScope.launch {
             when (val result = subscriptionRepository.getOffer()) {
-                is AppResult.Success -> _state.update {
-                    it.copy(isLoadingPrice = false, price = result.data.formattedPrice, hasFreeTrial = result.data.hasFreeTrial)
+                is AppResult.Success -> {
+                    val monthly = result.data
+                    val yearly = (subscriptionRepository.getYearlyOffer() as? AppResult.Success)?.data
+                    _state.update {
+                        it.copy(
+                            isLoadingPrice = false,
+                            price = monthly.formattedPrice,
+                            hasFreeTrial = monthly.hasFreeTrial,
+                            yearlyPrice = yearly?.formattedPrice,
+                            yearlyHasFreeTrial = yearly?.hasFreeTrial == true,
+                            yearlyMonthlyEquivalent = yearly?.let(::yearlyMonthlyEquivalent),
+                            yearlySavingsPercent = yearly?.let { offer -> yearlySavingsPercent(offer, monthly) },
+                            selectedPlan = when {
+                                yearly == null -> SubscriptionPlan.MONTHLY
+                                userPickedPlan -> it.selectedPlan
+                                else -> SubscriptionPlan.YEARLY
+                            },
+                        )
+                    }
                 }
                 is AppResult.Failure -> {
                     _state.update { it.copy(isLoadingPrice = false) }

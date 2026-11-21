@@ -17,6 +17,9 @@ import javax.inject.Inject
 /** Stable id: a newer daily push replaces the previous one instead of stacking. */
 const val DAILY_PRACTICE_NOTIFICATION_ID = 1001
 
+/** Separate id so a trial reminder never replaces (or is replaced by) the daily push. */
+const val BILLING_REMINDER_NOTIFICATION_ID = 1002
+
 /** Action + extra on the notification's tap intent asking MainActivity to show Today. */
 const val ACTION_OPEN_TODAY = "com.jaimesorrow.wiccan.action.OPEN_TODAY"
 const val EXTRA_OPEN_TODAY = "com.jaimesorrow.wiccan.extra.OPEN_TODAY"
@@ -25,7 +28,14 @@ const val EXTRA_OPEN_TODAY = "com.jaimesorrow.wiccan.extra.OPEN_TODAY"
 fun isOpenTodayRequest(intent: Intent?): Boolean = intent?.getBooleanExtra(EXTRA_OPEN_TODAY, false) == true
 
 /** What to show for an FCM message received while the app is in the foreground. */
-data class ForegroundNotificationContent(val title: String?, val body: String?)
+data class ForegroundNotificationContent(
+    val title: String?,
+    val body: String?,
+    /** The Android channel the server named; null means the daily-practice channel. */
+    val channelId: String? = null,
+) {
+    val isBillingReminder: Boolean get() = channelId == BILLING_REMINDERS_CHANNEL_ID
+}
 
 /**
  * Picks the title/body from the FCM `notification` block, falling back to the
@@ -35,11 +45,12 @@ fun resolveForegroundContent(
     notificationTitle: String?,
     notificationBody: String?,
     data: Map<String, String>,
+    channelId: String? = null,
 ): ForegroundNotificationContent? {
     val title = notificationTitle?.takeIf { it.isNotBlank() } ?: data["title"]?.takeIf { it.isNotBlank() }
     val body = notificationBody?.takeIf { it.isNotBlank() } ?: data["body"]?.takeIf { it.isNotBlank() }
     if (title == null && body == null) return null
-    return ForegroundNotificationContent(title, body)
+    return ForegroundNotificationContent(title, body, channelId?.takeIf { it.isNotBlank() })
 }
 
 /**
@@ -66,7 +77,13 @@ class ForegroundNotificationPoster @Inject constructor(
     /** Returns true when a notification was posted. */
     fun post(content: ForegroundNotificationContent): Boolean {
         if (!canPost()) return false
-        ensureDailyPracticeChannel(context)
+        val channelId = if (content.isBillingReminder) {
+            ensureBillingRemindersChannel(context)
+            BILLING_REMINDERS_CHANNEL_ID
+        } else {
+            ensureDailyPracticeChannel(context)
+            DAILY_PRACTICE_CHANNEL_ID
+        }
         val title = content.title ?: context.getString(R.string.notification_daily_default_title)
         val openToday = PendingIntent.getActivity(
             context,
@@ -79,7 +96,7 @@ class ForegroundNotificationPoster @Inject constructor(
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-        val notification = NotificationCompat.Builder(context, DAILY_PRACTICE_CHANNEL_ID)
+        val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_stat_wiccan)
             .setContentTitle(title)
             .apply { content.body?.let { setContentText(it).setStyle(NotificationCompat.BigTextStyle().bigText(it)) } }
@@ -88,7 +105,10 @@ class ForegroundNotificationPoster @Inject constructor(
             .setAutoCancel(true)
             .build()
         return try {
-            NotificationManagerCompat.from(context).notify(DAILY_PRACTICE_NOTIFICATION_ID, notification)
+            NotificationManagerCompat.from(context).notify(
+                if (content.isBillingReminder) BILLING_REMINDER_NOTIFICATION_ID else DAILY_PRACTICE_NOTIFICATION_ID,
+                notification,
+            )
             true
         } catch (_: SecurityException) {
             // Permission revoked between the check and the post.

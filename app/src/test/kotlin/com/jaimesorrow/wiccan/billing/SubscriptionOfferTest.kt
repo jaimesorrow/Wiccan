@@ -1,6 +1,7 @@
 package com.jaimesorrow.wiccan.billing
 
 import com.android.billingclient.api.ProductDetails
+import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals
@@ -59,10 +60,37 @@ class SubscriptionOfferTest {
     }
 
     @Test
-    fun `legacy yearly product cannot be offered at the monthly checkout`() {
+    fun `the yearly product never accepts monthly terms`() {
         val product = product(offer(null, renewal()))
         every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
         assertNull(product.subscriptionOffer())
+    }
+
+    @Test
+    fun `yearly plan at US 39_99 with a seven-day trial is offered as the yearly plan`() {
+        val product = product(
+            offer(null, renewal(period = "P1Y", price = "$39.99", micros = 39_990_000)),
+            offer("trial", trial(), renewal(period = "P1Y", price = "$39.99", micros = 39_990_000)),
+        )
+        every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        val selected = product.subscriptionOffer()!!
+        assertEquals(SubscriptionPlan.YEARLY, selected.plan)
+        assertTrue(selected.hasFreeTrial)
+        assertEquals("$39.99", selected.formattedPrice)
+        assertEquals(39_990_000L, selected.priceAmountMicros)
+        assertEquals("USD", selected.priceCurrencyCode)
+    }
+
+    @Test
+    fun `yearly plan at any other US price fails closed`() {
+        val product = product(offer(null, renewal(period = "P1Y", micros = 49_990_000)))
+        every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        assertNull(product.subscriptionOffer())
+    }
+
+    @Test
+    fun `monthly offer is labeled monthly`() {
+        assertEquals(SubscriptionPlan.MONTHLY, product(offer(null, renewal())).subscriptionOffer()!!.plan)
     }
 
     @Test

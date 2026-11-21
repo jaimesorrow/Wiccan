@@ -21,3 +21,20 @@ fun ensureDailyPracticeChannel(context: Context) {
     }
     manager.createNotificationChannel(channel)
 }
+
+/** Must match BILLING_REMINDERS_CHANNEL_ID in functions/src/trialEndingReminders.ts. */
+const val BILLING_REMINDERS_CHANNEL_ID = "billing_reminders"
+
+/** A separate channel, so users can keep trial reminders while muting the daily push (or the reverse). */
+fun ensureBillingRemindersChannel(context: Context) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+    val manager = context.getSystemService(NotificationManager::class.java) ?: return
+    val channel = NotificationChannel(
+        BILLING_REMINDERS_CHANNEL_ID,
+        context.getString(R.string.notification_channel_billing_name),
+        NotificationManager.IMPORTANCE_DEFAULT,
+    ).apply {
+        description = context.getString(R.string.notification_channel_billing_description)
+    }
+    manager.createNotificationChannel(channel)
+}

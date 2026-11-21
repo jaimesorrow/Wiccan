@@ -15,6 +15,7 @@ import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
+import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.security.MessageDigest
 import javax.inject.Inject
@@ -29,6 +30,10 @@ import kotlinx.coroutines.sync.withLock
 
 const val PREMIUM_MONTHLY_PRODUCT_ID = "wiccan_premium_monthly"
 const val PREMIUM_YEARLY_PRODUCT_ID = "wiccan_premium_yearly"
+
+/** US base prices the paywall will sell. Any other USD price fails closed. */
+const val PREMIUM_MONTHLY_USD_PRICE_MICROS = 5_990_000L
+const val PREMIUM_YEARLY_USD_PRICE_MICROS = 39_990_000L
 
 val PREMIUM_PRODUCT_IDS: Set<String> = setOf(
     PREMIUM_MONTHLY_PRODUCT_ID,
@@ -166,15 +171,35 @@ class WiccanBillingClient @Inject constructor(
     }
 }
 
-/** Only the configured monthly plan, optionally preceded by a seven-day trial. */
+/** Play product ID for each standalone plan. */
+fun SubscriptionPlan.productId(): String = when (this) {
+    SubscriptionPlan.MONTHLY -> PREMIUM_MONTHLY_PRODUCT_ID
+    SubscriptionPlan.YEARLY -> PREMIUM_YEARLY_PRODUCT_ID
+}
+
+private fun planForProduct(productId: String): SubscriptionPlan? = when (productId) {
+    PREMIUM_MONTHLY_PRODUCT_ID -> SubscriptionPlan.MONTHLY
+    PREMIUM_YEARLY_PRODUCT_ID -> SubscriptionPlan.YEARLY
+    else -> null
+}
+
+/**
+ * Only the configured plan for this product (monthly P1M at US $5.99, or
+ * yearly P1Y at US $39.99), optionally preceded by a seven-day free trial.
+ * Anything else, including a wrong US price, fails closed.
+ */
 internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
-    if (productId != PREMIUM_MONTHLY_PRODUCT_ID) return null
+    val plan = planForProduct(productId) ?: return null
+    val (expectedPeriod, expectedUsdMicros) = when (plan) {
+        SubscriptionPlan.MONTHLY -> "P1M" to PREMIUM_MONTHLY_USD_PRICE_MICROS
+        SubscriptionPlan.YEARLY -> "P1Y" to PREMIUM_YEARLY_USD_PRICE_MICROS
+    }
     return subscriptionOfferDetails.orEmpty().mapNotNull { offer ->
         val phases = offer.pricingPhases.pricingPhaseList
         val renewal = phases.lastOrNull() ?: return@mapNotNull null
         if (renewal.recurrenceMode != ProductDetails.RecurrenceMode.INFINITE_RECURRING ||
-            renewal.billingPeriod != "P1M" || renewal.priceAmountMicros <= 0 ||
-            (renewal.priceCurrencyCode == "USD" && renewal.priceAmountMicros != 5_990_000L)
+            renewal.billingPeriod != expectedPeriod || renewal.priceAmountMicros <= 0 ||
+            (renewal.priceCurrencyCode == "USD" && renewal.priceAmountMicros != expectedUsdMicros)
         ) {
             return@mapNotNull null
         }
@@ -186,7 +211,14 @@ internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
                     )
         }
         if (!hasTrial && (phases.size != 1 || offer.offerId != null)) return@mapNotNull null
-        SubscriptionOffer(renewal.formattedPrice, hasTrial, offer.offerToken)
+        SubscriptionOffer(
+            formattedPrice = renewal.formattedPrice,
+            hasFreeTrial = hasTrial,
+            offerToken = offer.offerToken,
+            plan = plan,
+            priceAmountMicros = renewal.priceAmountMicros,
+            priceCurrencyCode = renewal.priceCurrencyCode,
+        )
     }.sortedByDescending { it.hasFreeTrial }.firstOrNull()
 }
 

@@ -11,12 +11,12 @@ const STALE_TOKEN_ERROR_CODES: ReadonlySet<string> = new Set([
 export class FirebaseFcmSender implements FcmSenderPort {
   constructor(private readonly messaging: Messaging) {}
 
-  async send(token: string, title: string, body: string): Promise<FcmSendResult> {
+  async send(token: string, title: string, body: string, channelId?: string): Promise<FcmSendResult> {
     try {
       await this.messaging.send({
         token,
         notification: { title, body },
-        android: { notification: { channelId: DAILY_PRACTICE_CHANNEL_ID } },
+        android: { notification: { channelId: channelId ?? DAILY_PRACTICE_CHANNEL_ID } },
       });
       return { delivered: true };
     } catch (err) {

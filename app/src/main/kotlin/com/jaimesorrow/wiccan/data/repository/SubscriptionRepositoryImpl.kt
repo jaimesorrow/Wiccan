@@ -9,6 +9,7 @@ import com.jaimesorrow.wiccan.billing.PREMIUM_MONTHLY_PRODUCT_ID
 import com.jaimesorrow.wiccan.billing.PREMIUM_PRODUCT_IDS
 import com.jaimesorrow.wiccan.billing.WiccanBillingClient
 import com.jaimesorrow.wiccan.billing.obfuscatedAccountId
+import com.jaimesorrow.wiccan.billing.productId
 import com.jaimesorrow.wiccan.billing.subscriptionOffer
 import com.jaimesorrow.wiccan.core.auth.CurrentUserProvider
 import com.jaimesorrow.wiccan.core.error.AppError
@@ -18,6 +19,7 @@ import com.jaimesorrow.wiccan.data.remote.SubscriptionFunctionsDataSource
 import com.jaimesorrow.wiccan.data.remote.UserTierDataSource
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
+import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -42,7 +44,9 @@ class SubscriptionRepositoryImpl @Inject constructor(
     private val tierObservationLock = Any()
     private var lapseAccount: String? = null
     private var lapseGeneration = 0L
-    private var selectedOffer: Pair<String, SubscriptionOffer>? = null
+
+    /** Offer last shown per plan, bound to the account it was loaded for. */
+    private val selectedOffers = java.util.concurrent.ConcurrentHashMap<SubscriptionPlan, Pair<String, SubscriptionOffer>>()
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -56,12 +60,12 @@ class SubscriptionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun launchPurchaseFlow(activity: Activity): AppResult<Unit> {
+    override suspend fun launchPurchaseFlow(activity: Activity, plan: SubscriptionPlan): AppResult<Unit> {
         val userId = currentUserProvider.currentUserId ?: return AppResult.Failure(AppError.Unauthorized)
         return try {
-            val offer = selectedOffer?.takeIf { it.first == userId }?.second
+            val offer = selectedOffers[plan]?.takeIf { it.first == userId }?.second
                 ?: return AppResult.Failure(AppError.PurchaseVerificationFailed("Refresh the subscription offer before subscribing."))
-            val result = billingClient.launchPurchaseFlow(activity, userId, PREMIUM_MONTHLY_PRODUCT_ID, offer)
+            val result = billingClient.launchPurchaseFlow(activity, userId, plan.productId(), offer)
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                 AppResult.Success(Unit)
             } else {
@@ -109,12 +113,33 @@ class SubscriptionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getOffer(): AppResult<SubscriptionOffer> = try {
-        selectedOffer = null
+        selectedOffers.remove(SubscriptionPlan.MONTHLY)
         val userId = currentUserProvider.currentUserId ?: error("Sign in to load the subscription offer.")
         val offer = billingClient.queryProductDetails(PREMIUM_MONTHLY_PRODUCT_ID).subscriptionOffer()
             ?: error("The Wiccan monthly subscription is unavailable. Please try again later.")
         if (currentUserProvider.currentUserId != userId) error("The signed-in account changed. Refresh the offer.")
-        selectedOffer = userId to offer
+        selectedOffers[SubscriptionPlan.MONTHLY] = userId to offer
+        AppResult.Success(offer)
+    } catch (t: CancellationException) {
+        throw t
+    } catch (t: Throwable) {
+        AppResult.Failure(t.toAppError())
+    }
+
+    override suspend fun getYearlyOffer(): AppResult<SubscriptionOffer?> = try {
+        selectedOffers.remove(SubscriptionPlan.YEARLY)
+        val userId = currentUserProvider.currentUserId ?: error("Sign in to load the subscription offer.")
+        // A missing or misconfigured yearly product must never block the monthly plan.
+        val offer = try {
+            billingClient.queryProductDetails(SubscriptionPlan.YEARLY.productId()).subscriptionOffer()
+        } catch (t: CancellationException) {
+            throw t
+        } catch (t: Throwable) {
+            Log.w(TAG, "Yearly plan unavailable", t)
+            null
+        }
+        if (currentUserProvider.currentUserId != userId) error("The signed-in account changed. Refresh the offer.")
+        if (offer != null) selectedOffers[SubscriptionPlan.YEARLY] = userId to offer
         AppResult.Success(offer)
     } catch (t: CancellationException) {
         throw t

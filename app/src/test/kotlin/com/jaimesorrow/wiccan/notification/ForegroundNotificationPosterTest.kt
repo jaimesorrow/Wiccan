@@ -48,6 +48,23 @@ class ForegroundNotificationPosterTest {
     }
 
     @Test
+    fun `a trial-ending reminder posts on its own billing channel without replacing the daily push`() {
+        shadowOf(context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        val poster = ForegroundNotificationPoster(context)
+        poster.post(ForegroundNotificationContent(title = "Today's spell", body = "body"))
+
+        val posted = poster.post(
+            resolveForegroundContent("Your free trial ends soon", "Ends Jan 7", emptyMap(), BILLING_REMINDERS_CHANNEL_ID)!!,
+        )
+
+        assertTrue(posted)
+        val reminder = shadowOf(manager).getNotification(BILLING_REMINDER_NOTIFICATION_ID)
+        assertEquals(BILLING_REMINDERS_CHANNEL_ID, reminder.channelId)
+        assertNotNull(shadowOf(manager).getNotification(DAILY_PRACTICE_NOTIFICATION_ID))
+        assertNotNull(manager.getNotificationChannel(BILLING_REMINDERS_CHANNEL_ID))
+    }
+
+    @Test
     fun `nothing is posted without POST_NOTIFICATIONS on API 33+`() {
         shadowOf(context).denyPermissions(Manifest.permission.POST_NOTIFICATIONS)
 

@@ -23,6 +23,12 @@ export interface PlaySubscriptionInfo {
   obfuscatedExternalAccountId?: string | null;
   /** Previous token when Play replaces a subscription during an upgrade/resubscription. */
   linkedPurchaseToken?: string | null;
+  /**
+   * True while a Wiccan premium line item is in its free-trial phase
+   * (subscriptionsv2 `lineItems[].offerPhase.freeTrial`). During the trial,
+   * `expiryTimeMillis` is the moment the trial ends and the first charge is due.
+   */
+  inFreeTrial?: boolean;
 }
 
 /**

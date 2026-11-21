@@ -27,7 +27,19 @@ describe("verifyPurchaseAndSyncTier", () => {
       subscriptionState: "active",
       expiryTimeMillis: expect.any(Number),
       autoRenewing: false,
+      inFreeTrial: false,
     });
+  });
+
+  it("records a free-trial purchase so the trial-ending reminder can find it", async () => {
+    const billing = new FakePlayBillingPort();
+    billing.respondWith(TOKEN, "active", [YEARLY_PRODUCT_ID], { autoRenewing: true, inFreeTrial: true });
+    const users = new FakeUserRepository([UID]);
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    expect(await verifyPurchaseAndSyncTier(UID, TOKEN, YEARLY_PRODUCT_ID, billing, users, subscriptions)).toBe("premium");
+    expect(subscriptions.records.get(UID)).toMatchObject({ productId: YEARLY_PRODUCT_ID, inFreeTrial: true, autoRenewing: true });
+    expect(billing.acknowledgedTokens).toEqual([{ purchaseToken: TOKEN, productId: YEARLY_PRODUCT_ID }]);
   });
 
   it("accepts the yearly premium product", async () => {
