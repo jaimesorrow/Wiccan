@@ -59,7 +59,7 @@
 <section id="why-information-is-used">
 <h2>Why information is used</h2>
 <p>Information is used to authenticate accounts, send account emails (verification, password reset, and email-change confirmation), avoid repeating daily content, show archive history, deliver requested notifications, verify subscription access, answer support requests, prevent fraud, enforce security, meet legal or platform obligations, and, only if you opt in, diagnose crashes and understand app performance.</p>
-<p>Wiccan uses an AI service (Anthropic's Claude) on its servers only to draft and review lesson text from historical source passages, under the owner's authorization. No account, usage, device, or other personal information is sent to the AI provider, and the app has no feature that sends what you type to an AI service.</p>
+<p>Wiccan uses an AI service (Anthropic's Claude) on its servers only to draft lesson text from historical source passages. Lessons are then checked by automated tools and an AI assistant under the owner's authorization before publishing. No account, usage, device, or other personal information is sent to the AI provider, and the app has no feature that sends what you type to an AI service.</p>
 </section>
 <section id="legal-bases-eea-uk-switzerland-and-similar-laws">
 <h2>Legal bases (EEA, UK, Switzerland, and similar laws)</h2>
@@ -71,7 +71,8 @@
 <p>Wiccan does not share personal data with third parties for their own marketing or other independent purposes. It relies on these service providers, which process data on Wiccan's behalf or, where noted, under their own terms:</p>
 <p><strong>Google:</strong> Firebase Authentication, Cloud Firestore, Cloud Functions, Cloud Messaging, Firebase Installations, Analytics, Crashlytics, App Check, Google Cloud Logging, and Secret Manager, for sign-in, storage, server processing, notifications, optional diagnostics, and security; and the Gmail mailbox that receives <a href="mailto:hello@wiccan.app">hello@wiccan.app</a> support email.</p>
 <p><strong>Google Play:</strong> subscription purchases, billing, refunds, and Play Integrity checks, under Google's own terms and privacy policy.</p>
-<p>An email delivery provider, which sends Wiccan's account-verification emails to your email address.</p>
+<p><strong>Cloudflare Email Routing:</strong> handles mail to <a href="mailto:hello@wiccan.app">hello@wiccan.app</a>.</p>
+<p><strong>Firebase Authentication:</strong> sends the verification, password-reset, and change-email messages.</p>
 <p>Information may also be disclosed when required by law, to protect users or the service, or during a lawful business transfer. Wiccan does not sell personal data or share it for third-party behavioral advertising.</p>
 </section>
 <section id="retention-and-deletion">

@@ -51,7 +51,7 @@ object WiccanLegalDocuments {
                 "What Wiccan provides",
                 listOf(
                     "Wiccan presents educational, historical, and spiritual-reflection content: practical lessons, spells, and " +
-                        "potions drawn from historical grimoires and ancient magical texts, each cited where a source is used. It " +
+                        "potions drawn from historical grimoires and ancient magical texts, each cited where available. It " +
                         "is an educational and reflective service; it does not perform, sell, or deliver magical, spiritual, or " +
                         "other services that produce results. See “No promise or guarantee of results” below.",
                     "Source citations and editorial notes are provided where available. Historical materials can be " +
@@ -265,10 +265,10 @@ object WiccanLegalDocuments {
                         "email-change confirmation), avoid repeating daily content, show archive history, deliver requested " +
                         "notifications, verify subscription access, answer support requests, prevent fraud, enforce security, meet " +
                         "legal or platform obligations, and, only if you opt in, diagnose crashes and understand app performance.",
-                    "Wiccan uses an AI service (Anthropic's Claude) on its servers only to draft and review lesson text from " +
-                        "historical source passages, under the owner's authorization. No account, usage, device, or other personal " +
-                        "information is sent to the AI provider, and the app has no feature that sends what you type to an AI " +
-                        "service.",
+                    "Wiccan uses an AI service (Anthropic's Claude) on its servers only to draft lesson text from historical " +
+                        "source passages. Lessons are then checked by automated tools and an AI assistant under the owner's " +
+                        "authorization before publishing. No account, usage, device, or other personal information is sent to the " +
+                        "AI provider, and the app has no feature that sends what you type to an AI service.",
                 ),
             ),
             LegalSection(
@@ -295,7 +295,8 @@ object WiccanLegalDocuments {
                         "receives hello@wiccan.app support email.",
                     "Google Play: subscription purchases, billing, refunds, and Play Integrity checks, under Google's own terms " +
                         "and privacy policy.",
-                    "An email delivery provider, which sends Wiccan's account-verification emails to your email address.",
+                    "Cloudflare Email Routing: handles mail to hello@wiccan.app.",
+                    "Firebase Authentication: sends the verification, password-reset, and change-email messages.",
                     "Information may also be disclosed when required by law, to protect users or the service, or during a " +
                         "lawful business transfer. Wiccan does not sell personal data or share it for third-party behavioral " +
                         "advertising.",
@@ -426,7 +427,7 @@ object WiccanLegalDocuments {
                 "Editorial standard",
                 listOf(
                     "Published lessons, spells, and potions are practical step-by-step practices drawn from historical " +
-                        "grimoires and ancient magical texts, each cited where a source is used. AI-assisted drafts are published after " +
+                        "grimoires and ancient magical texts, each cited where available. AI-assisted drafts are published after " +
                         "an automated and AI review under the owner's authorization, which checks that each item is a full " +
                         "practice correctly cited to those sources, and includes safety, rights, originality, and wording checks.",
                     "Report a safety, rights, or accuracy concern through Contact Support. Content may be corrected or " +
