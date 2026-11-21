@@ -11,9 +11,18 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.jaimesorrow.wiccan.MainActivity
 import com.wiccan.app.R
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
 /** Stable id: a newer daily push replaces the previous one instead of stacking. */
 const val DAILY_PRACTICE_NOTIFICATION_ID = 1001
+
+/** Action + extra on the notification's tap intent asking MainActivity to show Today. */
+const val ACTION_OPEN_TODAY = "com.jaimesorrow.wiccan.action.OPEN_TODAY"
+const val EXTRA_OPEN_TODAY = "com.jaimesorrow.wiccan.extra.OPEN_TODAY"
+
+/** Whether [intent] is a request (e.g. a notification tap) to navigate to Today. */
+fun isOpenTodayRequest(intent: Intent?): Boolean = intent?.getBooleanExtra(EXTRA_OPEN_TODAY, false) == true
 
 /** What to show for an FCM message received while the app is in the foreground. */
 data class ForegroundNotificationContent(val title: String?, val body: String?)
@@ -39,7 +48,9 @@ fun resolveForegroundContent(
  * hands them to [WiccanMessagingService.onMessageReceived] instead and shows
  * nothing, so this mirrors the tray behaviour there.
  */
-class ForegroundNotificationPoster(private val context: Context) {
+class ForegroundNotificationPoster @Inject constructor(
+    @param:ApplicationContext private val context: Context,
+) {
 
     /** Whether the user lets this app post notifications (POST_NOTIFICATIONS on API 33+). */
     fun canPost(): Boolean {
@@ -60,9 +71,11 @@ class ForegroundNotificationPoster(private val context: Context) {
         val openToday = PendingIntent.getActivity(
             context,
             0,
+            // SINGLE_TOP reuses a running MainActivity (delivered to onNewIntent),
+            // so the explicit extra is what moves it to Today from any screen.
             Intent(context, MainActivity::class.java)
-                .setAction(Intent.ACTION_MAIN)
-                .addCategory(Intent.CATEGORY_LAUNCHER)
+                .setAction(ACTION_OPEN_TODAY)
+                .putExtra(EXTRA_OPEN_TODAY, true)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )

@@ -4,6 +4,8 @@ import android.Manifest
 import android.app.Application
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
+import com.jaimesorrow.wiccan.MainActivity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -37,7 +39,10 @@ class ForegroundNotificationPosterTest {
         assertEquals(DAILY_PRACTICE_CHANNEL_ID, notification.channelId)
         assertEquals("Today's spell", shadowOf(notification).contentTitle)
         assertEquals("New Moon Intention Spell", shadowOf(notification).contentText)
-        assertNotNull(notification.contentIntent)
+        // The tap carries an explicit Today request, handled in onCreate and onNewIntent.
+        val tapIntent = shadowOf(notification.contentIntent).savedIntent
+        assertTrue(isOpenTodayRequest(tapIntent))
+        assertEquals(MainActivity::class.java.name, tapIntent.component?.className)
         // The channel is (re)created if it doesn't exist yet.
         assertNotNull(manager.getNotificationChannel(DAILY_PRACTICE_CHANNEL_ID))
     }
@@ -69,6 +74,13 @@ class ForegroundNotificationPosterTest {
         assertTrue(ForegroundNotificationPoster(context).post(ForegroundNotificationContent(null, "body only")))
         val notification = shadowOf(manager).getNotification(DAILY_PRACTICE_NOTIFICATION_ID)
         assertEquals("Today's practice awaits", shadowOf(notification).contentTitle)
+    }
+
+    @Test
+    fun `only intents carrying the extra are Today requests`() {
+        assertTrue(isOpenTodayRequest(Intent().putExtra(EXTRA_OPEN_TODAY, true)))
+        assertFalse(isOpenTodayRequest(Intent(Intent.ACTION_MAIN)))
+        assertFalse(isOpenTodayRequest(null))
     }
 
     @Test
