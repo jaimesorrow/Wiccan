@@ -3,6 +3,16 @@ import { Content, isContentType } from "./types";
 import { isPracticalCategory, practicalContentHash } from "./practicalLesson";
 
 type SimilarityMetadata = Pick<Content, "similarityGroupId" | "sourceId" | "sourceCitation">;
+const storedContentHashes = new WeakMap<Content, string>();
+
+/**
+ * Associates the checksum of the raw Firestore document with its normalized
+ * in-memory Content object. WeakMap metadata is never enumerable or serialized
+ * into the callable response sent to Android.
+ */
+export function rememberStoredContentHash(content: Content, hash: string): void {
+  storedContentHashes.set(content, hash);
+}
 
 /** Explicit editorial concept groups take priority over legacy passage metadata. */
 function isPreciseSourceCitation(citation: string): boolean {
@@ -48,5 +58,6 @@ export function isEligibleForDailyDelivery(content: Content, ancientLessonSource
     isPracticalCategory(content.primaryCategoryId) && content.category === content.primaryCategoryId &&
     content.rightsReviewRequired !== true && review !== undefined &&
     review.sourceFidelityApproved && review.scopeApproved && review.safetyApproved && review.rightsApproved &&
-    review.duplicateReviewed && review.contentHash === practicalContentHash(content);
+    review.duplicateReviewed &&
+    review.contentHash === (storedContentHashes.get(content) ?? practicalContentHash(content));
 }

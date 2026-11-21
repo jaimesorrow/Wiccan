@@ -70,11 +70,19 @@ export function stableJson(value: unknown): string {
 }
 
 export const AUTHORED_FIELDS = ["title", "slug", "type", "tier", "tradition", "sourceTradition", "summary", "intro", "introduction", "body", "lesson", "reflection", "practice", "materials", "tools", "safetyNote", "tags", "category", "primaryCategoryId", "secondaryCategoryIds", "lessonType", "requiresPotionDisclosure", "durationMinutes", "incantation", "incantationOmissionReason", "timing", "application", "correspondences", "citations", "adaptationNotes", "sourcePassageId", "sourceId", "sourceCitation", "sourceUrl", "similarityGroupId", "rightsReviewRequired", "rightsNotes"] as const;
-export function practicalContentHash(content: object): string {
+
+/**
+ * The reviewed field set the publisher and the daily-delivery verifier both
+ * hash. Firestore readers may materialize an absent optional field as null;
+ * treat null and missing alike so a reviewed hash survives storage round trips.
+ */
+export function authoredFieldsForHash(content: object): Record<string, unknown> {
   const fields = content as Record<string, unknown>;
-  // Firestore readers commonly materialize an absent optional field as null.
-  // Treat null and missing alike so a reviewed hash survives storage round trips.
-  return createHash("sha256").update(stableJson(Object.fromEntries(AUTHORED_FIELDS.map((key) => [key, fields[key] ?? undefined])))).digest("hex");
+  return Object.fromEntries(AUTHORED_FIELDS.map((key) => [key, fields[key] ?? undefined]));
+}
+
+export function practicalContentHash(content: object): string {
+  return createHash("sha256").update(stableJson(authoredFieldsForHash(content))).digest("hex");
 }
 
 function lessonText(fields: Record<string, unknown>): string {
