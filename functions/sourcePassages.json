@@ -72,7 +72,9 @@
     ],
     "uncertainties": [
       "Checked word for word by Grok Bot against the printed page image(s) of the 1904 Oxford edition (Internet Archive, University of Toronto copy) on 2026-11-21; OCR punctuation and quotation marks corrected to the printed page. Line numbers in parentheses are the editors' own.",
-      "Text from 'and you take a boy' (line 11) to the start of line 14 is omitted and marked [...]."
+      "Text from 'and you take a boy' (line 11) to the start of line 14 is omitted and marked [...].",
+      "The passage continues on the next printed page: https://archive.org/details/demoticmagicalpa01grifuoft/page/n46/mode/1up",
+      "The kept text after [...] still says 'his head' and 'he gazing': in the papyrus these refer to the boy medium introduced in the omitted lines 11-13. The gazing is quoted only as evidence that the oil was gazed into; lessons never involve a child."
     ],
     "formula": null,
     "formulaOmissionReason": "The invocation referred to ('this invocation that is above') is not part of the quoted passage; any words in a lesson are original modern wording.",
@@ -177,7 +179,8 @@
     ],
     "uncertainties": [
       "Checked word for word by Grok Bot against the printed page image(s) of the 1904 Oxford edition (Internet Archive, University of Toronto copy) on 2026-11-21; OCR punctuation and quotation marks corrected to the printed page. Line numbers in parentheses are the editors' own.",
-      "Line 29 (a separate thief-detection prescription) is omitted and marked [...]."
+      "Line 29 (a separate thief-detection prescription) is omitted and marked [...].",
+      "The passage continues on the next printed page: https://archive.org/details/demoticmagicalpa01grifuoft/page/n50/mode/1up"
     ],
     "formula": "Good dispatch, joyful dispatch!",
     "dating": {
@@ -328,7 +331,8 @@
     ],
     "uncertainties": [
       "Checked word for word by Grok Bot against the printed page image(s) of the 1912 edition (Internet Archive scan egyptianliteratu0001eawa) on 2026-11-21. Budge's running quotation marks at line starts and his bold section numbers inside the text are omitted; all words are as printed, including the macron in Rā.",
-      "Section number 43 printed between 'your' and 'tongues' is omitted."
+      "Section number 43 printed between 'your' and 'tongues' is omitted.",
+      "The passage continues on the next printed page: https://archive.org/details/egyptianliteratu0001eawa/page/n274/mode/1up"
     ],
     "formula": "Hail, ye who dwell in the water, crocodiles and fish, Rā shutteth up your mouths, Sekhet stoppeth up your throats, Thoth cutteth out your tongues, and Heka blindeth your eyes.",
     "dating": {
@@ -339,7 +343,7 @@
     },
     "rights": {
       "status": "verified",
-      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT.",
+      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT. The page images cited (archive.org item egyptianliteratu0001eawa) and the Gutenberg transcription are the same 1912 edition.",
       "reference": "https://archive.org/details/legendsofthegods09411gut",
       "jurisdictions": [
         "US",
@@ -391,7 +395,7 @@
     },
     "rights": {
       "status": "verified",
-      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT.",
+      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT. The page images cited (archive.org item egyptianliteratu0001eawa) and the Gutenberg transcription are the same 1912 edition.",
       "reference": "https://archive.org/details/legendsofthegods09411gut",
       "jurisdictions": [
         "US",
@@ -442,7 +446,7 @@
     },
     "rights": {
       "status": "verified",
-      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT.",
+      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT. The page images cited (archive.org item egyptianliteratu0001eawa) and the Gutenberg transcription are the same 1912 edition.",
       "reference": "https://archive.org/details/legendsofthegods09411gut",
       "jurisdictions": [
         "US",
@@ -482,7 +486,8 @@
     ],
     "uncertainties": [
       "Checked word for word by Grok Bot against the printed page image(s) of the 1912 edition (Internet Archive scan egyptianliteratu0001eawa) on 2026-11-21. Budge's running quotation marks at line starts and his bold section numbers inside the text are omitted; all words are as printed, including the macron in Rā.",
-      "Section numbers 140, 141 and 142 are omitted."
+      "Section numbers 140, 141 and 142 are omitted.",
+      "The passage continues on the next printed page: https://archive.org/details/egyptianliteratu0001eawa/page/n296/mode/1up"
     ],
     "formula": "Thy head is to thee, Horus; it shall be stable under the Urert Crown. Thine eye is to thee, Horus, [for] thou art Horus, the son of Keb, the Lord of the Two Eyes,",
     "dating": {
@@ -493,7 +498,7 @@
     },
     "rights": {
       "status": "verified",
-      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT.",
+      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT. The page images cited (archive.org item egyptianliteratu0001eawa) and the Gutenberg transcription are the same 1912 edition.",
       "reference": "https://archive.org/details/legendsofthegods09411gut",
       "jurisdictions": [
         "US",
@@ -545,7 +550,7 @@
     },
     "rights": {
       "status": "verified",
-      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT.",
+      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT. The page images cited (archive.org item egyptianliteratu0001eawa) and the Gutenberg transcription are the same 1912 edition.",
       "reference": "https://archive.org/details/legendsofthegods09411gut",
       "jurisdictions": [
         "US",
