@@ -71,48 +71,48 @@ function mockAssignedContent(content: ReturnType<typeof potionContent>) {
   jest.spyOn(FirestoreContentRepository.prototype, "getContentById").mockResolvedValue(content);
 }
 
-function mockDisclosures(configured: unknown) {
-  const get = jest.fn().mockImplementation((field: string) => (
-    field === "potionSafetyDisclosure" ? configured : undefined
-  ));
-  (getFirestore as jest.Mock).mockReturnValue({
-    collection: (name: string) => ({
-      doc: (id: string) => ({
-        get: async () => {
-          if (name !== "settings" || id !== "disclosures") {
-            throw new Error(`Unexpected Firestore read: ${name}/${id}`);
-          }
-          return { exists: configured !== undefined, get };
-        },
-      }),
-    }),
+/**
+ * Stubs getFirestore(). An omitted `read` makes any document fetch throw, so
+ * a settings/disclosures load outside the disclosure-required branch fails
+ * the test. When `read` is provided, only settings/disclosures is allowed.
+ */
+function stubFirestore(read?: { configured: unknown; exists?: boolean }) {
+  const getDoc = jest.fn();
+  const doc = jest.fn(() => ({ get: getDoc }));
+  const collection = jest.fn(() => ({ doc }));
+  getDoc.mockImplementation(async () => {
+    const name = collection.mock.calls.at(-1)?.[0] as string | undefined;
+    const id = doc.mock.calls.at(-1)?.[0] as string | undefined;
+    if (!read || name !== "settings" || id !== "disclosures") {
+      throw new Error(`Unexpected Firestore read: ${name}/${id}`);
+    }
+    return {
+      exists: read.exists ?? read.configured !== undefined,
+      get: (field: string) => (field === "potionSafetyDisclosure" ? read.configured : undefined),
+    };
   });
-  return get;
+  (getFirestore as jest.Mock).mockReturnValue({ collection });
+  return { collection, doc, getDoc };
 }
 
 describe("getTodayContent potion safety disclosure", () => {
+  let firestore: ReturnType<typeof stubFirestore>;
+
   afterEach(() => jest.restoreAllMocks());
 
   beforeEach(() => {
+    jest.clearAllMocks();
     // Isolate this file from the real Admin SDK: constructors still receive a
-    // Firestore-like object, but repository methods are stubbed and only
-    // settings/disclosures is readable through the stub.
-    (getFirestore as jest.Mock).mockReturnValue({
-      collection: (name: string) => ({
-        doc: (id: string) => ({
-          get: async () => {
-            throw new Error(`Unexpected Firestore read: ${name}/${id}`);
-          },
-        }),
-      }),
-    });
+    // Firestore-like object, but repository methods are stubbed and any
+    // unexpected document read (including settings/disclosures) throws.
+    firestore = stubFirestore();
   });
 
   it("returns the configured disclosure on a potion day", async () => {
     mockDailyContentEnabled();
     const content = potionContent();
     mockAssignedContent(content);
-    mockDisclosures(POTION_DISCLOSURE);
+    firestore = stubFirestore({ configured: POTION_DISCLOSURE });
 
     const result = await getTodayContent.run(request());
 
@@ -125,49 +125,41 @@ describe("getTodayContent potion safety disclosure", () => {
       timezone: "UTC",
     }));
     expect(result.deliveredDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    expect(getFirestore).toHaveBeenCalled();
+    expect(firestore.collection).toHaveBeenCalledWith("settings");
+    expect(firestore.doc).toHaveBeenCalledWith("disclosures");
+    expect(firestore.getDoc).toHaveBeenCalledTimes(1);
   });
 
   it("does not read or attach a disclosure when the assigned content does not require one", async () => {
     mockDailyContentEnabled();
     mockAssignedContent(spellContent());
-    const get = mockDisclosures(POTION_DISCLOSURE);
 
     const result = await getTodayContent.run(request());
 
     expect(result.potionSafetyDisclosure).toBeUndefined();
     expect(result).toEqual(expect.objectContaining({ id: "spell-today", type: "spell" }));
-    expect(get).not.toHaveBeenCalled();
+    expect(firestore.getDoc).not.toHaveBeenCalled();
+    expect(firestore.collection).not.toHaveBeenCalled();
   });
 
   it.each([
-    { label: "the disclosures document is missing", configured: undefined },
-    { label: "potionSafetyDisclosure is missing", configured: undefined, existsOnly: true },
+    { label: "the disclosures document is missing", configured: undefined, exists: false },
+    { label: "potionSafetyDisclosure is missing", configured: undefined, exists: true },
     { label: "potionSafetyDisclosure is empty", configured: "" },
     { label: "potionSafetyDisclosure is whitespace", configured: "   " },
-  ])("fails with the existing internal error when $label", async ({ configured, existsOnly }) => {
+    { label: "potionSafetyDisclosure is not a string", configured: 123 },
+  ])("fails with the existing internal error when $label", async ({ configured, exists }) => {
     mockDailyContentEnabled();
     mockAssignedContent(potionContent());
-    const get = jest.fn().mockImplementation((field: string) => (
-      field === "potionSafetyDisclosure" ? configured : undefined
-    ));
-    (getFirestore as jest.Mock).mockReturnValue({
-      collection: (name: string) => ({
-        doc: (id: string) => ({
-          get: async () => {
-            if (name !== "settings" || id !== "disclosures") {
-              throw new Error(`Unexpected Firestore read: ${name}/${id}`);
-            }
-            return { exists: existsOnly === true || configured !== undefined, get };
-          },
-        }),
-      }),
-    });
+    firestore = stubFirestore({ configured, exists });
+
     await expect(getTodayContent.run(request()))
       .rejects.toMatchObject({ code: "internal", message: "Could not select today's content." });
+    expect(logger.error).toHaveBeenCalledTimes(1);
     expect(logger.error).toHaveBeenCalledWith("getTodayContent failed", {
       uid: UID,
       error: "Required potionSafetyDisclosure is not configured.",
     });
+    expect(firestore.getDoc).toHaveBeenCalledTimes(1);
   });
 });
