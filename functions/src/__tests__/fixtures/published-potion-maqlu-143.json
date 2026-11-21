@@ -1,0 +1,104 @@
+{
+  "id": "maqlu-143-sulphur-and-amurru-salt",
+  "application": "To protect your peace from hostility, gossip or online unkindness by setting a reminder that those words need not take root.",
+  "body": "Timing: On a waning moon, or after an encounter with hostility. Allow about thirty minutes.\n\nWork as the moon wanes. Pour the salt slowly, like sand into an hourglass, and imagine it drawing the sting from the words you name.\n\n1. On the slip of paper, write one line of resolve, such as 'Hostile words do not take root in me.'\n2. Pour half the salt into the jar, naming the hostility you have met.\n3. Fold the paper and place it on the salt.\n4. Add the rosemary, then the rest of the salt, covering the paper completely.\n5. Close the lid firmly and speak the incantation.\n6. Label the jar 'Ritual use only' with the date.\n7. Place it near where hostility reaches you, beside your computer, phone charger or front door.",
+  "category": "potions-infusions",
+  "citations": [
+    {
+      "title": "Maqlu Ritual Tablet, obv. 77'",
+      "author": "Oracc: Corpus of Mesopotamian Anti-witchcraft Rituals (CMAwRo), ed. D. Schwemer et al.",
+      "url": "https://oracc.museum.upenn.edu/cmawro/Q002713",
+      "accessedAt": "",
+      "usageNote": "Supports the one- or two-sentence historical context in the introduction only; the practice itself is original modern work.",
+      "rightsNote": "Paraphrase only; no translated passage is reproduced. URL not reachable from the box on 2026-11-15; access date left blank for an editor."
+    }
+  ],
+  "correspondences": {
+    "colors": [],
+    "symbols": [
+      "Salt",
+      "West"
+    ],
+    "elements": [],
+    "days": [],
+    "stones": [],
+    "moonPhases": [
+      "Waning"
+    ],
+    "herbs": [
+      "Rosemary"
+    ]
+  },
+  "durationMinutes": 30,
+  "incantation": "Salt from the far western shore, hold my peace. What is thrown at me in hate falls into salt and does not grow. I stay myself.",
+  "intro": "The Maqlû Ritual Tablet records sulphur set alight together with Amurru-salt, a salt named for the western lands, while an incantation was spoken against hate-magic worked against the speaker. This modern jar spell keeps the salt and its purpose of standing firm against hostility, without any sulphur. The jar strengthens your own resilience and acts on no one else. This is an original modern working, not a reconstruction of the ancient rite.",
+  "introduction": "The Maqlû Ritual Tablet records sulphur set alight together with Amurru-salt, a salt named for the western lands, while an incantation was spoken against hate-magic worked against the speaker. This modern jar spell keeps the salt and its purpose of standing firm against hostility, without any sulphur. The jar strengthens your own resilience and acts on no one else. This is an original modern working, not a reconstruction of the ancient rite.",
+  "lesson": "Timing: On a waning moon, or after an encounter with hostility. Allow about thirty minutes.\n\nWork as the moon wanes. Pour the salt slowly, like sand into an hourglass, and imagine it drawing the sting from the words you name.\n\n1. On the slip of paper, write one line of resolve, such as 'Hostile words do not take root in me.'\n2. Pour half the salt into the jar, naming the hostility you have met.\n3. Fold the paper and place it on the salt.\n4. Add the rosemary, then the rest of the salt, covering the paper completely.\n5. Close the lid firmly and speak the incantation.\n6. Label the jar 'Ritual use only' with the date.\n7. Place it near where hostility reaches you, beside your computer, phone charger or front door.",
+  "lessonType": "jar",
+  "materials": [
+    "Small glass jar with lid (1)",
+    "Coarse salt (Enough to fill the jar halfway)",
+    "Dried rosemary (1 teaspoon)",
+    "Small slip of paper and pen (1)",
+    "Label (1)"
+  ],
+  "practice": "Whenever hostile words reach you this month, touch the jar, speak your line of resolve, and step away from the exchange.",
+  "primaryCategoryId": "potions-infusions",
+  "reflection": "What hostility did you name, and how does it feel to have a solid, sealed thing standing for your resilience?",
+  "requiresPotionDisclosure": true,
+  "rightsReviewRequired": false,
+  "safetyNote": "Ritual use only. Do not consume. Keep the jar sealed and out of reach of children and pets; salt is harmful to animals if eaten. Never burn sulphur; its fumes are toxic. This jar supports your own resilience; if hostility becomes harassment or threats, keep records and seek help. If you use a candle or any flame, keep it in a heat-safe holder away from children and pets, extinguish it fully and never leave it unattended.",
+  "secondaryCategoryIds": [
+    "charms-talismans"
+  ],
+  "slug": "salt-of-the-western-shore-a-jar-against-hostility",
+  "sourceCitation": "Maqlu Ritual Tablet, obv. 77'",
+  "sourceId": "mesopotamian-maqlu",
+  "sourceUrl": "https://oracc.museum.upenn.edu/cmawro/Q002713",
+  "status": "published",
+  "summary": "Fill a jar with salt, dried rosemary and a written line of resolve, seal it, and keep it where hostile words tend to reach you as a reminder that they need not take root.",
+  "tags": [
+    "protection",
+    "resilience",
+    "salt",
+    "waning-moon",
+    "banishing-release"
+  ],
+  "tier": "premium",
+  "timing": "On a waning moon, or after an encounter with hostility. Allow about thirty minutes.",
+  "title": "Salt of the Western Shore: A Jar Against Hostility",
+  "tools": [
+    {
+      "name": "Small glass jar with lid",
+      "quantity": "1",
+      "required": true,
+      "substitution": ""
+    },
+    {
+      "name": "Coarse salt",
+      "quantity": "Enough to fill the jar halfway",
+      "required": true,
+      "substitution": "Table salt"
+    },
+    {
+      "name": "Dried rosemary",
+      "quantity": "1 teaspoon",
+      "required": true,
+      "substitution": "Dried bay leaf"
+    },
+    {
+      "name": "Small slip of paper and pen",
+      "quantity": "1",
+      "required": true,
+      "substitution": ""
+    },
+    {
+      "name": "Label",
+      "quantity": "1",
+      "required": true,
+      "substitution": ""
+    }
+  ],
+  "tradition": "Modern Witchcraft (inspired by the Mesopotamian Maqlû)",
+  "type": "potion"
+}
