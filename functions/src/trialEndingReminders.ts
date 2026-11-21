@@ -7,6 +7,9 @@ import { FcmSenderPort } from "./fcmSenderPort";
 /** Must match the Android notification channel created in the app. */
 export const BILLING_REMINDERS_CHANNEL_ID = "billing_reminders";
 
+/** `data.type` of a trial-ending reminder; the app routes its tap to subscription management. */
+export const BILLING_REMINDER_TYPE = "billing_reminder";
+
 /** Remind once, at the first hourly run within this many hours of the trial ending. */
 export const TRIAL_REMINDER_WINDOW_HOURS = 28;
 
@@ -44,9 +47,16 @@ export function trialEndingCopy(expiryTimeMillis: number, timeZone: string | nul
 }
 
 /**
- * Sends one "your free trial ends soon" push per trial, to each of the
- * user's registered devices that has notifications on, during the first
- * hourly run within TRIAL_REMINDER_WINDOW_HOURS of the trial's end.
+ * Sends one "your free trial ends soon" push per trial, to each device the
+ * user is signed in on (a registered device; signing out unregisters it),
+ * during the first hourly run within TRIAL_REMINDER_WINDOW_HOURS of the
+ * trial's end.
+ *
+ * This is a billing notice, so it does not depend on the daily-practice
+ * switch (`notificationsEnabled` only controls the daily push). Users mute
+ * it with the separate `billing_reminders` Android channel. It is sent as a
+ * data message carrying the account's uid, so the app shows it only while
+ * that same account is still signed in on the device.
  *
  * The `subscriptions/{uid}` record only nominates candidates. Google Play is
  * re-queried for each one before anything is sent, and the reminder is
@@ -89,10 +99,14 @@ export async function sendTrialEndingReminders(
         continue;
       }
       summary.reminded++;
-      const recipients = allDevices.filter((device) => device.uid === candidate.uid && device.notificationsEnabled);
+      // Every device this account is signed in on, whatever its daily-practice choice.
+      const recipients = allDevices.filter((device) => device.uid === candidate.uid);
       for (const device of recipients) {
         const copy = trialEndingCopy(expiry, device.timeZone);
-        const result = await fcm.send(device.token, copy.title, copy.body, BILLING_REMINDERS_CHANNEL_ID);
+        const result = await fcm.send(device.token, copy.title, copy.body, BILLING_REMINDERS_CHANNEL_ID, {
+          dataOnly: true,
+          data: { type: BILLING_REMINDER_TYPE, uid: candidate.uid },
+        });
         if (result.delivered) {
           summary.sent++;
         } else {

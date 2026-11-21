@@ -65,6 +65,47 @@ class ForegroundNotificationPosterTest {
     }
 
     @Test
+    fun `tapping a data-only billing reminder opens Play subscription management, not Today`() {
+        shadowOf(context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        val content = resolveForegroundContent(
+            notificationTitle = null,
+            notificationBody = null,
+            data = mapOf(
+                "type" to BILLING_REMINDER_TYPE,
+                "uid" to "uid-a",
+                "title" to "Your free trial ends soon",
+                "body" to "Ends Jan 7",
+                "channelId" to BILLING_REMINDERS_CHANNEL_ID,
+            ),
+        )!!
+        assertTrue(content.isBillingReminder)
+        assertEquals("uid-a", content.accountUid)
+
+        assertTrue(ForegroundNotificationPoster(context).post(content))
+
+        val reminder = shadowOf(manager).getNotification(BILLING_REMINDER_NOTIFICATION_ID)
+        assertEquals(BILLING_REMINDERS_CHANNEL_ID, reminder.channelId)
+        val tapIntent = shadowOf(reminder.contentIntent).savedIntent
+        assertEquals(Intent.ACTION_VIEW, tapIntent.action)
+        assertEquals(PLAY_SUBSCRIPTIONS_URL, tapIntent.dataString)
+        assertFalse(isOpenTodayRequest(tapIntent))
+        assertNull(tapIntent.component)
+    }
+
+    @Test
+    fun `a billing reminder without a title gets its own fallback title`() {
+        shadowOf(context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+
+        ForegroundNotificationPoster(context).post(
+            ForegroundNotificationContent(title = null, body = "Ends Jan 7", type = BILLING_REMINDER_TYPE),
+        )
+
+        val reminder = shadowOf(manager).getNotification(BILLING_REMINDER_NOTIFICATION_ID)
+        assertEquals("Wiccan subscription reminder", shadowOf(reminder).contentTitle)
+        assertNull(shadowOf(manager).getNotification(DAILY_PRACTICE_NOTIFICATION_ID))
+    }
+
+    @Test
     fun `nothing is posted without POST_NOTIFICATIONS on API 33+`() {
         shadowOf(context).denyPermissions(Manifest.permission.POST_NOTIFICATIONS)
 
