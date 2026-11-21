@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan.ui.auth
 
+import com.jaimesorrow.wiccan.domain.model.AuthState
 import com.wiccan.app.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -9,7 +10,9 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -68,5 +71,51 @@ class OnboardingViewModelTest {
         viewModel.completeProfile() // blank names -> validation notice
         viewModel.onStepShown(OnboardingStep.PROFILE)
         assertEquals(R.string.onboarding_notice_name_invalid, viewModel.state.value.notice)
+    }
+
+    @Test
+    fun `names and notices are cleared when the account changes`() = runTest(dispatcher) {
+        val repository = FakeAuthRepository()
+        repository.setAuthState(AuthState.SignedIn("uid-a"))
+        val viewModel = OnboardingViewModel(repository)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onStepShown(OnboardingStep.PROFILE)
+        viewModel.setFirstName("Alice")
+        viewModel.setLastName("Ash")
+        viewModel.completeProfile()
+        dispatcher.scheduler.advanceUntilIdle()
+
+        repository.setAuthState(AuthState.SignedOut)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        val state = viewModel.state.value
+        assertEquals("", state.firstName)
+        assertEquals("", state.lastName)
+        assertNull(state.notice)
+        assertEquals(OnboardingStep.PROFILE, state.step)
+    }
+
+    @Test
+    fun `a request that completes after the account changed leaves the new account's form alone`() = runTest(dispatcher) {
+        val repository = FakeAuthRepository()
+        repository.verificationDelayMs = 5_000
+        repository.setAuthState(AuthState.SignedIn("uid-a"))
+        val viewModel = OnboardingViewModel(repository)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onStepShown(OnboardingStep.VERIFY_EMAIL)
+
+        viewModel.resendVerification() // started for A
+        dispatcher.scheduler.runCurrent()
+        assertTrue(viewModel.state.value.busy)
+
+        repository.setAuthState(AuthState.SignedIn("uid-b"))
+        dispatcher.scheduler.runCurrent()
+        assertFalse(viewModel.state.value.busy)
+        viewModel.setFirstName("Bram")
+        dispatcher.scheduler.advanceUntilIdle() // A's request finishes now
+
+        assertNull(viewModel.state.value.notice)
+        assertFalse(viewModel.state.value.busy)
+        assertEquals("Bram", viewModel.state.value.firstName)
     }
 }
