@@ -76,7 +76,10 @@ class FakeAuthRepository : AuthRepository {
     override fun currentEmail(): String? = "test@example.com"
 
     var profileName: ProfileName? = null
-    override suspend fun currentProfileName(): ProfileName? = profileName
+
+    /** Override to delay the read or answer per signed-in account. */
+    var profileNameReader: suspend () -> ProfileName? = { profileName }
+    override suspend fun currentProfileName(): ProfileName? = profileNameReader()
     override suspend fun requestEmailUpdate(email: String): AppResult<Unit> = AppResult.Success(Unit)
 
     override suspend fun signOut(): AppResult<Unit> {
