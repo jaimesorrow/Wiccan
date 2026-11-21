@@ -42,12 +42,16 @@ class PolicyAcceptanceViewModel @Inject constructor(
     /** Set once the user touches the analytics box, so the late stored value never overrides them. */
     private var analyticsChoiceEdited = false
 
+    /** Bumped on every account change; a submission started for an earlier account must not finish. */
+    private var accountGeneration = 0
+
     init {
         // A returning user re-accepting updated policies keeps their earlier analytics choice.
         viewModelScope.launch { loadStoredAnalyticsChoice() }
         // Activity-scoped: another account must tick the agreements itself.
         viewModelScope.launch {
             authRepository.accountChanges().collect {
+                accountGeneration++
                 analyticsChoiceEdited = false
                 _state.value = PolicyAcceptanceUiState()
                 loadStoredAnalyticsChoice()
@@ -76,13 +80,21 @@ class PolicyAcceptanceViewModel @Inject constructor(
     private fun acceptTerms() {
         // The button is disabled until every agreement is checked; this guards the event itself too.
         if (!_state.value.canContinue) return
+        val generation = accountGeneration
+        val shareAnalytics = _state.value.shareAnalytics
         _state.update { it.copy(isSubmitting = true) }
         viewModelScope.launch {
             // Analytics is optional: a failed save never blocks accepting the policies.
-            if (!analyticsConsentManager.setConsent(_state.value.shareAnalytics)) {
+            val consentSaved = analyticsConsentManager.setConsent(shareAnalytics)
+            // The account changed while saving: never accept policies for an
+            // account that didn't tick them, and leave its fresh form alone.
+            if (generation != accountGeneration) return@launch
+            if (!consentSaved) {
                 effectChannel.send(PolicyAcceptanceUiEffect.ShowSnackbar(CONSENT_NOT_SAVED))
             }
-            when (val result = authRepository.acceptTerms()) {
+            val result = authRepository.acceptTerms()
+            if (generation != accountGeneration) return@launch
+            when (result) {
                 is AppResult.Success -> _state.update { it.copy(isSubmitting = false) }
                 is AppResult.Failure -> {
                     _state.update { it.copy(isSubmitting = false) }
