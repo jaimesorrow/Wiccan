@@ -4,6 +4,7 @@ import android.content.Context
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.model.AccountStatus
 import com.jaimesorrow.wiccan.domain.model.AuthState
+import com.jaimesorrow.wiccan.domain.model.ProfileName
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -51,6 +52,9 @@ interface AuthRepository {
     suspend fun refreshEmailVerification(): AppResult<Unit>
     suspend fun completeProfile(firstName: String, lastName: String): AppResult<Unit>
     fun currentEmail(): String?
+
+    /** The signed-in user's saved name, or null if signed out or it can't be read. Never throws. */
+    suspend fun currentProfileName(): ProfileName?
     suspend fun requestEmailUpdate(email: String): AppResult<Unit>
 
     suspend fun signOut(): AppResult<Unit>

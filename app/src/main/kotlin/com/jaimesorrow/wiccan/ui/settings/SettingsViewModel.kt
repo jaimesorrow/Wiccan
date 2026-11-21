@@ -42,6 +42,18 @@ class SettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            // Prefill the name fields with what's saved, unless the user already started typing.
+            authRepository.currentProfileName()?.let { saved ->
+                _state.update {
+                    if (it.firstName.isEmpty() && it.lastName.isEmpty()) {
+                        it.copy(firstName = saved.firstName, lastName = saved.lastName)
+                    } else {
+                        it
+                    }
+                }
+            }
+        }
+        viewModelScope.launch {
             subscriptionRepository.observeTier().collect { tier ->
                 _state.update { it.copy(tier = tier) }
             }

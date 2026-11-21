@@ -7,6 +7,7 @@ import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.data.local.ThemePreferences
 import com.jaimesorrow.wiccan.domain.model.ContentTier
+import com.jaimesorrow.wiccan.domain.model.ProfileName
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
 import com.jaimesorrow.wiccan.domain.repository.NotificationRepository
 import com.jaimesorrow.wiccan.domain.usecase.DeleteAccountUseCase
@@ -81,6 +82,37 @@ class SettingsViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
         coVerify { consentManager.setConsent(false) }
     }
+
+    @Test
+    fun `name fields are prefilled with the saved profile name`() = runTest(dispatcher) {
+        repository.profileName = ProfileName("Raven", "Moon")
+        val viewModel = newViewModel()
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals("Raven", viewModel.state.value.firstName)
+        assertEquals("Moon", viewModel.state.value.lastName)
+    }
+
+    @Test
+    fun `prefill never overwrites what the user already typed`() = runTest(dispatcher) {
+        repository.profileName = ProfileName("Raven", "Moon")
+        val viewModel = newViewModel()
+        viewModel.onEvent(SettingsUiEvent.FirstNameChanged("Ash"))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals("Ash", viewModel.state.value.firstName)
+        assertEquals("", viewModel.state.value.lastName)
+    }
+
+    private fun newViewModel() = SettingsViewModel(
+        repository,
+        DeleteAccountUseCase(repository, mockk(relaxed = true)),
+        subscriptionRepository,
+        notificationRepository,
+        themePreferences,
+        wiccanWidgetUpdater,
+        consentManager,
+    )
 
     @After
     fun tearDown() {

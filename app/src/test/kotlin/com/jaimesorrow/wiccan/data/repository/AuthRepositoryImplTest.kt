@@ -4,13 +4,16 @@ import android.content.Context
 import android.content.res.Resources
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.NoCredentialException
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.data.remote.AccountFunctionsDataSource
 import com.jaimesorrow.wiccan.data.remote.GoogleCredentialDataSource
+import com.jaimesorrow.wiccan.domain.model.ProfileName
 import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -20,6 +23,7 @@ import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -148,5 +152,45 @@ class AuthRepositoryImplTest {
     private fun configureGoogleClient() {
         every { resources.getIdentifier("default_web_client_id", "string", "com.jaimesorrow.wiccan") } returns 1
         every { appContext.getString(1) } returns "configured-client.apps.googleusercontent.com"
+    }
+
+    private fun userDoc(uid: String, task: Task<DocumentSnapshot>) {
+        val user: FirebaseUser = mockk()
+        every { user.uid } returns uid
+        every { firebaseAuth.currentUser } returns user
+        every { firestore.collection("users").document(uid).get() } returns task
+    }
+
+    private fun completedTask(snapshot: DocumentSnapshot?, error: Exception? = null): Task<DocumentSnapshot> {
+        val task: Task<DocumentSnapshot> = mockk()
+        every { task.isComplete } returns true
+        every { task.isCanceled } returns false
+        every { task.exception } returns error
+        every { task.result } returns snapshot
+        return task
+    }
+
+    @Test
+    fun `profile name is read from the signed-in user's document`() = runTest {
+        val snapshot: DocumentSnapshot = mockk()
+        every { snapshot.getString("firstName") } returns "Raven"
+        every { snapshot.getString("lastName") } returns "Moon"
+        userDoc("uid-1", completedTask(snapshot))
+
+        assertEquals(ProfileName("Raven", "Moon"), repository.currentProfileName())
+    }
+
+    @Test
+    fun `profile name is null when signed out, blank, or unreadable`() = runTest {
+        every { firebaseAuth.currentUser } returns null
+        assertNull(repository.currentProfileName())
+
+        val blank: DocumentSnapshot = mockk()
+        every { blank.getString(any()) } returns null
+        userDoc("uid-2", completedTask(blank))
+        assertNull(repository.currentProfileName())
+
+        userDoc("uid-3", completedTask(null, IllegalStateException("offline")))
+        assertNull(repository.currentProfileName())
     }
 }

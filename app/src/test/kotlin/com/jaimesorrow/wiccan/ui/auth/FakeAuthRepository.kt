@@ -4,6 +4,7 @@ import android.content.Context
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.model.AccountStatus
 import com.jaimesorrow.wiccan.domain.model.AuthState
+import com.jaimesorrow.wiccan.domain.model.ProfileName
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,6 +74,9 @@ class FakeAuthRepository : AuthRepository {
     override suspend fun completeProfile(firstName: String, lastName: String): AppResult<Unit> = AppResult.Success(Unit)
 
     override fun currentEmail(): String? = "test@example.com"
+
+    var profileName: ProfileName? = null
+    override suspend fun currentProfileName(): ProfileName? = profileName
     override suspend fun requestEmailUpdate(email: String): AppResult<Unit> = AppResult.Success(Unit)
 
     override suspend fun signOut(): AppResult<Unit> {
