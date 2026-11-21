@@ -512,3 +512,8 @@ main { padding-bottom: 40px; }
   .meta { color: #000; border-color: #000; }
   a { color: #000; }
 }
+
+/* Spell-map promo card (homepage) */
+.promo { margin: 0 auto; max-width: 1100px; text-align: center; }
+.promo a { display: block; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--outline); }
+.promo img { display: block; width: 100%; height: auto; }
