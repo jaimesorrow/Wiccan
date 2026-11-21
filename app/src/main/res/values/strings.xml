@@ -268,4 +268,5 @@
     <string name="widget_description">A moonlit shortcut to today\'s practice.</string>
     <string name="notification_channel_daily_name">Daily practice</string>
     <string name="notification_channel_daily_description">A note when the day\'s spell, potion, or lesson is ready.</string>
+    <string name="notification_daily_default_title">Today\'s practice awaits</string>
 </resources>
