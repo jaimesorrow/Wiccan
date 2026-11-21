@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan.ui.auth
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -67,6 +68,9 @@ fun SignInScreen(
     val context = LocalContext.current
     val resources = LocalResources.current
     val snackbarHostState = remember { SnackbarHostState() }
+    BackHandler(enabled = state.mode == SignInMode.FORGOT_PASSWORD) {
+        viewModel.onEvent(SignInUiEvent.BackToSignIn)
+    }
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
