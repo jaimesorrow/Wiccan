@@ -1,6 +1,7 @@
 package com.jaimesorrow.wiccan.ui.paywall
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -8,12 +9,16 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,8 +79,39 @@ class PaywallScreenPlanCardsTest {
         composeRule.onNodeWithText("Then $5.99 per month. Auto-renews until canceled.").assertIsDisplayed()
     }
 
-    private fun launch(yearlyOffer: SubscriptionOffer?): PaywallViewModel {
-        val repository = FakeSubscriptionRepository().apply { this.yearlyOffer = yearlyOffer }
+    @Test
+    fun `a resume refresh keeps the plans and the scroll position`() {
+        val repository = FakeSubscriptionRepository().apply { this.yearlyOffer = yearly }
+        val viewModel = launch(repository)
+        composeRule.onNodeWithTag("paywall-plan-monthly").performScrollTo()
+        composeRule.onNodeWithTag("paywall-scroll").performTouchInput { swipeUp() }
+        composeRule.waitForIdle()
+        val scrolledTo = scrollOffset()
+        assertTrue("the screen should have scrolled", scrolledTo > 0f)
+
+        val gate = CompletableDeferred<Unit>()
+        repository.offerGate = gate
+        composeRule.runOnIdle { viewModel.refreshOffer() }
+        composeRule.waitForIdle()
+
+        // Mid-refresh: both cards are still there, nothing jumped back to the top.
+        composeRule.onNodeWithTag("paywall-plan-yearly").assertExists()
+        composeRule.onNodeWithTag("paywall-plan-monthly").assertExists()
+        assertEquals(scrolledTo, scrollOffset(), 0.5f)
+
+        gate.complete(Unit)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("paywall-plan-yearly").assertExists()
+        assertEquals(scrolledTo, scrollOffset(), 0.5f)
+    }
+
+    private fun scrollOffset(): Float = composeRule.onNodeWithTag("paywall-scroll")
+        .fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange].value()
+
+    private fun launch(yearlyOffer: SubscriptionOffer?): PaywallViewModel =
+        launch(FakeSubscriptionRepository().apply { this.yearlyOffer = yearlyOffer })
+
+    private fun launch(repository: FakeSubscriptionRepository): PaywallViewModel {
         val viewModel = PaywallViewModel(repository, mockk<AnalyticsLogger>(relaxed = true))
         composeRule.setContent {
             MaterialTheme {
