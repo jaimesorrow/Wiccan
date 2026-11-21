@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
+import com.jaimesorrow.wiccan.domain.model.AuthState
 import com.jaimesorrow.wiccan.ui.auth.FakeAuthRepository
 import com.wiccan.app.R
 import io.mockk.coEvery
@@ -172,5 +173,23 @@ class PolicyAcceptanceViewModelTest {
             cancelAndConsumeRemainingEvents()
         }
         assertEquals(1, repository.acceptTermsCallCount)
+    }
+
+    @Test
+    fun `agreements ticked by one account are cleared for the next`() = runTest(dispatcher) {
+        repository.setAuthState(AuthState.SignedIn("uid-a"))
+        dispatcher.scheduler.advanceUntilIdle()
+        agreeToAll()
+        viewModel.onEvent(PolicyAcceptanceUiEvent.ShareAnalyticsChanged(true))
+        assertTrue(viewModel.state.value.canContinue)
+
+        repository.setAuthState(AuthState.SignedOut)
+        dispatcher.scheduler.advanceUntilIdle()
+        repository.setAuthState(AuthState.SignedIn("uid-b"))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(emptySet<PolicyAgreement>(), viewModel.state.value.agreed)
+        assertFalse(viewModel.state.value.canContinue)
+        assertFalse(viewModel.state.value.shareAnalytics) // reloaded from the stored choice
     }
 }

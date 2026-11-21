@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan.ui.auth
 
+import com.jaimesorrow.wiccan.domain.model.AuthState
 import com.wiccan.app.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -68,5 +69,27 @@ class OnboardingViewModelTest {
         viewModel.completeProfile() // blank names -> validation notice
         viewModel.onStepShown(OnboardingStep.PROFILE)
         assertEquals(R.string.onboarding_notice_name_invalid, viewModel.state.value.notice)
+    }
+
+    @Test
+    fun `names and notices are cleared when the account changes`() = runTest(dispatcher) {
+        val repository = FakeAuthRepository()
+        repository.setAuthState(AuthState.SignedIn("uid-a"))
+        val viewModel = OnboardingViewModel(repository)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onStepShown(OnboardingStep.PROFILE)
+        viewModel.setFirstName("Alice")
+        viewModel.setLastName("Ash")
+        viewModel.completeProfile()
+        dispatcher.scheduler.advanceUntilIdle()
+
+        repository.setAuthState(AuthState.SignedOut)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        val state = viewModel.state.value
+        assertEquals("", state.firstName)
+        assertEquals("", state.lastName)
+        assertNull(state.notice)
+        assertEquals(OnboardingStep.PROFILE, state.step)
     }
 }

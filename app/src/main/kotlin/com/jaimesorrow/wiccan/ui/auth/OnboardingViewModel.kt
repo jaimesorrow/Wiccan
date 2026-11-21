@@ -36,6 +36,13 @@ class OnboardingViewModel @Inject constructor(
     private val _state = MutableStateFlow(OnboardingUiState())
     val state: StateFlow<OnboardingUiState> = _state.asStateFlow()
 
+    init {
+        // Activity-scoped: never show one account's typed names or notices to the next.
+        viewModelScope.launch {
+            authRepository.accountChanges().collect { _state.update { OnboardingUiState(step = it.step) } }
+        }
+    }
+
     /**
      * The same ViewModel serves both the verify-email and name steps. A notice
      * raised on one step (e.g. "Confirm your email before continuing") must not

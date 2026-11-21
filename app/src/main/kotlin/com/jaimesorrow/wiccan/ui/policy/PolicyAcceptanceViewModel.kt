@@ -6,6 +6,7 @@ import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
+import com.jaimesorrow.wiccan.ui.auth.accountChanges
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
@@ -43,10 +44,20 @@ class PolicyAcceptanceViewModel @Inject constructor(
 
     init {
         // A returning user re-accepting updated policies keeps their earlier analytics choice.
+        viewModelScope.launch { loadStoredAnalyticsChoice() }
+        // Activity-scoped: another account must tick the agreements itself.
         viewModelScope.launch {
-            val stored = runCatching { analyticsConsentManager.consent.first() }.getOrDefault(false)
-            if (!analyticsChoiceEdited) _state.update { it.copy(shareAnalytics = stored) }
+            authRepository.accountChanges().collect {
+                analyticsChoiceEdited = false
+                _state.value = PolicyAcceptanceUiState()
+                loadStoredAnalyticsChoice()
+            }
         }
+    }
+
+    private suspend fun loadStoredAnalyticsChoice() {
+        val stored = runCatching { analyticsConsentManager.consent.first() }.getOrDefault(false)
+        if (!analyticsChoiceEdited) _state.update { it.copy(shareAnalytics = stored) }
     }
 
     fun onEvent(event: PolicyAcceptanceUiEvent) {

@@ -4,6 +4,7 @@ import android.content.Context
 import app.cash.turbine.test
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
+import com.jaimesorrow.wiccan.domain.model.AuthState
 import com.wiccan.app.R
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -203,5 +204,38 @@ class SignInViewModelTest {
             expectNoEvents()
         }
         assertFalse(viewModel.state.value.isLoading)
+    }
+
+    @Test
+    fun `after sign-out the form is back on Sign In with nothing from the previous account`() = runTest(dispatcher) {
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(SignInUiEvent.ToggleMode)
+        viewModel.onEvent(SignInUiEvent.EmailChanged("previous@example.com"))
+        viewModel.onEvent(SignInUiEvent.PasswordChanged("hunter22"))
+        viewModel.onEvent(SignInUiEvent.ConfirmPasswordChanged("hunter22"))
+        viewModel.onEvent(SignInUiEvent.TogglePasswordVisibility)
+        assertEquals(SignInMode.CREATE_ACCOUNT, viewModel.state.value.mode)
+
+        repository.setAuthState(AuthState.SignedIn("uid-a"))
+        dispatcher.scheduler.advanceUntilIdle()
+        repository.setAuthState(AuthState.SignedOut)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        val state = viewModel.state.value
+        assertEquals(SignInMode.SIGN_IN, state.mode)
+        assertEquals("", state.email)
+        assertEquals("", state.password)
+        assertEquals("", state.confirmPassword)
+        assertFalse(state.isPasswordVisible)
+        assertTrue(state.isGoogleSignInAvailable)
+    }
+
+    @Test
+    fun `typing while signed out is kept until the account actually changes`() = runTest(dispatcher) {
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(SignInUiEvent.EmailChanged("witch@example.com"))
+        repository.setAuthState(AuthState.SignedOut) // same state again: no reset
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals("witch@example.com", viewModel.state.value.email)
     }
 }
