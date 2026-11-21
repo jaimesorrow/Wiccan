@@ -73,7 +73,7 @@ class LegalDocumentsTest {
     @Test
     fun `safety guidance rejects hazardous and professional uses`() {
         val text = WiccanLegalDocuments.contentSafety.auditText()
-        listOf("ingest", "burn", "poison control", "emergency", "consent", "human")
+        listOf("ingest", "burn", "poison control", "emergency", "consent", "automated and AI review")
             .forEach { required -> assertTrue("Missing safety guidance: $required", text.contains(required, true)) }
     }
 

@@ -51,7 +51,7 @@ These answers reflect the current code. Re-audit if functionality or SDKs change
 | App access restricted | **Yes** | Sign-in, policy acceptance and an active subscription or trial gate the app. Supply reviewer instructions and credentials. |
 | User-generated content | **No** | Users cannot post, message, upload, or share content. |
 | Social/chat features | **No** | No user-to-user interaction. |
-| User-facing generative AI | **No** | The app cannot generate content. An operator-only offline tool creates ancient-grimoire-grounded drafts for human review. This is an inference from the current Play definition; recheck if generation is ever exposed in-app. |
+| User-facing generative AI | **No** | The app cannot generate content. An operator tool drafts lessons from historical source passages; they are published after an automated and AI review under the owner's authorization. This is an inference from the current Play definition; recheck if generation is ever exposed in-app. |
 | News app | **No** | Historical/spiritual daily content, not news. |
 | Government app | **No** | No government affiliation or service. |
 | Health app declaration | **Recommended: No health features** | Wiccan is educational/spiritual reflection and disclaims diagnosis/treatment. Confirm that the store listing and every published lesson avoid health/medical claims; otherwise reassess. |
@@ -168,7 +168,7 @@ Terms/Privacy changes. The operator is Jaime Sorrow (individual developer, Alask
 
 ## Terms, user responsibilities, and screen placement
 
-Native policy version 4 includes Wiccan-specific terms and disclosures:
+Native policy version 5 includes Wiccan-specific terms and disclosures:
 
 - historical, educational, and spiritual-reflection purpose;
 - an explicit “No promise or guarantee of results” section: no spell, potion,
@@ -178,8 +178,10 @@ Native policy version 4 includes Wiccan-specific terms and disclosures:
 - no ingestion, inhalation, topical use, burning, or mixing of unknown or
   hazardous materials; fire, ventilation, allergy, poison-control, wildlife,
   property, consent, and local-law responsibilities;
-- AI-assisted drafts are limited to vetted ancient-grimoire records and require
-  human source, duplication, safety, and rights review before publication;
+- AI-assisted drafts are drawn from historical grimoires and ancient magical texts
+  and are published after an automated and AI review under the owner's authorization,
+  checking source citation, that each lesson is a full step-by-step practice, and
+  safety, rights, and originality;
 - recurring Play billing, localized price/period, cancellation, continued access
   through the paid period, refunds, restoration, and account-deletion effects;
 - privacy categories, processors, no sale/no ads, security, retention, deletion,
@@ -194,7 +196,7 @@ Placement is intentionally layered:
 | Paywall | Terms and Privacy sit beside the localized recurring price and renewal/cancellation disclosure. |
 | Settings | Permanent access to Terms, Privacy, Content & Safety, support, subscription management, and account deletion. |
 
-Android and Functions policy constants are both version `4`
+Android and Functions policy constants are both version `5`
 (`PolicyVersions` and `functions/src/policyVersions.ts`); any future material
 change must bump the applicable versions together.
 
