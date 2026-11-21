@@ -26,7 +26,15 @@ Policy versions today: `PolicyVersions.kt` and `functions/src/policyVersions.ts`
 
 ### App changes (done in the draft PR)
 - `SubscriptionPlan { MONTHLY, YEARLY }`; `SubscriptionOffer` gains `plan`, `priceAmountMicros`, `priceCurrencyCode` (defaults keep old call sites valid).
-- `subscriptionOffer()` validates per product: monthly = `P1M` + USD 5,990,000 (unchanged); yearly = `P1Y` + USD 39,990,000 (`PREMIUM_YEARLY_USD_PRICE_MICROS`). Any other USD price fails closed; non-USD prices are Play's localized prices and are shown as Play formats them.
+- `subscriptionOffer()` validates per product: monthly = `P1M`, yearly = `P1Y`, auto-renewing, with an optional 7-day free trial. Any other shape fails closed. The price is **not** pinned any more; see "Price guard" below.
+
+### Price guard (decision, review fix #7)
+- **Choice: relax the guard and keep one documented constant.** The paywall shows and sells whatever price Google Play returns in `ProductDetails` (`formattedPrice`, `priceAmountMicros`). A Play Console price change can no longer hide a plan or make the paywall say "Subscription unavailable".
+- The US base prices quoted in the Terms live in exactly one place: `app/.../billing/TermsBasePrices.kt` (`MONTHLY_USD_MICROS = 5_990_000`, `YEARLY_USD_MICROS = 39_990_000`). They are reference values, never a gate.
+- `LegalDocumentsTest` builds the expected Terms sentences from `TermsBasePrices`, so changing a constant fails the build until the Terms text changes too.
+- What still protects the buyer: `requireUnchangedOffer()` re-reads Play just before checkout and refuses to buy if the offer (price, trial, token) differs from what the screen showed, so nobody is charged a price they did not see. The savings line and per-month figure are computed from Play's live micros, same currency only.
+- Why not remote config: it adds a fetch, a failure mode and a second source of truth for a number Play already returns. Revisit only if the paywall needs to compare against a price it cannot get from Play.
+- To change a price: Play Console first, then `TermsBasePrices`, the Terms in `LegalDocuments.kt` and `hosting/terms.html`, and bump `PolicyVersions` (app, functions, `firestore.rules`, `scripts/release-preflight.sh`).
 - `SubscriptionRepository.getYearlyOffer()` returns `null` if Play has no valid yearly product, so a missing yearly plan never breaks the monthly checkout. `launchPurchaseFlow(activity, plan = MONTHLY)` uses the offer loaded for that plan and account.
 - `billing/PlanValue.kt`: per-month equivalent ($39.99 → "$3.33", rounded down) and saving vs 12× monthly (44%, rounded down; only when both prices are in the same currency).
 - Paywall becomes a conversion screen (see 1a).
@@ -37,8 +45,10 @@ Policy versions today: `PolicyVersions.kt` and `functions/src/policyVersions.ts`
   - A guided rite each dawn, with clear steps from candle to close
   - Rites for the moon's phases and the eight sabbats of the turning year — **hidden behind `SEASONAL_RITES_LIVE = false` until item 3's content is live**, so the screen never promises something the app lacks
   - Drawn from historical grimoires and magical papyri, with sources cited where available (matches the "cited where available" wording from PR #190)
-- **Choose your plan** (plain): Yearly card first, preselected, badge "Best value", "$39.99 / year", "Works out to $3.33 / month, billed once a year", "Save 44% compared with paying monthly", "7-day free trial" (only if Play says this account is eligible). Monthly card second: "$5.99 / month", "Billed every month", trial badge if eligible.
-- Bottom (plain, fixed): the selected plan's terms ("7 days free" / "Then $39.99 per year. Auto-renews until canceled."), CTA "Start My 7-Day Free Trial" or "Continue to Subscription", Restore Purchases, and the full disclosure ("No charge during the 7-day trial. Google Play charges $39.99 yearly after the trial unless canceled before it ends. Cancel anytime through Google Play."), Terms and Privacy links.
+- **Choose your plan** (plain): Yearly card first, preselected, badge "Best value", "$39.99 / year", "$3.33 / month, billed once a year · Save 44% vs. monthly · 7-day free trial" on one detail line, "7-day free trial" (only if Play says this account is eligible). Monthly card second: "$5.99 / month", "Billed every month", trial badge if eligible.
+- Layout (review fix #1): one scrolling column with a **sticky checkout footer**. Order in the scroll: small logo, headline, **Choose your plan** (both cards), the full disclosure ("No charge during the 7-day trial. Google Play charges $39.99 yearly after the trial unless canceled before it ends. Cancel anytime through Google Play."), Restore Purchases, then the body line, "Within the grimoire" and Terms/Privacy links. Both cards are on screen without scrolling on a 411x891 phone at 100/130/150% text, and each scrolls fully into view at 320x533 (`PaywallPlanCardsLayoutTest`).
+- Sticky footer (plain): the selected plan named with its price and period, e.g. "Yearly: 7 days free, then $39.99/year" + "Auto-renews until canceled. Cancel anytime in Google Play.", or without a trial "Yearly: $39.99/year" + "Billed $39.99 every year. Auto-renews until canceled." (Play's formatted price, never hardcoded), and the CTA "Start My 7-Day Free Trial" or "Continue to Subscription".
+- Returning to the screen re-reads the offers in the background; the plans on screen stay put (no spinner, flash or scroll jump) and a failed refresh keeps them.
 - No countdowns, no fake urgency, no struck-through "was" prices, no pre-checked add-ons. All numbers come from Play at runtime.
 - If the yearly product isn't available, the screen falls back to the exact monthly-only flow of 1.0.
 
@@ -59,11 +69,11 @@ Replace the "Subscriptions and billing" opening in `LegalDocuments.kt` **and** `
 > "If a trial is offered, cancel before its end to avoid the first charge for your plan. ..."
 - `hosting/index.html` FAQ: "bills monthly" → "bills monthly or yearly, depending on the plan you choose".
 - Privacy: no change for item 1 (same data, same product type).
-- The draft PR deliberately does **not** edit legal text yet, to avoid conflicting with #190's v5. After #190 merges, rebase and make this change in the same v6 bump as item 2's privacy line.
+- **Done in the review-fix PR (v6):** Terms and Privacy are at version 6 in `PolicyVersions.kt`, `policyVersions.ts`, `firestore.rules`, `scripts/release-preflight.sh`, `scripts/e2e-emulator.mjs`, the rules tests and `hosting/`. The Terms list both plans with their US base prices, trial, auto-renewal and cancel terms; Privacy mentions the trial-ending reminder. Set the effective date when v1.1 ships (it still reads November 21, 2026). Deploying the v6 rules makes every existing user re-accept, so deploy them only with the v1.1 app.
 
 ### Tests
 - Unit (in PR): `SubscriptionOfferTest` (yearly accepted at $39.99, wrong USD price rejected, yearly never accepts monthly terms), `PlanValueTest` ($3.33, 44%, currency mismatch, JPY), `SubscriptionRepositoryImplTest` (missing yearly hides plan, yearly launch uses yearly product, yearly restore verifies as yearly), `PaywallViewModelTest` (monthly-only fallback, yearly preselected, user choice survives refresh, per-plan trial eligibility).
-- Beta: Compose UI test for the plan cards (selection, TalkBack state "Selected", RadioButton role), plus a screenshot test in each of the six palettes.
+- Beta: Compose UI test for the plan cards (selection and the RadioButton role, which TalkBack reads as selected or not selected), plus a screenshot test in each of the six palettes.
 - License-tester purchases on internal testing: yearly with trial, yearly without trial (second account that already had a trial), monthly unchanged, restore on a second device, cancel during trial, refund.
 
 ### Risks
@@ -86,7 +96,7 @@ Replace the "Subscriptions and billing" opening in `LegalDocuments.kt` **and** `
   - candidates: `inFreeTrial == true` and trial ending within **28 hours**;
   - re-queries Google Play first and only sends if Play still reports active + auto-renewing + free-trial phase with the same end time. A user who already canceled gets nothing, because no charge is coming;
   - claims `trialReminderSentForExpiry` in a transaction **before** sending, so a retried or overlapping run never double-sends;
-  - sends to each of the user's devices with notifications on, on a new Android channel **`billing_reminders`** ("Trial and billing reminders"), so users can mute the daily push and keep this one, or the other way round;
+  - sends to each device the user is signed in on (not tied to the daily switch; see "Changed" below), on a new Android channel **`billing_reminders`** ("Trial and billing reminders"), so users can mute the daily push and keep this one, or the other way round;
   - honors the `systemConfig/global.notificationsEnabled` kill switch.
 - Copy (plain): **"Your free trial ends soon"** / "Your Wiccan free trial ends Jan 7, 8:00 PM AKST. Unless you cancel before then, Google Play will start your subscription and charge the price shown when you signed up. Manage it in Google Play > Payments & subscriptions > Subscriptions." The time is in the device's own time zone.
 - App: channel created in `WiccanApplication`; `ForegroundNotificationPoster` uses the channel the server named and a separate notification ID (1002), so the reminder never replaces the daily push.
@@ -102,7 +112,7 @@ Replace the "Subscriptions and billing" opening in `LegalDocuments.kt` **and** `
 
 ### Policy text — Privacy change (rides the same v6 bump as item 1)
 - `LegalDocuments.kt:255` and `hosting/privacy.html:43`: "The app requests only the notification permission, for the optional daily reminder." → "…for the optional daily reminder and, during a free trial, a reminder before the trial ends." Purposes paragraph: already lists "deliver requested notifications"; add "remind you before a free trial ends". No new data is collected (FCM token and time zone already declared). The Data safety form is unchanged.
-- Decision for Jaime: the reminder currently goes **only to devices with notifications on**, because it reuses the daily opt-in. Sending it even to users who turned the daily reminder off would be friendlier on billing, but it needs a separate Settings toggle and clearer privacy text.
+- **Changed (review fix #3):** the reminder no longer depends on the daily-practice switch. The server sends it to every device the account is signed in on (signing out unregisters the device), as a high-priority **data-only** message carrying `type: billing_reminder` and the account `uid`. The app draws it itself in every app state and shows it only while that same account is signed in (the #187 rule), and the `billing_reminders` Android channel is how users mute it. Tapping it opens Google Play's subscription management (`https://play.google.com/store/account/subscriptions`); its fallback title is "Wiccan subscription reminder".
 
 ### Tests
 - In PR: `trialEndingReminders.test.ts` (8 cases: sends once per trial per device, in the device's time zone; no repeat; skips canceled trials; skips stale converted records; window; opt-out and dead token; Play failure isolation; UTC fallback), `googlePlayBillingRepository.test.ts` (free-trial phase only from a premium line item), `verifyPurchase.test.ts` (trial recorded), `handleRtdn.test.ts` (yearly conversion clears trial; grace/hold), `ForegroundNotificationPosterTest` (billing channel, separate ID).
