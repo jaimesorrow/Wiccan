@@ -22,7 +22,7 @@ import {
 const OWNER = "owner";
 const OTHER = "other";
 const HISTORY_PATH = `userContentHistory/${OWNER}_2026-10-06`;
-const CURRENT_POLICIES = { acceptedTermsVersion: 4, acceptedPrivacyVersion: 4 };
+const CURRENT_POLICIES = { acceptedTermsVersion: 5, acceptedPrivacyVersion: 5 };
 const ACTIVE_SUBSCRIBER = { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000, ...CURRENT_POLICIES };
 const LEGACY_HISTORY = {
   userId: OWNER,
@@ -223,8 +223,8 @@ describe("delivered published-content read policy", () => {
     { tier: "premium", subscriptionExpiresAtMillis: "2099" },
     { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000, deletionInProgress: true },
     { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 },
-    { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: 3 },
-    { ...ACTIVE_SUBSCRIBER, acceptedPrivacyVersion: 3 },
+    { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: 4 },
+    { ...ACTIVE_SUBSCRIBER, acceptedPrivacyVersion: 4 },
   ]) {
     it(`blocks all lesson and history access for inactive profiles ${JSON.stringify(fields)}`, async () => {
       await environment.withSecurityRulesDisabled(async (context) => {
