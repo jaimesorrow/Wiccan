@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Status-bar icon: a white crescent moon (status icons must be single-colour with alpha). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12.5,2.5C7.25,2.5 3,6.75 3,12s4.25,9.5 9.5,9.5c3.1,0 5.85,-1.48 7.58,-3.78C19.4,17.9 18.7,18 18,18c-4.42,0 -8,-3.58 -8,-8c0,-3.05 1.71,-5.7 4.22,-7.05C13.66,2.66 13.09,2.5 12.5,2.5z" />
+</vector>
