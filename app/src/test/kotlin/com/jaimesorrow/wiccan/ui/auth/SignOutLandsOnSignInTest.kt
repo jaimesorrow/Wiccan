@@ -11,7 +11,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import com.jaimesorrow.wiccan.domain.model.AuthState
-import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,7 +29,7 @@ class SignOutLandsOnSignInTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun `after sign-out the Sign In screen shows, with no previous email, and Back isn't intercepted`() {
+    fun `after sign-out the Sign In screen shows with no previous email`() {
         val auth = FakeAuthRepository()
         val viewModel = SignInViewModel(auth)
         composeRule.setContent { MaterialTheme { SignInScreen(viewModel = viewModel) } }
@@ -49,10 +48,7 @@ class SignOutLandsOnSignInTest {
         composeRule.onNodeWithText("Welcome back.").assertIsDisplayed()
         composeRule.onNodeWithText("Begin your path.").assertDoesNotExist()
         composeRule.onNodeWithText("previous@example.com").assertDoesNotExist()
-        // Nothing on the signed-out screen handles Back, so it leaves the app
-        // instead of returning to a signed-in screen.
-        composeRule.runOnIdle {
-            assertFalse(composeRule.activity.onBackPressedDispatcher.hasEnabledCallbacks())
-        }
+        // The back stack across sign-out is covered with the real root routing
+        // and signed-in shell in RootRouterSignOutTest.
     }
 }
