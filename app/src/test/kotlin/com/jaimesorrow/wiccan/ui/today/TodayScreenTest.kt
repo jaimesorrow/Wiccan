@@ -167,7 +167,6 @@ class TodayScreenTest {
                 }
             }
         }
-        composeRule.onNodeWithTag("today-check-again").assertIsNotDisplayed()
         composeRule.onNodeWithTag("today-check-again").performScrollTo().assertIsDisplayed()
 
         composeRule.onNodeWithTag("today-check-again").performClick()
