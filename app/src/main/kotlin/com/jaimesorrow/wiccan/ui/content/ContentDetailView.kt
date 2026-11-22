@@ -133,7 +133,7 @@ fun ContentDetailView(
         }
         LessonSection(title = stringResource(R.string.content_method), text = content.body)
         content.incantation?.takeIf { it.isNotBlank() }?.let {
-            LessonSection(stringResource(R.string.content_incantation), it)
+            IncantationCard(text = it)
         }
         content.incantationOmissionReason?.takeIf { it.isNotBlank() }?.let {
             LessonSection(stringResource(R.string.content_incantation_note), it)
@@ -145,7 +145,7 @@ fun ContentDetailView(
                 it.joinToString(separator = "\n") { item -> "• $item" },
             )
         }
-        content.reflection?.takeIf { it.isNotBlank() }?.let { LessonSection(stringResource(R.string.content_reflection), it) }
+        content.reflection?.takeIf { it.isNotBlank() }?.let { ReflectionSection(text = it) }
         content.practice?.takeIf { it.isNotBlank() }?.let { LessonSection(stringResource(R.string.content_practice), it) }
 
         content.safetyNote?.takeIf { it.isNotBlank() }?.let { note ->
