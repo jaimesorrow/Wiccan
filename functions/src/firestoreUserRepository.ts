@@ -136,8 +136,8 @@ export class FirestoreUserRepository implements UserRepositoryPort {
     });
   }
 
-  async listPremiumUsers(): Promise<PremiumUserRecord[]> {
-    const snap = await this.db.collection(USERS_COLLECTION).where("tier", "==", "premium").get();
+  async listUsersWithPurchaseTokens(): Promise<PremiumUserRecord[]> {
+    const snap = await this.db.collection(USERS_COLLECTION).where("purchaseToken", "!=", null).get();
     return snap.docs
       .filter((doc) => typeof doc.get("purchaseToken") === "string")
       .map((doc) => ({ uid: doc.id, purchaseToken: doc.get("purchaseToken") as string }));
