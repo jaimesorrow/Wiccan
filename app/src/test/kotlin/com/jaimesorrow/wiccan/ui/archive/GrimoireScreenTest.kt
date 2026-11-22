@@ -31,9 +31,9 @@ class GrimoireScreenTest {
         composeRule.onNodeWithText("Grimoire").assertIsDisplayed()
         composeRule.onNodeWithText("Your Grimoire is still quiet. Open Today to receive your first lesson.").assertIsDisplayed()
         composeRule.onNodeWithText("What the days have already given you.").assertIsDisplayed()
-        composeRule.onNodeWithText("Library").assertIsDisplayed()
+        composeRule.onNodeWithText("Categories").assertIsDisplayed()
 
-        composeRule.onNodeWithText("Library").performClick()
+        composeRule.onNodeWithText("Categories").performClick()
         composeRule.onNodeWithText("Candle Spells (0)").assertIsDisplayed()
         assertEquals(16, ContentCategory.libraryCategories.size)
         assertEquals(ContentCategory.PROTECTION_CLEANSING_WARDING, ContentCategory.libraryCategories.last())

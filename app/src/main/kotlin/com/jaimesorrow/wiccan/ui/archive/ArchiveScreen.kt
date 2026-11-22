@@ -178,8 +178,11 @@ private fun LibraryList(
     onCategoryToggled: (ContentCategory) -> Unit,
 ) {
     val entriesByCategory = entries.groupBy { it.category }
-    val categories = ContentCategory.libraryCategories +
+    val populatedCurrentCategories = ContentCategory.libraryCategories.filter(entriesByCategory::containsKey)
+    val populatedLegacyCategories =
         entriesByCategory.keys.filterNot(ContentCategory.libraryCategories::contains).sortedBy { it.ordinal }
+    val emptyCurrentCategories = ContentCategory.libraryCategories.filterNot(entriesByCategory::containsKey)
+    val categories = populatedCurrentCategories + populatedLegacyCategories + emptyCurrentCategories
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
