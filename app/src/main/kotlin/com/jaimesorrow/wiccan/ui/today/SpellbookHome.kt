@@ -26,9 +26,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -54,7 +56,20 @@ internal fun SpellbookHome(
 ) {
     val accent = wiccanEmblemColor()
     val heroShape = RoundedCornerShape(18.dp)
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.background,
+                        accent.copy(alpha = 0.06f),
+                        MaterialTheme.colorScheme.background,
+                    ),
+                ),
+            ),
+        contentAlignment = Alignment.TopCenter,
+    ) {
         Column(
             modifier = Modifier
                 .widthIn(max = 520.dp)
@@ -72,6 +87,7 @@ internal fun SpellbookHome(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1.48f)
+                    .shadow(10.dp, heroShape)
                     .clip(heroShape)
                     .border(1.dp, FrameGold, heroShape),
             )
@@ -113,6 +129,7 @@ private fun DailySpellCard(content: Content, onOpenToday: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .shadow(12.dp, outerShape)
             .background(
                 Brush.verticalGradient(listOf(Color(0xFFE8C693), Color(0xFFF8E7C2), Color(0xFFE5BE85))),
                 outerShape,
@@ -153,7 +170,10 @@ private fun DailySpellCard(content: Content, onOpenToday: () -> Unit) {
         )
         Button(
             onClick = onOpenToday,
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp)
+                .testTag("home-daily-action"),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = ButtonGold, contentColor = ParchmentInk),
         ) {

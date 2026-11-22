@@ -1,15 +1,18 @@
 package com.jaimesorrow.wiccan.ui.archive
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -25,6 +28,7 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -112,7 +116,6 @@ internal fun ArchiveScreenContent(
                         )
                     }
                 }
-                state.entries.isEmpty() -> EmptyArchive()
                 else -> Box(Modifier.fillMaxSize()) {
                     Column(Modifier.fillMaxSize()) {
                         ArchiveTabRow(
@@ -120,10 +123,14 @@ internal fun ArchiveScreenContent(
                             onTabSelected = { onEvent(ArchiveUiEvent.TabSelected(it)) },
                         )
                         when (state.selectedTab) {
-                            ArchiveTab.TIMELINE -> TimelineList(
-                                entries = state.entries,
-                                onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
-                            )
+                            ArchiveTab.TIMELINE -> if (state.entries.isEmpty()) {
+                                EmptyArchive()
+                            } else {
+                                TimelineList(
+                                    entries = state.entries,
+                                    onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                )
+                            }
                             ArchiveTab.LIBRARY -> LibraryList(
                                 entries = state.entries,
                                 collapsedCategories = state.collapsedCategories,
@@ -170,17 +177,23 @@ private fun LibraryList(
     onEntryClicked: (String) -> Unit,
     onCategoryToggled: (ContentCategory) -> Unit,
 ) {
-    val groups = entries.groupBy { it.category }.toList().sortedBy { it.first.ordinal }
+    val entriesByCategory = entries.groupBy { it.category }
+    val categories = ContentCategory.libraryCategories +
+        entriesByCategory.keys.filterNot(ContentCategory.libraryCategories::contains).sortedBy { it.ordinal }
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        groups.forEach { (category, categoryEntries) ->
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+    ) {
+        categories.forEach { category ->
+            val categoryEntries = entriesByCategory[category].orEmpty()
             val isCollapsed = category in collapsedCategories
             item(key = "header-${category.name}") {
                 CategoryHeader(
                     category = category,
                     count = categoryEntries.size,
                     isCollapsed = isCollapsed,
-                    onClick = { onCategoryToggled(category) },
+                    onClick = if (categoryEntries.isEmpty()) null else { { onCategoryToggled(category) } },
                 )
             }
             if (!isCollapsed) {
@@ -193,14 +206,31 @@ private fun LibraryList(
 }
 
 @Composable
-private fun CategoryHeader(category: ContentCategory, count: Int, isCollapsed: Boolean, onClick: () -> Unit) {
+private fun CategoryHeader(
+    category: ContentCategory,
+    count: Int,
+    isCollapsed: Boolean,
+    onClick: (() -> Unit)?,
+) {
     val colors = MaterialTheme.colorScheme
+    val shape = RoundedCornerShape(14.dp)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(colors.surfaceVariant)
-            .clickable(onClickLabel = if (isCollapsed) "Show this category" else "Hide this category", onClick = onClick)
-            .padding(horizontal = 24.dp, vertical = 14.dp),
+            .padding(vertical = 4.dp)
+            .background(colors.surfaceVariant.copy(alpha = 0.72f), shape)
+            .border(1.dp, colors.primary.copy(alpha = 0.22f), shape)
+            .then(
+                if (onClick == null) {
+                    Modifier.semantics { disabled() }
+                } else {
+                    Modifier.clickable(
+                        onClickLabel = if (isCollapsed) "Show this category" else "Hide this category",
+                        onClick = onClick,
+                    )
+                },
+            )
+            .padding(horizontal = 18.dp, vertical = 15.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -209,12 +239,14 @@ private fun CategoryHeader(category: ContentCategory, count: Int, isCollapsed: B
             color = colors.onSurfaceVariant,
             modifier = Modifier.weight(1f),
         )
-        Text(
-            text = if (isCollapsed) "▸" else "▾",
-            style = MaterialTheme.typography.titleSmall,
-            color = colors.onSurfaceVariant,
-            modifier = Modifier.semantics { /* Decorative arrow; row announces category name and count. */ },
-        )
+        if (count > 0) {
+            Text(
+                text = if (isCollapsed) "▸" else "▾",
+                style = MaterialTheme.typography.titleSmall,
+                color = colors.primary,
+                modifier = Modifier.semantics { /* Decorative arrow; row announces category name and count. */ },
+            )
+        }
     }
 }
 
