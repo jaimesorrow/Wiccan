@@ -1,6 +1,9 @@
 package com.jaimesorrow.wiccan.ui.archive
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -24,8 +27,18 @@ class GrimoireScreenTest {
 
     @Test
     fun `empty collection tells the user delivered lessons are in Grimoire`() {
+        var selectedTab by mutableStateOf(ArchiveTab.TIMELINE)
         composeRule.setContent {
-            MaterialTheme { ArchiveScreenContent(ArchiveUiState(isLoading = false), onEvent = {}) }
+            MaterialTheme {
+                ArchiveScreenContent(
+                    ArchiveUiState(isLoading = false, selectedTab = selectedTab),
+                    onEvent = { event ->
+                        if (event is ArchiveUiEvent.TabSelected) {
+                            selectedTab = event.tab
+                        }
+                    },
+                )
+            }
         }
         composeRule.onNodeWithTag("grimoire-logo").assertIsDisplayed()
         composeRule.onNodeWithText("Grimoire").assertIsDisplayed()
