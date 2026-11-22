@@ -2,8 +2,10 @@ package com.jaimesorrow.wiccan.ui.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -263,28 +265,31 @@ private fun NavHostController.selectTab(route: String) {
 @Composable
 internal fun WiccanBottomBarContent(currentRoute: String?, onNavigate: (String) -> Unit) {
     val accent = wiccanEmblemColor()
-    NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-        bottomNavItems.forEach { item ->
-            val selected = currentRoute == item.route
-            NavigationBarItem(
-                selected = selected,
-                onClick = {
-                    onNavigate(item.route)
-                },
-                icon = {
-                    Icon(
-                        painter = painterResource(item.iconRes),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                    )
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = accent,
-                    selectedTextColor = accent,
-                    indicatorColor = accent.copy(alpha = 0.15f),
-                ),
-                label = { Text(stringResource(item.labelRes)) },
-            )
+    Column {
+        HorizontalDivider(color = accent.copy(alpha = 0.22f))
+        NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+            bottomNavItems.forEach { item ->
+                val selected = currentRoute == item.route
+                NavigationBarItem(
+                    selected = selected,
+                    onClick = {
+                        onNavigate(item.route)
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(item.iconRes),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                        )
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = accent,
+                        selectedTextColor = accent,
+                        indicatorColor = accent.copy(alpha = 0.15f),
+                    ),
+                    label = { Text(stringResource(item.labelRes)) },
+                )
+            }
         }
     }
 }

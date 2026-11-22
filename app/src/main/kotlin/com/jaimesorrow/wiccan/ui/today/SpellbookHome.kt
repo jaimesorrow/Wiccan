@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.domain.model.ContentType
 import com.jaimesorrow.wiccan.ui.archive.displayName
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
 import com.wiccan.app.R
@@ -80,6 +81,7 @@ internal fun SpellbookHome(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             WiccanFullLogo(width = 144.dp, modifier = Modifier.padding(bottom = 4.dp))
+            WiccanBotanicalAccent(width = 116.dp)
             Image(
                 painter = painterResource(R.drawable.wiccan_home_hero),
                 contentDescription = null,

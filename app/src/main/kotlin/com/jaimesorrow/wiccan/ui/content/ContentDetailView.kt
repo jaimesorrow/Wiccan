@@ -25,9 +25,10 @@ import androidx.compose.ui.unit.dp
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.domain.model.ContentType
 import com.jaimesorrow.wiccan.ui.archive.displayName
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
+import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.today.components.ContentTypePill
-import com.jaimesorrow.wiccan.ui.today.components.HairlineDivider
 import com.jaimesorrow.wiccan.ui.today.components.MaterialsCard
 import com.jaimesorrow.wiccan.ui.today.components.SafetyNote
 import com.wiccan.app.R
@@ -49,6 +50,7 @@ fun ContentDetailView(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .wiccanPageWash()
             .verticalScroll(rememberScrollState())
             .padding(PaddingValues(horizontal = 24.dp, vertical = 32.dp)),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -121,7 +123,9 @@ fun ContentDetailView(
             )
         }
 
-        HairlineDivider(modifier = Modifier.padding(vertical = 8.dp))
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            WiccanBotanicalAccent(width = 176.dp)
+        }
 
         content.application?.takeIf { it.isNotBlank() }?.let {
             LessonSection(stringResource(R.string.content_application), it)

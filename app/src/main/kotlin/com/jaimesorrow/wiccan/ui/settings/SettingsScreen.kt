@@ -42,6 +42,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,7 +50,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.config.PolicyUrls
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
+import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
+import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.theme.description
 import com.jaimesorrow.wiccan.ui.theme.displayName
 import com.wiccan.app.R
@@ -100,6 +104,7 @@ fun SettingsScreen(
     if (state.showDeleteConfirmation) {
         AlertDialog(
             onDismissRequest = { viewModel.onEvent(SettingsUiEvent.CancelDeleteAccount) },
+            icon = { WiccanEmblem(size = 32.dp) },
             title = { Text(stringResource(R.string.settings_delete_title)) },
             text = { Text(stringResource(R.string.settings_delete_body)) },
             confirmButton = {
@@ -124,6 +129,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .padding(insets)
                 .fillMaxSize()
+                .wiccanPageWash()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 32.dp),
             verticalArrangement = Arrangement.Top,
@@ -135,7 +141,7 @@ fun SettingsScreen(
                 size = 44.dp,
                 contentDescription = stringResource(R.string.settings_logo_description),
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            WiccanBotanicalAccent(modifier = Modifier.align(Alignment.CenterHorizontally), width = 116.dp)
             Text(
                 stringResource(if (accountOnly) R.string.settings_account_title else R.string.settings_title),
                 style = MaterialTheme.typography.headlineMedium,
@@ -147,7 +153,12 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(12.dp))
-            Text(stringResource(R.string.settings_account_heading), style = MaterialTheme.typography.titleLarge)
+            Text(
+                stringResource(R.string.settings_account_heading),
+                style = MaterialTheme.typography.titleLarge,
+                color = wiccanEmblemColor(),
+                modifier = Modifier.semantics { heading() },
+            )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = stringResource(R.string.settings_email, state.accountEmail),
@@ -257,7 +268,8 @@ fun SettingsScreen(
                 Text(
                     text = stringResource(R.string.settings_palette),
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = wiccanEmblemColor(),
+                    modifier = Modifier.semantics { heading() },
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(

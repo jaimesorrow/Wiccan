@@ -37,7 +37,9 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.error.toUserMessage
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
+import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.content.ContentDetailView
 import com.jaimesorrow.wiccan.ui.today.components.TodaySkeleton
 import com.wiccan.app.R
@@ -128,7 +130,7 @@ internal fun TodayScreenContent(
                     TextButton(onClick = back) { Text(stringResource(R.string.daily_back)) }
                 }
             }
-            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth().wiccanPageWash()) {
                 when {
                     // A retry from the exhausted or error panel keeps that panel on
                     // screen (and its scroll position) instead of swapping in the skeleton.
@@ -153,7 +155,7 @@ internal fun TodayScreenContent(
                                 size = 48.dp,
                                 contentDescription = stringResource(R.string.today_logo_description),
                             )
-                            Spacer(modifier = Modifier.height(20.dp))
+                            WiccanBotanicalAccent(width = 116.dp)
                             Text(
                                 text = stringResource(R.string.today_empty_title),
                                 style = MaterialTheme.typography.headlineSmall,
@@ -223,7 +225,7 @@ private fun TodayErrorPanel(
                 size = 48.dp,
                 contentDescription = stringResource(R.string.today_logo_description),
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            WiccanBotanicalAccent(width = 116.dp)
             Text(
                 text = stringResource(R.string.today_error_title),
                 style = MaterialTheme.typography.headlineSmall,

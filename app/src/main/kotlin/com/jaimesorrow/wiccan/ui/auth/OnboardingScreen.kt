@@ -29,7 +29,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
+import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.wiccan.app.R
 
@@ -46,13 +48,13 @@ fun OnboardingScreen(
     val loadingDescription = stringResource(R.string.loading_description)
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { insets ->
         Column(
-            modifier = Modifier.padding(insets).fillMaxSize().imePadding()
+            modifier = Modifier.padding(insets).fillMaxSize().wiccanPageWash().imePadding()
                 .verticalScroll(rememberScrollState()).padding(32.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             WiccanFullLogo(modifier = Modifier.testTag("onboarding-logo"), width = 150.dp)
-            Spacer(modifier = Modifier.height(20.dp))
+            WiccanBotanicalAccent(modifier = Modifier.padding(vertical = 4.dp))
             Text(
                 stringResource(if (verification) R.string.onboarding_verify_title else R.string.onboarding_name_title),
                 style = MaterialTheme.typography.headlineMedium,

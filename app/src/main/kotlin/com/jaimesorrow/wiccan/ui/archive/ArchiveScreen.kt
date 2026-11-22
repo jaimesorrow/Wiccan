@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan.ui.archive
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,9 +26,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
@@ -36,7 +42,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.HistoryEntry
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
+import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
+import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.wiccan.app.R
 
 /**
@@ -73,7 +82,7 @@ internal fun ArchiveScreenContent(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
     ) { insets ->
-        Column(modifier = Modifier.padding(insets).fillMaxSize()) {
+        Column(modifier = Modifier.padding(insets).fillMaxSize().wiccanPageWash()) {
             Box(
                 modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                 contentAlignment = Alignment.Center,
@@ -84,6 +93,7 @@ internal fun ArchiveScreenContent(
                     contentDescription = stringResource(R.string.grimoire_logo_description),
                 )
             }
+            WiccanBotanicalAccent(modifier = Modifier.align(Alignment.CenterHorizontally), width = 116.dp)
             Text(
                 text = stringResource(R.string.grimoire_title),
                 style = MaterialTheme.typography.headlineMedium,
@@ -221,12 +231,18 @@ private fun CategoryHeader(
 ) {
     val colors = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(14.dp)
+    val artwork = when (category) {
+        ContentCategory.LUNAR_PRACTICES, ContentCategory.MOON_MAGIC_TIMING, ContentCategory.MOON_AND_SEASONAL ->
+            R.drawable.wiccan_category_lunar
+        ContentCategory.CORD_KNOT_WORK, ContentCategory.CORD_KNOT_MAGIC -> R.drawable.wiccan_category_cord
+        else -> null
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .background(colors.surfaceVariant.copy(alpha = 0.72f), shape)
-            .border(1.dp, colors.primary.copy(alpha = 0.22f), shape)
+            .border(1.dp, wiccanEmblemColor().copy(alpha = 0.28f), shape)
             .then(
                 if (onClick == null) {
                     Modifier.semantics { disabled() }
@@ -240,6 +256,17 @@ private fun CategoryHeader(
             .padding(horizontal = 18.dp, vertical = 15.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (artwork != null) {
+            Image(
+                painter = painterResource(artwork),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .size(width = 56.dp, height = 42.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+            )
+        }
         Text(
             text = stringResource(R.string.grimoire_category_count, category.displayName(), count),
             style = MaterialTheme.typography.titleSmall,
@@ -250,8 +277,8 @@ private fun CategoryHeader(
             Text(
                 text = if (isCollapsed) "▸" else "▾",
                 style = MaterialTheme.typography.titleSmall,
-                color = colors.primary,
-                modifier = Modifier.semantics { /* Decorative arrow; row announces category name and count. */ },
+                color = wiccanEmblemColor(),
+                modifier = Modifier.clearAndSetSemantics {},
             )
         }
     }

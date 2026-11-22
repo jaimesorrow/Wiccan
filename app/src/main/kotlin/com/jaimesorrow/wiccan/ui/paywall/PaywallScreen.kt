@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -40,7 +41,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.core.util.findActivity
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
+import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
+import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.wiccan.app.R
 import kotlinx.coroutines.awaitCancellation
 
@@ -75,7 +79,7 @@ fun PaywallScreen(
         }
     }
     Scaffold(modifier = modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbars) }) { insets ->
-        Column(modifier = Modifier.fillMaxSize().padding(insets)) {
+        Column(modifier = Modifier.fillMaxSize().padding(insets).wiccanPageWash()) {
             TextButton(onClick = onAccountClick, modifier = Modifier.padding(start = 16.dp)) {
                 Text(stringResource(R.string.paywall_account))
             }
@@ -86,7 +90,7 @@ fun PaywallScreen(
                 verticalArrangement = Arrangement.Center,
             ) {
                 WiccanFullLogo(modifier = Modifier.testTag("paywall-logo"), width = 170.dp)
-                Spacer(Modifier.height(20.dp))
+                WiccanBotanicalAccent(width = 116.dp)
                 Text(
                     stringResource(R.string.paywall_headline),
                     style = MaterialTheme.typography.headlineMedium,
@@ -180,7 +184,7 @@ fun PaywallScreen(
 @Composable
 private fun BenefitRow(text: String) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        Text("✦", color = MaterialTheme.colorScheme.primary)
+        Text("✦", color = wiccanEmblemColor(), modifier = Modifier.clearAndSetSemantics {})
         Text(text, modifier = Modifier.padding(start = 12.dp))
     }
 }

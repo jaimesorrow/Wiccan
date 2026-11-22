@@ -18,8 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
+import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.wiccan.app.R
 
 @Composable
@@ -36,6 +40,7 @@ fun LegalDocumentScreen(
             modifier = Modifier
                 .padding(insets)
                 .fillMaxSize()
+                .wiccanPageWash()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp),
         ) {
@@ -47,7 +52,7 @@ fun LegalDocumentScreen(
                 size = 44.dp,
                 contentDescription = stringResource(R.string.legal_logo_description),
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            WiccanBotanicalAccent(modifier = Modifier.align(Alignment.CenterHorizontally), width = 116.dp)
             Text(
                 text = document.title,
                 style = MaterialTheme.typography.headlineMedium,
@@ -76,6 +81,7 @@ fun LegalDocumentScreen(
                         text = section.heading,
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.semantics { heading() },
                     )
                     section.paragraphs.forEach { paragraph ->
                         Text(

@@ -36,7 +36,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
+import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.wiccan.app.R
 
@@ -79,6 +81,7 @@ fun PolicyAcceptanceScreen(
             modifier = Modifier
                 .padding(insets)
                 .fillMaxSize()
+                .wiccanPageWash()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 32.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.Center,
@@ -89,7 +92,7 @@ fun PolicyAcceptanceScreen(
                 size = 56.dp,
                 contentDescription = stringResource(R.string.policy_logo_description),
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            WiccanBotanicalAccent(width = 108.dp)
             Text(
                 text = stringResource(R.string.policy_title),
                 style = MaterialTheme.typography.headlineSmall,

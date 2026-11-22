@@ -1,8 +1,8 @@
 package com.jaimesorrow.wiccan.ui.auth
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +36,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
@@ -52,7 +51,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
+import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
+import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.today.components.HairlineDivider
 import com.wiccan.app.R
@@ -108,7 +110,7 @@ internal fun SignInScreenContent(
     ) { insets ->
         Box(
             modifier = Modifier.padding(insets).fillMaxSize()
-                .background(Brush.verticalGradient(listOf(scheme.background, scheme.surface, scheme.background)))
+                .wiccanPageWash()
                 .imePadding(),
             contentAlignment = Alignment.TopCenter,
         ) {
@@ -118,7 +120,7 @@ internal fun SignInScreenContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 WiccanFullLogo(modifier = Modifier.testTag("auth-logo"), width = 180.dp)
-                Spacer(modifier = Modifier.height(24.dp))
+                WiccanBotanicalAccent(modifier = Modifier.padding(vertical = 5.dp))
                 Text(
                     text = if (state.mode == SignInMode.FORGOT_PASSWORD) {
                         stringResource(R.string.auth_forgot_headline)
@@ -154,6 +156,7 @@ internal fun SignInScreenContent(
                     shape = RoundedCornerShape(24.dp),
                     color = scheme.surface,
                     tonalElevation = 3.dp,
+                    border = BorderStroke(1.dp, wiccanEmblemColor().copy(alpha = 0.28f)),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
