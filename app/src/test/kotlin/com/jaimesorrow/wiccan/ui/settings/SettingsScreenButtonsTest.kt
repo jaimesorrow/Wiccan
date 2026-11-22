@@ -124,7 +124,10 @@ class SettingsScreenButtonsTest {
         click("Manage Subscription")
         val intent = lastStartedIntent()
         assertEquals(Intent.ACTION_VIEW, intent.action)
-        assertEquals("https://play.google.com/store/account/subscriptions", intent.data.toString())
+        assertEquals(
+            "https://play.google.com/store/account/subscriptions?package=com.jaimesorrow.wiccan",
+            intent.data.toString(),
+        )
     }
 
     @Test
