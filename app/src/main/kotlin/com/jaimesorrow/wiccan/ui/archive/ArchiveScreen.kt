@@ -193,7 +193,11 @@ private fun LibraryList(
                     category = category,
                     count = categoryEntries.size,
                     isCollapsed = isCollapsed,
-                    onClick = if (categoryEntries.isEmpty()) null else { { onCategoryToggled(category) } },
+                    onClick = if (categoryEntries.isEmpty()) {
+                        null
+                    } else {
+                        { onCategoryToggled(category) }
+                    },
                 )
             }
             if (!isCollapsed) {
