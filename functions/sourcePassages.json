@@ -1,1 +1,576 @@
-[]
+[
+  {
+    "id": "ll-col03-05-09-seven-bricks",
+    "sourceId": "london-leiden-demotic-magical-papyrus",
+    "textTitle": "The Demotic Magical Papyrus of London and Leiden",
+    "manuscriptId": "British Museum EA 10070 (P. London) and Leiden RMO P. Leiden I 383 (P. Leiden)",
+    "tradition": "Graeco-Roman Egyptian (Demotic), 3rd century AD",
+    "manuscriptDate": "3rd century CE (200-225 AD, British Museum record)",
+    "compositionDate": "Roman-period Egypt; compiled by the 3rd century CE",
+    "edition": "F. Ll. Griffith and Herbert Thompson, The Demotic Magical Papyrus of London and Leiden, vol. I, Oxford: Clarendon Press",
+    "editionDate": "1904",
+    "translator": "F. Ll. Griffith and Herbert Thompson",
+    "locator": "P. London-Leiden, col. III, 5-9 (Griffith & Thompson 1904, p. 33)",
+    "url": "https://archive.org/details/demoticmagicalpa01grifuoft/page/n44/mode/1up",
+    "inspectedPassage": "Its spirit-gathering. You take seven new bricks, before they have been moved so as to turn them (6) to the other face; you take them, you being pure, without touching them against anything on earth, and you place them in their manner in which they were (7) placed, again; and you place three tiles under the oil; and the other four tiles, you arrange them about the child without (8) touching any part of him against the ground; or seven palm-sticks, you treat them in this fashion also. And you take seven clean loaves (9) and arrange them around the oil, with seven lumps of salt,",
+    "attestedInstructions": [
+      "Take seven new bricks without touching them against anything on earth.",
+      "Place three of them under the oil and arrange the other four about the child.",
+      "Arrange seven clean loaves around the oil, with seven lumps of salt."
+    ],
+    "uncertainties": [
+      "Checked word for word by Grok Bot against the printed page image(s) of the 1904 Oxford edition (Internet Archive, University of Toronto copy) on 2026-11-21; OCR punctuation and quotation marks corrected to the printed page. Line numbers in parentheses are the editors' own."
+    ],
+    "formula": null,
+    "formulaOmissionReason": "The quoted passage contains instructions only; no spoken formula.",
+    "dating": {
+      "era": "ancient",
+      "status": "verified",
+      "evidenceUrl": "https://www.britishmuseum.org/collection/object/Y_EA10070-2",
+      "notes": "British Museum record EA 10070,2 (P Leiden/London): Roman Period, production date 3rd century (200-225 AD), findspot Thebes. Checked 2026-11-21."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "Griffith & Thompson, The Demotic Magical Papyrus of London and Leiden, vol. I, published Oxford 1904. US: published before 1931, so public domain. UK and EU: both translators are dead more than 70 years (F. Ll. Griffith d. 14 March 1934; Sir Herbert Thompson d. 26 May 1944), so life+70 expired at the end of 2014 and the 25-year typographical-arrangement right has long expired; public domain since 1 January 2015. The Internet Archive Toronto copy is marked NOT_IN_COPYRIGHT; the Wellcome copy's 'In Copyright' statement is a conservative library default inconsistent with these dates. Death dates checked 2026-11-21 against Cambridge University Library ArchiveSearch (Thompson) and Nature obituary, 14 April 1934 (Griffith).",
+      "reference": "https://archive.org/details/demoticmagicalpa01grifuoft",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Attested by this passage: seven new bricks handled with purity, three placed under the oil and four about the child, and seven clean loaves and seven lumps of salt arranged around the oil. Approved use: as cited historical inspiration for lesson 016, a seven-bead pocket charm that keeps only the counted sevens, published as a clearly labelled original modern working, not a reconstruction (approved by Jaime Sorrow's rule that full practical lessons may stand when correctly cited from historical magical texts). Anything in the lesson beyond what is attested above is modern adaptation. Generated content must not present it as attested by this passage or treat this record as evidence for any other technique.",
+      "evidenceUrl": "https://archive.org/details/demoticmagicalpa01grifuoft/page/n44/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Grok Bot (AI review) under authorization of Jaime Sorrow, 2026-11-21",
+      "reviewedAt": "2026-11-21T01:30:00-09:00"
+    }
+  },
+  {
+    "id": "ll-col03-05-15-oil-and-sevens",
+    "sourceId": "london-leiden-demotic-magical-papyrus",
+    "textTitle": "The Demotic Magical Papyrus of London and Leiden",
+    "manuscriptId": "British Museum EA 10070 (P. London) and Leiden RMO P. Leiden I 383 (P. Leiden)",
+    "tradition": "Graeco-Roman Egyptian (Demotic), 3rd century AD",
+    "manuscriptDate": "3rd century CE (200-225 AD, British Museum record)",
+    "compositionDate": "Roman-period Egypt; compiled by the 3rd century CE",
+    "edition": "F. Ll. Griffith and Herbert Thompson, The Demotic Magical Papyrus of London and Leiden, vol. I, Oxford: Clarendon Press",
+    "editionDate": "1904",
+    "translator": "F. Ll. Griffith and Herbert Thompson",
+    "locator": "P. London-Leiden, col. III, 5-15 (Griffith & Thompson 1904, pp. 33 and 35)",
+    "url": "https://archive.org/details/demoticmagicalpa01grifuoft/page/n44/mode/1up",
+    "inspectedPassage": "Its spirit-gathering. You take seven new bricks, before they have been moved so as to turn them (6) to the other face; you take them, you being pure, without touching them against anything on earth, and you place them in their manner in which they were (7) placed, again; and you place three tiles under the oil; and the other four tiles, you arrange them about the child without (8) touching any part of him against the ground; or seven palm-sticks, you treat them in this fashion also. And you take seven clean loaves (9) and arrange them around the oil, with seven lumps of salt, and you take a new dish and fill it with (10) clean Oasis oil and add to the dish gradually without producing cloudiness (?) so that it becomes clear (11) exceedingly; [...] (14) you utter this invocation that is above, down into his head, he gazing downwards ⟨looking⟩ into the oil, for seven times, his eyes being (15) closed.",
+    "attestedInstructions": [
+      "Fill a new dish gradually with clean oil so that it becomes clear.",
+      "Place three of the seven new bricks under the oil and arrange the other four about the child.",
+      "Arrange seven clean loaves and seven lumps of salt around the oil.",
+      "The gazer looks downwards into the oil."
+    ],
+    "uncertainties": [
+      "Checked word for word by Grok Bot against the printed page image(s) of the 1904 Oxford edition (Internet Archive, University of Toronto copy) on 2026-11-21; OCR punctuation and quotation marks corrected to the printed page. Line numbers in parentheses are the editors' own.",
+      "Text from 'and you take a boy' (line 11) to the start of line 14 is omitted and marked [...].",
+      "The passage continues on the next printed page: https://archive.org/details/demoticmagicalpa01grifuoft/page/n46/mode/1up",
+      "The kept text after [...] still says 'his head' and 'he gazing': in the papyrus these refer to the boy medium introduced in the omitted lines 11-13. The gazing is quoted only as evidence that the oil was gazed into; lessons never involve a child."
+    ],
+    "formula": null,
+    "formulaOmissionReason": "The invocation referred to ('this invocation that is above') is not part of the quoted passage; any words in a lesson are original modern wording.",
+    "dating": {
+      "era": "ancient",
+      "status": "verified",
+      "evidenceUrl": "https://www.britishmuseum.org/collection/object/Y_EA10070-2",
+      "notes": "British Museum record EA 10070,2 (P Leiden/London): Roman Period, production date 3rd century (200-225 AD), findspot Thebes. Checked 2026-11-21."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "Griffith & Thompson, The Demotic Magical Papyrus of London and Leiden, vol. I, published Oxford 1904. US: published before 1931, so public domain. UK and EU: both translators are dead more than 70 years (F. Ll. Griffith d. 14 March 1934; Sir Herbert Thompson d. 26 May 1944), so life+70 expired at the end of 2014 and the 25-year typographical-arrangement right has long expired; public domain since 1 January 2015. The Internet Archive Toronto copy is marked NOT_IN_COPYRIGHT; the Wellcome copy's 'In Copyright' statement is a conservative library default inconsistent with these dates. Death dates checked 2026-11-21 against Cambridge University Library ArchiveSearch (Thompson) and Nature obituary, 14 April 1934 (Griffith).",
+      "reference": "https://archive.org/details/demoticmagicalpa01grifuoft",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Attested by this passage: a new dish filled gradually with clean oil until it is clear, set on new bricks with loaves and salt around it, and gazed into. Approved use: as cited historical inspiration for lesson 097, reflective oil-on-water scrying with ordinary cooking oil and no child medium, published as a clearly labelled original modern working, not a reconstruction (approved by Jaime Sorrow's rule that full practical lessons may stand when correctly cited from historical magical texts). Anything in the lesson beyond what is attested above is modern adaptation. Generated content must not present it as attested by this passage or treat this record as evidence for any other technique.",
+      "evidenceUrl": "https://archive.org/details/demoticmagicalpa01grifuoft/page/n44/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Grok Bot (AI review) under authorization of Jaime Sorrow, 2026-11-21",
+      "reviewedAt": "2026-11-21T01:30:00-09:00"
+    }
+  },
+  {
+    "id": "ll-col03-13-18-linen-and-purification",
+    "sourceId": "london-leiden-demotic-magical-papyrus",
+    "textTitle": "The Demotic Magical Papyrus of London and Leiden",
+    "manuscriptId": "British Museum EA 10070 (P. London) and Leiden RMO P. Leiden I 383 (P. Leiden)",
+    "tradition": "Graeco-Roman Egyptian (Demotic), 3rd century AD",
+    "manuscriptDate": "3rd century CE (200-225 AD, British Museum record)",
+    "compositionDate": "Roman-period Egypt; compiled by the 3rd century CE",
+    "edition": "F. Ll. Griffith and Herbert Thompson, The Demotic Magical Papyrus of London and Leiden, vol. I, Oxford: Clarendon Press",
+    "editionDate": "1904",
+    "translator": "F. Ll. Griffith and Herbert Thompson",
+    "locator": "P. London-Leiden, col. III, 13-18 (Griffith & Thompson 1904, p. 35)",
+    "url": "https://archive.org/details/demoticmagicalpa01grifuoft/page/n46/mode/1up",
+    "inspectedPassage": "(13) you clothe (?) him with a clean linen tunic (?), ⟨you call down into his head⟩, there being a girdle on the upper part (14) of the tunic; [...] (16) The invocation that you utter down into his head previously to test him in his ears as to whether he will be profitable in going to (17) the vessel. Formula: ‘Noble ibis, falcon, hawk, noble and mighty, let me be purified in the manner of the noble ibis, falcon, (18) hawk, noble and mighty.’ You utter this down into his head for seven times;",
+    "attestedInstructions": [
+      "Clothe the seer in a clean linen tunic with a girdle.",
+      "Speak the purification formula over the seer seven times before the divination."
+    ],
+    "uncertainties": [
+      "Checked word for word by Grok Bot against the printed page image(s) of the 1904 Oxford edition (Internet Archive, University of Toronto copy) on 2026-11-21; OCR punctuation and quotation marks corrected to the printed page. Line numbers in parentheses are the editors' own.",
+      "Lines 14-15 (gazing and questioning) are omitted and marked [...]. The seer in the papyrus is a boy; the lesson never involves a child."
+    ],
+    "formula": "Noble ibis, falcon, hawk, noble and mighty, let me be purified in the manner of the noble ibis, falcon, hawk, noble and mighty.",
+    "dating": {
+      "era": "ancient",
+      "status": "verified",
+      "evidenceUrl": "https://www.britishmuseum.org/collection/object/Y_EA10070-2",
+      "notes": "British Museum record EA 10070,2 (P Leiden/London): Roman Period, production date 3rd century (200-225 AD), findspot Thebes. Checked 2026-11-21."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "Griffith & Thompson, The Demotic Magical Papyrus of London and Leiden, vol. I, published Oxford 1904. US: published before 1931, so public domain. UK and EU: both translators are dead more than 70 years (F. Ll. Griffith d. 14 March 1934; Sir Herbert Thompson d. 26 May 1944), so life+70 expired at the end of 2014 and the 25-year typographical-arrangement right has long expired; public domain since 1 January 2015. The Internet Archive Toronto copy is marked NOT_IN_COPYRIGHT; the Wellcome copy's 'In Copyright' statement is a conservative library default inconsistent with these dates. Death dates checked 2026-11-21 against Cambridge University Library ArchiveSearch (Thompson) and Nature obituary, 14 April 1934 (Griffith).",
+      "reference": "https://archive.org/details/demoticmagicalpa01grifuoft",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Attested by this passage: clothing the seer in clean linen and speaking a purification formula over him seven times before vessel divination. Approved use: as cited historical inspiration for lesson 061, a self-preparation threshold before divination in which the practitioner is their own seer; no child is involved, published as a clearly labelled original modern working, not a reconstruction (approved by Jaime Sorrow's rule that full practical lessons may stand when correctly cited from historical magical texts). Anything in the lesson beyond what is attested above is modern adaptation. Generated content must not present it as attested by this passage or treat this record as evidence for any other technique.",
+      "evidenceUrl": "https://archive.org/details/demoticmagicalpa01grifuoft/page/n46/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Grok Bot (AI review) under authorization of Jaime Sorrow, 2026-11-21",
+      "reviewedAt": "2026-11-21T01:30:00-09:00"
+    }
+  },
+  {
+    "id": "ll-col03-28-30-dismissal",
+    "sourceId": "london-leiden-demotic-magical-papyrus",
+    "textTitle": "The Demotic Magical Papyrus of London and Leiden",
+    "manuscriptId": "British Museum EA 10070 (P. London) and Leiden RMO P. Leiden I 383 (P. Leiden)",
+    "tradition": "Graeco-Roman Egyptian (Demotic), 3rd century AD",
+    "manuscriptDate": "3rd century CE (200-225 AD, British Museum record)",
+    "compositionDate": "Roman-period Egypt; compiled by the 3rd century CE",
+    "edition": "F. Ll. Griffith and Herbert Thompson, The Demotic Magical Papyrus of London and Leiden, vol. I, Oxford: Clarendon Press",
+    "editionDate": "1904",
+    "translator": "F. Ll. Griffith and Herbert Thompson",
+    "locator": "P. London-Leiden, col. III, 28-30 (Griffith & Thompson 1904, pp. 37 and 39)",
+    "url": "https://archive.org/details/demoticmagicalpa01grifuoft/page/n48/mode/1up",
+    "inspectedPassage": "If you (28) wish to make (them) all depart, you put ape’s dung on the brazier, then they all depart to their place, and you utter their spell of dismissal also. [...] The charm which you pronounce when you (30) dismiss them to their place: ‘Good dispatch, joyful dispatch!’",
+    "attestedInstructions": [
+      "To end the session, make all that was called depart to their place.",
+      "Utter the spell of dismissal: 'Good dispatch, joyful dispatch!'"
+    ],
+    "uncertainties": [
+      "Checked word for word by Grok Bot against the printed page image(s) of the 1904 Oxford edition (Internet Archive, University of Toronto copy) on 2026-11-21; OCR punctuation and quotation marks corrected to the printed page. Line numbers in parentheses are the editors' own.",
+      "Line 29 (a separate thief-detection prescription) is omitted and marked [...].",
+      "The passage continues on the next printed page: https://archive.org/details/demoticmagicalpa01grifuoft/page/n50/mode/1up"
+    ],
+    "formula": "Good dispatch, joyful dispatch!",
+    "dating": {
+      "era": "ancient",
+      "status": "verified",
+      "evidenceUrl": "https://www.britishmuseum.org/collection/object/Y_EA10070-2",
+      "notes": "British Museum record EA 10070,2 (P Leiden/London): Roman Period, production date 3rd century (200-225 AD), findspot Thebes. Checked 2026-11-21."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "Griffith & Thompson, The Demotic Magical Papyrus of London and Leiden, vol. I, published Oxford 1904. US: published before 1931, so public domain. UK and EU: both translators are dead more than 70 years (F. Ll. Griffith d. 14 March 1934; Sir Herbert Thompson d. 26 May 1944), so life+70 expired at the end of 2014 and the 25-year typographical-arrangement right has long expired; public domain since 1 January 2015. The Internet Archive Toronto copy is marked NOT_IN_COPYRIGHT; the Wellcome copy's 'In Copyright' statement is a conservative library default inconsistent with these dates. Death dates checked 2026-11-21 against Cambridge University Library ArchiveSearch (Thompson) and Nature obituary, 14 April 1934 (Griffith).",
+      "reference": "https://archive.org/details/demoticmagicalpa01grifuoft",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Attested by this passage: ending a session by sending the called powers to their place with a fumigant and a spoken dismissal. Approved use: as cited historical inspiration for lessons 056 (closing an esbat) and 130 (a clear closing for any ritual), which keep the deliberate closing and dismissal and use no fumigant, published as a clearly labelled original modern working, not a reconstruction (approved by Jaime Sorrow's rule that full practical lessons may stand when correctly cited from historical magical texts). Anything in the lesson beyond what is attested above is modern adaptation. Generated content must not present it as attested by this passage or treat this record as evidence for any other technique.",
+      "evidenceUrl": "https://archive.org/details/demoticmagicalpa01grifuoft/page/n48/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Grok Bot (AI review) under authorization of Jaime Sorrow, 2026-11-21",
+      "reviewedAt": "2026-11-21T01:30:00-09:00"
+    }
+  },
+  {
+    "id": "ll-col08-08-09-names",
+    "sourceId": "london-leiden-demotic-magical-papyrus",
+    "textTitle": "The Demotic Magical Papyrus of London and Leiden",
+    "manuscriptId": "British Museum EA 10070 (P. London) and Leiden RMO P. Leiden I 383 (P. Leiden)",
+    "tradition": "Graeco-Roman Egyptian (Demotic), 3rd century AD",
+    "manuscriptDate": "3rd century CE (200-225 AD, British Museum record)",
+    "compositionDate": "Roman-period Egypt; compiled by the 3rd century CE",
+    "edition": "F. Ll. Griffith and Herbert Thompson, The Demotic Magical Papyrus of London and Leiden, vol. I, Oxford: Clarendon Press",
+    "editionDate": "1904",
+    "translator": "F. Ll. Griffith and Herbert Thompson",
+    "locator": "P. London-Leiden, col. VIII, 8-9 (Griffith & Thompson 1904, p. 65)",
+    "url": "https://archive.org/details/demoticmagicalpa01grifuoft/page/n76/mode/1up",
+    "inspectedPassage": "Come in, Piatoou, Khitore; ho! Shop, Shope, Shop, Abraham, the apple (?) of the Eye of the Uzat, (9) Kmr, Kmr, Kmr, Kmr, Kmro, so as to create, Kom, Kom-wer-wot, Sheknush (?) is thy real name, let answer be told to me",
+    "attestedInstructions": [
+      "Call in the god by a run of names drawn from several traditions, among them Abraham and the Eye of the Uzat, and ask for an answer."
+    ],
+    "uncertainties": [
+      "Checked word for word by Grok Bot against the printed page image(s) of the 1904 Oxford edition (Internet Archive, University of Toronto copy) on 2026-11-21; OCR punctuation and quotation marks corrected to the printed page. Line numbers in parentheses are the editors' own."
+    ],
+    "formula": "Come in, Piatoou, Khitore; ho! Shop, Shope, Shop, Abraham, the apple (?) of the Eye of the Uzat, Kmr, Kmr, Kmr, Kmr, Kmro, so as to create, Kom, Kom-wer-wot, Sheknush (?) is thy real name, let answer be told to me",
+    "dating": {
+      "era": "ancient",
+      "status": "verified",
+      "evidenceUrl": "https://www.britishmuseum.org/collection/object/Y_EA10070-2",
+      "notes": "British Museum record EA 10070,2 (P Leiden/London): Roman Period, production date 3rd century (200-225 AD), findspot Thebes. Checked 2026-11-21."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "Griffith & Thompson, The Demotic Magical Papyrus of London and Leiden, vol. I, published Oxford 1904. US: published before 1931, so public domain. UK and EU: both translators are dead more than 70 years (F. Ll. Griffith d. 14 March 1934; Sir Herbert Thompson d. 26 May 1944), so life+70 expired at the end of 2014 and the 25-year typographical-arrangement right has long expired; public domain since 1 January 2015. The Internet Archive Toronto copy is marked NOT_IN_COPYRIGHT; the Wellcome copy's 'In Copyright' statement is a conservative library default inconsistent with these dates. Death dates checked 2026-11-21 against Cambridge University Library ArchiveSearch (Thompson) and Nature obituary, 14 April 1934 (Griffith).",
+      "reference": "https://archive.org/details/demoticmagicalpa01grifuoft",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Attested by this passage: an invocation that calls the god in by a run of names drawn from several traditions. Approved use: as cited historical inspiration for lesson 058, choosing a personal guiding word; the sacred names themselves are not used, published as a clearly labelled original modern working, not a reconstruction (approved by Jaime Sorrow's rule that full practical lessons may stand when correctly cited from historical magical texts). Anything in the lesson beyond what is attested above is modern adaptation. Generated content must not present it as attested by this passage or treat this record as evidence for any other technique.",
+      "evidenceUrl": "https://archive.org/details/demoticmagicalpa01grifuoft/page/n76/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Grok Bot (AI review) under authorization of Jaime Sorrow, 2026-11-21",
+      "reviewedAt": "2026-11-21T01:30:00-09:00"
+    }
+  },
+  {
+    "id": "ll-col27-01-bark-of-phre",
+    "sourceId": "london-leiden-demotic-magical-papyrus",
+    "textTitle": "The Demotic Magical Papyrus of London and Leiden",
+    "manuscriptId": "British Museum EA 10070 (P. London) and Leiden RMO P. Leiden I 383 (P. Leiden)",
+    "tradition": "Graeco-Roman Egyptian (Demotic), 3rd century AD",
+    "manuscriptDate": "3rd century CE (200-225 AD, British Museum record)",
+    "compositionDate": "Roman-period Egypt; compiled by the 3rd century CE",
+    "edition": "F. Ll. Griffith and Herbert Thompson, The Demotic Magical Papyrus of London and Leiden, vol. I, Oxford: Clarendon Press",
+    "editionDate": "1904",
+    "translator": "F. Ll. Griffith and Herbert Thompson",
+    "locator": "P. London-Leiden, col. XXVII, 1 (Griffith & Thompson 1904, p. 157)",
+    "url": "https://archive.org/details/demoticmagicalpa01grifuoft/page/n168/mode/1up",
+    "inspectedPassage": "(1) Another vessel-divination, (to be done) alone, for seeing the bark of Phre. The invocation which you recite: ‘Open to me O (?) heaven, mother of the gods!",
+    "attestedInstructions": [
+      "A divination done alone, for seeing the bark of Phre, opened by reciting an invocation to heaven."
+    ],
+    "uncertainties": [
+      "Checked word for word by Grok Bot against the printed page image(s) of the 1904 Oxford edition (Internet Archive, University of Toronto copy) on 2026-11-21; OCR punctuation and quotation marks corrected to the printed page. Line numbers in parentheses are the editors' own."
+    ],
+    "formula": "Open to me O (?) heaven, mother of the gods!",
+    "dating": {
+      "era": "ancient",
+      "status": "verified",
+      "evidenceUrl": "https://www.britishmuseum.org/collection/object/Y_EA10070-2",
+      "notes": "British Museum record EA 10070,2 (P Leiden/London): Roman Period, production date 3rd century (200-225 AD), findspot Thebes. Checked 2026-11-21."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "Griffith & Thompson, The Demotic Magical Papyrus of London and Leiden, vol. I, published Oxford 1904. US: published before 1931, so public domain. UK and EU: both translators are dead more than 70 years (F. Ll. Griffith d. 14 March 1934; Sir Herbert Thompson d. 26 May 1944), so life+70 expired at the end of 2014 and the 25-year typographical-arrangement right has long expired; public domain since 1 January 2015. The Internet Archive Toronto copy is marked NOT_IN_COPYRIGHT; the Wellcome copy's 'In Copyright' statement is a conservative library default inconsistent with these dates. Death dates checked 2026-11-21 against Cambridge University Library ArchiveSearch (Thompson) and Nature obituary, 14 April 1934 (Griffith).",
+      "reference": "https://archive.org/details/demoticmagicalpa01grifuoft",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Attested by this passage: a vessel-divination done alone for seeing the bark of Phre, opened by an invocation to heaven. Approved use: as cited historical inspiration for lesson 136, a sunrise watch inspired by the image of the sun's boat; it does not perform the vessel-divination, published as a clearly labelled original modern working, not a reconstruction (approved by Jaime Sorrow's rule that full practical lessons may stand when correctly cited from historical magical texts). Anything in the lesson beyond what is attested above is modern adaptation. Generated content must not present it as attested by this passage or treat this record as evidence for any other technique.",
+      "evidenceUrl": "https://archive.org/details/demoticmagicalpa01grifuoft/page/n168/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Grok Bot (AI review) under authorization of Jaime Sorrow, 2026-11-21",
+      "reviewedAt": "2026-11-21T01:30:00-09:00"
+    }
+  },
+  {
+    "id": "bud-metternich-four-gods",
+    "sourceId": "metternich-stela-budge-1912",
+    "textTitle": "Metternich Stela (magical stela with Horus the Child)",
+    "manuscriptId": "Metropolitan Museum of Art 50.85",
+    "tradition": "Late Period Egyptian healing and protective magic (Metternich Stela)",
+    "manuscriptDate": "360-343 BCE, reign of Nectanebo II, Dynasty 30 (Met record; Budge 1912 attributes it to Nectanebus I)",
+    "compositionDate": "Texts copied on the stela draw on older Egyptian protective spells",
+    "edition": "E. A. Wallis Budge, Legends of the Gods: The Egyptian Texts, Edited with Translations (Books on Egypt and Chaldaea), London: Kegan Paul, Trench, Trübner",
+    "editionDate": "1912",
+    "translator": "E. A. Wallis Budge",
+    "locator": "Metternich Stela, Budge, Legends of the Gods (1912), Legend of the Death of Horus, pp. 153 and 155 (p. 154 is a plate)",
+    "url": "https://archive.org/details/egyptianliteratu0001eawa/page/n272/mode/1up",
+    "inspectedPassage": "Hail, ye who dwell in the water, crocodiles and fish, Rā shutteth up your mouths, Sekhet stoppeth up your throats, Thoth cutteth out your tongues, and Heka blindeth your eyes. These are the four great gods who protect Osiris by their magical power,",
+    "attestedInstructions": [
+      "Address the creatures of the water and name the four gods, Rā, Sekhet, Thoth and Heka, who protect by their magical power."
+    ],
+    "uncertainties": [
+      "Checked word for word by Grok Bot against the printed page image(s) of the 1912 edition (Internet Archive scan egyptianliteratu0001eawa) on 2026-11-21. Budge's running quotation marks at line starts and his bold section numbers inside the text are omitted; all words are as printed, including the macron in Rā.",
+      "Section number 43 printed between 'your' and 'tongues' is omitted.",
+      "The passage continues on the next printed page: https://archive.org/details/egyptianliteratu0001eawa/page/n274/mode/1up"
+    ],
+    "formula": "Hail, ye who dwell in the water, crocodiles and fish, Rā shutteth up your mouths, Sekhet stoppeth up your throats, Thoth cutteth out your tongues, and Heka blindeth your eyes.",
+    "dating": {
+      "era": "ancient",
+      "status": "verified",
+      "evidenceUrl": "https://www.metmuseum.org/art/collection/search/546037",
+      "notes": "Metropolitan Museum of Art 50.85 (Metternich Stela): 360-343 BCE, reign of Nectanebo II, Dynasty 30 (Met collection record). Budge 1912 attributes the stela to Nectanebus I; the Met dating is used."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT. The page images cited (archive.org item egyptianliteratu0001eawa) and the Gutenberg transcription are the same 1912 edition.",
+      "reference": "https://archive.org/details/legendsofthegods09411gut",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Attested by this passage: a spoken address that names Rā, Sekhet, Thoth and Heka as gods who protect by their magical power. Approved use: as cited historical inspiration for lesson 005, a candle spell of intent inspired by naming a divine power aloud, published as a clearly labelled original modern working, not a reconstruction (approved by Jaime Sorrow's rule that full practical lessons may stand when correctly cited from historical magical texts). Anything in the lesson beyond what is attested above is modern adaptation. Generated content must not present it as attested by this passage or treat this record as evidence for any other technique.",
+      "evidenceUrl": "https://archive.org/details/egyptianliteratu0001eawa/page/n272/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Grok Bot (AI review) under authorization of Jaime Sorrow, 2026-11-21",
+      "reviewedAt": "2026-11-21T01:30:00-09:00"
+    }
+  },
+  {
+    "id": "bud-metternich-isis-words-of-power",
+    "sourceId": "metternich-stela-budge-1912",
+    "textTitle": "Metternich Stela (magical stela with Horus the Child)",
+    "manuscriptId": "Metropolitan Museum of Art 50.85",
+    "tradition": "Late Period Egyptian healing and protective magic (Metternich Stela)",
+    "manuscriptDate": "360-343 BCE, reign of Nectanebo II, Dynasty 30 (Met record; Budge 1912 attributes it to Nectanebus I)",
+    "compositionDate": "Texts copied on the stela draw on older Egyptian protective spells",
+    "edition": "E. A. Wallis Budge, Legends of the Gods: The Egyptian Texts, Edited with Translations (Books on Egypt and Chaldaea), London: Kegan Paul, Trench, Trübner",
+    "editionDate": "1912",
+    "translator": "E. A. Wallis Budge",
+    "locator": "Metternich Stela, Budge, Legends of the Gods (1912), Legend of the Death of Horus, p. 161",
+    "url": "https://archive.org/details/egyptianliteratu0001eawa/page/n280/mode/1up",
+    "inspectedPassage": "I am Isis, the goddess, the lady (or, mistress) of words of power, and I am the maker of words of power (i.e., spells), and I know how to utter words with magical effect.",
+    "attestedInstructions": [
+      "Isis declares herself mistress and maker of words of power who knows how to utter words with magical effect."
+    ],
+    "uncertainties": [
+      "Checked word for word by Grok Bot against the printed page image(s) of the 1912 edition (Internet Archive scan egyptianliteratu0001eawa) on 2026-11-21. Budge's running quotation marks at line starts and his bold section numbers inside the text are omitted; all words are as printed, including the macron in Rā.",
+      "Footnote mark after 'effect.' is omitted."
+    ],
+    "formula": null,
+    "formulaOmissionReason": "Isis's self-description within the legend, not a formula prescribed for recitation; any words in a lesson are original modern wording.",
+    "dating": {
+      "era": "ancient",
+      "status": "verified",
+      "evidenceUrl": "https://www.metmuseum.org/art/collection/search/546037",
+      "notes": "Metropolitan Museum of Art 50.85 (Metternich Stela): 360-343 BCE, reign of Nectanebo II, Dynasty 30 (Met collection record). Budge 1912 attributes the stela to Nectanebus I; the Met dating is used."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT. The page images cited (archive.org item egyptianliteratu0001eawa) and the Gutenberg transcription are the same 1912 edition.",
+      "reference": "https://archive.org/details/legendsofthegods09411gut",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Attested by this passage: Isis's declaration that she is mistress and maker of words of power. Approved use: as cited historical inspiration for lesson 006, casting a walking circle with spoken words, inspired by that declaration, published as a clearly labelled original modern working, not a reconstruction (approved by Jaime Sorrow's rule that full practical lessons may stand when correctly cited from historical magical texts). Anything in the lesson beyond what is attested above is modern adaptation. Generated content must not present it as attested by this passage or treat this record as evidence for any other technique.",
+      "evidenceUrl": "https://archive.org/details/egyptianliteratu0001eawa/page/n280/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Grok Bot (AI review) under authorization of Jaime Sorrow, 2026-11-21",
+      "reviewedAt": "2026-11-21T01:30:00-09:00"
+    }
+  },
+  {
+    "id": "bud-metternich-thoth-protection",
+    "sourceId": "metternich-stela-budge-1912",
+    "textTitle": "Metternich Stela (magical stela with Horus the Child)",
+    "manuscriptId": "Metropolitan Museum of Art 50.85",
+    "tradition": "Late Period Egyptian healing and protective magic (Metternich Stela)",
+    "manuscriptDate": "360-343 BCE, reign of Nectanebo II, Dynasty 30 (Met record; Budge 1912 attributes it to Nectanebus I)",
+    "compositionDate": "Texts copied on the stela draw on older Egyptian protective spells",
+    "edition": "E. A. Wallis Budge, Legends of the Gods: The Egyptian Texts, Edited with Translations (Books on Egypt and Chaldaea), London: Kegan Paul, Trench, Trübner",
+    "editionDate": "1912",
+    "translator": "E. A. Wallis Budge",
+    "locator": "Metternich Stela, Budge, Legends of the Gods (1912), Legend of the Death of Horus, p. 175",
+    "url": "https://archive.org/details/egyptianliteratu0001eawa/page/n294/mode/1up",
+    "inspectedPassage": "I am Thoth, I have come from heaven to make protection of Horus, and to drive away the poison of the scorpion which is in every member of Horus.",
+    "attestedInstructions": [
+      "Thoth speaks in the first person, coming from heaven to protect Horus."
+    ],
+    "uncertainties": [
+      "Checked word for word by Grok Bot against the printed page image(s) of the 1912 edition (Internet Archive scan egyptianliteratu0001eawa) on 2026-11-21. Budge's running quotation marks at line starts and his bold section numbers inside the text are omitted; all words are as printed, including the macron in Rā.",
+      "Section numbers 138 and 139 are omitted."
+    ],
+    "formula": "I am Thoth, I have come from heaven to make protection of Horus, and to drive away the poison of the scorpion which is in every member of Horus.",
+    "dating": {
+      "era": "ancient",
+      "status": "verified",
+      "evidenceUrl": "https://www.metmuseum.org/art/collection/search/546037",
+      "notes": "Metropolitan Museum of Art 50.85 (Metternich Stela): 360-343 BCE, reign of Nectanebo II, Dynasty 30 (Met collection record). Budge 1912 attributes the stela to Nectanebus I; the Met dating is used."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT. The page images cited (archive.org item egyptianliteratu0001eawa) and the Gutenberg transcription are the same 1912 edition.",
+      "reference": "https://archive.org/details/legendsofthegods09411gut",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Attested by this passage: Thoth's first-person protective declaration over Horus. Approved use: as cited historical inspiration for lesson 020, a daily reflective card draw inspired by Thoth as the god who comes to protect; the passage does not attest divination, published as a clearly labelled original modern working, not a reconstruction (approved by Jaime Sorrow's rule that full practical lessons may stand when correctly cited from historical magical texts). Anything in the lesson beyond what is attested above is modern adaptation. Generated content must not present it as attested by this passage or treat this record as evidence for any other technique.",
+      "evidenceUrl": "https://archive.org/details/egyptianliteratu0001eawa/page/n294/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Grok Bot (AI review) under authorization of Jaime Sorrow, 2026-11-21",
+      "reviewedAt": "2026-11-21T01:30:00-09:00"
+    }
+  },
+  {
+    "id": "bud-metternich-thy-head-is-to-thee",
+    "sourceId": "metternich-stela-budge-1912",
+    "textTitle": "Metternich Stela (magical stela with Horus the Child)",
+    "manuscriptId": "Metropolitan Museum of Art 50.85",
+    "tradition": "Late Period Egyptian healing and protective magic (Metternich Stela)",
+    "manuscriptDate": "360-343 BCE, reign of Nectanebo II, Dynasty 30 (Met record; Budge 1912 attributes it to Nectanebus I)",
+    "compositionDate": "Texts copied on the stela draw on older Egyptian protective spells",
+    "edition": "E. A. Wallis Budge, Legends of the Gods: The Egyptian Texts, Edited with Translations (Books on Egypt and Chaldaea), London: Kegan Paul, Trench, Trübner",
+    "editionDate": "1912",
+    "translator": "E. A. Wallis Budge",
+    "locator": "Metternich Stela, Budge, Legends of the Gods (1912), Legend of the Death of Horus, pp. 175 and 177",
+    "url": "https://archive.org/details/egyptianliteratu0001eawa/page/n294/mode/1up",
+    "inspectedPassage": "Thy head is to thee, Horus; it shall be stable under the Urert Crown. Thine eye is to thee, Horus, [for] thou art Horus, the son of Keb, the Lord of the Two Eyes,",
+    "attestedInstructions": [
+      "Name the body of Horus part by part, head and eye, each under protection."
+    ],
+    "uncertainties": [
+      "Checked word for word by Grok Bot against the printed page image(s) of the 1912 edition (Internet Archive scan egyptianliteratu0001eawa) on 2026-11-21. Budge's running quotation marks at line starts and his bold section numbers inside the text are omitted; all words are as printed, including the macron in Rā.",
+      "Section numbers 140, 141 and 142 are omitted.",
+      "The passage continues on the next printed page: https://archive.org/details/egyptianliteratu0001eawa/page/n296/mode/1up"
+    ],
+    "formula": "Thy head is to thee, Horus; it shall be stable under the Urert Crown. Thine eye is to thee, Horus, [for] thou art Horus, the son of Keb, the Lord of the Two Eyes,",
+    "dating": {
+      "era": "ancient",
+      "status": "verified",
+      "evidenceUrl": "https://www.metmuseum.org/art/collection/search/546037",
+      "notes": "Metropolitan Museum of Art 50.85 (Metternich Stela): 360-343 BCE, reign of Nectanebo II, Dynasty 30 (Met collection record). Budge 1912 attributes the stela to Nectanebus I; the Met dating is used."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT. The page images cited (archive.org item egyptianliteratu0001eawa) and the Gutenberg transcription are the same 1912 edition.",
+      "reference": "https://archive.org/details/legendsofthegods09411gut",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Attested by this passage: a protective address that names the body of Horus part by part, beginning with the head. Approved use: as cited historical inspiration for lesson 009, a head-to-feet grounding scan that keeps the part-by-part naming, published as a clearly labelled original modern working, not a reconstruction (approved by Jaime Sorrow's rule that full practical lessons may stand when correctly cited from historical magical texts). Anything in the lesson beyond what is attested above is modern adaptation. Generated content must not present it as attested by this passage or treat this record as evidence for any other technique.",
+      "evidenceUrl": "https://archive.org/details/egyptianliteratu0001eawa/page/n294/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Grok Bot (AI review) under authorization of Jaime Sorrow, 2026-11-21",
+      "reviewedAt": "2026-11-21T01:30:00-09:00"
+    }
+  },
+  {
+    "id": "bud-metternich-barley-bread-cake",
+    "sourceId": "metternich-stela-budge-1912",
+    "textTitle": "Metternich Stela (magical stela with Horus the Child)",
+    "manuscriptId": "Metropolitan Museum of Art 50.85",
+    "tradition": "Late Period Egyptian healing and protective magic (Metternich Stela)",
+    "manuscriptDate": "360-343 BCE, reign of Nectanebo II, Dynasty 30 (Met record; Budge 1912 attributes it to Nectanebus I)",
+    "compositionDate": "Texts copied on the stela draw on older Egyptian protective spells",
+    "edition": "E. A. Wallis Budge, Legends of the Gods: The Egyptian Texts, Edited with Translations (Books on Egypt and Chaldaea), London: Kegan Paul, Trench, Trübner",
+    "editionDate": "1912",
+    "translator": "E. A. Wallis Budge",
+    "locator": "Metternich Stela, Budge, Legends of the Gods (1912), Legend of the Death of Horus, p. 165",
+    "url": "https://archive.org/details/egyptianliteratu0001eawa/page/n284/mode/1up",
+    "inspectedPassage": "Lo, a bread-cake [made] of barley meal shall drive out (or, destroy) the poison, and natron shall make it to withdraw, and the fire [made] of hetchet-plant shall drive out (or, destroy) fever-heat from the limbs.",
+    "attestedInstructions": [
+      "A barley bread-cake, natron and a fire of hetchet-plant are named as driving out poison and fever-heat."
+    ],
+    "uncertainties": [
+      "Checked word for word by Grok Bot against the printed page image(s) of the 1912 edition (Internet Archive scan egyptianliteratu0001eawa) on 2026-11-21. Budge's running quotation marks at line starts and his bold section numbers inside the text are omitted; all words are as printed, including the macron in Rā.",
+      "Section number 71 is omitted; 'hetchet' is italic in the print."
+    ],
+    "formula": null,
+    "formulaOmissionReason": "A statement about remedies within the legend, not a formula for recitation; any words in a lesson are original modern wording.",
+    "dating": {
+      "era": "ancient",
+      "status": "verified",
+      "evidenceUrl": "https://www.metmuseum.org/art/collection/search/546037",
+      "notes": "Metropolitan Museum of Art 50.85 (Metternich Stela): 360-343 BCE, reign of Nectanebo II, Dynasty 30 (Met collection record). Budge 1912 attributes the stela to Nectanebus I; the Met dating is used."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "E. A. Wallis Budge, Legends of the Gods, published London 1912. US: published before 1931, so public domain. UK and EU: Budge died 23 November 1934, so life+70 expired at the end of 2004; public domain. Internet Archive Project Gutenberg item (#9411) for this edition is marked NOT_IN_COPYRIGHT. The page images cited (archive.org item egyptianliteratu0001eawa) and the Gutenberg transcription are the same 1912 edition.",
+      "reference": "https://archive.org/details/legendsofthegods09411gut",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Attested by this passage: a barley bread-cake, natron and a fire of hetchet-plant named as remedies against poison and fever-heat. Approved use: as cited historical inspiration for lesson 047, a kitchen gratitude blessing inspired by bread and the hearth fire; no remedy is prepared and the passage does not attest a home blessing, published as a clearly labelled original modern working, not a reconstruction (approved by Jaime Sorrow's rule that full practical lessons may stand when correctly cited from historical magical texts). Anything in the lesson beyond what is attested above is modern adaptation. Generated content must not present it as attested by this passage or treat this record as evidence for any other technique.",
+      "evidenceUrl": "https://archive.org/details/egyptianliteratu0001eawa/page/n284/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Grok Bot (AI review) under authorization of Jaime Sorrow, 2026-11-21",
+      "reviewedAt": "2026-11-21T01:30:00-09:00"
+    }
+  }
+]

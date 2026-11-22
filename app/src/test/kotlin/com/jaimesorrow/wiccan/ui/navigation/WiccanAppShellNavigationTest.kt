@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -218,5 +221,43 @@ class WiccanAppShellNavigationTest {
         click("Grimoire")
         systemBack()
         assertScreen("today")
+    }
+
+    @Test
+    fun `a notification tap request opens Today from any screen and is consumed`() {
+        var requested by mutableStateOf(false)
+        var handled = 0
+        composeRule.setContent {
+            navController = rememberNavController()
+            MaterialTheme {
+                WiccanAppShellContent(
+                    stubScreens,
+                    navController,
+                    openTodayRequested = requested,
+                    onOpenTodayHandled = {
+                        handled++
+                        requested = false
+                    },
+                )
+            }
+        }
+        click("Grimoire")
+        click("stub:open-entry")
+        assertScreen("detail:lesson-42")
+
+        requested = true
+        composeRule.waitForIdle()
+        assertScreen("today")
+        assertBottomBar(visible = true)
+        assertEquals(1, handled)
+
+        // A second request from another tab also lands on Today with nothing behind it.
+        click("Settings")
+        requested = true
+        composeRule.waitForIdle()
+        assertScreen("today")
+        assertEquals(2, handled)
+        assertEquals(WiccanDestinations.TODAY, navController.currentDestination?.route)
+        assertEquals(null, navController.previousBackStackEntry)
     }
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.data.local.ThemePreferences
+import com.jaimesorrow.wiccan.domain.model.AuthState
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
 import com.jaimesorrow.wiccan.domain.repository.NotificationRepository
@@ -19,6 +20,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -40,7 +44,36 @@ class SettingsViewModel @Inject constructor(
     private val effectChannel = Channel<SettingsUiEffect>(Channel.BUFFERED)
     val effects: Flow<SettingsUiEffect> = effectChannel.receiveAsFlow()
 
+    /** Set once the user edits either name field; after that the saved name never overwrites the form. */
+    private var nameEdited = false
+
     init {
+        viewModelScope.launch {
+            // This ViewModel can outlive a sign-out (the onboarding copy is
+            // activity-scoped), so per-account fields are cleared whenever the
+            // signed-in account changes and the saved name is read again.
+            var previousUid: String? = null
+            var first = true
+            authRepository.observeAuthState()
+                .map { (it as? AuthState.SignedIn)?.uid }
+                .distinctUntilChanged()
+                .collectLatest { uid ->
+                    if (!first && uid != previousUid) {
+                        nameEdited = false
+                        _state.update {
+                            it.copy(
+                                firstName = "",
+                                lastName = "",
+                                newEmail = "",
+                                accountEmail = authRepository.currentEmail().orEmpty(),
+                            )
+                        }
+                    }
+                    first = false
+                    previousUid = uid
+                    if (uid != null) prefillName()
+                }
+        }
         viewModelScope.launch {
             subscriptionRepository.observeTier().collect { tier ->
                 _state.update { it.copy(tier = tier) }
@@ -63,11 +96,23 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    private suspend fun prefillName() {
+        val saved = authRepository.currentProfileName() ?: return
+        if (nameEdited) return
+        _state.update { it.copy(firstName = saved.firstName, lastName = saved.lastName) }
+    }
+
     fun onEvent(event: SettingsUiEvent) {
         when (event) {
             SettingsUiEvent.SignOutClicked -> signOut()
-            is SettingsUiEvent.FirstNameChanged -> _state.update { it.copy(firstName = event.value) }
-            is SettingsUiEvent.LastNameChanged -> _state.update { it.copy(lastName = event.value) }
+            is SettingsUiEvent.FirstNameChanged -> {
+                nameEdited = true
+                _state.update { it.copy(firstName = event.value) }
+            }
+            is SettingsUiEvent.LastNameChanged -> {
+                nameEdited = true
+                _state.update { it.copy(lastName = event.value) }
+            }
             is SettingsUiEvent.NewEmailChanged -> _state.update { it.copy(newEmail = event.value) }
             SettingsUiEvent.SaveNameClicked -> saveName()
             SettingsUiEvent.ChangeEmailClicked -> updateEmail()

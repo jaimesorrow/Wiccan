@@ -1,0 +1,121 @@
+name: Publish approved build to Google Play
+
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: Google Play track ID (internal, alpha, beta, production, or a custom testing track)
+        required: true
+        default: internal
+        type: string
+      release_status:
+        description: Create a draft or complete the approved rollout
+        required: true
+        default: draft
+        type: choice
+        options:
+          - draft
+          - completed
+
+permissions:
+  contents: read
+
+concurrency:
+  group: google-play-publish
+  cancel-in-progress: false
+
+jobs:
+  validate-source:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Approved source commit is $GITHUB_SHA on main."
+
+  build-and-publish:
+    needs: validate-source
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/setup-java@v6.3.0
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Check protected release secrets
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          missing=""
+          [ -n "$KEYSTORE_BASE64" ] || missing="$missing RELEASE_KEYSTORE_BASE64"
+          [ -n "$KEYSTORE_PASSWORD" ] || missing="$missing RELEASE_KEYSTORE_PASSWORD"
+          [ -n "$KEY_ALIAS" ] || missing="$missing RELEASE_KEY_ALIAS"
+          [ -n "$KEY_PASSWORD" ] || missing="$missing RELEASE_KEY_PASSWORD"
+          [ -n "$PLAY_SERVICE_ACCOUNT_JSON" ] || missing="$missing PLAY_SERVICE_ACCOUNT_JSON"
+          if [ -n "$missing" ]; then
+            echo "Missing required repository secret(s):$missing" >&2
+            exit 1
+          fi
+
+      - name: Materialize temporary signing config
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          keytool -list -keystore "$RUNNER_TEMP/upload.jks" \
+            -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" > /dev/null
+          umask 077
+          {
+            echo "storeFile=$RUNNER_TEMP/upload.jks"
+            echo "storePassword=$KEYSTORE_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "keyPassword=$KEY_PASSWORD"
+          } > app/keystore.properties
+
+      - name: Validate and build signed bundle
+        run: |
+          ./scripts/validate-repo.sh --structure
+          python3 scripts/test-check-16kb-alignment.py
+          ./gradlew ktlintCheck :app:testProdDebugUnitTest \
+            :app:compileProdDebugAndroidTestKotlin :app:lintProdRelease \
+            :app:bundleProdRelease
+          ./scripts/check-16kb-alignment.sh
+
+      - name: Verify signed artifact
+        run: |
+          aab=app/build/outputs/bundle/prodRelease/app-prod-release.aab
+          test -f "$aab"
+          unzip -l "$aab" | grep -qiE 'META-INF/.*\.(RSA|DSA|EC)$'
+          jarsigner -verify "$aab" | grep -q 'jar verified'
+
+      - name: Upload approved bundle to Google Play
+        uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1.1.5
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.jaimesorrow.wiccan
+          releaseFiles: app/build/outputs/bundle/prodRelease/app-prod-release.aab
+          track: ${{ inputs.track }}
+          status: ${{ inputs.release_status }}
+
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: approved-play-bundle-${{ github.sha }}
+          path: app/build/outputs/bundle/prodRelease/app-prod-release.aab
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Remove signing material
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.jks" app/keystore.properties

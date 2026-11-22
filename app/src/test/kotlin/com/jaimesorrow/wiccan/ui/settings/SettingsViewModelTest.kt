@@ -6,7 +6,9 @@ import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.data.local.ThemePreferences
+import com.jaimesorrow.wiccan.domain.model.AuthState
 import com.jaimesorrow.wiccan.domain.model.ContentTier
+import com.jaimesorrow.wiccan.domain.model.ProfileName
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
 import com.jaimesorrow.wiccan.domain.repository.NotificationRepository
 import com.jaimesorrow.wiccan.domain.usecase.DeleteAccountUseCase
@@ -19,6 +21,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -81,6 +84,85 @@ class SettingsViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
         coVerify { consentManager.setConsent(false) }
     }
+
+    @Test
+    fun `name fields are prefilled with the saved profile name`() = runTest(dispatcher) {
+        repository.setAuthState(AuthState.SignedIn("uid-a"))
+        repository.profileName = ProfileName("Raven", "Moon")
+        val viewModel = newViewModel()
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals("Raven", viewModel.state.value.firstName)
+        assertEquals("Moon", viewModel.state.value.lastName)
+    }
+
+    @Test
+    fun `a delayed profile read never overwrites edits, even after typing then clearing`() = runTest(dispatcher) {
+        repository.setAuthState(AuthState.SignedIn("uid-a"))
+        repository.profileNameReader = {
+            delay(5_000)
+            ProfileName("Raven", "Moon")
+        }
+        val viewModel = newViewModel()
+        dispatcher.scheduler.runCurrent()
+
+        viewModel.onEvent(SettingsUiEvent.FirstNameChanged("Ash"))
+        viewModel.onEvent(SettingsUiEvent.FirstNameChanged(""))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals("", viewModel.state.value.firstName)
+        assertEquals("", viewModel.state.value.lastName)
+    }
+
+    @Test
+    fun `names never carry over to another account after sign-out`() = runTest(dispatcher) {
+        val names = mapOf("uid-a" to ProfileName("Alice", "Ash"), "uid-b" to ProfileName("Bram", "Birch"))
+        var signedIn: String? = "uid-a"
+        repository.profileNameReader = { names[signedIn] }
+        repository.setAuthState(AuthState.SignedIn("uid-a"))
+        val viewModel = newViewModel()
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals("Alice", viewModel.state.value.firstName)
+        viewModel.onEvent(SettingsUiEvent.LastNameChanged("Ashby"))
+
+        signedIn = null
+        repository.setAuthState(AuthState.SignedOut)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals("", viewModel.state.value.firstName)
+        assertEquals("", viewModel.state.value.lastName)
+
+        // User B signs in on the same activity-scoped ViewModel: B's own name, none of A's edits.
+        signedIn = "uid-b"
+        repository.setAuthState(AuthState.SignedIn("uid-b"))
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals("Bram", viewModel.state.value.firstName)
+        assertEquals("Birch", viewModel.state.value.lastName)
+    }
+
+    @Test
+    fun `switching accounts directly also drops the previous account's names`() = runTest(dispatcher) {
+        repository.setAuthState(AuthState.SignedIn("uid-a"))
+        repository.profileName = ProfileName("Alice", "Ash")
+        val viewModel = newViewModel()
+        dispatcher.scheduler.advanceUntilIdle()
+
+        repository.profileName = null // B has no saved name yet (onboarding)
+        repository.setAuthState(AuthState.SignedIn("uid-b"))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals("", viewModel.state.value.firstName)
+        assertEquals("", viewModel.state.value.lastName)
+    }
+
+    private fun newViewModel() = SettingsViewModel(
+        repository,
+        DeleteAccountUseCase(repository, mockk(relaxed = true)),
+        subscriptionRepository,
+        notificationRepository,
+        themePreferences,
+        wiccanWidgetUpdater,
+        consentManager,
+    )
 
     @After
     fun tearDown() {

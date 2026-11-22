@@ -1,12 +1,22 @@
 package com.jaimesorrow.wiccan.ui.today
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.dp
 import com.jaimesorrow.wiccan.data.mapper.toContentOrNull
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertTrue
@@ -109,5 +119,69 @@ class TodayScreenTest {
         assertTrue(TodayUiEvent.Retry in events)
         composeRule.onNodeWithText("Open your Grimoire").performScrollTo().performClick()
         assertTrue(openedGrimoire)
+    }
+
+    @Test
+    fun `check again keeps the scroll position instead of jumping to the top`() {
+        var state by mutableStateOf(TodayUiState(isLoading = false, poolExhausted = true))
+        composeRule.setContent {
+            MaterialTheme {
+                // A short viewport, like 480x800 at font scale 1.5, so the actions start below the fold.
+                Box(modifier = Modifier.size(width = 320.dp, height = 260.dp)) {
+                    TodayScreenContent(
+                        state = state,
+                        effects = emptyFlow(),
+                        onEvent = { if (it == TodayUiEvent.Retry) state = state.copy(isLoading = true) },
+                    )
+                }
+            }
+        }
+        composeRule.onNodeWithTag("today-check-again").assertIsNotDisplayed()
+        composeRule.onNodeWithTag("today-check-again").performScrollTo().assertIsDisplayed()
+
+        composeRule.onNodeWithTag("today-check-again").performClick()
+        composeRule.waitForIdle()
+        // While refreshing, the panel stays (no skeleton swap) and the button is disabled.
+        composeRule.onNodeWithTag("today-check-again").assertIsDisplayed().assertIsNotEnabled()
+
+        // Refresh finishes: still no new lessons.
+        state = state.copy(isLoading = false)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("today-check-again").assertIsDisplayed().assertIsEnabled()
+    }
+
+    @Test
+    fun `retrying from the error panel keeps the panel and its scroll position`() {
+        var state by mutableStateOf(TodayUiState(isLoading = false, loadFailed = true))
+        composeRule.setContent {
+            MaterialTheme {
+                Box(modifier = Modifier.size(width = 320.dp, height = 260.dp)) {
+                    TodayScreenContent(
+                        state = state,
+                        effects = emptyFlow(),
+                        onEvent = { if (it == TodayUiEvent.Retry) state = state.copy(isLoading = true) },
+                    )
+                }
+            }
+        }
+        composeRule.onNodeWithTag("today-retry").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("today-error").assertExists()
+        composeRule.onNodeWithTag("today-retry").assertIsDisplayed().assertIsNotEnabled()
+
+        state = state.copy(isLoading = false)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("today-retry").assertIsDisplayed().assertIsEnabled()
+    }
+
+    @Test
+    fun `first load still shows the skeleton`() {
+        composeRule.setContent {
+            MaterialTheme {
+                TodayScreenContent(state = TodayUiState(isLoading = true), effects = emptyFlow(), onEvent = {})
+            }
+        }
+        composeRule.onNodeWithTag("today-empty").assertDoesNotExist()
+        composeRule.onNodeWithTag("today-error").assertDoesNotExist()
     }
 }

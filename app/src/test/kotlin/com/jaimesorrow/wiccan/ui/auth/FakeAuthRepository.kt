@@ -4,7 +4,9 @@ import android.content.Context
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.model.AccountStatus
 import com.jaimesorrow.wiccan.domain.model.AuthState
+import com.jaimesorrow.wiccan.domain.model.ProfileName
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -68,11 +70,26 @@ class FakeAuthRepository : AuthRepository {
         return passwordResetResult
     }
 
-    override suspend fun sendEmailVerification(): AppResult<Unit> = AppResult.Success(Unit)
-    override suspend fun refreshEmailVerification(): AppResult<Unit> = AppResult.Success(Unit)
+    /** Delay before the verification calls return, to model a slow network. */
+    var verificationDelayMs: Long = 0
+
+    override suspend fun sendEmailVerification(): AppResult<Unit> {
+        delay(verificationDelayMs)
+        return AppResult.Success(Unit)
+    }
+    override suspend fun refreshEmailVerification(): AppResult<Unit> {
+        delay(verificationDelayMs)
+        return AppResult.Success(Unit)
+    }
     override suspend fun completeProfile(firstName: String, lastName: String): AppResult<Unit> = AppResult.Success(Unit)
 
     override fun currentEmail(): String? = "test@example.com"
+
+    var profileName: ProfileName? = null
+
+    /** Override to delay the read or answer per signed-in account. */
+    var profileNameReader: suspend () -> ProfileName? = { profileName }
+    override suspend fun currentProfileName(): ProfileName? = profileNameReader()
     override suspend fun requestEmailUpdate(email: String): AppResult<Unit> = AppResult.Success(Unit)
 
     override suspend fun signOut(): AppResult<Unit> {

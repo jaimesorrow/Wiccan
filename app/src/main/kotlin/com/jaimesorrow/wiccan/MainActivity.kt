@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -21,6 +22,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -42,6 +44,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.domain.model.RootState
+import com.jaimesorrow.wiccan.notification.isOpenTodayRequest
 import com.jaimesorrow.wiccan.ui.auth.OnboardingScreen
 import com.jaimesorrow.wiccan.ui.auth.RootViewModel
 import com.jaimesorrow.wiccan.ui.auth.SignInScreen
@@ -49,6 +52,7 @@ import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentScreen
 import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
+import com.jaimesorrow.wiccan.ui.navigation.RootRouter
 import com.jaimesorrow.wiccan.ui.navigation.WiccanAppShell
 import com.jaimesorrow.wiccan.ui.navigation.WiccanDeepLinks
 import com.jaimesorrow.wiccan.ui.notification.NotificationSetupEffect
@@ -75,12 +79,23 @@ class MainActivity : ComponentActivity() {
     private val rootViewModel: RootViewModel by viewModels()
     private val themeViewModel: ThemeViewModel by viewModels()
 
+    /** Set by a notification tap (cold start or [onNewIntent]); cleared once the shell shows Today. */
+    private var openTodayRequested by mutableStateOf(false)
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (isOpenTodayRequest(intent)) openTodayRequested = true
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         splashScreen.setKeepOnScreenCondition { rootViewModel.rootState.value == RootState.Loading }
 
         val startOnPaywall = intent?.data == Uri.parse(WiccanDeepLinks.PREMIUM_URI)
+        // Only a fresh launch: a recreated activity has already handled its intent.
+        if (savedInstanceState == null && isOpenTodayRequest(intent)) openTodayRequested = true
         setContent {
             val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
             WiccanTheme(themeMode = themeMode) {
@@ -88,6 +103,10 @@ class MainActivity : ComponentActivity() {
                 val rootState by rootViewModel.rootState.collectAsStateWithLifecycle()
                 var openLegalDocument by remember { mutableStateOf<LegalDocumentId?>(null) }
                 var openAccount by remember(rootState) { mutableStateOf(false) }
+                if (openTodayRequested) {
+                    // Close root-level overlays so Today is actually visible.
+                    LaunchedEffect(Unit) { openLegalDocument = null }
+                }
                 val subscriptionUid = when (val state = rootState) {
                     is RootState.SignedIn -> state.uid
                     is RootState.RequiresSubscription -> state.uid
@@ -103,70 +122,77 @@ class MainActivity : ComponentActivity() {
                         document = WiccanLegalDocuments.get(documentId),
                         onBack = { openLegalDocument = null },
                     )
-                } ?: when (rootState) {
-                    is RootState.SignedIn -> key(subscriptionUid) {
+                } ?: RootRouter(
+                    rootState = rootState,
+                    signedIn = { uid ->
                         NotificationSetupEffect()
                         // Account deletion must finish/sign out even if the
                         // server revokes access and removes this navigation shell.
                         WiccanAppShell(
                             startOnPaywall = startOnPaywall,
-                            settingsViewModel = hiltViewModel(key = "subscription-account-$subscriptionUid"),
+                            openTodayRequested = openTodayRequested,
+                            onOpenTodayHandled = { openTodayRequested = false },
+                            settingsViewModel = hiltViewModel(key = "subscription-account-$uid"),
                         )
-                    }
-                    is RootState.RequiresSubscription -> key(subscriptionUid) {
-                        if (openAccount) {
-                            SettingsScreen(
-                                accountOnly = true,
-                                onBack = { openAccount = false },
-                                onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
-                                onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
-                                onContentSafetyClick = { openLegalDocument = LegalDocumentId.CONTENT_SAFETY },
-                                onPotionSafetyClick = { openLegalDocument = LegalDocumentId.POTION_SAFETY },
-                                viewModel = hiltViewModel(key = "subscription-account-$subscriptionUid"),
-                            )
-                            BackHandler { openAccount = false }
-                        } else {
-                            PaywallScreen(
-                                onAccountClick = { openAccount = true },
-                                onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
-                                onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
-                                viewModel = hiltViewModel(key = "subscription-paywall-$subscriptionUid"),
-                            )
+                    },
+                    signedOut = { SignInScreen(onOpenLegalDocument = { openLegalDocument = it }) },
+                ) { state ->
+                    when (state) {
+                        is RootState.RequiresSubscription -> key(subscriptionUid) {
+                            if (openAccount) {
+                                SettingsScreen(
+                                    accountOnly = true,
+                                    onBack = { openAccount = false },
+                                    onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
+                                    onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
+                                    onContentSafetyClick = { openLegalDocument = LegalDocumentId.CONTENT_SAFETY },
+                                    onPotionSafetyClick = { openLegalDocument = LegalDocumentId.POTION_SAFETY },
+                                    viewModel = hiltViewModel(key = "subscription-account-$subscriptionUid"),
+                                )
+                                BackHandler { openAccount = false }
+                            } else {
+                                PaywallScreen(
+                                    onAccountClick = { openAccount = true },
+                                    onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
+                                    onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
+                                    viewModel = hiltViewModel(key = "subscription-paywall-$subscriptionUid"),
+                                )
+                            }
                         }
-                    }
-                    RootState.SignedOut -> SignInScreen(onOpenLegalDocument = { openLegalDocument = it })
-                    RootState.RequiresEmailVerification, RootState.RequiresProfileCompletion,
-                    RootState.RequiresPolicyAcceptance -> {
-                        if (openAccount) {
-                            SettingsScreen(
-                                accountOnly = true,
-                                onBack = { openAccount = false },
-                                onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
-                                onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
-                                onContentSafetyClick = { openLegalDocument = LegalDocumentId.CONTENT_SAFETY },
-                                onPotionSafetyClick = { openLegalDocument = LegalDocumentId.POTION_SAFETY },
-                                viewModel = hiltViewModel(key = "onboarding-account"),
-                            )
-                            BackHandler { openAccount = false }
-                        } else if (rootState == RootState.RequiresPolicyAcceptance) {
-                            PolicyAcceptanceScreen(
-                                onOpenLegalDocument = { openLegalDocument = it },
-                                onAccountClick = { openAccount = true },
-                            )
-                        } else {
-                            OnboardingScreen(
-                                verification = rootState == RootState.RequiresEmailVerification,
-                                onOpenLegalDocument = { openLegalDocument = it },
-                                onAccountClick = { openAccount = true },
-                            )
+                        RootState.RequiresEmailVerification, RootState.RequiresProfileCompletion,
+                        RootState.RequiresPolicyAcceptance -> {
+                            if (openAccount) {
+                                SettingsScreen(
+                                    accountOnly = true,
+                                    onBack = { openAccount = false },
+                                    onTermsClick = { openLegalDocument = LegalDocumentId.TERMS },
+                                    onPrivacyClick = { openLegalDocument = LegalDocumentId.PRIVACY },
+                                    onContentSafetyClick = { openLegalDocument = LegalDocumentId.CONTENT_SAFETY },
+                                    onPotionSafetyClick = { openLegalDocument = LegalDocumentId.POTION_SAFETY },
+                                    viewModel = hiltViewModel(key = "onboarding-account"),
+                                )
+                                BackHandler { openAccount = false }
+                            } else if (state == RootState.RequiresPolicyAcceptance) {
+                                PolicyAcceptanceScreen(
+                                    onOpenLegalDocument = { openLegalDocument = it },
+                                    onAccountClick = { openAccount = true },
+                                )
+                            } else {
+                                OnboardingScreen(
+                                    verification = state == RootState.RequiresEmailVerification,
+                                    onOpenLegalDocument = { openLegalDocument = it },
+                                    onAccountClick = { openAccount = true },
+                                )
+                            }
                         }
+                        is RootState.AccountUnavailable -> AccountStatusError(
+                            message = state.error
+                                .toUserMessage(LocalResources.current),
+                            onRetry = rootViewModel::retryAccountStatus,
+                        )
+                        RootState.Loading, RootState.InitializingProfile -> LoadingIndicator()
+                        is RootState.SignedIn, RootState.SignedOut -> Unit // routed above
                     }
-                    is RootState.AccountUnavailable -> AccountStatusError(
-                        message = (rootState as RootState.AccountUnavailable).error
-                            .toUserMessage(LocalResources.current),
-                        onRetry = rootViewModel::retryAccountStatus,
-                    )
-                    RootState.Loading, RootState.InitializingProfile -> LoadingIndicator()
                 }
             }
         }

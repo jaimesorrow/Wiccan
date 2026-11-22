@@ -34,7 +34,7 @@ Node 22. Build: Java 17, Gradle 9.9.1, AGP 9.5.1, Kotlin 2.4.21,
   (Play Developer API, RTDN, daily lapse re-check). See
   [SUBSCRIPTION_ACCESS.md](SUBSCRIPTION_ACCESS.md).
 - Legal: native Terms, Privacy, Content & Safety and Potion Safety documents
-  (policy version 4), a blocking acceptance gate enforced on the server,
+  (policy version 5), a blocking acceptance gate enforced on the server,
   opt-in analytics/crash reporting, and matching public pages in `hosting/`.
 - Brand identity (icons, full logo, six palettes); Play icon (512×512) and
   feature graphic (1024×500) are prepared in `brand/exports/google-play/`.
@@ -100,7 +100,7 @@ Before production (can overlap with the 14-day closed test):
    Firebase project may still be on Spark; Functions need Blaze.
 7. **Content and legal review gaps.** The 296-entry seed (200 lessons, 59
    spells, 37 potions) is draft; source passages, citations and rights still
-   need human review and approval before anything is published to Firestore.
+   need review and approval before anything is published to Firestore.
    Trademark review of the WICCAN name is also open.
 8. **After the first upload:** copy the **Play App Signing** certificate
    SHA-1 (and SHA-256) from Play Console → Test and release → Setup → App

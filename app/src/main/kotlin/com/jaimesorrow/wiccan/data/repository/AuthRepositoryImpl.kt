@@ -16,9 +16,11 @@ import com.jaimesorrow.wiccan.data.remote.GoogleCredentialDataSource
 import com.jaimesorrow.wiccan.domain.model.AccountStatus
 import com.jaimesorrow.wiccan.domain.model.AuthState
 import com.jaimesorrow.wiccan.domain.model.PolicyVersions
+import com.jaimesorrow.wiccan.domain.model.ProfileName
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -188,6 +190,23 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override fun currentEmail(): String? = firebaseAuth.currentUser?.email
+
+    override suspend fun currentProfileName(): ProfileName? = try {
+        val uid = firebaseAuth.currentUser?.uid
+        if (uid == null) {
+            null
+        } else {
+            val snapshot = firestore.collection(USERS_COLLECTION).document(uid).get().await()
+            ProfileName(
+                firstName = snapshot.getString("firstName").orEmpty(),
+                lastName = snapshot.getString("lastName").orEmpty(),
+            ).takeIf { it.firstName.isNotBlank() || it.lastName.isNotBlank() }
+        }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Throwable) {
+        null
+    }
 
     override suspend fun requestEmailUpdate(email: String): AppResult<Unit> = try {
         val user = firebaseAuth.currentUser

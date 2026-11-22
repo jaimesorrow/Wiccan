@@ -18,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +41,8 @@ fun OnboardingScreen(
     viewModel: OnboardingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val step = if (verification) OnboardingStep.VERIFY_EMAIL else OnboardingStep.PROFILE
+    LaunchedEffect(step) { viewModel.onStepShown(step) }
     val loadingDescription = stringResource(R.string.loading_description)
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { insets ->
         Column(
@@ -95,9 +98,13 @@ fun OnboardingScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 CircularProgressIndicator(modifier = Modifier.semantics { contentDescription = loadingDescription })
             }
-            state.notice?.let { message ->
+            state.noticeFor(step)?.let { message ->
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(stringResource(message), style = MaterialTheme.typography.bodySmall)
+                Text(
+                    stringResource(message),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.testTag("onboarding-notice"),
+                )
             }
             Spacer(modifier = Modifier.height(18.dp))
             TextButton(onClick = viewModel::signOut, enabled = !state.busy) {
