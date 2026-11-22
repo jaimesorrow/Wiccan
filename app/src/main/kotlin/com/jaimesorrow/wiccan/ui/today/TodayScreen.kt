@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -50,6 +51,8 @@ fun TodayScreen(
     modifier: Modifier = Modifier,
     viewModel: TodayViewModel = hiltViewModel(),
     onOpenGrimoire: () -> Unit = {},
+    onOpenToday: (() -> Unit)? = null,
+    onBack: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     // A retained screen must ask the server again after a local-date or timezone change.
@@ -68,6 +71,8 @@ fun TodayScreen(
         onEvent = viewModel::onEvent,
         modifier = modifier,
         onOpenGrimoire = onOpenGrimoire,
+        onOpenToday = onOpenToday,
+        onBack = onBack,
     )
 }
 
@@ -82,6 +87,8 @@ internal fun TodayScreenContent(
     onEvent: (TodayUiEvent) -> Unit,
     modifier: Modifier = Modifier,
     onOpenGrimoire: () -> Unit = {},
+    onOpenToday: (() -> Unit)? = null,
+    onBack: (() -> Unit)? = null,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
@@ -115,67 +122,79 @@ internal fun TodayScreenContent(
         containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { insets ->
-        Box(modifier = Modifier.padding(insets).fillMaxSize()) {
-            when {
-                // A retry from the exhausted or error panel keeps that panel on
-                // screen (and its scroll position) instead of swapping in the skeleton.
-                state.isLoading && state.content == null && !state.poolExhausted && !state.loadFailed ->
-                    TodaySkeleton()
-                // Centered when it fits; scrollable on short viewports or with
-                // enlarged text so the actions below always stay reachable.
-                state.poolExhausted -> Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .testTag("today-empty")
-                            .verticalScroll(emptyScrollState)
-                            .padding(32.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
+        Column(modifier = Modifier.padding(insets).fillMaxSize()) {
+            onBack?.let { back ->
+                Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                    TextButton(onClick = back) { Text(stringResource(R.string.daily_back)) }
+                }
+            }
+            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                when {
+                    // A retry from the exhausted or error panel keeps that panel on
+                    // screen (and its scroll position) instead of swapping in the skeleton.
+                    state.isLoading && state.content == null && !state.poolExhausted && !state.loadFailed ->
+                        TodaySkeleton()
+                    // Centered when it fits; scrollable on short viewports or with
+                    // enlarged text so the actions below always stay reachable.
+                    state.poolExhausted -> Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        WiccanEmblem(
-                            modifier = Modifier.testTag("today-empty-logo"),
-                            size = 48.dp,
-                            contentDescription = stringResource(R.string.today_logo_description),
-                        )
-                        Spacer(modifier = Modifier.height(20.dp))
-                        Text(
-                            text = stringResource(R.string.today_empty_title),
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onBackground,
-                        )
-                        Text(
-                            text = stringResource(R.string.today_empty_body),
-                            modifier = Modifier.padding(top = 12.dp, bottom = 24.dp),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onBackground,
-                        )
-                        Button(onClick = onOpenGrimoire) { Text(stringResource(R.string.today_open_grimoire)) }
-                        TextButton(
-                            onClick = { onEvent(TodayUiEvent.Retry) },
-                            enabled = !state.isLoading,
-                            modifier = Modifier.testTag("today-check-again"),
+                        Column(
+                            modifier = Modifier
+                                .testTag("today-empty")
+                                .verticalScroll(emptyScrollState)
+                                .padding(32.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Text(stringResource(R.string.today_look_again))
+                            WiccanEmblem(
+                                modifier = Modifier.testTag("today-empty-logo"),
+                                size = 48.dp,
+                                contentDescription = stringResource(R.string.today_logo_description),
+                            )
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Text(
+                                text = stringResource(R.string.today_empty_title),
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.onBackground,
+                            )
+                            Text(
+                                text = stringResource(R.string.today_empty_body),
+                                modifier = Modifier.padding(top = 12.dp, bottom = 24.dp),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onBackground,
+                            )
+                            Button(onClick = onOpenGrimoire) { Text(stringResource(R.string.today_open_grimoire)) }
+                            TextButton(
+                                onClick = { onEvent(TodayUiEvent.Retry) },
+                                enabled = !state.isLoading,
+                                modifier = Modifier.testTag("today-check-again"),
+                            ) {
+                                Text(stringResource(R.string.today_look_again))
+                            }
                         }
                     }
-                }
-                state.content != null -> ContentDetailView(
-                    content = state.content,
-                    isDailyLesson = true,
-                    onOpenGrimoire = onOpenGrimoire,
-                )
-                // Post-error, cache-empty: never leave a blank screen — always offer a way forward.
-                state.loadFailed -> TodayErrorPanel(
-                    onEvent = onEvent,
-                    onOpenGrimoire = onOpenGrimoire,
-                    scrollState = errorScrollState,
-                    retrying = state.isLoading,
-                )
-                else -> {
-                    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
+                    state.content != null && onOpenToday != null -> SpellbookHome(
+                        content = state.content,
+                        onOpenToday = onOpenToday,
+                        onOpenGrimoire = onOpenGrimoire,
+                    )
+                    state.content != null -> ContentDetailView(
+                        content = state.content,
+                        isDailyLesson = true,
+                        onOpenGrimoire = onOpenGrimoire,
+                    )
+                    // Post-error, cache-empty: never leave a blank screen — always offer a way forward.
+                    state.loadFailed -> TodayErrorPanel(
+                        onEvent = onEvent,
+                        onOpenGrimoire = onOpenGrimoire,
+                        scrollState = errorScrollState,
+                        retrying = state.isLoading,
+                    )
+                    else -> {
+                        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
+                    }
                 }
             }
         }

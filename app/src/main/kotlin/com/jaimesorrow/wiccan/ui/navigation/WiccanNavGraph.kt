@@ -1,10 +1,14 @@
 package com.jaimesorrow.wiccan.ui.navigation
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,8 +16,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -25,6 +32,7 @@ import androidx.navigation.navDeepLink
 import com.jaimesorrow.wiccan.ui.archive.ARCHIVE_DETAIL_CONTENT_ID_ARG
 import com.jaimesorrow.wiccan.ui.archive.ArchiveDetailScreen
 import com.jaimesorrow.wiccan.ui.archive.ArchiveScreen
+import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentScreen
 import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
@@ -33,12 +41,16 @@ import com.jaimesorrow.wiccan.ui.settings.SettingsViewModel
 import com.jaimesorrow.wiccan.ui.today.TodayScreen
 import com.wiccan.app.R
 
-private data class BottomNavItem(val route: String, @StringRes val labelRes: Int)
+private data class BottomNavItem(
+    val route: String,
+    @StringRes val labelRes: Int,
+    @DrawableRes val iconRes: Int,
+)
 
 private val bottomNavItems = listOf(
-    BottomNavItem(WiccanDestinations.TODAY, R.string.nav_today),
-    BottomNavItem(WiccanDestinations.ARCHIVE, R.string.nav_grimoire),
-    BottomNavItem(WiccanDestinations.SETTINGS, R.string.nav_settings),
+    BottomNavItem(WiccanDestinations.HOME, R.string.nav_home, R.drawable.ic_nav_home),
+    BottomNavItem(WiccanDestinations.ARCHIVE, R.string.nav_grimoire, R.drawable.ic_nav_grimoire),
+    BottomNavItem(WiccanDestinations.SETTINGS, R.string.nav_settings, R.drawable.ic_nav_settings),
 )
 
 /** What a settings destination needs from navigation. */
@@ -58,7 +70,12 @@ internal data class SettingsLinks(
  * without Firebase.
  */
 internal class WiccanNavScreens(
-    val today: @Composable (onOpenGrimoire: () -> Unit) -> Unit,
+    val dailyContent: @Composable (
+        graphEntry: NavBackStackEntry,
+        onOpenToday: (() -> Unit)?,
+        onBack: (() -> Unit)?,
+        onOpenGrimoire: () -> Unit,
+    ) -> Unit,
     val archive: @Composable (onNavigateToDetail: (String) -> Unit) -> Unit,
     val settings: @Composable (links: SettingsLinks) -> Unit,
     val archiveDetail: @Composable (contentId: String, onBack: () -> Unit) -> Unit,
@@ -66,7 +83,14 @@ internal class WiccanNavScreens(
 )
 
 private fun productionScreens(settingsViewModel: SettingsViewModel) = WiccanNavScreens(
-    today = { onOpenGrimoire -> TodayScreen(onOpenGrimoire = onOpenGrimoire) },
+    dailyContent = { graphEntry, onOpenToday, onBack, onOpenGrimoire ->
+        TodayScreen(
+            viewModel = hiltViewModel(graphEntry),
+            onOpenToday = onOpenToday,
+            onBack = onBack,
+            onOpenGrimoire = onOpenGrimoire,
+        )
+    },
     archive = { onNavigateToDetail -> ArchiveScreen(onNavigateToDetail = onNavigateToDetail) },
     settings = { links ->
         SettingsScreen(
@@ -88,7 +112,7 @@ private fun productionScreens(settingsViewModel: SettingsViewModel) = WiccanNavS
 
 /**
  * The signed-in app shell: bottom navigation across the three primary
- * destinations (Today, Grimoire, Settings), with Paywall and
+ * destinations (Home, Grimoire, Settings), with Today, Paywall and
  * Archive detail as secondary routes reached by navigating in, not by
  * tab. [startOnPaywall] preserves the legacy `wiccan://premium` link as
  * subscription management. The root gate runs before this shell exists.
@@ -121,6 +145,14 @@ internal fun WiccanAppShellContent(
     openTodayRequested: Boolean = false,
     onOpenTodayHandled: () -> Unit = {},
 ) {
+    fun openToday() {
+        navController.navigate(WiccanDestinations.TODAY) { launchSingleTop = true }
+    }
+
+    fun openGrimoire() {
+        navController.selectTab(WiccanDestinations.ARCHIVE)
+    }
+
     // A notification tap asks for Today from wherever the user is in the shell.
     LaunchedEffect(openTodayRequested) {
         if (openTodayRequested) {
@@ -151,11 +183,20 @@ internal fun WiccanAppShellContent(
             startDestination = WiccanDestinations.startDestination(startOnPaywall),
             modifier = Modifier.padding(insets),
         ) {
+            composable(WiccanDestinations.HOME) { entry ->
+                val graphEntry = remember(entry) {
+                    navController.getBackStackEntry(requireNotNull(entry.destination.parent).id)
+                }
+                screens.dailyContent(graphEntry, ::openToday, null, ::openGrimoire)
+            }
             composable(
                 WiccanDestinations.TODAY,
                 deepLinks = listOf(navDeepLink { uriPattern = WiccanDeepLinks.TODAY_URI }),
-            ) {
-                screens.today { navController.navigate(WiccanDestinations.ARCHIVE) }
+            ) { entry ->
+                val graphEntry = remember(entry) {
+                    navController.getBackStackEntry(requireNotNull(entry.destination.parent).id)
+                }
+                screens.dailyContent(graphEntry, null, { navController.popBackStackIfPossible() }, ::openGrimoire)
             }
             composable(WiccanDestinations.ARCHIVE) {
                 screens.archive { contentId -> navController.navigate(WiccanDestinations.archiveDetail(contentId)) }
@@ -191,7 +232,7 @@ internal fun WiccanAppShellContent(
 
 private fun NavHostController.popBackStackIfPossible() {
     if (!popBackStack()) {
-        navigate(WiccanDestinations.TODAY) { popUpTo(0) }
+        navigate(WiccanDestinations.HOME) { popUpTo(0) }
     }
 }
 
@@ -207,18 +248,21 @@ private fun WiccanBottomBar(navController: NavHostController) {
 
     WiccanBottomBarContent(
         currentRoute = currentRoute?.route,
-        onNavigate = { route ->
-            navController.navigate(route) {
-                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
-            }
-        },
+        onNavigate = navController::selectTab,
     )
+}
+
+private fun NavHostController.selectTab(route: String) {
+    navigate(route) {
+        popUpTo(graph.findStartDestination().id) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
 }
 
 @Composable
 internal fun WiccanBottomBarContent(currentRoute: String?, onNavigate: (String) -> Unit) {
+    val accent = wiccanEmblemColor()
     NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
         bottomNavItems.forEach { item ->
             val selected = currentRoute == item.route
@@ -227,7 +271,18 @@ internal fun WiccanBottomBarContent(currentRoute: String?, onNavigate: (String) 
                 onClick = {
                     onNavigate(item.route)
                 },
-                icon = {},
+                icon = {
+                    Icon(
+                        painter = painterResource(item.iconRes),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                    )
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = accent,
+                    selectedTextColor = accent,
+                    indicatorColor = accent.copy(alpha = 0.15f),
+                ),
                 label = { Text(stringResource(item.labelRes)) },
             )
         }

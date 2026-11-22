@@ -4,6 +4,7 @@ import com.jaimesorrow.wiccan.ui.archive.ARCHIVE_DETAIL_CONTENT_ID_ARG
 
 /** Every navigable route in the signed-in app, centralized in one place. */
 object WiccanDestinations {
+    const val HOME = "home"
     const val TODAY = "today"
     const val ARCHIVE = "archive"
     const val SETTINGS = "settings"
@@ -14,7 +15,7 @@ object WiccanDestinations {
     const val POTION_SAFETY = "legal/potion-safety"
     const val ARCHIVE_DETAIL_ROUTE = "archive_detail/{$ARCHIVE_DETAIL_CONTENT_ID_ARG}"
 
-    fun startDestination(startOnPaywall: Boolean): String = if (startOnPaywall) PAYWALL else TODAY
+    fun startDestination(startOnPaywall: Boolean): String = if (startOnPaywall) PAYWALL else HOME
 
     fun archiveDetail(contentId: String): String = "archive_detail/$contentId"
 }
