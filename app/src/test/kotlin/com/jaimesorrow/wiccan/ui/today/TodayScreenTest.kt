@@ -126,7 +126,7 @@ class TodayScreenTest {
         }
         composeRule.onNodeWithText(spell.title).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText(spell.body).assertDoesNotExist()
-        composeRule.onNodeWithText("Open today's spell").performScrollTo().performClick()
+        composeRule.onNodeWithText("Open today's lesson").performScrollTo().performClick()
         assertTrue(opened)
         assertTrue(events.isEmpty())
     }

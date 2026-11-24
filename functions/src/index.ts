@@ -31,6 +31,7 @@ import { FirestoreSubscriptionRecordRepository } from "./firestoreSubscriptionRe
 import { handleRtdnNotification, parseRtdnPurchaseToken } from "./handleRtdn";
 import { FirestoreSystemConfigRepository } from "./firestoreSystemConfigRepository";
 import { parseDeviceToken, parseProfileName, parseTimeZone, parseUsername } from "./callableInput";
+import { UsernameRequiredError, UsernameTakenError } from "./usernameReservation";
 import { SubscriptionRequiredError } from "./contentRepositoryPort";
 import { defineSecret, defineString } from "firebase-functions/params";
 import nodemailer from "nodemailer";
@@ -447,6 +448,19 @@ export const setNotificationsEnabled = onCall(CALLABLE_OPTIONS, async (request) 
  * (see policyVersions.ts) rather than trusting the client's claim.
  * App Check-enforced.
  */
+/** Reserves the caller's unique handle. Does not mark the profile complete. */
+export const reserveUsername = onCall(CALLABLE_OPTIONS, async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) throw new HttpsError("unauthenticated", "Sign-in is required.");
+  const username = parseUsername(request.data?.username);
+  if (!username) throw new HttpsError("invalid-argument", "Username must be 3–24 letters, numbers, or underscores.");
+  try {
+    await new FirestoreUserProfileRepository(getFirestore()).reserveUsername(uid, username);
+  } catch (err) {
+    throw usernameHttpsError(err);
+  }
+});
+
 /** Complete a verified account's profile without granting client Firestore write access. */
 export const completeOnboardingProfile = onCall(CALLABLE_OPTIONS, async (request) => {
   const uid = request.auth?.uid;
@@ -464,10 +478,20 @@ export const completeOnboardingProfile = onCall(CALLABLE_OPTIONS, async (request
   try {
     await new FirestoreUserProfileRepository(getFirestore()).completeProfile(uid, firstName, lastName, username);
   } catch (err) {
-    logger.error("completeOnboardingProfile failed", { uid, error: (err as Error).message });
-    throw new HttpsError("failed-precondition", "Unable to complete profile at this time.");
+    throw usernameHttpsError(err);
   }
 });
+
+function usernameHttpsError(err: unknown): HttpsError {
+  if (err instanceof UsernameTakenError) {
+    return new HttpsError("already-exists", err.message);
+  }
+  if (err instanceof UsernameRequiredError) {
+    return new HttpsError("invalid-argument", err.message);
+  }
+  logger.error("username profile write failed", { error: (err as Error).message });
+  return new HttpsError("failed-precondition", "Unable to save that profile right now.");
+}
 
 export const acceptTerms = onCall(CALLABLE_OPTIONS, async (request) => {
   const uid = request.auth?.uid;

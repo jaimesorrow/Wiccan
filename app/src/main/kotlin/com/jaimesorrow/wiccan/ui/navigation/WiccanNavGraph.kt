@@ -38,6 +38,7 @@ import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentScreen
 import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
+import com.jaimesorrow.wiccan.ui.paywall.PaywallScreen
 import com.jaimesorrow.wiccan.ui.settings.SettingsScreen
 import com.jaimesorrow.wiccan.ui.settings.SettingsViewModel
 import com.jaimesorrow.wiccan.ui.today.TodayScreen
@@ -78,20 +79,23 @@ internal class WiccanNavScreens(
         onOpenToday: (() -> Unit)?,
         onBack: (() -> Unit)?,
         onOpenGrimoire: () -> Unit,
+        onOpenPaywall: () -> Unit,
     ) -> Unit,
     val archive: @Composable (onNavigateToDetail: (String) -> Unit) -> Unit,
     val settings: @Composable (links: SettingsLinks) -> Unit,
     val archiveDetail: @Composable (contentId: String, onBack: () -> Unit) -> Unit,
     val legalDocument: @Composable (documentId: LegalDocumentId, onBack: () -> Unit) -> Unit,
+    val subscribe: @Composable (onBack: () -> Unit, onAccount: () -> Unit) -> Unit,
 )
 
 private fun productionScreens(settingsViewModel: SettingsViewModel) = WiccanNavScreens(
-    dailyContent = { graphEntry, onOpenToday, onBack, onOpenGrimoire ->
+    dailyContent = { graphEntry, onOpenToday, onBack, onOpenGrimoire, onOpenPaywall ->
         TodayScreen(
             viewModel = hiltViewModel(graphEntry),
             onOpenToday = onOpenToday,
             onBack = onBack,
             onOpenGrimoire = onOpenGrimoire,
+            onOpenPaywall = onOpenPaywall,
         )
     },
     archive = { onNavigateToDetail -> ArchiveScreen(onNavigateToDetail = onNavigateToDetail) },
@@ -110,6 +114,9 @@ private fun productionScreens(settingsViewModel: SettingsViewModel) = WiccanNavS
     archiveDetail = { _, onBack -> ArchiveDetailScreen(onBack = onBack) },
     legalDocument = { documentId, onBack ->
         LegalDocumentScreen(document = WiccanLegalDocuments.get(documentId), onBack = onBack)
+    },
+    subscribe = { _, onAccount ->
+        PaywallScreen(onAccountClick = onAccount)
     },
 )
 
@@ -152,6 +159,10 @@ internal fun WiccanAppShellContent(
         navController.navigate(WiccanDestinations.TODAY) { launchSingleTop = true }
     }
 
+    fun openPaywall() {
+        navController.navigate(WiccanDestinations.SUBSCRIBE) { launchSingleTop = true }
+    }
+
     fun openGrimoire() {
         navController.selectTab(WiccanDestinations.ARCHIVE)
     }
@@ -190,7 +201,7 @@ internal fun WiccanAppShellContent(
                 val graphEntry = remember(entry) {
                     navController.getBackStackEntry(requireNotNull(entry.destination.parent).id)
                 }
-                screens.dailyContent(graphEntry, ::openToday, null, ::openGrimoire)
+                screens.dailyContent(graphEntry, ::openToday, null, ::openGrimoire, ::openPaywall)
             }
             composable(
                 WiccanDestinations.TODAY,
@@ -199,10 +210,16 @@ internal fun WiccanAppShellContent(
                 val graphEntry = remember(entry) {
                     navController.getBackStackEntry(requireNotNull(entry.destination.parent).id)
                 }
-                screens.dailyContent(graphEntry, null, { navController.popBackStackIfPossible() }, ::openGrimoire)
+                screens.dailyContent(graphEntry, null, { navController.popBackStackIfPossible() }, ::openGrimoire, ::openPaywall)
             }
             composable(WiccanDestinations.ARCHIVE) {
                 screens.archive { contentId -> navController.navigate(WiccanDestinations.archiveDetail(contentId)) }
+            }
+            composable(WiccanDestinations.SUBSCRIBE) {
+                screens.subscribe(
+                    { navController.popBackStackIfPossible() },
+                    { navController.navigate(WiccanDestinations.SETTINGS) },
+                )
             }
             composable(WiccanDestinations.SETTINGS) {
                 screens.settings(settingsLinks(accountOnly = false, onBack = {}))
@@ -268,7 +285,7 @@ internal fun WiccanBottomBarContent(currentRoute: String?, onNavigate: (String) 
     val accent = wiccanEmblemColor()
     Column {
         HorizontalDivider(color = accent.copy(alpha = 0.22f))
-        NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+        NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
             bottomNavItems.forEach { item ->
                 val selected = currentRoute == item.route
                 NavigationBarItem(
@@ -286,6 +303,8 @@ internal fun WiccanBottomBarContent(currentRoute: String?, onNavigate: (String) 
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = accent,
                         selectedTextColor = accent,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         indicatorColor = accent.copy(alpha = 0.15f),
                     ),
                     label = { Text(stringResource(item.labelRes)) },

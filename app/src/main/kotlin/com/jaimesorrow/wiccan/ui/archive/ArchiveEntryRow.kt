@@ -19,21 +19,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.jaimesorrow.wiccan.domain.model.HistoryEntry
-import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
 import com.jaimesorrow.wiccan.ui.today.components.ContentTypePill
 
 /** One row in the Archive list: type badge, title, tradition, delivered date. */
 @Composable
 fun ArchiveEntryRow(entry: HistoryEntry, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = MaterialTheme.colorScheme
-    val shape = RoundedCornerShape(14.dp)
+    val shape = RoundedCornerShape(6.dp)
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
             .clip(shape)
             .background(colors.surface)
-            .border(1.dp, wiccanEmblemColor().copy(alpha = 0.22f), shape)
+            .border(1.dp, colors.outline, shape)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {

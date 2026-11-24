@@ -38,7 +38,7 @@ class WiccanAppShellNavigationTest {
     private lateinit var navController: NavHostController
 
     private val stubScreens = WiccanNavScreens(
-        dailyContent = { _, onOpenToday, onBack, onOpenGrimoire ->
+        dailyContent = { _, onOpenToday, onBack, onOpenGrimoire, _ ->
             Column {
                 Text(if (onOpenToday == null) "screen:today" else "screen:home")
                 onOpenToday?.let { Button(onClick = it) { Text("stub:open-today") } }
@@ -71,6 +71,12 @@ class WiccanAppShellNavigationTest {
         legalDocument = { documentId, onBack ->
             Column {
                 Text("screen:legal:$documentId")
+                Button(onClick = onBack) { Text("stub:back") }
+            }
+        },
+        subscribe = { onBack, _ ->
+            Column {
+                Text("screen:subscribe")
                 Button(onClick = onBack) { Text("stub:back") }
             }
         },
@@ -135,7 +141,8 @@ class WiccanAppShellNavigationTest {
         launch()
         click("stub:open-today")
         assertScreen("today")
-        assertBottomBar(visible = false)
+        assertBottomBar(visible = true)
+        composeRule.onNodeWithText("Today").assertIsSelected()
 
         click("stub:back")
         assertScreen("home")
@@ -266,7 +273,8 @@ class WiccanAppShellNavigationTest {
         requested = true
         composeRule.waitForIdle()
         assertScreen("today")
-        assertBottomBar(visible = false)
+        assertBottomBar(visible = true)
+        composeRule.onNodeWithText("Today").assertIsSelected()
         assertEquals(1, handled)
 
         // A second request opens Today with Home behind it.

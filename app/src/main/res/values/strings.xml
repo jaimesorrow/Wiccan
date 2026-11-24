@@ -3,7 +3,7 @@
     <string name="app_name">Wiccan</string>
 
     <!-- Sign-in, create account, password recovery -->
-    <string name="auth_intro_headline">The moonlit path begins here.</string>
+    <string name="auth_intro_headline">Sign in to your digital book of shadows.</string>
     <string name="auth_intro_body">Candle spells, herbs, cord and knot work, and lunar rites, drawn from historical grimoires. One guided practice arrives each day, and your Grimoire keeps what you find.</string>
     <string name="auth_subscription_requirement">A subscription is required after onboarding.</string>
     <string name="auth_daily_line">The moon has turned. Your next practice awaits.</string>
@@ -35,6 +35,10 @@
     <string name="auth_error_password_required">Enter your password.</string>
     <string name="auth_error_password_short">Password must be at least 6 characters.</string>
     <string name="auth_error_password_mismatch">Those passwords don\'t match.</string>
+    <string name="auth_error_username_invalid">Use 3–24 letters, numbers, or underscores.</string>
+    <string name="auth_username">Username</string>
+    <string name="auth_enter_grimoire">Enter the Grimoire</string>
+    <string name="auth_quiet_quote">To ignite your quiet inner grimoire</string>
     <string name="auth_logo_description">Wiccan</string>
 
     <!-- Email verification and name step -->
@@ -144,6 +148,28 @@
     <string name="content_citation_locator">Exact locator: %1$s</string>
     <string name="content_verified_source">Verified source details</string>
     <string name="content_saved">Kept in your Grimoire</string>
+    <string name="home_welcome">WELCOME, SEEKER</string>
+    <string name="home_today_lesson">Today\'s lesson</string>
+    <string name="home_lesson_waiting">Your lesson is being prepared.</string>
+    <string name="home_lesson_open_hint">Open the page set aside for you today.</string>
+    <string name="home_locked_lesson_title">Today\'s lesson is locked</string>
+    <string name="home_locked_lesson_body">A 7-day free trial opens the daily lesson. Trial and subscribed readers continue straight in.</string>
+    <string name="home_unlock_lesson">Unlock with a 7-day trial</string>
+    <string name="home_wheel_title">Wheel of the Year</string>
+    <string name="home_wheel_image">Wheel of the Year altar</string>
+    <string name="home_next_sabbat">Next: %1$s</string>
+    <string name="home_cosmic_title">Cosmic Timing</string>
+    <string name="home_planetary_hour_label">PLANETARY HOUR</string>
+    <string name="home_hour_of">Hour of %1$s</string>
+    <string name="home_hour_unavailable">Location needed for the planetary hour</string>
+    <string name="home_use_location">Use approximate location</string>
+    <string name="home_tides_title">TIDES &amp; ASTRO-WEATHER</string>
+    <string name="home_moon_in_sign">Moon in %1$s · %2$d%% illuminated</string>
+    <string name="home_tides_unavailable">Coastal tide data is not available on this device.</string>
+    <string name="home_voc_active">Void of course until the Moon enters %1$s. Favor reflection over beginning a new working.</string>
+    <string name="home_voc_clear">The Moon in %1$s still meets a classical aspect before it changes sign.</string>
+    <string name="home_alignment">Work that matches %2$s and the Moon in %1$s has the clearer timing.</string>
+    <string name="error_username_taken">That username is already reserved. Choose another.</string>
     <string name="content_logo_description">Wiccan</string>
 
     <!-- Grimoire -->

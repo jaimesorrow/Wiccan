@@ -105,7 +105,14 @@ class OnboardingViewModel @Inject constructor(
             val result = operation()
             // Started for a previous account: its busy flag and notice were already reset.
             if (generation != accountGeneration) return@launch
-            val message = if (result is AppResult.Success) successMessage else R.string.onboarding_notice_failed
+            val message = when (result) {
+                is AppResult.Success -> successMessage
+                is AppResult.Failure -> if (result.error is com.jaimesorrow.wiccan.core.error.AppError.UsernameTaken) {
+                    R.string.error_username_taken
+                } else {
+                    R.string.onboarding_notice_failed
+                }
+            }
             _state.update {
                 // If the user was moved to another step meanwhile, the result
                 // no longer describes what they're looking at.

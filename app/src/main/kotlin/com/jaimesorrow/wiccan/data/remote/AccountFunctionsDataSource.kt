@@ -16,6 +16,10 @@ class AccountFunctionsDataSource @Inject constructor(
         functions.getHttpsCallable(DELETE_FUNCTION_NAME).call().await()
     }
 
+    suspend fun reserveUsername(username: String) {
+        functions.getHttpsCallable("reserveUsername").call(mapOf("username" to username)).await()
+    }
+
     suspend fun completeProfile(firstName: String, lastName: String, username: String) {
         val payload = buildMap<String, String> {
             put("firstName", firstName)

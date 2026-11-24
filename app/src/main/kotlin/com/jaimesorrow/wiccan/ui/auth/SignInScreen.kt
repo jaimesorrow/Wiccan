@@ -153,10 +153,10 @@ internal fun SignInScreenContent(
                 }
                 Spacer(modifier = Modifier.height(28.dp))
                 Surface(
-                    shape = RoundedCornerShape(24.dp),
+                    shape = RoundedCornerShape(6.dp),
                     color = scheme.surface,
-                    tonalElevation = 3.dp,
-                    border = BorderStroke(1.dp, wiccanEmblemColor().copy(alpha = 0.28f)),
+                    tonalElevation = 0.dp,
+                    border = BorderStroke(1.dp, scheme.outline),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -184,6 +184,12 @@ internal fun SignInScreenContent(
                         Text(stringResource(R.string.auth_privacy))
                     }
                 }
+                Text(
+                    text = stringResource(R.string.auth_quiet_quote),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = scheme.primary,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
                 if (state.isLoading) {
                     Spacer(modifier = Modifier.height(8.dp))
                     CircularProgressIndicator(color = scheme.primary)
@@ -221,6 +227,16 @@ private fun AuthFields(
     if (creating) {
         Spacer(modifier = Modifier.height(12.dp))
         OutlinedTextField(
+            value = state.username,
+            onValueChange = { onEvent(SignInUiEvent.UsernameChanged(it)) },
+            label = { Text(stringResource(R.string.auth_username)) },
+            isError = state.usernameError != null,
+            supportingText = state.usernameError?.let { error -> { Text(stringResource(error)) } },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedTextField(
             value = state.confirmPassword,
             onValueChange = { onEvent(SignInUiEvent.ConfirmPasswordChanged(it)) },
             label = { Text(stringResource(R.string.auth_confirm_password)) },
@@ -237,8 +253,15 @@ private fun AuthFields(
         onClick = { onEvent(SignInUiEvent.SubmitEmailAuth) },
         modifier = Modifier.fillMaxWidth(),
         enabled = !state.isLoading,
+        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+            containerColor = com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors.Grimoire.Gold,
+            contentColor = com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors.Grimoire.OnGold,
+        ),
     ) {
-        Text(stringResource(if (creating) R.string.auth_create_account else R.string.auth_sign_in))
+        Text(
+            stringResource(R.string.auth_enter_grimoire),
+            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+        )
     }
     TextButton(onClick = { onEvent(SignInUiEvent.ToggleMode) }) {
         Text(stringResource(if (creating) R.string.auth_have_account else R.string.auth_need_account))

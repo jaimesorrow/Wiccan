@@ -89,6 +89,13 @@ val MIGRATION_5_6: Migration = object : Migration(5, 6) {
     }
 }
 
+/** Adds the per-lesson image reference without rewriting cached lesson text. */
+val MIGRATION_6_7: Migration = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE cached_daily_content ADD COLUMN illustrationUrl TEXT")
+    }
+}
+
 /** Every migration WiccanDatabase has ever needed, in order. Never remove an entry - a device restoring an old backup may still be on any prior version. */
 val WICCAN_DATABASE_MIGRATIONS: Array<Migration> = arrayOf(
     MIGRATION_1_2,
@@ -96,4 +103,5 @@ val WICCAN_DATABASE_MIGRATIONS: Array<Migration> = arrayOf(
     MIGRATION_3_4,
     MIGRATION_4_5,
     MIGRATION_5_6,
+    MIGRATION_6_7,
 )

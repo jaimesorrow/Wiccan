@@ -1,218 +1,366 @@
 package com.jaimesorrow.wiccan.ui.today
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.jaimesorrow.wiccan.data.location.lastKnownCoordinate
 import com.jaimesorrow.wiccan.domain.model.Content
-import com.jaimesorrow.wiccan.domain.model.ContentType
-import com.jaimesorrow.wiccan.ui.archive.displayName
-import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
+import com.jaimesorrow.wiccan.sky.CelestialCalculator
+import com.jaimesorrow.wiccan.sky.ClassicalPlanet
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
-import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
+import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
+import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.wiccan.app.R
-import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
+import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
 
-private val ParchmentInk = Color(0xFF33200E)
-private val FrameGold = Color(0xFFC5913B)
-private val ButtonGold = Color(0xFFE8BC61)
+private val CardShape = RoundedCornerShape(6.dp)
+private val Gold = WiccanPaletteColors.Grimoire.Border
+private val Ink = WiccanPaletteColors.Grimoire.Text
+private val Muted = WiccanPaletteColors.Grimoire.Muted
 
 @Composable
 internal fun SpellbookHome(
     content: Content?,
+    lessonLocked: Boolean,
     onOpenToday: () -> Unit,
+    onOpenPaywall: () -> Unit,
     onOpenGrimoire: () -> Unit,
-    onOpenCabinet: () -> Unit,
-    onOpenCoven: () -> Unit,
 ) {
-    val accent = wiccanEmblemColor()
-    val heroShape = RoundedCornerShape(18.dp)
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    listOf(
-                        MaterialTheme.colorScheme.background,
-                        accent.copy(alpha = 0.06f),
-                        MaterialTheme.colorScheme.background,
-                    ),
-                ),
-            ),
-        contentAlignment = Alignment.TopCenter,
-    ) {
-        Column(
-            modifier = Modifier
-                .widthIn(max = 520.dp)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            WiccanFullLogo(width = 144.dp, modifier = Modifier.padding(bottom = 4.dp))
-            WiccanBotanicalAccent(width = 116.dp)
-            WelcomeLunarCard()
-            Image(
-                painter = painterResource(R.drawable.wiccan_home_hero),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
+    MidnightGrimoireTheme {
+        val context = LocalContext.current
+        var coordinate by remember { mutableStateOf(lastKnownCoordinate(context)) }
+        val locationPermission = rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { granted -> if (granted) coordinate = lastKnownCoordinate(context) }
+        val now = remember { java.time.Instant.now() }
+        val zone = remember { ZoneId.systemDefault() }
+        val today = LocalDate.now()
+        val moon = remember(today) { CelestialCalculator.moon(now) }
+        val sabbat = remember(today) { CelestialCalculator.sabbatFor(today) }
+        val hour = remember(coordinate) { CelestialCalculator.planetaryHour(now, zone, coordinate) }
+        val voidOfCourse = remember(today) { CelestialCalculator.voidOfCourse(now) }
+        Box(modifier = Modifier.fillMaxSize().background(WiccanPaletteColors.Grimoire.Background)) {
+            GrimoireLineArt(Modifier.fillMaxSize())
+            Column(
                 modifier = Modifier
+                    .widthIn(max = 520.dp)
                     .fillMaxWidth()
-                    .aspectRatio(1.48f)
-                    .shadow(10.dp, heroShape)
-                    .clip(heroShape)
-                    .border(1.dp, FrameGold, heroShape),
-            )
-            DailySpellCard(content = content, onOpenToday = onOpenToday)
-            SabbatCalendarCard()
-            CosmicTimingCard()
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    .align(Alignment.TopCenter)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Button(
-                    onClick = onOpenCabinet,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = accent.copy(alpha = 0.18f),
-                        contentColor = accent,
-                    ),
-                ) { Text("My Cabinet") }
-                Button(
-                    onClick = onOpenCoven,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = accent.copy(alpha = 0.18f),
-                        contentColor = accent,
-                    ),
-                ) { Text("The Coven") }
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                HorizontalDivider(modifier = Modifier.weight(1f), color = accent.copy(alpha = 0.5f))
-                TextButton(onClick = onOpenGrimoire, modifier = Modifier.weight(4f)) {
-                    Text(
-                        text = stringResource(R.string.today_open_grimoire),
-                        color = accent,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-                HorizontalDivider(modifier = Modifier.weight(1f), color = accent.copy(alpha = 0.5f))
+                WiccanFullLogo(width = 148.dp)
+                WelcomeCard(moon = moon, today = today)
+                LessonCard(
+                    content = content,
+                    locked = lessonLocked,
+                    onOpen = { if (lessonLocked) onOpenPaywall() else onOpenToday() },
+                )
+                WheelCard(today = today, sabbat = sabbat)
+                CosmicCard(
+                    moon = moon,
+                    hour = hour,
+                    voidOfCourse = voidOfCourse,
+                    hasLocation = coordinate != null,
+                    onRequestLocation = { locationPermission.launch(Manifest.permission.ACCESS_COARSE_LOCATION) },
+                )
+                Text(
+                    text = stringResource(R.string.today_open_grimoire),
+                    modifier = Modifier.clickable(onClick = onOpenGrimoire).padding(vertical = 6.dp),
+                    color = WiccanPaletteColors.Grimoire.Gold,
+                    style = MaterialTheme.typography.labelLarge,
+                )
             }
         }
     }
 }
 
 @Composable
-private fun WelcomeLunarCard() {
-    val today = LocalDate.now()
-    val phase = moonPhaseFor(today)
-    val shape = RoundedCornerShape(18.dp)
+private fun WelcomeCard(moon: com.jaimesorrow.wiccan.sky.MoonObservation, today: LocalDate) {
+    GrimoireCard {
+        Text(
+            text = stringResource(R.string.home_welcome),
+            color = WiccanPaletteColors.Grimoire.Gold,
+            style = MaterialTheme.typography.labelMedium,
+        )
+        MoonPhaseRow(active = moon.trackIndex)
+        Text(
+            text = moon.name,
+            color = Ink,
+            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = FontFamily.Serif),
+        )
+        Text(
+            text = stringResource(R.string.home_moon_in_sign, moon.zodiacSign, percent(moon.illumination)),
+            color = Muted,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        Text(text = moon.timingGuidance, color = Ink, style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = today.toString(),
+            color = WiccanPaletteColors.Grimoire.Gold,
+            style = MaterialTheme.typography.labelSmall,
+        )
+    }
+}
+
+@Composable
+private fun LessonCard(content: Content?, locked: Boolean, onOpen: () -> Unit) {
+    GrimoireCard {
+        Text(
+            text = stringResource(R.string.home_today_lesson),
+            color = WiccanPaletteColors.Grimoire.Gold,
+            style = MaterialTheme.typography.labelMedium,
+        )
+        Text(
+            text = when {
+                locked -> stringResource(R.string.home_locked_lesson_title)
+                content != null -> content.title
+                else -> stringResource(R.string.home_lesson_waiting)
+            },
+            color = Ink,
+            style = MaterialTheme.typography.titleLarge.copy(fontFamily = FontFamily.Serif),
+        )
+        Text(
+            text = if (locked) {
+                stringResource(R.string.home_locked_lesson_body)
+            } else {
+                stringResource(R.string.home_lesson_open_hint)
+            },
+            color = Muted,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        GrimoireAction(
+            text = stringResource(if (locked) R.string.home_unlock_lesson else R.string.home_open_lesson),
+            onClick = onOpen,
+            modifier = Modifier.fillMaxWidth().testTag("home-daily-action"),
+        )
+    }
+}
+
+@Composable
+private fun WheelCard(today: LocalDate, sabbat: com.jaimesorrow.wiccan.sky.SabbatObservance) {
+    GrimoireCard {
+        Text(
+            text = stringResource(R.string.home_wheel_title),
+            color = Ink,
+            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = FontFamily.Serif),
+        )
+        Image(
+            painter = painterResource(R.drawable.wiccan_photo_wheel),
+            contentDescription = stringResource(R.string.home_wheel_image),
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxWidth().height(92.dp).clip(CardShape),
+        )
+        MonthGrid(today)
+        Text(
+            text = if (sabbat.observedToday) sabbat.name else stringResource(R.string.home_next_sabbat, sabbat.name),
+            color = Ink,
+            style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Serif),
+        )
+        Text(
+            text = sabbat.date.toString(),
+            color = WiccanPaletteColors.Grimoire.Gold,
+            style = MaterialTheme.typography.labelSmall,
+        )
+        Text(text = sabbat.historicalSignificance, color = Muted, style = MaterialTheme.typography.bodySmall)
+    }
+}
+
+@Composable
+private fun CosmicCard(
+    moon: com.jaimesorrow.wiccan.sky.MoonObservation,
+    hour: com.jaimesorrow.wiccan.sky.PlanetaryHour?,
+    voidOfCourse: com.jaimesorrow.wiccan.sky.VoidOfCourse,
+    hasLocation: Boolean,
+    onRequestLocation: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF080808), shape)
-            .border(1.dp, FrameGold.copy(alpha = 0.82f), shape)
-            .padding(horizontal = 18.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(7.dp),
+            .clip(CardShape)
+            .background(WiccanPaletteColors.Parchment.Background)
+            .border(1.dp, WiccanPaletteColors.Parchment.Border, CardShape)
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            text = "WELCOME, SEEKER",
-            style = MaterialTheme.typography.labelLarge,
-            color = ButtonGold,
+            text = stringResource(R.string.home_cosmic_title),
+            color = WiccanPaletteColors.Parchment.Ink,
+            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = FontFamily.Serif),
         )
-        MoonPhaseTrack(activeIndex = phase.trackIndex)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = phase.symbol,
-                style = MaterialTheme.typography.displaySmall,
-                color = ButtonGold,
-            )
-            Spacer(Modifier.padding(horizontal = 6.dp))
-            Column {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            PlanetaryDial(active = hour?.planet)
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = phase.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFFF7F4EB),
+                    text = stringResource(R.string.home_planetary_hour_label),
+                    color = WiccanPaletteColors.Grimoire.Border,
+                    style = MaterialTheme.typography.labelSmall,
                 )
                 Text(
-                    text = today.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFFD9CDBB),
+                    text = if (hour != null) {
+                        stringResource(R.string.home_hour_of, hour.planet.name.lowercase().replaceFirstChar { it.titlecase() })
+                    } else {
+                        stringResource(R.string.home_hour_unavailable)
+                    },
+                    color = WiccanPaletteColors.Parchment.Ink,
+                    style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Serif),
                 )
+                if (!hasLocation) {
+                    Text(
+                        text = stringResource(R.string.home_use_location),
+                        modifier = Modifier.clickable(onClick = onRequestLocation),
+                        color = WiccanPaletteColors.Grimoire.Bronze,
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                }
             }
         }
+        DarkTile {
+            Text(
+                text = stringResource(R.string.home_tides_title),
+                color = WiccanPaletteColors.Grimoire.Gold,
+                style = MaterialTheme.typography.labelMedium,
+            )
+            Text(
+                text = stringResource(
+                    R.string.home_moon_in_sign,
+                    moon.zodiacSign,
+                    percent(moon.illumination),
+                ) + " · " + moon.name,
+                color = Ink,
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Text(
+                text = stringResource(R.string.home_tides_unavailable),
+                color = Muted,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        DarkTile {
+            Text(
+                text = if (voidOfCourse.active) {
+                    stringResource(R.string.home_voc_active, voidOfCourse.nextSign)
+                } else {
+                    stringResource(R.string.home_voc_clear, voidOfCourse.currentSign)
+                },
+                color = Ink,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        DarkTile {
+            Text(
+                text = stringResource(R.string.home_alignment, moon.zodiacSign, moon.name),
+                color = Muted,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+    }
+}
+
+@Composable
+private fun GrimoireCard(content: @Composable () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(CardShape)
+            .background(WiccanPaletteColors.Grimoire.CardFill.copy(alpha = 0.4f))
+            .border(1.dp, Gold, CardShape)
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) { content() }
+}
+
+@Composable
+private fun DarkTile(content: @Composable () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(4.dp))
+            .background(WiccanPaletteColors.Grimoire.Background)
+            .border(1.dp, Gold, RoundedCornerShape(4.dp))
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(3.dp),
+    ) { content() }
+}
+
+@Composable
+private fun GrimoireAction(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(
+                Brush.horizontalGradient(
+                    listOf(WiccanPaletteColors.Grimoire.Bronze, WiccanPaletteColors.Grimoire.Gold),
+                ),
+            )
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp),
+        contentAlignment = Alignment.Center,
+    ) {
         Text(
-            text = phase.timingMeaning,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color(0xFFF0E7D8),
-        )
-        Text(
-            text = "Today’s timing: ${phase.todaySuggestion}",
-            style = MaterialTheme.typography.bodySmall,
-            color = ButtonGold,
+            text = text,
+            color = WiccanPaletteColors.Grimoire.OnGold,
+            style = MaterialTheme.typography.titleSmall.copy(fontFamily = FontFamily.Serif),
         )
     }
 }
 
 @Composable
-private fun MoonPhaseTrack(activeIndex: Int) {
-    val phases = listOf("●", "◔", "◐", "◕", "○", "◕", "◑", "◔")
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        phases.forEachIndexed { index, symbol ->
+private fun MoonPhaseRow(active: Int) {
+    val marks = listOf("●", "◔", "◐", "◕", "○", "◕", "◑", "◔")
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        marks.forEachIndexed { index, mark ->
             Text(
-                text = symbol,
-                color = if (index == activeIndex) ButtonGold else Color(0xFF665B4B),
+                text = mark,
+                color = if (index == active) WiccanPaletteColors.Grimoire.Gold else Muted,
                 style = MaterialTheme.typography.titleMedium,
             )
         }
@@ -220,73 +368,42 @@ private fun MoonPhaseTrack(activeIndex: Int) {
 }
 
 @Composable
-private fun SabbatCalendarCard() {
-    val today = LocalDate.now()
-    val sabbat = sabbatFor(today)
+private fun MonthGrid(today: LocalDate) {
     val month = YearMonth.from(today)
-    val shape = RoundedCornerShape(18.dp)
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(0xFF11100D), shape)
-            .border(1.dp, FrameGold.copy(alpha = 0.7f), shape)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(7.dp),
-    ) {
-        Text("YEAR OF THE SABBAT", style = MaterialTheme.typography.labelLarge, color = ButtonGold)
+    val labels = listOf("M", "T", "W", "T", "F", "S", "S")
+    val offset = month.atDay(1).dayOfWeek.value - 1
+    val cells = List(offset) { null as LocalDate? } + (1..month.lengthOfMonth()).map(month::atDay)
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(
-            month.month.getDisplayName(TextStyle.FULL, Locale.getDefault()).uppercase(Locale.getDefault()),
-            style = MaterialTheme.typography.titleMedium,
-            color = Color(0xFFF7F4EB),
+            text = month.month.getDisplayName(TextStyle.FULL, Locale.getDefault()),
+            color = WiccanPaletteColors.Grimoire.Gold,
+            style = MaterialTheme.typography.labelSmall,
         )
-        MonthCalendar(month = month, today = today)
-        Text(sabbat.name, style = MaterialTheme.typography.titleLarge, color = Color(0xFFF7F4EB))
-        Text(sabbat.dateLabel, style = MaterialTheme.typography.labelMedium, color = ButtonGold)
-        Text(sabbat.description, style = MaterialTheme.typography.bodyMedium, color = Color(0xFFD9CDBB))
-        HorizontalDivider(color = FrameGold.copy(alpha = .35f))
-        Text("Seasonal focus: ${sabbat.focus}", style = MaterialTheme.typography.bodySmall, color = ButtonGold)
-    }
-}
-
-@Composable
-private fun MonthCalendar(month: YearMonth, today: LocalDate) {
-    val weekdayLabels = listOf("M", "T", "W", "T", "F", "S", "S")
-    val firstOffset = month.atDay(1).dayOfWeek.value - DayOfWeek.MONDAY.value
-    val cells = List(firstOffset) { null } + (1..month.lengthOfMonth()).map(month::atDay)
-    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            weekdayLabels.forEach { label ->
+            labels.forEach { label ->
                 Text(
                     text = label,
                     modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = FrameGold,
+                    color = Gold,
                     textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelSmall,
                 )
             }
         }
         cells.chunked(7).forEach { week ->
             Row(modifier = Modifier.fillMaxWidth()) {
                 week.forEach { date ->
+                    val selected = date == today
                     Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(26.dp)
-                            .then(
-                                if (date == today) {
-                                    Modifier
-                                        .clip(RoundedCornerShape(13.dp))
-                                        .background(ButtonGold)
-                                } else {
-                                    Modifier
-                                },
-                            ),
+                        modifier = Modifier.weight(1f).height(22.dp).then(
+                            if (selected) Modifier.clip(CircleShape).background(WiccanPaletteColors.Grimoire.Gold) else Modifier,
+                        ),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             text = date?.dayOfMonth?.toString().orEmpty(),
+                            color = if (selected) WiccanPaletteColors.Grimoire.OnGold else Ink,
                             style = MaterialTheme.typography.labelSmall,
-                            color = if (date == today) ParchmentInk else Color(0xFFD9CDBB),
                         )
                     }
                 }
@@ -297,205 +414,38 @@ private fun MonthCalendar(month: YearMonth, today: LocalDate) {
 }
 
 @Composable
-private fun CosmicTimingCard() {
-    val now = LocalDateTime.now()
-    val timing = cosmicTimingFor(now)
-    val shape = RoundedCornerShape(18.dp)
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(0xFF080808), shape)
-            .border(1.dp, FrameGold.copy(alpha = .82f), shape)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        Text("COSMIC TIMING", style = MaterialTheme.typography.labelLarge, color = ButtonGold)
-        TimingSection(
-            symbol = timing.planetSymbol,
-            title = "The Hour of ${timing.planet}",
-            body = timing.planetMeaning,
-        )
-        HorizontalDivider(color = FrameGold.copy(alpha = .35f))
-        TimingSection(
-            symbol = "☾",
-            title = "Tides & Astro-Weather",
-            body = "${timing.moonTransit}. ${timing.tidalGuidance}",
-        )
-        HorizontalDivider(color = FrameGold.copy(alpha = .35f))
-        TimingSection(
-            symbol = "✦",
-            title = "VoC & Alignments",
-            body = timing.alignmentGuidance,
-        )
+private fun PlanetaryDial(active: ClassicalPlanet?) {
+    val planets = ClassicalPlanet.entries
+    Canvas(modifier = Modifier.size(92.dp)) {
+        val gold = WiccanPaletteColors.Grimoire.Border
+        drawCircle(gold, style = Stroke(width = 1.dp.toPx()))
+        drawCircle(gold, radius = size.minDimension * 0.34f, style = Stroke(width = 1.dp.toPx()))
+        planets.forEachIndexed { index, planet ->
+            val angle = (index / planets.size.toFloat()) * 2f * Math.PI.toFloat() - (Math.PI / 2f).toFloat()
+            val radius = size.minDimension * 0.38f
+            val center = Offset(size.width / 2f + kotlin.math.cos(angle) * radius, size.height / 2f + kotlin.math.sin(angle) * radius)
+            drawCircle(
+                color = if (planet == active) WiccanPaletteColors.Grimoire.Gold else gold.copy(alpha = 0.45f),
+                radius = if (planet == active) 5.dp.toPx() else 3.dp.toPx(),
+                center = center,
+            )
+        }
     }
 }
 
 @Composable
-private fun TimingSection(symbol: String, title: String, body: String) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Top) {
-        Box(
-            modifier = Modifier
-                .size(38.dp)
-                .clip(RoundedCornerShape(19.dp))
-                .border(1.dp, FrameGold, RoundedCornerShape(19.dp)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(symbol, color = ButtonGold, style = MaterialTheme.typography.titleLarge)
+private fun GrimoireLineArt(modifier: Modifier) {
+    Canvas(modifier) {
+        val gold = WiccanPaletteColors.Grimoire.Border.copy(alpha = 0.22f)
+        val stroke = Stroke(width = 1.dp.toPx())
+        val vine = Path().apply {
+            moveTo(0f, size.height * 0.2f)
+            quadraticTo(size.width * 0.2f, size.height * 0.05f, size.width * 0.35f, size.height * 0.22f)
+            quadraticTo(size.width * 0.5f, size.height * 0.4f, size.width, size.height * 0.12f)
         }
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(title, color = Color(0xFFF7F4EB), style = MaterialTheme.typography.titleMedium)
-            Text(body, color = Color(0xFFD9CDBB), style = MaterialTheme.typography.bodySmall)
-        }
+        drawPath(vine, gold, style = stroke)
+        drawCircle(gold, radius = 10.dp.toPx(), center = Offset(size.width * 0.86f, size.height * 0.08f), style = stroke)
     }
 }
 
-private data class MoonPhasePresentation(
-    val name: String,
-    val symbol: String,
-    val timingMeaning: String,
-    val todaySuggestion: String,
-    val trackIndex: Int,
-)
-
-private fun moonPhaseFor(date: LocalDate): MoonPhasePresentation {
-    val cycleDay = ((date.toEpochDay() - LocalDate.of(2000, 1, 6).toEpochDay()) % 30 + 30) % 30
-    return when (cycleDay.toInt()) {
-        in 0..3 -> MoonPhasePresentation("New Moon", "●", "A quiet threshold for setting intentions and beginning gently.", "Name one clear intention before you begin your practice.", 0)
-        in 4..7 -> MoonPhasePresentation("Waxing Crescent", "☽", "Energy is gathering; take a small, committed step toward what you are growing.", "Choose a simple action that supports your intention.", 1)
-        in 8..11 -> MoonPhasePresentation("First Quarter", "◐", "A moment for resolve, adjustment, and hands-on work.", "Meet one obstacle with practical care.", 2)
-        in 12..16 -> MoonPhasePresentation("Waxing Gibbous", "◔", "Refine what is already in motion and notice what needs tending.", "Review your materials and adapt with intention.", 3)
-        in 17..20 -> MoonPhasePresentation("Full Moon", "○", "Illumination invites gratitude, release, and a wider view of your path.", "Honor what has grown, then release what no longer serves.", 4)
-        in 21..24 -> MoonPhasePresentation("Waning Gibbous", "◕", "Share wisdom, reflect on results, and make room for integration.", "Write one insight in your Grimoire.", 5)
-        in 25..27 -> MoonPhasePresentation("Last Quarter", "◑", "A clearing phase for boundaries, discernment, and gentle endings.", "Simplify your next step.", 6)
-        else -> MoonPhasePresentation("Waning Crescent", "☾", "Rest, restore, and listen for what wants to emerge next.", "Keep your practice small and restorative.", 7)
-    }
-}
-
-private data class SabbatPresentation(val name: String, val dateLabel: String, val description: String, val focus: String)
-
-private fun sabbatFor(date: LocalDate): SabbatPresentation = when (date.monthValue) {
-    1, 2 -> SabbatPresentation("Imbolc", "Observed near February 1", "A Gaelic seasonal festival later embraced in modern Pagan practice, marking the first signs of spring and the returning light.", "Cleansing and fresh beginnings")
-    3, 4 -> SabbatPresentation("Ostara", "Observed at the spring equinox", "A modern Pagan equinox celebration centered on the balance of daylight and darkness and the renewal of the growing season.", "Balance and new growth")
-    5, 6 -> SabbatPresentation("Beltane", "Observed near May 1", "A Gaelic fire festival associated with the opening of summer, protection, fertility, vitality, and communal celebration.", "Joy and creation")
-    7, 8 -> SabbatPresentation("Lughnasadh", "Observed near August 1", "A Gaelic harvest festival associated with Lugh, seasonal gatherings, skilled craft, and the first fruits of the harvest.", "Gratitude and craft")
-    9, 10 -> SabbatPresentation("Mabon", "Observed at the autumn equinox", "A modern Pagan name for the autumn equinox, when many practitioners reflect on balance, harvest, and gratitude.", "Harvest and balance")
-    else -> SabbatPresentation("Samhain", "Observed from October 31", "A Gaelic seasonal threshold marking the end of harvest and opening of winter, commonly associated with remembrance of the dead.", "Remembrance and release")
-}
-
-private data class CosmicTimingPresentation(
-    val planet: String,
-    val planetSymbol: String,
-    val planetMeaning: String,
-    val moonTransit: String,
-    val tidalGuidance: String,
-    val alignmentGuidance: String,
-)
-
-private fun cosmicTimingFor(now: LocalDateTime): CosmicTimingPresentation {
-    val planets = listOf(
-        Triple("Saturn", "♄", "Support boundaries, patience, structure, and work meant to endure."),
-        Triple("Jupiter", "♃", "Favor learning, generosity, confidence, and measured expansion."),
-        Triple("Mars", "♂", "Direct energy toward courage, protection, movement, and decisive action."),
-        Triple("Sun", "☉", "Center vitality, clarity, recognition, and purpose."),
-        Triple("Venus", "♀", "Tend harmony, beauty, affection, reconciliation, and creative pleasure."),
-        Triple("Mercury", "☿", "Support study, communication, travel, writing, and careful exchange."),
-        Triple("Moon", "☽", "Turn inward toward intuition, home, dreams, memory, and emotional care."),
-    )
-    val planet = planets[(now.dayOfWeek.value + now.hour) % planets.size]
-    val phase = moonPhaseFor(now.toLocalDate())
-    return CosmicTimingPresentation(
-        planet = planet.first,
-        planetSymbol = planet.second,
-        planetMeaning = planet.third,
-        moonTransit = "${phase.name} influence",
-        tidalGuidance = "Use the lunar phase as a reflective timing cue; local coastal tides depend on your location.",
-        alignmentGuidance = "Void-of-course alerts require verified ephemeris data. Until available, favor reflection over time-sensitive decisions and follow today’s ${phase.name.lowercase(Locale.getDefault())} guidance.",
-    )
-}
-
-@Composable
-private fun DailySpellCard(content: Content?, onOpenToday: () -> Unit) {
-    val sectionLabel = when (content?.type) {
-        ContentType.SPELL -> R.string.today_spell
-        ContentType.LESSON -> R.string.today_lesson
-        ContentType.POTION -> R.string.today_potion
-        ContentType.UNKNOWN -> R.string.home_today_practice
-        null -> R.string.today_lesson
-    }
-    val actionLabel = when (content?.type) {
-        ContentType.SPELL -> R.string.home_open_spell
-        ContentType.LESSON -> R.string.home_open_lesson
-        ContentType.POTION -> R.string.home_open_potion
-        ContentType.UNKNOWN -> R.string.home_open_practice
-        null -> R.string.home_unlock_lesson
-    }
-    val outerShape = RoundedCornerShape(18.dp)
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(12.dp, outerShape)
-            .background(
-                Brush.verticalGradient(listOf(Color(0xFFE8C693), Color(0xFFF8E7C2), Color(0xFFE5BE85))),
-                outerShape,
-            )
-            .border(1.5.dp, FrameGold, outerShape)
-            .padding(4.dp)
-            .border(1.dp, ParchmentInk.copy(alpha = 0.40f), RoundedCornerShape(14.dp))
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            HorizontalDivider(modifier = Modifier.weight(1f), color = ParchmentInk.copy(alpha = 0.45f))
-            Text(
-                text = stringResource(sectionLabel),
-                modifier = Modifier.weight(3f),
-                style = MaterialTheme.typography.labelLarge,
-                color = ParchmentInk,
-                textAlign = TextAlign.Center,
-            )
-            HorizontalDivider(modifier = Modifier.weight(1f), color = ParchmentInk.copy(alpha = 0.45f))
-        }
-        Text(
-            text = content?.title ?: stringResource(R.string.home_locked_lesson_title),
-            modifier = Modifier.semantics { heading() },
-            style = MaterialTheme.typography.displaySmall,
-            color = ParchmentInk,
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            text = content?.category?.displayName() ?: stringResource(R.string.home_locked_lesson_body),
-            style = MaterialTheme.typography.bodyMedium,
-            color = ParchmentInk,
-            textAlign = TextAlign.Center,
-        )
-        Button(
-            onClick = onOpenToday,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp)
-                .testTag("home-daily-action"),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = ButtonGold, contentColor = ParchmentInk),
-        ) {
-            Text(
-                text = if (content == null) {
-                    stringResource(R.string.home_unlock_lesson)
-                } else {
-                    stringResource(actionLabel)
-                },
-                modifier = Modifier.weight(1f, fill = false),
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-            )
-            Icon(
-                painter = painterResource(R.drawable.ic_home_arrow),
-                contentDescription = null,
-                modifier = Modifier.padding(start = 8.dp),
-            )
-        }
-    }
-}
+private fun percent(illumination: Double): Int = (illumination * 100.0).toInt().coerceIn(0, 100)

@@ -9,6 +9,7 @@ object WiccanDestinations {
     const val ARCHIVE = "archive"
     const val SETTINGS = "settings"
     const val PAYWALL = "paywall"
+    const val SUBSCRIBE = "subscribe"
     const val TERMS = "legal/terms"
     const val PRIVACY = "legal/privacy"
     const val CONTENT_SAFETY = "legal/content-safety"

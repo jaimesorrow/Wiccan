@@ -40,7 +40,7 @@ class RootRouterSignOutTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     private val stubScreens = WiccanNavScreens(
-        dailyContent = { _, _, _, onOpenGrimoire ->
+        dailyContent = { _, _, _, onOpenGrimoire, _ ->
             Column {
                 Text("screen:home")
                 Button(onClick = onOpenGrimoire) { Text("stub:open-grimoire") }
@@ -55,6 +55,7 @@ class RootRouterSignOutTest {
         settings = { Text("screen:settings") },
         archiveDetail = { contentId, _ -> Text("screen:detail:$contentId") },
         legalDocument = { documentId, _ -> Text("screen:legal:$documentId") },
+        subscribe = { _, _ -> Text("screen:subscribe") },
     )
 
     private fun click(text: String) {

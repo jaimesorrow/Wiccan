@@ -41,6 +41,7 @@ import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.content.ContentDetailView
+import com.jaimesorrow.wiccan.ui.content.DailyGrimoirePage
 import com.jaimesorrow.wiccan.ui.today.components.TodaySkeleton
 import com.wiccan.app.R
 import java.time.Duration
@@ -54,6 +55,7 @@ fun TodayScreen(
     viewModel: TodayViewModel = hiltViewModel(),
     onOpenGrimoire: () -> Unit = {},
     onOpenToday: (() -> Unit)? = null,
+    onOpenPaywall: () -> Unit = {},
     onBack: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -74,6 +76,7 @@ fun TodayScreen(
         modifier = modifier,
         onOpenGrimoire = onOpenGrimoire,
         onOpenToday = onOpenToday,
+        onOpenPaywall = onOpenPaywall,
         onBack = onBack,
     )
 }
@@ -90,6 +93,7 @@ internal fun TodayScreenContent(
     modifier: Modifier = Modifier,
     onOpenGrimoire: () -> Unit = {},
     onOpenToday: (() -> Unit)? = null,
+    onOpenPaywall: () -> Unit = {},
     onBack: (() -> Unit)? = null,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -132,6 +136,13 @@ internal fun TodayScreenContent(
             }
             Box(modifier = Modifier.weight(1f).fillMaxWidth().wiccanPageWash()) {
                 when {
+                    onOpenToday != null -> SpellbookHome(
+                        content = if (state.lessonLocked) null else state.content,
+                        lessonLocked = state.lessonLocked,
+                        onOpenToday = onOpenToday,
+                        onOpenPaywall = onOpenPaywall,
+                        onOpenGrimoire = onOpenGrimoire,
+                    )
                     // A retry from the exhausted or error panel keeps that panel on
                     // screen (and its scroll position) instead of swapping in the skeleton.
                     state.isLoading && state.content == null && !state.poolExhausted && !state.loadFailed ->
@@ -177,14 +188,9 @@ internal fun TodayScreenContent(
                             }
                         }
                     }
-                    state.content != null && onOpenToday != null -> SpellbookHome(
+                    state.lessonLocked -> LessonLock(onOpenPaywall)
+                    state.content != null -> DailyGrimoirePage(
                         content = state.content,
-                        onOpenToday = onOpenToday,
-                        onOpenGrimoire = onOpenGrimoire,
-                    )
-                    state.content != null -> ContentDetailView(
-                        content = state.content,
-                        isDailyLesson = true,
                         onOpenGrimoire = onOpenGrimoire,
                     )
                     // Post-error, cache-empty: never leave a blank screen — always offer a way forward.
@@ -243,6 +249,30 @@ private fun TodayErrorPanel(
                 modifier = Modifier.testTag("today-retry"),
             ) { Text(stringResource(R.string.today_retry)) }
             TextButton(onClick = onOpenGrimoire) { Text(stringResource(R.string.today_open_grimoire)) }
+        }
+    }
+}
+
+@Composable
+private fun LessonLock(onOpenPaywall: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(R.string.home_locked_lesson_title),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+        Text(
+            text = stringResource(R.string.home_locked_lesson_body),
+            modifier = Modifier.padding(top = 12.dp, bottom = 24.dp),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+        Button(onClick = onOpenPaywall, modifier = Modifier.testTag("today-unlock")) {
+            Text(stringResource(R.string.home_unlock_lesson))
         }
     }
 }

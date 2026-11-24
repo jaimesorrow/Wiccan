@@ -61,8 +61,9 @@ class FakeAuthRepository : AuthRepository {
         return emailSignInResult
     }
 
-    override suspend fun createAccountWithEmail(email: String, password: String): AppResult<Unit> {
+    override suspend fun createAccountWithEmail(email: String, password: String, username: String): AppResult<Unit> {
         lastCreateAccountEmail = email
+        lastCompletedUsername = username
         return createAccountResult
     }
 
