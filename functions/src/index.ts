@@ -30,7 +30,7 @@ import {
 import { FirestoreSubscriptionRecordRepository } from "./firestoreSubscriptionRecordRepository";
 import { handleRtdnNotification, parseRtdnPurchaseToken } from "./handleRtdn";
 import { FirestoreSystemConfigRepository } from "./firestoreSystemConfigRepository";
-import { parseDeviceToken, parseProfileName, parseTimeZone } from "./callableInput";
+import { parseDeviceToken, parseProfileName, parseTimeZone, parseUsername } from "./callableInput";
 import { SubscriptionRequiredError } from "./contentRepositoryPort";
 import { defineSecret, defineString } from "firebase-functions/params";
 import nodemailer from "nodemailer";
@@ -456,11 +456,13 @@ export const completeOnboardingProfile = onCall(CALLABLE_OPTIONS, async (request
   }
   const firstName = parseProfileName(request.data?.firstName);
   const lastName = parseProfileName(request.data?.lastName);
-  if (firstName === null || lastName === null) {
-    throw new HttpsError("invalid-argument", "First and last names are required (maximum 60 characters each).");
+  const rawUsername = request.data?.username;
+  const username = rawUsername === undefined ? undefined : parseUsername(rawUsername);
+  if (firstName === null || lastName === null || username === null) {
+    throw new HttpsError("invalid-argument", "Provide valid first and last names, plus a valid username when supplied.");
   }
   try {
-    await new FirestoreUserProfileRepository(getFirestore()).completeProfile(uid, firstName, lastName);
+    await new FirestoreUserProfileRepository(getFirestore()).completeProfile(uid, firstName, lastName, username);
   } catch (err) {
     logger.error("completeOnboardingProfile failed", { uid, error: (err as Error).message });
     throw new HttpsError("failed-precondition", "Unable to complete profile at this time.");

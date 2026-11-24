@@ -182,8 +182,8 @@ class AuthRepositoryImpl @Inject constructor(
         AppResult.Failure(t.toAppError())
     }
 
-    override suspend fun completeProfile(firstName: String, lastName: String): AppResult<Unit> = try {
-        accountFunctionsDataSource.completeProfile(firstName, lastName)
+    override suspend fun completeProfile(firstName: String, lastName: String, username: String): AppResult<Unit> = try {
+        accountFunctionsDataSource.completeProfile(firstName, lastName, username)
         AppResult.Success(Unit)
     } catch (t: Throwable) {
         AppResult.Failure(t.toAppError())
@@ -200,6 +200,7 @@ class AuthRepositoryImpl @Inject constructor(
             ProfileName(
                 firstName = snapshot.getString("firstName").orEmpty(),
                 lastName = snapshot.getString("lastName").orEmpty(),
+                username = snapshot.getString("username").orEmpty(),
             ).takeIf { it.firstName.isNotBlank() || it.lastName.isNotBlank() }
         }
     } catch (e: CancellationException) {

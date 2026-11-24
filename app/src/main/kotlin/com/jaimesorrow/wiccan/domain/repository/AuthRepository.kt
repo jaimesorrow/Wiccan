@@ -50,7 +50,7 @@ interface AuthRepository {
     suspend fun sendPasswordReset(email: String): AppResult<Unit>
     suspend fun sendEmailVerification(): AppResult<Unit>
     suspend fun refreshEmailVerification(): AppResult<Unit>
-    suspend fun completeProfile(firstName: String, lastName: String): AppResult<Unit>
+    suspend fun completeProfile(firstName: String, lastName: String, username: String = ""): AppResult<Unit>
     fun currentEmail(): String?
 
     /** The signed-in user's saved name, or null if signed out or it can't be read. Never throws. */

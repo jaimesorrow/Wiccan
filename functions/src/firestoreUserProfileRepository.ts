@@ -30,16 +30,18 @@ export class FirestoreUserProfileRepository implements UserProfileRepositoryPort
     };
   }
 
-  async completeProfile(uid: string, firstName: string, lastName: string): Promise<void> {
+  async completeProfile(uid: string, firstName: string, lastName: string, username?: string): Promise<void> {
     const ref = this.db.collection(USERS_COLLECTION).doc(uid);
     await this.db.runTransaction(async (transaction) => {
       const snapshot = await transaction.get(ref);
       assertAccountWriteAllowed(snapshot);
-      transaction.update(ref, {
+      const profile: Record<string, unknown> = {
         firstName,
         lastName,
         profileCompletedAt: FieldValue.serverTimestamp(),
-      });
+      };
+      if (username !== undefined) profile.username = username;
+      transaction.update(ref, profile);
     });
   }
 

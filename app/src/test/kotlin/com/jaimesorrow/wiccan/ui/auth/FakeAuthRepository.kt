@@ -30,6 +30,7 @@ class FakeAuthRepository : AuthRepository {
     var signOutCallCount: Int = 0
     var deleteAccountCallCount: Int = 0
     var acceptTermsCallCount: Int = 0
+    var lastCompletedUsername: String? = null
 
     override fun observeAuthState(): Flow<AuthState> = authStateFlow
 
@@ -81,7 +82,10 @@ class FakeAuthRepository : AuthRepository {
         delay(verificationDelayMs)
         return AppResult.Success(Unit)
     }
-    override suspend fun completeProfile(firstName: String, lastName: String): AppResult<Unit> = AppResult.Success(Unit)
+    override suspend fun completeProfile(firstName: String, lastName: String, username: String): AppResult<Unit> {
+        lastCompletedUsername = username
+        return AppResult.Success(Unit)
+    }
 
     override fun currentEmail(): String? = "test@example.com"
 

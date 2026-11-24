@@ -70,7 +70,7 @@ class OnboardingViewModelTest {
         viewModel.onStepShown(OnboardingStep.PROFILE)
         viewModel.completeProfile() // blank names -> validation notice
         viewModel.onStepShown(OnboardingStep.PROFILE)
-        assertEquals(R.string.onboarding_notice_name_invalid, viewModel.state.value.notice)
+        assertEquals(R.string.onboarding_notice_profile_invalid, viewModel.state.value.notice)
     }
 
     @Test
@@ -82,6 +82,7 @@ class OnboardingViewModelTest {
         viewModel.onStepShown(OnboardingStep.PROFILE)
         viewModel.setFirstName("Alice")
         viewModel.setLastName("Ash")
+        viewModel.setUsername("alice_ash")
         viewModel.completeProfile()
         dispatcher.scheduler.advanceUntilIdle()
 
@@ -93,6 +94,46 @@ class OnboardingViewModelTest {
         assertEquals("", state.lastName)
         assertNull(state.notice)
         assertEquals(OnboardingStep.PROFILE, state.step)
+    }
+
+    @Test
+    fun `profile requires a locally valid username before saving`() = runTest(dispatcher) {
+        val repository = FakeAuthRepository()
+        val viewModel = OnboardingViewModel(repository)
+        viewModel.onStepShown(OnboardingStep.PROFILE)
+        viewModel.setFirstName("Alice")
+        viewModel.setLastName("Ash")
+        viewModel.setUsername("not valid")
+
+        viewModel.completeProfile()
+
+        assertEquals(R.string.onboarding_notice_profile_invalid, viewModel.state.value.notice)
+        assertNull(repository.lastCompletedUsername)
+    }
+
+    @Test
+    fun `profile saves a valid username`() = runTest(dispatcher) {
+        val repository = FakeAuthRepository()
+        val viewModel = OnboardingViewModel(repository)
+        viewModel.onStepShown(OnboardingStep.PROFILE)
+        viewModel.setFirstName("Alice")
+        viewModel.setLastName("Ash")
+        viewModel.setUsername("alice_ash")
+
+        viewModel.completeProfile()
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals("alice_ash", repository.lastCompletedUsername)
+    }
+
+    @Test
+    fun `username input is bounded and reports invalid characters`() {
+        viewModel.setUsername("a".repeat(30))
+        assertEquals(24, viewModel.state.value.username.length)
+        assertFalse(viewModel.state.value.usernameHasError)
+
+        viewModel.setUsername("coven name")
+        assertTrue(viewModel.state.value.usernameHasError)
     }
 
     @Test

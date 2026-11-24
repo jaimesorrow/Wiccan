@@ -51,6 +51,7 @@ private data class BottomNavItem(
 
 private val bottomNavItems = listOf(
     BottomNavItem(WiccanDestinations.HOME, R.string.nav_home, R.drawable.ic_nav_home),
+    BottomNavItem(WiccanDestinations.TODAY, R.string.nav_today, R.drawable.ic_nav_today),
     BottomNavItem(WiccanDestinations.ARCHIVE, R.string.nav_grimoire, R.drawable.ic_nav_grimoire),
     BottomNavItem(WiccanDestinations.SETTINGS, R.string.nav_settings, R.drawable.ic_nav_settings),
 )

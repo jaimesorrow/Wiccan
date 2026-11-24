@@ -48,6 +48,7 @@ data class CachedDailyContentEntity(
     val adaptationNotes: List<String>? = null,
     val sourcePassageId: String? = null,
     val sourceTradition: String? = null,
+    val illustrationKey: String? = null,
     val citationTextTitle: String? = null,
     val citationManuscriptId: String? = null,
     val citationTradition: String? = null,

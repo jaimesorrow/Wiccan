@@ -80,9 +80,9 @@ internal fun IncantationCard(text: String) {
 }
 
 @Composable
-internal fun ReflectionSection(text: String) {
+internal fun ReflectionSection(text: String, color: Color? = null) {
     val accent = wiccanEmblemColor()
-    val ink = MaterialTheme.colorScheme.onBackground
+    val ink = color ?: MaterialTheme.colorScheme.onBackground
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),

@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -31,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
+import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.wiccan.app.R
@@ -76,6 +78,7 @@ fun OnboardingScreen(
                     Text(stringResource(R.string.onboarding_resend_button))
                 }
             } else {
+                val gold = wiccanEmblemColor()
                 OutlinedTextField(
                     value = state.firstName,
                     onValueChange = viewModel::setFirstName,
@@ -90,6 +93,22 @@ fun OnboardingScreen(
                     label = { Text(stringResource(R.string.onboarding_last_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = state.username,
+                    onValueChange = viewModel::setUsername,
+                    label = { Text(stringResource(R.string.onboarding_username)) },
+                    supportingText = { Text(stringResource(R.string.onboarding_username_hint)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    isError = state.usernameHasError,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = gold,
+                        unfocusedBorderColor = gold.copy(alpha = 0.62f),
+                        focusedLabelColor = gold,
+                        cursorColor = gold,
+                    ),
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = viewModel::completeProfile, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) {
