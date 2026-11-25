@@ -1,13 +1,21 @@
 package com.jaimesorrow.wiccan.ui.today
 
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.dp
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.jaimesorrow.wiccan.AccountStatusError
 import com.jaimesorrow.wiccan.LoadingIndicator
@@ -78,17 +86,21 @@ class GrimoireScreenScreenshotTest {
     }
 
     @Test
-    fun `capture onboarding`() = capture("wiccan-onboarding") {
-        OnboardingScreen(verification = false, viewModel = OnboardingViewModel(FakeAuthRepository()))
+    fun `capture onboarding`() {
+        val viewModel = OnboardingViewModel(FakeAuthRepository())
+        capture("wiccan-onboarding") {
+            OnboardingScreen(verification = false, viewModel = viewModel)
+        }
     }
 
     @Test
-    fun `capture policy`() = capture("wiccan-policy") {
+    fun `capture policy`() {
         val consent = mockk<AnalyticsConsentManager>(relaxed = true)
         every { consent.consent } returns flowOf(false)
-        PolicyAcceptanceScreen(
-            viewModel = PolicyAcceptanceViewModel(FakeAuthRepository(), consent),
-        )
+        val viewModel = PolicyAcceptanceViewModel(FakeAuthRepository(), consent)
+        capture("wiccan-policy") {
+            PolicyAcceptanceScreen(viewModel = viewModel)
+        }
     }
 
     @Test
@@ -104,12 +116,14 @@ class GrimoireScreenScreenshotTest {
     @Test
     @Config(sdk = [34], qualifiers = "w360dp-h2200dp-xhdpi", application = android.app.Application::class)
     fun `capture settings`() {
-        capture("wiccan-settings") { SettingsScreen(viewModel = settingsViewModel()) }
+        val viewModel = settingsViewModel()
+        capture("wiccan-settings") { SettingsScreen(viewModel = viewModel) }
     }
 
     @Test
     fun `capture settings delete`() {
-        composeRule.setContent { SettingsScreen(viewModel = settingsViewModel()) }
+        val viewModel = settingsViewModel()
+        composeRule.setContent { SettingsScreen(viewModel = viewModel) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Delete Account").performScrollTo().performClick()
         composeRule.waitForIdle()
@@ -184,7 +198,20 @@ class GrimoireScreenScreenshotTest {
     @Test
     fun `capture bottom bar`() = capture("wiccan-nav") {
         MidnightGrimoireTheme {
-            WiccanBottomBarContent(currentRoute = WiccanDestinations.HOME, onNavigate = {})
+            Scaffold(
+                containerColor = MaterialTheme.colorScheme.background,
+                bottomBar = {
+                    WiccanBottomBarContent(currentRoute = WiccanDestinations.HOME, onNavigate = {})
+                },
+            ) { insets ->
+                Column(Modifier.padding(insets).fillMaxSize().padding(24.dp)) {
+                    Text(
+                        text = "Home",
+                        color = MaterialTheme.colorScheme.onBackground,
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+                }
+            }
         }
     }
 

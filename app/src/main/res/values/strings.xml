@@ -233,7 +233,7 @@
     <string name="settings_palette_hint">Midnight Grimoire holds these pages. A choice you save is remembered.</string>
     <string name="settings_section_spiritual">SPIRITUAL PREFERENCES</string>
     <string name="settings_section_grimoire">GRIMOIRE VIEW</string>
-    <string name="settings_section_data">MY DATA</string>
+    <string name="settings_section_data">MY DATA &amp; ACCOUNT</string>
     <string name="settings_section_circle">THE INNER CIRCLE</string>
     <string name="settings_analytics">Usage analytics &amp; crash reports</string>
     <string name="settings_analytics_hint">Optional. Helps improve Wiccan; never used for ads.</string>
