@@ -42,6 +42,7 @@ import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.content.ContentDetailView
 import com.jaimesorrow.wiccan.ui.content.DailyGrimoirePage
+import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.jaimesorrow.wiccan.ui.today.components.TodaySkeleton
 import com.wiccan.app.R
 import java.time.Duration
@@ -123,85 +124,87 @@ internal fun TodayScreenContent(
         }
     }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { insets ->
-        Column(modifier = Modifier.padding(insets).fillMaxSize()) {
-            onBack?.let { back ->
-                Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                    TextButton(onClick = back) { Text(stringResource(R.string.daily_back)) }
+    MidnightGrimoireTheme {
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            containerColor = MaterialTheme.colorScheme.background,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+        ) { insets ->
+            Column(modifier = Modifier.padding(insets).fillMaxSize()) {
+                onBack?.let { back ->
+                    Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                        TextButton(onClick = back) { Text(stringResource(R.string.daily_back)) }
+                    }
                 }
-            }
-            Box(modifier = Modifier.weight(1f).fillMaxWidth().wiccanPageWash()) {
-                when {
-                    onOpenToday != null -> SpellbookHome(
-                        content = if (state.lessonLocked) null else state.content,
-                        lessonLocked = state.lessonLocked,
-                        onOpenToday = onOpenToday,
-                        onOpenPaywall = onOpenPaywall,
-                        onOpenGrimoire = onOpenGrimoire,
-                    )
-                    // A retry from the exhausted or error panel keeps that panel on
-                    // screen (and its scroll position) instead of swapping in the skeleton.
-                    state.isLoading && state.content == null && !state.poolExhausted && !state.loadFailed ->
-                        TodaySkeleton()
-                    // Centered when it fits; scrollable on short viewports or with
-                    // enlarged text so the actions below always stay reachable.
-                    state.poolExhausted -> Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .testTag("today-empty")
-                                .verticalScroll(emptyScrollState)
-                                .padding(32.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
+                Box(modifier = Modifier.weight(1f).fillMaxWidth().wiccanPageWash()) {
+                    when {
+                        onOpenToday != null -> SpellbookHome(
+                            content = if (state.lessonLocked) null else state.content,
+                            lessonLocked = state.lessonLocked,
+                            onOpenToday = onOpenToday,
+                            onOpenPaywall = onOpenPaywall,
+                            onOpenGrimoire = onOpenGrimoire,
+                        )
+                        // A retry from the exhausted or error panel keeps that panel on
+                        // screen (and its scroll position) instead of swapping in the skeleton.
+                        state.isLoading && state.content == null && !state.poolExhausted && !state.loadFailed ->
+                            TodaySkeleton()
+                        // Centered when it fits; scrollable on short viewports or with
+                        // enlarged text so the actions below always stay reachable.
+                        state.poolExhausted -> Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            WiccanEmblem(
-                                modifier = Modifier.testTag("today-empty-logo"),
-                                size = 48.dp,
-                                contentDescription = stringResource(R.string.today_logo_description),
-                            )
-                            WiccanBotanicalAccent(width = 116.dp)
-                            Text(
-                                text = stringResource(R.string.today_empty_title),
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = MaterialTheme.colorScheme.onBackground,
-                            )
-                            Text(
-                                text = stringResource(R.string.today_empty_body),
-                                modifier = Modifier.padding(top = 12.dp, bottom = 24.dp),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onBackground,
-                            )
-                            Button(onClick = onOpenGrimoire) { Text(stringResource(R.string.today_open_grimoire)) }
-                            TextButton(
-                                onClick = { onEvent(TodayUiEvent.Retry) },
-                                enabled = !state.isLoading,
-                                modifier = Modifier.testTag("today-check-again"),
+                            Column(
+                                modifier = Modifier
+                                    .testTag("today-empty")
+                                    .verticalScroll(emptyScrollState)
+                                    .padding(32.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
-                                Text(stringResource(R.string.today_look_again))
+                                WiccanEmblem(
+                                    modifier = Modifier.testTag("today-empty-logo"),
+                                    size = 48.dp,
+                                    contentDescription = stringResource(R.string.today_logo_description),
+                                )
+                                WiccanBotanicalAccent(width = 116.dp)
+                                Text(
+                                    text = stringResource(R.string.today_empty_title),
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                )
+                                Text(
+                                    text = stringResource(R.string.today_empty_body),
+                                    modifier = Modifier.padding(top = 12.dp, bottom = 24.dp),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                )
+                                Button(onClick = onOpenGrimoire) { Text(stringResource(R.string.today_open_grimoire)) }
+                                TextButton(
+                                    onClick = { onEvent(TodayUiEvent.Retry) },
+                                    enabled = !state.isLoading,
+                                    modifier = Modifier.testTag("today-check-again"),
+                                ) {
+                                    Text(stringResource(R.string.today_look_again))
+                                }
                             }
                         }
-                    }
-                    state.lessonLocked -> LessonLock(onOpenPaywall)
-                    state.content != null -> DailyGrimoirePage(
-                        content = state.content,
-                        onOpenGrimoire = onOpenGrimoire,
-                    )
-                    // Post-error, cache-empty: never leave a blank screen — always offer a way forward.
-                    state.loadFailed -> TodayErrorPanel(
-                        onEvent = onEvent,
-                        onOpenGrimoire = onOpenGrimoire,
-                        scrollState = errorScrollState,
-                        retrying = state.isLoading,
-                    )
-                    else -> {
-                        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
+                        state.lessonLocked -> LessonLock(onOpenPaywall)
+                        state.content != null -> DailyGrimoirePage(
+                            content = state.content,
+                            onOpenGrimoire = onOpenGrimoire,
+                        )
+                        // Post-error, cache-empty: never leave a blank screen — always offer a way forward.
+                        state.loadFailed -> TodayErrorPanel(
+                            onEvent = onEvent,
+                            onOpenGrimoire = onOpenGrimoire,
+                            scrollState = errorScrollState,
+                            retrying = state.isLoading,
+                        )
+                        else -> {
+                            Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
+                        }
                     }
                 }
             }

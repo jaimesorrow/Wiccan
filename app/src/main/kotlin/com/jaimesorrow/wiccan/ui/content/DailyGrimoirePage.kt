@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.wiccan.app.R
 import java.net.HttpURLConnection
@@ -51,6 +52,7 @@ import kotlinx.coroutines.withContext
 private val Quill = FontFamily(Font(R.font.italianno_regular))
 private val Ink = WiccanPaletteColors.Parchment.Ink
 private val Midnight = WiccanPaletteColors.Grimoire.Background
+private val Sepia = androidx.compose.ui.text.TextStyle(fontFamily = FontFamily.Serif, color = Ink)
 
 @Composable
 internal fun DailyGrimoirePage(
@@ -71,7 +73,7 @@ internal fun DailyGrimoirePage(
                 .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Text("✦", color = WiccanPaletteColors.Grimoire.Border, style = MaterialTheme.typography.titleMedium)
+            CandleOrnament(Modifier.size(width = 36.dp, height = 52.dp).align(Alignment.Start))
             Text(
                 text = content.title,
                 color = Ink,
@@ -90,28 +92,31 @@ internal fun DailyGrimoirePage(
                 style = MaterialTheme.typography.bodyMedium,
             )
             val tools = content.tools.ifEmpty { content.materials.orEmpty() }
+            var step = 1
             if (tools.isNotEmpty()) {
                 SectionTitle(stringResource(R.string.content_materials))
                 tools.forEach { item ->
-                    Text("☐  $item", color = Ink, style = MaterialTheme.typography.bodyLarge)
+                    Text("☐  $item", color = Ink, style = MaterialTheme.typography.bodyLarge.merge(Sepia))
                 }
+                WiccanBotanicalAccent(width = 96.dp)
             }
             if (content.intro.isNotBlank()) {
-                Text(content.intro, color = Ink, style = MaterialTheme.typography.bodyLarge)
+                Text(content.intro, color = Ink, style = MaterialTheme.typography.bodyLarge.merge(Sepia))
             }
-            SectionTitle(stringResource(R.string.content_method))
-            Text(content.body, color = Ink, style = MaterialTheme.typography.bodyLarge)
+            SectionTitle("${roman(step++)}. ${stringResource(R.string.content_method)}")
+            Text(content.body, color = Ink, style = MaterialTheme.typography.bodyLarge.merge(Sepia))
+            WiccanBotanicalAccent(width = 96.dp)
             content.reflection?.takeIf { it.isNotBlank() }?.let {
-                SectionTitle(stringResource(R.string.content_reflection))
-                Text(it, color = Ink, style = MaterialTheme.typography.bodyLarge)
+                SectionTitle("${roman(step++)}. ${stringResource(R.string.content_reflection)}")
+                Text(it, color = Ink, style = MaterialTheme.typography.bodyLarge.merge(Sepia))
             }
             content.practice?.takeIf { it.isNotBlank() }?.let {
-                SectionTitle(stringResource(R.string.content_practice))
-                Text(it, color = Ink, style = MaterialTheme.typography.bodyLarge)
+                SectionTitle("${roman(step++)}. ${stringResource(R.string.content_practice)}")
+                Text(it, color = Ink, style = MaterialTheme.typography.bodyLarge.merge(Sepia))
             }
             content.safetyNote?.takeIf { it.isNotBlank() }?.let {
                 SectionTitle(stringResource(R.string.content_safety_heading))
-                Text(it, color = Ink, style = MaterialTheme.typography.bodyMedium)
+                Text(it, color = Ink, style = MaterialTheme.typography.bodyMedium.merge(Sepia))
             }
             content.sourceCitation?.takeIf { it.isNotBlank() }?.let {
                 SectionTitle(stringResource(R.string.content_source))
@@ -127,10 +132,15 @@ internal fun DailyGrimoirePage(
                 }
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                Text("✒", color = Ink, style = MaterialTheme.typography.headlineMedium.copy(fontFamily = Quill))
+                QuillAndInkpotOrnament(Modifier.size(width = 96.dp, height = 72.dp))
             }
         }
     }
+}
+
+private fun roman(value: Int): String {
+    val numerals = listOf("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X")
+    return numerals.getOrElse(value - 1) { value.toString() }
 }
 
 @Composable

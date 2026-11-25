@@ -46,6 +46,7 @@ import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
+import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.wiccan.app.R
 
 /**
@@ -78,75 +79,77 @@ internal fun ArchiveScreenContent(
     onEvent: (ArchiveUiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
-    ) { insets ->
-        Column(modifier = Modifier.padding(insets).fillMaxSize().wiccanPageWash()) {
-            Box(
-                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                WiccanEmblem(
-                    modifier = Modifier.testTag("grimoire-logo"),
-                    size = 44.dp,
-                    contentDescription = stringResource(R.string.grimoire_logo_description),
-                )
-            }
-            WiccanBotanicalAccent(modifier = Modifier.align(Alignment.CenterHorizontally), width = 116.dp)
-            Text(
-                text = stringResource(R.string.grimoire_title),
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
-            )
-            Text(
-                text = stringResource(R.string.grimoire_subtitle),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 24.dp),
-            )
-            val loadingDescription = stringResource(R.string.grimoire_loading)
-            when {
-                state.isLoading -> Box(
-                    Modifier.fillMaxSize().semantics { contentDescription = loadingDescription },
+    MidnightGrimoireTheme {
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            containerColor = MaterialTheme.colorScheme.background,
+        ) { insets ->
+            Column(modifier = Modifier.padding(insets).fillMaxSize().wiccanPageWash()) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    WiccanEmblem(
+                        modifier = Modifier.testTag("grimoire-logo"),
+                        size = 44.dp,
+                        contentDescription = stringResource(R.string.grimoire_logo_description),
+                    )
                 }
-                state.entries.isEmpty() && state.error != null -> {
-                    val historyError = checkNotNull(state.error)
-                    Box(
-                        Modifier.fillMaxSize().padding(32.dp),
+                WiccanBotanicalAccent(modifier = Modifier.align(Alignment.CenterHorizontally), width = 116.dp)
+                Text(
+                    text = stringResource(R.string.grimoire_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
+                )
+                Text(
+                    text = stringResource(R.string.grimoire_subtitle),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 24.dp),
+                )
+                val loadingDescription = stringResource(R.string.grimoire_loading)
+                when {
+                    state.isLoading -> Box(
+                        Modifier.fillMaxSize().semantics { contentDescription = loadingDescription },
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(
-                            text = historyError.toUserMessage(LocalResources.current),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
-                }
-                else -> Box(Modifier.fillMaxSize()) {
-                    Column(Modifier.fillMaxSize()) {
-                        ArchiveTabRow(
-                            selectedTab = state.selectedTab,
-                            onTabSelected = { onEvent(ArchiveUiEvent.TabSelected(it)) },
-                        )
-                        when (state.selectedTab) {
-                            ArchiveTab.TIMELINE -> if (state.entries.isEmpty()) {
-                                EmptyArchive()
-                            } else {
-                                TimelineList(
+                    state.entries.isEmpty() && state.error != null -> {
+                        val historyError = checkNotNull(state.error)
+                        Box(
+                            Modifier.fillMaxSize().padding(32.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = historyError.toUserMessage(LocalResources.current),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    else -> Box(Modifier.fillMaxSize()) {
+                        Column(Modifier.fillMaxSize()) {
+                            ArchiveTabRow(
+                                selectedTab = state.selectedTab,
+                                onTabSelected = { onEvent(ArchiveUiEvent.TabSelected(it)) },
+                            )
+                            when (state.selectedTab) {
+                                ArchiveTab.TIMELINE -> if (state.entries.isEmpty()) {
+                                    EmptyArchive()
+                                } else {
+                                    TimelineList(
+                                        entries = state.entries,
+                                        onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                    )
+                                }
+                                ArchiveTab.LIBRARY -> LibraryList(
                                     entries = state.entries,
+                                    collapsedCategories = state.collapsedCategories,
                                     onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                    onCategoryToggled = { onEvent(ArchiveUiEvent.CategoryToggled(it)) },
                                 )
                             }
-                            ArchiveTab.LIBRARY -> LibraryList(
-                                entries = state.entries,
-                                collapsedCategories = state.collapsedCategories,
-                                onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
-                                onCategoryToggled = { onEvent(ArchiveUiEvent.CategoryToggled(it)) },
-                            )
                         }
                     }
                 }

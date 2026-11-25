@@ -44,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -56,6 +57,10 @@ import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
+import com.jaimesorrow.wiccan.ui.theme.GrimoireButton
+import com.jaimesorrow.wiccan.ui.theme.GrimoireFloralBackdrop
+import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
+import com.jaimesorrow.wiccan.ui.theme.grimoireFieldColors
 import com.jaimesorrow.wiccan.ui.today.components.HairlineDivider
 import com.wiccan.app.R
 
@@ -102,97 +107,98 @@ internal fun SignInScreenContent(
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
-    val scheme = MaterialTheme.colorScheme
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = scheme.background,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { insets ->
-        Box(
-            modifier = Modifier.padding(insets).fillMaxSize()
-                .wiccanPageWash()
-                .imePadding(),
-            contentAlignment = Alignment.TopCenter,
-        ) {
-            Column(
-                modifier = Modifier.widthIn(max = 480.dp).fillMaxSize()
-                    .verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+    MidnightGrimoireTheme {
+        val scheme = MaterialTheme.colorScheme
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            containerColor = scheme.background,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+        ) { insets ->
+            Box(
+                modifier = Modifier.padding(insets).fillMaxSize().imePadding(),
+                contentAlignment = Alignment.TopCenter,
             ) {
-                WiccanFullLogo(modifier = Modifier.testTag("auth-logo"), width = 180.dp)
-                WiccanBotanicalAccent(modifier = Modifier.padding(vertical = 5.dp))
-                Text(
-                    text = if (state.mode == SignInMode.FORGOT_PASSWORD) {
-                        stringResource(R.string.auth_forgot_headline)
-                    } else {
-                        stringResource(R.string.auth_intro_headline)
-                    },
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = scheme.onBackground,
-                    modifier = Modifier.fillMaxWidth().semantics { heading() },
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = if (state.mode == SignInMode.FORGOT_PASSWORD) {
-                        stringResource(R.string.auth_forgot_body)
-                    } else {
-                        stringResource(R.string.auth_intro_body)
-                    },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = scheme.onSurfaceVariant,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                if (state.mode != SignInMode.FORGOT_PASSWORD) {
+                GrimoireFloralBackdrop(Modifier.fillMaxSize())
+                Column(
+                    modifier = Modifier.widthIn(max = 480.dp).fillMaxSize()
+                        .verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    WiccanFullLogo(modifier = Modifier.testTag("auth-logo"), width = 180.dp)
+                    WiccanBotanicalAccent(modifier = Modifier.padding(vertical = 5.dp))
+                    Text(
+                        text = if (state.mode == SignInMode.FORGOT_PASSWORD) {
+                            stringResource(R.string.auth_forgot_headline)
+                        } else {
+                            stringResource(R.string.auth_intro_headline)
+                        },
+                        style = MaterialTheme.typography.headlineMedium.copy(fontFamily = FontFamily.Serif),
+                        color = scheme.onBackground,
+                        modifier = Modifier.fillMaxWidth().semantics { heading() },
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        stringResource(R.string.auth_daily_line),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = scheme.primary,
+                        text = if (state.mode == SignInMode.FORGOT_PASSWORD) {
+                            stringResource(R.string.auth_forgot_body)
+                        } else {
+                            stringResource(R.string.auth_intro_body)
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = scheme.onSurfaceVariant,
                         modifier = Modifier.fillMaxWidth(),
                     )
-                }
-                Spacer(modifier = Modifier.height(28.dp))
-                Surface(
-                    shape = RoundedCornerShape(6.dp),
-                    color = scheme.surface,
-                    tonalElevation = 0.dp,
-                    border = BorderStroke(1.dp, scheme.outline),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        when (state.mode) {
-                            SignInMode.SIGN_IN, SignInMode.CREATE_ACCOUNT -> AuthFields(
-                                state,
-                                onEvent,
-                                onGoogleSignInClick,
-                            )
-                            SignInMode.FORGOT_PASSWORD -> RecoveryFields(state, onEvent)
+                    if (state.mode != SignInMode.FORGOT_PASSWORD) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            stringResource(R.string.auth_daily_line),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = scheme.primary,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(28.dp))
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = scheme.surface,
+                        tonalElevation = 0.dp,
+                        border = BorderStroke(1.dp, scheme.outline),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            when (state.mode) {
+                                SignInMode.SIGN_IN, SignInMode.CREATE_ACCOUNT -> AuthFields(
+                                    state,
+                                    onEvent,
+                                    onGoogleSignInClick,
+                                )
+                                SignInMode.FORGOT_PASSWORD -> RecoveryFields(state, onEvent)
+                            }
                         }
                     }
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(R.string.auth_subscription_requirement),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = scheme.onSurfaceVariant,
-                )
-                Row {
-                    TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.TERMS) }) {
-                        Text(stringResource(R.string.auth_terms))
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.auth_subscription_requirement),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = scheme.onSurfaceVariant,
+                    )
+                    Row {
+                        TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.TERMS) }) {
+                            Text(stringResource(R.string.auth_terms))
+                        }
+                        TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) {
+                            Text(stringResource(R.string.auth_privacy))
+                        }
                     }
-                    TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) {
-                        Text(stringResource(R.string.auth_privacy))
+                    Text(
+                        text = stringResource(R.string.auth_quiet_quote),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = scheme.primary,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
+                    if (state.isLoading) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        CircularProgressIndicator(color = scheme.primary)
                     }
-                }
-                Text(
-                    text = stringResource(R.string.auth_quiet_quote),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = scheme.primary,
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                )
-                if (state.isLoading) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    CircularProgressIndicator(color = scheme.primary)
                 }
             }
         }
@@ -233,6 +239,7 @@ private fun AuthFields(
             isError = state.usernameError != null,
             supportingText = state.usernameError?.let { error -> { Text(stringResource(error)) } },
             singleLine = true,
+            colors = grimoireFieldColors(),
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -245,24 +252,17 @@ private fun AuthFields(
             isError = state.confirmPasswordError != null,
             supportingText = state.confirmPasswordError?.let { error -> { Text(stringResource(error)) } },
             singleLine = true,
+            colors = grimoireFieldColors(),
             modifier = Modifier.fillMaxWidth(),
         )
     }
     Spacer(modifier = Modifier.height(16.dp))
-    Button(
+    GrimoireButton(
+        text = stringResource(R.string.auth_enter_grimoire),
         onClick = { onEvent(SignInUiEvent.SubmitEmailAuth) },
         modifier = Modifier.fillMaxWidth(),
         enabled = !state.isLoading,
-        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-            containerColor = com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors.Grimoire.Gold,
-            contentColor = com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors.Grimoire.OnGold,
-        ),
-    ) {
-        Text(
-            stringResource(R.string.auth_enter_grimoire),
-            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-        )
-    }
+    )
     TextButton(onClick = { onEvent(SignInUiEvent.ToggleMode) }) {
         Text(stringResource(if (creating) R.string.auth_have_account else R.string.auth_need_account))
     }
@@ -310,6 +310,7 @@ private fun EmailField(state: SignInUiState, onEvent: (SignInUiEvent) -> Unit) {
         isError = state.emailError != null,
         supportingText = state.emailError?.let { error -> { Text(stringResource(error)) } },
         singleLine = true,
+        colors = grimoireFieldColors(),
         modifier = Modifier.fillMaxWidth(),
     )
 }
@@ -354,6 +355,7 @@ private fun PasswordField(state: SignInUiState, onEvent: (SignInUiEvent) -> Unit
         isError = state.passwordError != null,
         supportingText = state.passwordError?.let { error -> { Text(stringResource(error)) } },
         singleLine = true,
+        colors = grimoireFieldColors(),
         modifier = Modifier.fillMaxWidth(),
     )
 }

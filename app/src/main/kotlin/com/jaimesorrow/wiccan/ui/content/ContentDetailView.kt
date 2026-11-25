@@ -361,7 +361,7 @@ private fun Content.lessonArtwork(): Int {
 }
 
 @Composable
-private fun CandleOrnament(modifier: Modifier = Modifier) {
+internal fun CandleOrnament(modifier: Modifier = Modifier) {
     Canvas(modifier) {
         val stroke = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round)
         drawLine(
@@ -407,7 +407,7 @@ private fun CandleOrnament(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun QuillAndInkpotOrnament(modifier: Modifier = Modifier) {
+internal fun QuillAndInkpotOrnament(modifier: Modifier = Modifier) {
     Canvas(modifier) {
         val line = 1.4.dp.toPx()
         val quill = Path().apply {

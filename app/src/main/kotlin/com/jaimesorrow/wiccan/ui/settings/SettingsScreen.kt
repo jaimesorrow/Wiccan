@@ -54,8 +54,13 @@ import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
+import com.jaimesorrow.wiccan.ui.theme.GrimoireChevronRow
+import com.jaimesorrow.wiccan.ui.theme.GrimoireSectionHeader
+import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.jaimesorrow.wiccan.ui.theme.description
 import com.jaimesorrow.wiccan.ui.theme.displayName
+import com.jaimesorrow.wiccan.ui.theme.grimoireFieldColors
+import com.jaimesorrow.wiccan.ui.theme.grimoireSwitchColors
 import com.wiccan.app.R
 import kotlinx.coroutines.launch
 
@@ -101,270 +106,256 @@ fun SettingsScreen(
         }
     }
 
-    if (state.showDeleteConfirmation) {
-        AlertDialog(
-            onDismissRequest = { viewModel.onEvent(SettingsUiEvent.CancelDeleteAccount) },
-            icon = { WiccanEmblem(size = 32.dp) },
-            title = { Text(stringResource(R.string.settings_delete_title)) },
-            text = { Text(stringResource(R.string.settings_delete_body)) },
-            confirmButton = {
-                TextButton(onClick = { viewModel.onEvent(SettingsUiEvent.ConfirmDeleteAccount) }) {
-                    Text(stringResource(R.string.settings_delete_confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { viewModel.onEvent(SettingsUiEvent.CancelDeleteAccount) }) {
-                    Text(stringResource(R.string.settings_delete_cancel))
-                }
-            },
-        )
-    }
-
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { insets ->
-        Column(
-            modifier = Modifier
-                .padding(insets)
-                .fillMaxSize()
-                .wiccanPageWash()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 32.dp),
-            verticalArrangement = Arrangement.Top,
-        ) {
-            Spacer(modifier = Modifier.height(32.dp))
-            if (accountOnly) TextButton(onClick = onBack) { Text(stringResource(R.string.settings_back)) }
-            WiccanEmblem(
-                modifier = Modifier.align(Alignment.CenterHorizontally).testTag("settings-logo"),
-                size = 44.dp,
-                contentDescription = stringResource(R.string.settings_logo_description),
-            )
-            WiccanBotanicalAccent(modifier = Modifier.align(Alignment.CenterHorizontally), width = 116.dp)
-            Text(
-                stringResource(if (accountOnly) R.string.settings_account_title else R.string.settings_title),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Text(
-                stringResource(if (accountOnly) R.string.settings_account_subtitle else R.string.settings_subtitle),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                stringResource(R.string.settings_account_heading),
-                style = MaterialTheme.typography.titleLarge,
-                color = wiccanEmblemColor(),
-                modifier = Modifier.semantics { heading() },
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.settings_email, state.accountEmail),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(
-                value = state.firstName,
-                onValueChange = { viewModel.onEvent(SettingsUiEvent.FirstNameChanged(it)) },
-                label = { Text(stringResource(R.string.onboarding_first_name)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = state.lastName,
-                onValueChange = { viewModel.onEvent(SettingsUiEvent.LastNameChanged(it)) },
-                label = { Text(stringResource(R.string.onboarding_last_name)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-            )
-            OutlinedButton(
-                onClick = { viewModel.onEvent(SettingsUiEvent.SaveNameClicked) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isAccountBusy,
-            ) { Text(stringResource(R.string.settings_save_name)) }
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = state.newEmail,
-                onValueChange = { viewModel.onEvent(SettingsUiEvent.NewEmailChanged(it)) },
-                label = { Text(stringResource(R.string.settings_new_email)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-            )
-            OutlinedButton(
-                onClick = { viewModel.onEvent(SettingsUiEvent.ChangeEmailClicked) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isAccountBusy,
-            ) { Text(stringResource(R.string.settings_verify_email)) }
-            OutlinedButton(
-                onClick = { viewModel.onEvent(SettingsUiEvent.ResetPasswordClicked) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isAccountBusy,
-            ) { Text(stringResource(R.string.settings_reset_password)) }
-            if (state.isAccountBusy) {
-                CircularProgressIndicator(
-                    modifier = Modifier.semantics { contentDescription = loadingDescription },
-                )
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-
-            OutlinedButton(
-                onClick = { viewModel.onEvent(SettingsUiEvent.SignOutClicked) },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(stringResource(R.string.settings_sign_out))
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedButton(
-                onClick = {
-                    openExternal(
-                        manageSubscriptionIntent(),
-                        subscriptionUnavailable,
-                    )
+    MidnightGrimoireTheme {
+        if (state.showDeleteConfirmation) {
+            AlertDialog(
+                onDismissRequest = { viewModel.onEvent(SettingsUiEvent.CancelDeleteAccount) },
+                icon = { WiccanEmblem(size = 32.dp) },
+                title = { Text(stringResource(R.string.settings_delete_title)) },
+                text = { Text(stringResource(R.string.settings_delete_body)) },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.onEvent(SettingsUiEvent.ConfirmDeleteAccount) }) {
+                        Text(stringResource(R.string.settings_delete_confirm))
+                    }
                 },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(stringResource(R.string.settings_manage_subscription))
-            }
+                dismissButton = {
+                    TextButton(onClick = { viewModel.onEvent(SettingsUiEvent.CancelDeleteAccount) }) {
+                        Text(stringResource(R.string.settings_delete_cancel))
+                    }
+                },
+            )
+        }
 
-            if (!accountOnly) {
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            containerColor = MaterialTheme.colorScheme.background,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+        ) { insets ->
+            Column(
+                modifier = Modifier
+                    .padding(insets)
+                    .fillMaxSize()
+                    .wiccanPageWash()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 32.dp),
+                verticalArrangement = Arrangement.Top,
+            ) {
+                Spacer(modifier = Modifier.height(32.dp))
+                if (accountOnly) TextButton(onClick = onBack) { Text(stringResource(R.string.settings_back)) }
+                WiccanEmblem(
+                    modifier = Modifier.align(Alignment.CenterHorizontally).testTag("settings-logo"),
+                    size = 44.dp,
+                    contentDescription = stringResource(R.string.settings_logo_description),
+                )
+                WiccanBotanicalAccent(modifier = Modifier.align(Alignment.CenterHorizontally), width = 116.dp)
+                Text(
+                    stringResource(if (accountOnly) R.string.settings_account_title else R.string.settings_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+                Text(
+                    stringResource(if (accountOnly) R.string.settings_account_subtitle else R.string.settings_subtitle),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    stringResource(R.string.settings_account_heading),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = wiccanEmblemColor(),
+                    modifier = Modifier.semantics { heading() },
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.settings_email, state.accountEmail),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = state.firstName,
+                    onValueChange = { viewModel.onEvent(SettingsUiEvent.FirstNameChanged(it)) },
+                    label = { Text(stringResource(R.string.onboarding_first_name)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    colors = grimoireFieldColors(),
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = state.lastName,
+                    onValueChange = { viewModel.onEvent(SettingsUiEvent.LastNameChanged(it)) },
+                    label = { Text(stringResource(R.string.onboarding_last_name)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    colors = grimoireFieldColors(),
+                )
+                OutlinedButton(
+                    onClick = { viewModel.onEvent(SettingsUiEvent.SaveNameClicked) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !state.isAccountBusy,
+                ) { Text(stringResource(R.string.settings_save_name)) }
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = state.newEmail,
+                    onValueChange = { viewModel.onEvent(SettingsUiEvent.NewEmailChanged(it)) },
+                    label = { Text(stringResource(R.string.settings_new_email)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    colors = grimoireFieldColors(),
+                )
+                OutlinedButton(
+                    onClick = { viewModel.onEvent(SettingsUiEvent.ChangeEmailClicked) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !state.isAccountBusy,
+                ) { Text(stringResource(R.string.settings_verify_email)) }
+                OutlinedButton(
+                    onClick = { viewModel.onEvent(SettingsUiEvent.ResetPasswordClicked) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !state.isAccountBusy,
+                ) { Text(stringResource(R.string.settings_reset_password)) }
+                if (state.isAccountBusy) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.semantics { contentDescription = loadingDescription },
+                    )
+                }
                 Spacer(modifier = Modifier.height(24.dp))
+
+                OutlinedButton(
+                    onClick = { viewModel.onEvent(SettingsUiEvent.SignOutClicked) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.settings_sign_out))
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedButton(
+                    onClick = {
+                        openExternal(
+                            manageSubscriptionIntent(),
+                            subscriptionUnavailable,
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.settings_manage_subscription))
+                }
+
+                if (!accountOnly) {
+                    GrimoireSectionHeader(stringResource(R.string.settings_section_spiritual))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .toggleable(
+                                value = state.notificationsEnabled,
+                                enabled = !state.isNotificationBusy,
+                                role = Role.Switch,
+                                onValueChange = { viewModel.onEvent(SettingsUiEvent.NotificationsToggled(it)) },
+                            ),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+                            Text(
+                                text = stringResource(R.string.settings_notifications),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onBackground,
+                            )
+                            Text(
+                                text = stringResource(R.string.settings_notifications_hint),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = state.notificationsEnabled,
+                            onCheckedChange = null,
+                            enabled = !state.isNotificationBusy,
+                            colors = grimoireSwitchColors(),
+                        )
+                    }
+
+                    GrimoireSectionHeader(stringResource(R.string.settings_section_grimoire))
+                    Text(
+                        text = stringResource(R.string.settings_palette),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = wiccanEmblemColor(),
+                        modifier = Modifier.semantics { heading() },
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.settings_palette_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ThemeModePicker(
+                        selected = state.themeMode,
+                        onSelected = { viewModel.onEvent(SettingsUiEvent.ThemeModeSelected(it)) },
+                    )
+                }
+
+                GrimoireSectionHeader(stringResource(R.string.settings_section_data))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .toggleable(
-                            value = state.notificationsEnabled,
-                            enabled = !state.isNotificationBusy,
+                            value = state.shareAnalytics,
                             role = Role.Switch,
-                            onValueChange = { viewModel.onEvent(SettingsUiEvent.NotificationsToggled(it)) },
+                            onValueChange = { viewModel.onEvent(SettingsUiEvent.ShareAnalyticsToggled(it)) },
                         ),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
                         Text(
-                            text = stringResource(R.string.settings_notifications),
+                            text = stringResource(R.string.settings_analytics),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onBackground,
                         )
                         Text(
-                            text = stringResource(R.string.settings_notifications_hint),
+                            text = stringResource(R.string.settings_analytics_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    Switch(
-                        checked = state.notificationsEnabled,
-                        onCheckedChange = null,
-                        enabled = !state.isNotificationBusy,
-                    )
+                    Switch(checked = state.shareAnalytics, onCheckedChange = null, colors = grimoireSwitchColors())
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
-                Text(
-                    text = stringResource(R.string.settings_palette),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = wiccanEmblemColor(),
-                    modifier = Modifier.semantics { heading() },
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.settings_palette_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                ThemeModePicker(
-                    selected = state.themeMode,
-                    onSelected = { viewModel.onEvent(SettingsUiEvent.ThemeModeSelected(it)) },
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .toggleable(
-                        value = state.shareAnalytics,
-                        role = Role.Switch,
-                        onValueChange = { viewModel.onEvent(SettingsUiEvent.ShareAnalyticsToggled(it)) },
-                    ),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
-                    Text(
-                        text = stringResource(R.string.settings_analytics),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
-                    Text(
-                        text = stringResource(R.string.settings_analytics_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Switch(checked = state.shareAnalytics, onCheckedChange = null)
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-            OutlinedButton(
-                onClick = { viewModel.onEvent(SettingsUiEvent.DeleteAccountClicked) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isDeleting,
-            ) {
-                Text(stringResource(R.string.settings_delete))
-            }
-
-            if (state.isDeleting) {
-                Spacer(modifier = Modifier.height(16.dp))
-                CircularProgressIndicator(
-                    modifier = Modifier.semantics { contentDescription = loadingDescription },
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                TextButton(onClick = onTermsClick) {
-                    Text(stringResource(R.string.policy_terms), style = MaterialTheme.typography.labelSmall)
-                }
-                TextButton(onClick = onPrivacyClick) {
-                    Text(stringResource(R.string.policy_privacy), style = MaterialTheme.typography.labelSmall)
-                }
-            }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                TextButton(onClick = onContentSafetyClick) {
-                    Text(stringResource(R.string.policy_safety), style = MaterialTheme.typography.labelSmall)
-                }
-                TextButton(onClick = onPotionSafetyClick) {
-                    Text(stringResource(R.string.policy_potion_safety), style = MaterialTheme.typography.labelSmall)
-                }
-            }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                TextButton(
-                    onClick = {
-                        openExternal(
-                            supportEmailIntent(),
-                            contactUnavailable,
-                        )
-                    },
+                Spacer(modifier = Modifier.height(24.dp))
+                OutlinedButton(
+                    onClick = { viewModel.onEvent(SettingsUiEvent.DeleteAccountClicked) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !state.isDeleting,
                 ) {
-                    Text(stringResource(R.string.settings_contact), style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.settings_delete))
                 }
+
+                if (state.isDeleting) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    CircularProgressIndicator(
+                        modifier = Modifier.semantics { contentDescription = loadingDescription },
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                GrimoireSectionHeader(stringResource(R.string.settings_section_circle))
+                GrimoireChevronRow(stringResource(R.string.policy_terms), onClick = onTermsClick)
+                GrimoireChevronRow(stringResource(R.string.policy_privacy), onClick = onPrivacyClick)
+                GrimoireChevronRow(stringResource(R.string.policy_safety), onClick = onContentSafetyClick)
+                GrimoireChevronRow(stringResource(R.string.policy_potion_safety), onClick = onPotionSafetyClick)
+                GrimoireChevronRow(stringResource(R.string.settings_contact)) {
+                    openExternal(supportEmailIntent(), contactUnavailable)
+                }
+                Text(
+                    text = stringResource(R.string.settings_version, appVersionName(context)),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp),
+                )
             }
-            Text(
-                text = stringResource(R.string.settings_version, appVersionName(context)),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-            )
         }
     }
 }

@@ -215,7 +215,7 @@ private fun MainActivity.EdgeToEdgeEffect(colorScheme: ColorScheme = MaterialThe
 }
 
 @Composable
-private fun LoadingIndicator() {
+internal fun LoadingIndicator() {
     // Paint the palette background: the window behind is the fixed dark splash
     // colour, which would hide the Light/Ivory logo.
     Box(
@@ -235,7 +235,7 @@ private fun LoadingIndicator() {
 }
 
 @Composable
-private fun AccountStatusError(message: String, onRetry: () -> Unit) {
+internal fun AccountStatusError(message: String, onRetry: () -> Unit) {
     Box(
         modifier = Modifier.fillMaxSize().wiccanPageWash(),
         contentAlignment = Alignment.Center,

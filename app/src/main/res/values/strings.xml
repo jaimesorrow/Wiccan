@@ -63,7 +63,7 @@
     <string name="onboarding_notice_saved">Your name is kept.</string>
     <string name="onboarding_notice_signed_out">You have signed out.</string>
     <string name="onboarding_notice_failed">The spell faltered. Check your connection and try again.</string>
-    <string name="loading_description">Loading</string>
+    <string name="loading_description">The pages are turning</string>
 
     <!-- Policy acceptance. Agreement text stays plain. -->
     <string name="policy_title">A pause before the path opens</string>
@@ -114,7 +114,7 @@
     <string name="today_look_again">Look again</string>
     <string name="today_retry">Try again</string>
     <string name="today_error_title">Today\'s page is hidden for now</string>
-    <string name="today_error_body">We couldn\'t open today\'s practice. Try again, or visit your Grimoire.</string>
+    <string name="today_error_body">The page would not open. Try again, or visit your Grimoire.</string>
     <string name="today_loading">Loading today\'s practice</string>
     <string name="today_logo_description">Wiccan</string>
 
@@ -150,8 +150,8 @@
     <string name="content_saved">Kept in your Grimoire</string>
     <string name="home_welcome">WELCOME, SEEKER</string>
     <string name="home_today_lesson">Today\'s lesson</string>
-    <string name="home_lesson_waiting">Your lesson is being prepared.</string>
-    <string name="home_lesson_open_hint">Open the page set aside for you today.</string>
+    <string name="home_lesson_waiting">The day\'s page is still being inked.</string>
+    <string name="home_lesson_open_hint">The page set aside for you is ready to open.</string>
     <string name="home_locked_lesson_title">Today\'s lesson is locked</string>
     <string name="home_locked_lesson_body">A 7-day free trial opens the daily lesson. Trial and subscribed readers continue straight in.</string>
     <string name="home_unlock_lesson">Unlock with a 7-day trial</string>
@@ -160,16 +160,18 @@
     <string name="home_next_sabbat">Next: %1$s</string>
     <string name="home_cosmic_title">Cosmic Timing</string>
     <string name="home_planetary_hour_label">PLANETARY HOUR</string>
-    <string name="home_hour_of">Hour of %1$s</string>
-    <string name="home_hour_unavailable">Location needed for the planetary hour</string>
-    <string name="home_use_location">Use approximate location</string>
+    <string name="home_hour_of">The Hour of %1$s</string>
+    <string name="home_hour_unavailable">The hour waits on a place in the world</string>
+    <string name="home_use_location">Share a rough place, so the hour can be named</string>
     <string name="home_tides_title">TIDES &amp; ASTRO-WEATHER</string>
     <string name="home_moon_in_sign">Moon in %1$s · %2$d%% illuminated</string>
     <string name="home_tides_unavailable">Coastal tide data is not available on this device.</string>
+    <string name="home_voc_title">VOID OF COURSE</string>
     <string name="home_voc_active">Void of course until the Moon enters %1$s. Favor reflection over beginning a new working.</string>
     <string name="home_voc_clear">The Moon in %1$s still meets a classical aspect before it changes sign.</string>
+    <string name="home_alignment_title">SPIRITUAL ALIGNMENT</string>
     <string name="home_alignment">Work that matches %2$s and the Moon in %1$s has the clearer timing.</string>
-    <string name="error_username_taken">That username is already reserved. Choose another.</string>
+    <string name="error_username_taken">That name is already spoken in the circle. Choose another.</string>
     <string name="content_logo_description">Wiccan</string>
 
     <!-- Grimoire -->
@@ -183,7 +185,7 @@
     <string name="grimoire_category_count">%1$s (%2$d)</string>
     <string name="grimoire_expand">Show this category</string>
     <string name="grimoire_collapse">Hide this category</string>
-    <string name="grimoire_loading">Loading your Grimoire</string>
+    <string name="grimoire_loading">The Grimoire is opening</string>
     <string name="grimoire_logo_description">Wiccan</string>
     <string name="category_candle_spells">Candle Spells</string>
     <string name="category_herbal_rituals">Herbal Rituals</string>
@@ -212,7 +214,7 @@
 
     <!-- Settings, account, delete. Delete warning stays plain. -->
     <string name="settings_title">Settings</string>
-    <string name="settings_subtitle">Tend your account, reminders, and palette.</string>
+    <string name="settings_subtitle">Tend the quiet of your account, the evening bell, and the grimoire\'s colors.</string>
     <string name="settings_account_title">Account &amp; support</string>
     <string name="settings_account_subtitle">Your name, email, and subscription.</string>
     <string name="settings_back">← Back</string>
@@ -226,9 +228,13 @@
     <string name="settings_manage_subscription">Manage Subscription</string>
     <string name="settings_manage_subscription_unavailable">Open Google Play to manage your subscription.</string>
     <string name="settings_notifications">Daily practice reminder</string>
-    <string name="settings_notifications_hint">A note when the day\'s spell, potion, or lesson is ready.</string>
+    <string name="settings_notifications_hint">A soft bell when the day\'s working is laid upon the altar.</string>
     <string name="settings_palette">Palette</string>
-    <string name="settings_palette_hint">The Wheel of the Year is the recommended default. You can also lock any of the six.</string>
+    <string name="settings_palette_hint">Midnight Grimoire holds these pages. A choice you save is remembered.</string>
+    <string name="settings_section_spiritual">SPIRITUAL PREFERENCES</string>
+    <string name="settings_section_grimoire">GRIMOIRE VIEW</string>
+    <string name="settings_section_data">MY DATA</string>
+    <string name="settings_section_circle">THE INNER CIRCLE</string>
     <string name="settings_analytics">Usage analytics &amp; crash reports</string>
     <string name="settings_analytics_hint">Optional. Helps improve Wiccan; never used for ads.</string>
     <string name="settings_delete">Delete Account</string>
@@ -262,9 +268,9 @@
     <string name="palette_ivory">Light / Ivory</string>
     <string name="palette_ivory_mood">Pale as moonlight</string>
     <string name="theme_mode_wheel">Automatic — Wheel of the Year</string>
-    <string name="theme_mode_wheel_hint">Recommended. The palette turns with the seasons.</string>
+    <string name="theme_mode_wheel_hint">A saved choice. The wheel remembers the turning year.</string>
     <string name="theme_mode_system">Follow system</string>
-    <string name="theme_mode_system_hint">Near Black when the device is in dark mode, Light/Ivory in light mode.</string>
+    <string name="theme_mode_system_hint">Near Black when the device keeps night, Light/Ivory when it keeps day.</string>
 
     <!-- Legal document chrome. Document text is not in this file. -->
     <string name="legal_back">← Back</string>

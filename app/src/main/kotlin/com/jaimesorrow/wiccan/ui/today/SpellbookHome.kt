@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -278,6 +279,7 @@ private fun CosmicCard(
                 color = Ink,
                 style = MaterialTheme.typography.bodySmall,
             )
+            MoonLightChart(moon.illumination)
             Text(
                 text = stringResource(R.string.home_tides_unavailable),
                 color = Muted,
@@ -285,6 +287,11 @@ private fun CosmicCard(
             )
         }
         DarkTile {
+            Text(
+                text = stringResource(R.string.home_voc_title),
+                color = WiccanPaletteColors.Grimoire.Gold,
+                style = MaterialTheme.typography.labelMedium,
+            )
             Text(
                 text = if (voidOfCourse.active) {
                     stringResource(R.string.home_voc_active, voidOfCourse.nextSign)
@@ -296,6 +303,11 @@ private fun CosmicCard(
             )
         }
         DarkTile {
+            Text(
+                text = stringResource(R.string.home_alignment_title),
+                color = WiccanPaletteColors.Grimoire.Gold,
+                style = MaterialTheme.typography.labelMedium,
+            )
             Text(
                 text = stringResource(R.string.home_alignment, moon.zodiacSign, moon.name),
                 color = Muted,
@@ -410,6 +422,26 @@ private fun MonthGrid(today: LocalDate) {
                 repeat(7 - week.size) { Spacer(Modifier.weight(1f)) }
             }
         }
+    }
+}
+
+@Composable
+private fun MoonLightChart(illumination: Double) {
+    Canvas(modifier = Modifier.fillMaxWidth().height(36.dp)) {
+        val gold = WiccanPaletteColors.Grimoire.Gold
+        val ink = WiccanPaletteColors.Parchment.Ink
+        val radius = size.height * 0.42f
+        val center = Offset(radius + 4.dp.toPx(), size.height / 2f)
+        drawCircle(ink.copy(alpha = 0.2f), radius, center)
+        drawArc(
+            color = gold,
+            startAngle = -90f,
+            sweepAngle = (illumination.coerceIn(0.0, 1.0) * 360.0).toFloat(),
+            useCenter = true,
+            topLeft = Offset(center.x - radius, center.y - radius),
+            size = Size(radius * 2f, radius * 2f),
+        )
+        drawCircle(gold, radius, center, style = Stroke(width = 1.dp.toPx()))
     }
 }
 
