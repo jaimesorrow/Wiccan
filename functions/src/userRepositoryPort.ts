@@ -3,6 +3,7 @@ import { ContentTier } from "./types";
 export interface PremiumUserRecord {
   uid: string;
   purchaseToken: string;
+  tier: ContentTier;
 }
 
 export class PurchaseTokenOwnershipError extends Error {}

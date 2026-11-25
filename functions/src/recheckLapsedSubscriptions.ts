@@ -42,7 +42,7 @@ export async function recheckLapsedSubscriptions(
         expiryTimeMillis: info.expiryTimeMillis,
         autoRenewing: info.autoRenewing,
       });
-      if (syncedTier === "free") downgraded++;
+      if (user.tier === "premium" && syncedTier === "free") downgraded++;
       const premiumProduct = info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id));
       if (syncedTier === "premium" && !info.acknowledged && premiumProduct) {
         await billing.acknowledgePurchaseIfNeeded(user.purchaseToken, premiumProduct);

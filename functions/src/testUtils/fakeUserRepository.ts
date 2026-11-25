@@ -64,7 +64,7 @@ export class FakeUserRepository implements UserRepositoryPort {
         const [, record] = entry;
         return typeof record.purchaseToken === "string";
       })
-      .map(([uid, record]) => ({ uid, purchaseToken: record.purchaseToken }));
+      .map(([uid, record]) => ({ uid, purchaseToken: record.purchaseToken, tier: record.tier }));
   }
 
   async findUidByPurchaseToken(purchaseToken: string): Promise<string | null> {
