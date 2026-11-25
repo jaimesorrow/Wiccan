@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -58,7 +59,6 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.TextStyle
-import java.util.Locale
 
 private val CardShape = RoundedCornerShape(6.dp)
 private val Gold = WiccanPaletteColors.Grimoire.Border
@@ -387,7 +387,7 @@ private fun MonthGrid(today: LocalDate) {
     val cells = List(offset) { null as LocalDate? } + (1..month.lengthOfMonth()).map(month::atDay)
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(
-            text = month.month.getDisplayName(TextStyle.FULL, Locale.getDefault()),
+            text = month.month.getDisplayName(TextStyle.FULL, LocalLocale.current.platformLocale),
             color = WiccanPaletteColors.Grimoire.Gold,
             style = MaterialTheme.typography.labelSmall,
         )
