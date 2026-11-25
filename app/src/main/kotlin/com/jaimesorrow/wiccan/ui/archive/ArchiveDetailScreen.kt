@@ -27,6 +27,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.error.toUserMessage
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
+import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.content.ContentDetailView
 import com.wiccan.app.R
 
@@ -57,7 +59,10 @@ fun ArchiveDetailScreen(
         containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { insets ->
-        Column(modifier = Modifier.padding(insets).fillMaxSize(), verticalArrangement = Arrangement.Top) {
+        Column(
+            modifier = Modifier.padding(insets).fillMaxSize().wiccanPageWash(),
+            verticalArrangement = Arrangement.Top,
+        ) {
             TextButton(onClick = onBack, modifier = Modifier.padding(start = 16.dp, top = 8.dp)) {
                 Text(stringResource(R.string.grimoire_back))
             }
@@ -66,10 +71,18 @@ fun ArchiveDetailScreen(
                     Modifier.fillMaxSize().semantics { contentDescription = loadingDescription },
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        WiccanBotanicalAccent(width = 116.dp)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    }
                 }
                 state.content != null -> ContentDetailView(content = state.content!!, modifier = Modifier.fillMaxSize())
-                else -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                else -> Column(
+                    modifier = Modifier.fillMaxSize().padding(24.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    WiccanBotanicalAccent(width = 116.dp)
                     Text(
                         text = run {
                             val error = state.error

@@ -9,7 +9,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -48,7 +47,9 @@ import com.jaimesorrow.wiccan.notification.isOpenTodayRequest
 import com.jaimesorrow.wiccan.ui.auth.OnboardingScreen
 import com.jaimesorrow.wiccan.ui.auth.RootViewModel
 import com.jaimesorrow.wiccan.ui.auth.SignInScreen
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
+import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentScreen
 import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
@@ -214,17 +215,17 @@ private fun MainActivity.EdgeToEdgeEffect(colorScheme: ColorScheme = MaterialThe
 }
 
 @Composable
-private fun LoadingIndicator() {
+internal fun LoadingIndicator() {
     // Paint the palette background: the window behind is the fixed dark splash
     // colour, which would hide the Light/Ivory logo.
     Box(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+        modifier = Modifier.fillMaxSize().wiccanPageWash(),
         contentAlignment = Alignment.Center,
     ) {
         val loadingDescription = stringResource(R.string.loading_description)
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             WiccanFullLogo(modifier = Modifier.testTag("loading-logo"), width = 160.dp)
-            Spacer(modifier = Modifier.height(24.dp))
+            WiccanBotanicalAccent(modifier = Modifier.padding(vertical = 7.dp), width = 116.dp)
             CircularProgressIndicator(
                 modifier = Modifier.semantics { contentDescription = loadingDescription },
                 color = MaterialTheme.colorScheme.primary,
@@ -234,12 +235,13 @@ private fun LoadingIndicator() {
 }
 
 @Composable
-private fun AccountStatusError(message: String, onRetry: () -> Unit) {
+internal fun AccountStatusError(message: String, onRetry: () -> Unit) {
     Box(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+        modifier = Modifier.fillMaxSize().wiccanPageWash(),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
+            WiccanBotanicalAccent(modifier = Modifier.padding(bottom = 12.dp), width = 116.dp)
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,

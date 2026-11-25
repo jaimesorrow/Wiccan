@@ -40,6 +40,10 @@ data class Content(
     val adaptationNotes: List<String> = emptyList(),
     val sourcePassageId: String? = null,
     val sourceTradition: String? = null,
+    /** Optional local artwork key supplied by the lesson record. */
+    val illustrationKey: String? = null,
+    /** Remote hero image. Shown before the bundled category artwork. */
+    val illustrationUrl: String? = null,
     val citation: ContentCitation? = null,
 )
 

@@ -38,9 +38,11 @@ class WiccanAppShellNavigationTest {
     private lateinit var navController: NavHostController
 
     private val stubScreens = WiccanNavScreens(
-        today = { onOpenGrimoire ->
+        dailyContent = { _, onOpenToday, onBack, onOpenGrimoire, _ ->
             Column {
-                Text("screen:today")
+                Text(if (onOpenToday == null) "screen:today" else "screen:home")
+                onOpenToday?.let { Button(onClick = it) { Text("stub:open-today") } }
+                onBack?.let { Button(onClick = it) { Text("stub:back") } }
                 Button(onClick = onOpenGrimoire) { Text("stub:open-grimoire") }
             }
         },
@@ -69,6 +71,12 @@ class WiccanAppShellNavigationTest {
         legalDocument = { documentId, onBack ->
             Column {
                 Text("screen:legal:$documentId")
+                Button(onClick = onBack) { Text("stub:back") }
+            }
+        },
+        subscribe = { onBack, _ ->
+            Column {
+                Text("screen:subscribe")
                 Button(onClick = onBack) { Text("stub:back") }
             }
         },
@@ -103,9 +111,9 @@ class WiccanAppShellNavigationTest {
     }
 
     @Test
-    fun `bottom bar switches between Today, Grimoire and Settings`() {
+    fun `bottom bar switches between Home, Grimoire and Settings`() {
         launch()
-        assertScreen("today")
+        assertScreen("home")
         assertBottomBar(visible = true)
 
         click("Grimoire")
@@ -116,16 +124,33 @@ class WiccanAppShellNavigationTest {
         assertScreen("settings")
         composeRule.onNodeWithText("Settings").assertIsSelected()
 
-        click("Today")
-        assertScreen("today")
+        click("Home")
+        assertScreen("home")
     }
 
     @Test
-    fun `Open Grimoire on Today goes to the Grimoire tab`() {
+    fun `Open Grimoire on Home goes to the Grimoire tab`() {
         launch()
         click("stub:open-grimoire")
         assertScreen("archive")
         assertBottomBar(visible = true)
+    }
+
+    @Test
+    fun `opening today from Home hides the tab bar and Back returns Home`() {
+        launch()
+        click("stub:open-today")
+        assertScreen("today")
+        assertBottomBar(visible = true)
+        composeRule.onNodeWithText("Today").assertIsSelected()
+
+        click("stub:back")
+        assertScreen("home")
+        assertBottomBar(visible = true)
+
+        click("stub:open-today")
+        systemBack()
+        assertScreen("home")
     }
 
     @Test
@@ -173,16 +198,16 @@ class WiccanAppShellNavigationTest {
     }
 
     @Test
-    fun `premium start opens account management and its Back falls back to Today`() {
+    fun `premium start opens account management and its Back falls back to Home`() {
         launch(startOnPaywall = true)
         assertScreen("account")
         assertBottomBar(visible = false)
 
         click("stub:back")
-        assertScreen("today")
-        assertEquals(WiccanDestinations.TODAY, navController.currentDestination?.route)
+        assertScreen("home")
+        assertEquals(WiccanDestinations.HOME, navController.currentDestination?.route)
         assertEquals(
-            "Back from Today must not return to the account screen",
+            "Back from Home must not return to the account screen",
             1,
             navController.currentBackStack.value.count {
                 it.destination.route !=
@@ -220,7 +245,7 @@ class WiccanAppShellNavigationTest {
         click("Grimoire")
         click("Grimoire")
         systemBack()
-        assertScreen("today")
+        assertScreen("home")
     }
 
     @Test
@@ -249,15 +274,17 @@ class WiccanAppShellNavigationTest {
         composeRule.waitForIdle()
         assertScreen("today")
         assertBottomBar(visible = true)
+        composeRule.onNodeWithText("Today").assertIsSelected()
         assertEquals(1, handled)
 
-        // A second request from another tab also lands on Today with nothing behind it.
+        // A second request opens Today with Home behind it.
+        click("stub:back")
         click("Settings")
         requested = true
         composeRule.waitForIdle()
         assertScreen("today")
         assertEquals(2, handled)
         assertEquals(WiccanDestinations.TODAY, navController.currentDestination?.route)
-        assertEquals(null, navController.previousBackStackEntry)
+        assertEquals(WiccanDestinations.HOME, navController.previousBackStackEntry?.destination?.route)
     }
 }

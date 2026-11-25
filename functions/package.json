@@ -32,7 +32,8 @@
     "restore-test-content-backup": "npm run build && node lib/scripts/restoreTestContentBackupCli.js",
     "rollback-content": "npm run build && node lib/scripts/rollbackContentCli.js",
     "content:validate": "npm run build && node lib/scripts/contentValidateCli.js",
-    "content:duplicates": "npm run build && node lib/scripts/contentDuplicatesCli.js"
+    "content:duplicates": "npm run build && node lib/scripts/contentDuplicatesCli.js",
+    "grant-closed-testers": "npm run build && node lib/scripts/grantClosedTestersCli.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.8.0",
