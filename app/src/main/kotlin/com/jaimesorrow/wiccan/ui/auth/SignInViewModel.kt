@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
+import com.jaimesorrow.wiccan.domain.model.UsernameRules
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
 import com.wiccan.app.R
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,6 +51,9 @@ class SignInViewModel @Inject constructor(private val authRepository: AuthReposi
             }
             is SignInUiEvent.ConfirmPasswordChanged -> _state.update {
                 it.copy(confirmPassword = event.value, confirmPasswordError = null)
+            }
+            is SignInUiEvent.UsernameChanged -> _state.update {
+                it.copy(username = event.value.take(UsernameRules.MAX_LENGTH), usernameError = null)
             }
             SignInUiEvent.TogglePasswordVisibility -> _state.update {
                 it.copy(isPasswordVisible = !it.isPasswordVisible)
@@ -103,13 +107,19 @@ class SignInViewModel @Inject constructor(private val authRepository: AuthReposi
         } else {
             null
         }
-        if (emailError != null || passwordError != null || confirmPasswordError != null) {
+        val usernameError = if (creating && !UsernameRules.isValid(current.username)) {
+            R.string.auth_error_username_invalid
+        } else {
+            null
+        }
+        if (emailError != null || passwordError != null || confirmPasswordError != null || usernameError != null) {
             _state.update {
                 it.copy(
                     email = email,
                     emailError = emailError,
                     passwordError = passwordError,
                     confirmPasswordError = confirmPasswordError,
+                    usernameError = usernameError,
                 )
             }
             return
@@ -117,7 +127,7 @@ class SignInViewModel @Inject constructor(private val authRepository: AuthReposi
         _state.update { it.copy(email = email, isLoading = true) }
         viewModelScope.launch {
             val result = if (creating) {
-                authRepository.createAccountWithEmail(email, password)
+                authRepository.createAccountWithEmail(email, password, current.username.trim())
             } else {
                 authRepository.signInWithEmail(email, password)
             }

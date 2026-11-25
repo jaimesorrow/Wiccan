@@ -68,6 +68,8 @@ private fun Map<String, Any?>.toContentInternal(): Content? {
         adaptationNotes = (this["adaptationNotes"] as? List<String>).orEmpty(),
         sourcePassageId = this["sourcePassageId"] as? String,
         sourceTradition = (this["sourceTradition"] as? String) ?: (structuredCitation?.get("tradition") as? String),
+        illustrationKey = (this["illustrationKey"] as? String)?.trim()?.takeIf { it.isNotEmpty() },
+        illustrationUrl = (this["illustrationUrl"] as? String)?.trim()?.takeIf { it.startsWith("https://") },
         citation = structuredCitation?.toCitation(),
     )
 }
@@ -134,6 +136,8 @@ fun Content.toCachedEntity(deliveredDate: String, userId: String, timezone: Stri
     adaptationNotes = adaptationNotes,
     sourcePassageId = sourcePassageId,
     sourceTradition = sourceTradition,
+    illustrationKey = illustrationKey,
+    illustrationUrl = illustrationUrl,
     citationTextTitle = citation?.textTitle,
     citationManuscriptId = citation?.manuscriptId,
     citationTradition = citation?.tradition,
@@ -195,6 +199,8 @@ private fun CachedDailyContentEntity.toDomain(parsedType: ContentType, parsedTie
     adaptationNotes = adaptationNotes.orEmpty(),
     sourcePassageId = sourcePassageId,
     sourceTradition = sourceTradition,
+    illustrationKey = illustrationKey,
+    illustrationUrl = illustrationUrl,
     citation = if (citationTextTitle == null && citationLocator == null) {
         null
     } else {

@@ -20,6 +20,7 @@ enum class OnboardingStep { VERIFY_EMAIL, PROFILE }
 data class OnboardingUiState(
     val firstName: String = "",
     val lastName: String = "",
+    val username: String = "",
     val busy: Boolean = false,
     /** The step currently shown. [notice] always belongs to this step. */
     val step: OnboardingStep = OnboardingStep.VERIFY_EMAIL,
@@ -27,6 +28,9 @@ data class OnboardingUiState(
 ) {
     /** The notice to show on [shownStep], or null when it was raised on a different step. */
     fun noticeFor(shownStep: OnboardingStep): Int? = notice.takeIf { step == shownStep }
+
+    val usernameHasError: Boolean
+        get() = username.isNotEmpty() && !USERNAME_PATTERN.matches(username.trim())
 }
 
 @HiltViewModel
@@ -64,6 +68,9 @@ class OnboardingViewModel @Inject constructor(
     fun setLastName(value: String) {
         _state.update { it.copy(lastName = value, notice = null) }
     }
+    fun setUsername(value: String) {
+        _state.update { it.copy(username = value.take(MAX_USERNAME_LENGTH), notice = null) }
+    }
     fun resendVerification() = perform(
         { authRepository.sendEmailVerification() },
         R.string.onboarding_notice_resent,
@@ -75,11 +82,14 @@ class OnboardingViewModel @Inject constructor(
     fun completeProfile() {
         val first = state.value.firstName.trim()
         val last = state.value.lastName.trim()
-        if (first.isBlank() || last.isBlank() || first.length > 60 || last.length > 60) {
-            _state.update { it.copy(notice = R.string.onboarding_notice_name_invalid) }
+        val username = state.value.username.trim()
+        if (first.isBlank() || last.isBlank() || first.length > 60 || last.length > 60 ||
+            !USERNAME_PATTERN.matches(username)
+        ) {
+            _state.update { it.copy(notice = R.string.onboarding_notice_profile_invalid) }
             return
         }
-        perform({ authRepository.completeProfile(first, last) }, R.string.onboarding_notice_saved)
+        perform({ authRepository.completeProfile(first, last, username) }, R.string.onboarding_notice_saved)
     }
     fun signOut() = perform({ authRepository.signOut() }, R.string.onboarding_notice_signed_out)
 
@@ -95,7 +105,14 @@ class OnboardingViewModel @Inject constructor(
             val result = operation()
             // Started for a previous account: its busy flag and notice were already reset.
             if (generation != accountGeneration) return@launch
-            val message = if (result is AppResult.Success) successMessage else R.string.onboarding_notice_failed
+            val message = when (result) {
+                is AppResult.Success -> successMessage
+                is AppResult.Failure -> if (result.error is com.jaimesorrow.wiccan.core.error.AppError.UsernameTaken) {
+                    R.string.error_username_taken
+                } else {
+                    R.string.onboarding_notice_failed
+                }
+            }
             _state.update {
                 // If the user was moved to another step meanwhile, the result
                 // no longer describes what they're looking at.
@@ -104,3 +121,6 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 }
+
+private const val MAX_USERNAME_LENGTH = 24
+private val USERNAME_PATTERN = Regex("^[A-Za-z0-9_]{3,$MAX_USERNAME_LENGTH}\$")

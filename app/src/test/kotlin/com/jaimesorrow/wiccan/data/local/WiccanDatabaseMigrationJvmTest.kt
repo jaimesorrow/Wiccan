@@ -28,6 +28,9 @@ class WiccanDatabaseMigrationJvmTest {
     @Test
     fun `version 4 installations gain source tradition and keep practical columns`() = migrateLegacyDatabase(4)
 
+    @Test
+    fun `version 5 installations keep the lesson when illustration columns are added`() = migrateLegacyDatabase(5)
+
     private fun migrateLegacyDatabase(version: Int) {
         val context = RuntimeEnvironment.getApplication()
         val name = "lesson-migration-v$version.db"
@@ -65,7 +68,7 @@ class WiccanDatabaseMigrationJvmTest {
             val migrated = database.openHelper.writableDatabase
             migrated.query(
                 "SELECT body, category, reflection, practice, primaryCategoryId, sourcePassageId, " +
-                    "requiresPotionDisclosure, sourceTradition FROM cached_daily_content",
+                    "requiresPotionDisclosure, sourceTradition, illustrationKey, illustrationUrl FROM cached_daily_content",
             ).use {
                 assertTrue(it.moveToFirst())
                 assertEquals("body", it.getString(0))
@@ -76,6 +79,8 @@ class WiccanDatabaseMigrationJvmTest {
                 assertTrue(it.isNull(5))
                 assertEquals(if (version >= 4) 1 else 0, it.getInt(6))
                 assertTrue(it.isNull(7))
+                assertTrue(it.isNull(8))
+                assertTrue(it.isNull(9))
             }
             migrated.execSQL("UPDATE cached_daily_content SET reflection = 'Which boundary matters?'")
             migrated.query("SELECT reflection FROM cached_daily_content").use {

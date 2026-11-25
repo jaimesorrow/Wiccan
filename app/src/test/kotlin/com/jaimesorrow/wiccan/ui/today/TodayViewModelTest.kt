@@ -11,6 +11,7 @@ import com.jaimesorrow.wiccan.domain.model.ContentStatus
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.ContentType
 import com.jaimesorrow.wiccan.domain.repository.ContentRepository
+import com.jaimesorrow.wiccan.ui.paywall.FakeSubscriptionRepository
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,6 +35,7 @@ class TodayViewModelTest {
     private val dispatcher = StandardTestDispatcher()
     private lateinit var repository: FakeContentRepository
     private val analyticsLogger: AnalyticsLogger = mockk(relaxed = true)
+    private val subscription = FakeSubscriptionRepository().apply { emitTier(ContentTier.PREMIUM) }
 
     private val sampleContent = Content(
         id = "content-1",
@@ -64,7 +66,7 @@ class TodayViewModelTest {
     @Test
     fun `new signed in user receives content immediately without lesson preference questions`() = runTest(dispatcher) {
         repository.nextResult = AppResult.Success(sampleContent)
-        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger)
+        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger, subscription)
 
         viewModel.state.test {
             val initial = awaitItem()
@@ -87,7 +89,7 @@ class TodayViewModelTest {
     @Test
     fun `refresh failure forwards the repository's error without touching content state`() = runTest(dispatcher) {
         repository.nextResult = AppResult.Failure(AppError.Network)
-        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger)
+        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger, subscription)
 
         viewModel.effects.test {
             val effect = awaitItem()
@@ -104,7 +106,7 @@ class TodayViewModelTest {
     @Test
     fun `Retry event triggers another refresh`() = runTest(dispatcher) {
         repository.nextResult = AppResult.Failure(AppError.Unknown("first"))
-        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger)
+        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger, subscription)
         dispatcher.scheduler.advanceUntilIdle()
         assertEquals(1, repository.refreshCalls.size)
 
@@ -120,7 +122,7 @@ class TodayViewModelTest {
     @Test
     fun `initial resume does not duplicate init refresh but later resume refreshes`() = runTest(dispatcher) {
         repository.nextResult = AppResult.Success(sampleContent)
-        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger)
+        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger, subscription)
         dispatcher.scheduler.advanceUntilIdle()
         assertEquals(1, repository.refreshCalls.size)
 
@@ -137,7 +139,7 @@ class TodayViewModelTest {
     fun `exhausted inventory takes priority over stale cached content and clears on success`() = runTest(dispatcher) {
         repository.emitCached(sampleContent)
         repository.nextResult = AppResult.Failure(AppError.NoNewLesson)
-        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger)
+        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger, subscription)
         dispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(sampleContent, viewModel.state.value.content)
@@ -152,7 +154,7 @@ class TodayViewModelTest {
 
     @Test
     fun `missing uid emits an Unauthorized snackbar and never touches the repository`() = runTest(dispatcher) {
-        val viewModel = TodayViewModel(repository, currentUser(null), analyticsLogger)
+        val viewModel = TodayViewModel(repository, currentUser(null), analyticsLogger, subscription)
 
         viewModel.effects.test {
             val effect = awaitItem()
@@ -171,7 +173,7 @@ class TodayViewModelTest {
     @Test
     fun `an unreadable lesson shows the retry panel instead of a blank screen, and retry recovers`() = runTest(dispatcher) {
         repository.nextResult = AppResult.Failure(AppError.UnsupportedContent)
-        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger)
+        val viewModel = TodayViewModel(repository, currentUser("user-1"), analyticsLogger, subscription)
 
         viewModel.effects.test {
             assertEquals(TodayUiEffect.ShowSnackbar(AppError.UnsupportedContent), awaitItem())
@@ -200,7 +202,7 @@ class TodayViewModelTest {
                 throw IllegalArgumentException("No enum constant ContentType.RITUAL")
             }
         }
-        val viewModel = TodayViewModel(throwingRepository, currentUser("user-1"), analyticsLogger)
+        val viewModel = TodayViewModel(throwingRepository, currentUser("user-1"), analyticsLogger, subscription)
         dispatcher.scheduler.advanceUntilIdle()
 
         assertTrue(viewModel.state.value.loadFailed)

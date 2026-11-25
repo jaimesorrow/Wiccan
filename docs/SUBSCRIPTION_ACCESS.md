@@ -5,8 +5,8 @@ days free, then pay $5.99 per month at the US base price. Google Play supplies
 localized prices and determines trial eligibility. A trial is an active
 subscription, with the same access as a paid period; it is not a separate free plan.
 
-Navigation: sign up / log in → email verification → first/last name profile completion → current Terms/Privacy
-acceptance → required subscription → Today / Grimoire / Settings.
+Navigation: sign up / log in → email verification → first/last name and unique username → current Terms/Privacy
+acceptance → the app shell. The daily lesson stays locked until a verified trial, subscription, or closed-test grant is active. Tapping the locked lesson opens the subscription screen and its 7-day trial offer.
 Email-password accounts are sent a Firebase verification email after registration; the verification
 screen supports re-sending and explicit rechecking. Google sign-in uses Firebase verified provider credentials.
 User names are stored server-side via the App Check-protected completeOnboardingProfile callable.
@@ -97,6 +97,25 @@ Code changes alone do not configure Play or deploy Firebase. Before publishing:
 5. Confirm both callable and direct Firestore reads deny inactive accounts,
    including already delivered legacy content and history. Confirm renewal reveals
    existing history without a repeated daily assignment.
+
+## Closed-test access
+
+Operators grant a time-limited premium entitlement without a Play purchase. The grant sets `users/{uid}.tier` to `premium` and `subscriptionExpiresAtMillis` to the test end. It does not write a purchase token, so Play reconciliation does not treat it as a subscription, and the client cannot set either field.
+
+Dry-run:
+
+```
+cd functions
+npm run grant-closed-testers -- --ends 2026-12-31 --emails tester@example.com
+```
+
+Write, with Application Default Credentials for `wiccan-android`:
+
+```
+npm run grant-closed-testers -- --project wiccan-android --commit --ends 2026-12-31 --emails tester@example.com,second@example.com
+```
+
+`--ends` is a UTC calendar date or epoch milliseconds. Access ends when `subscriptionExpiresAtMillis` is no longer in the future. Existing profile fields are merged, not replaced.
 
 Live Console configuration, real Play sandbox purchases, deployed rules and
 production subscriber reconciliation require authenticated operator access.

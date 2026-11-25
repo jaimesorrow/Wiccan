@@ -17,6 +17,7 @@ import com.jaimesorrow.wiccan.domain.model.AccountStatus
 import com.jaimesorrow.wiccan.domain.model.AuthState
 import com.jaimesorrow.wiccan.domain.model.PolicyVersions
 import com.jaimesorrow.wiccan.domain.model.ProfileName
+import com.jaimesorrow.wiccan.domain.model.UsernameRules
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -60,7 +61,9 @@ class AuthRepositoryImpl @Inject constructor(
                     snapshot?.exists() != true || user?.uid != uid -> AccountStatus.Initializing
                     !user.isEmailVerified -> AccountStatus.RequiresEmailVerification
                     snapshot.getString("firstName").isNullOrBlank() ||
-                        snapshot.getString("lastName").isNullOrBlank() -> AccountStatus.RequiresProfileCompletion
+                        snapshot.getString("lastName").isNullOrBlank() ||
+                        !UsernameRules.isValid(snapshot.getString("username").orEmpty()) ->
+                        AccountStatus.RequiresProfileCompletion
                     snapshot.getLong("acceptedTermsVersion")?.toInt() != PolicyVersions.TERMS ||
                         snapshot.getLong("acceptedPrivacyVersion")?.toInt() != PolicyVersions.PRIVACY ->
                         AccountStatus.RequiresPolicyAcceptance
@@ -136,14 +139,13 @@ class AuthRepositoryImpl @Inject constructor(
         AppResult.Failure(t.toAppError())
     }
 
-    override suspend fun createAccountWithEmail(email: String, password: String): AppResult<Unit> = try {
+    override suspend fun createAccountWithEmail(email: String, password: String, username: String): AppResult<Unit> = try {
         firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-        // Account creation succeeds even if email delivery is temporarily unavailable;
-        // the verification screen always offers a retry.
         try {
             accountFunctionsDataSource.sendVerificationEmail()
         } catch (_: Exception) { }
         analyticsLogger.logSignUpCompleted()
+        accountFunctionsDataSource.reserveUsername(username)
         AppResult.Success(Unit)
     } catch (t: Throwable) {
         AppResult.Failure(t.toAppError())
@@ -182,8 +184,8 @@ class AuthRepositoryImpl @Inject constructor(
         AppResult.Failure(t.toAppError())
     }
 
-    override suspend fun completeProfile(firstName: String, lastName: String): AppResult<Unit> = try {
-        accountFunctionsDataSource.completeProfile(firstName, lastName)
+    override suspend fun completeProfile(firstName: String, lastName: String, username: String): AppResult<Unit> = try {
+        accountFunctionsDataSource.completeProfile(firstName, lastName, username)
         AppResult.Success(Unit)
     } catch (t: Throwable) {
         AppResult.Failure(t.toAppError())
@@ -200,7 +202,8 @@ class AuthRepositoryImpl @Inject constructor(
             ProfileName(
                 firstName = snapshot.getString("firstName").orEmpty(),
                 lastName = snapshot.getString("lastName").orEmpty(),
-            ).takeIf { it.firstName.isNotBlank() || it.lastName.isNotBlank() }
+                username = snapshot.getString("username").orEmpty(),
+            ).takeIf { it.firstName.isNotBlank() || it.lastName.isNotBlank() || it.username.isNotBlank() }
         }
     } catch (e: CancellationException) {
         throw e

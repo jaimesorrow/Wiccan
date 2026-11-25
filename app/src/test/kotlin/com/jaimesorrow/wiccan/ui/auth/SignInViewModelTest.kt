@@ -94,11 +94,13 @@ class SignInViewModelTest {
         viewModel.onEvent(SignInUiEvent.EmailChanged("new@example.com"))
         viewModel.onEvent(SignInUiEvent.PasswordChanged("hunter2"))
         viewModel.onEvent(SignInUiEvent.ConfirmPasswordChanged("hunter2"))
+        viewModel.onEvent(SignInUiEvent.UsernameChanged("rowan_1"))
 
         viewModel.onEvent(SignInUiEvent.SubmitEmailAuth)
         dispatcher.scheduler.advanceUntilIdle()
 
         assertEquals("new@example.com", repository.lastCreateAccountEmail)
+        assertEquals("rowan_1", repository.lastCompletedUsername)
     }
 
     @Test
