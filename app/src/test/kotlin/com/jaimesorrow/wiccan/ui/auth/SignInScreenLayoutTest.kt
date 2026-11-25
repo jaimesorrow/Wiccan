@@ -97,7 +97,7 @@ class SignInScreenLayoutTest {
 
         composeRule.onNodeWithText("Continue with Google").performScrollTo().assertIsDisplayed().performClick()
         assertEquals(1, googleClicks)
-        val submitLabel = if (mode == SignInMode.SIGN_IN) "Sign In" else "Create Account"
+        val submitLabel = context.getString(R.string.auth_enter_grimoire)
         composeRule.onNodeWithText(submitLabel).performScrollTo().assertIsDisplayed().performClick()
         assertTrue(events.contains(SignInUiEvent.SubmitEmailAuth))
         composeRule.onRoot().captureRoboImage(filePath = "$prefix-controls.png")

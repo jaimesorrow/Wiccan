@@ -40,9 +40,9 @@ class RootRouterSignOutTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     private val stubScreens = WiccanNavScreens(
-        today = { onOpenGrimoire ->
+        dailyContent = { _, _, _, onOpenGrimoire, _ ->
             Column {
-                Text("screen:today")
+                Text("screen:home")
                 Button(onClick = onOpenGrimoire) { Text("stub:open-grimoire") }
             }
         },
@@ -55,6 +55,7 @@ class RootRouterSignOutTest {
         settings = { Text("screen:settings") },
         archiveDetail = { contentId, _ -> Text("screen:detail:$contentId") },
         legalDocument = { documentId, _ -> Text("screen:legal:$documentId") },
+        subscribe = { _, _ -> Text("screen:subscribe") },
     )
 
     private fun click(text: String) {
@@ -116,7 +117,7 @@ class RootRouterSignOutTest {
             rootState.value = RootState.SignedIn("uid-a")
         }
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("screen:today").assertExists()
+        composeRule.onNodeWithText("screen:home").assertExists()
         composeRule.onNodeWithText("screen:detail:lesson-42").assertDoesNotExist()
     }
 }

@@ -152,4 +152,24 @@ internal object WiccanPaletteColors {
     object Brand {
         val EmblemGold = Color(0xFFE8BC61)
     }
+
+    /** Locked midnight grimoire surfaces from the approved home and sign-in designs. */
+    object Grimoire {
+        val Background = Color(0xFF0E0E0C)
+        val Raised = Color(0xFF181512)
+        val CardFill = Color(0xFF1C1A16)
+        val Border = Color(0xFF9D7C3F)
+        val Gold = Color(0xFFB89047)
+        val Bronze = Color(0xFF5C4314)
+        val Text = Color(0xFFDCD5C9)
+        val Muted = Color(0xFFB8A88A)
+        val OnGold = Color(0xFF1C1408)
+    }
+
+    /** Aged parchment reading surface. Kept out of the dark Material scheme on purpose. */
+    object Parchment {
+        val Background = Color(0xFFEAE0CD)
+        val Ink = Color(0xFF2F2418)
+        val Border = Color(0xFF423425)
+    }
 }

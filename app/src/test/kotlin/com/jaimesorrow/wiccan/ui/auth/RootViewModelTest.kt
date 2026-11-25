@@ -39,35 +39,29 @@ class RootViewModelTest {
 
     @Test
     fun `starts Loading before the auth state resolves`() {
-        viewModel = RootViewModel(repository, subscription)
+        viewModel = RootViewModel(repository)
         assertEquals(RootState.Loading, viewModel.rootState.value)
     }
 
     @Test
-    fun `a ready account without a subscription stays at the mandatory paywall`() = runTest(dispatcher) {
+    fun `a ready account enters the shell even before a subscription`() = runTest(dispatcher) {
         subscription.emitTier(ContentTier.FREE)
-        viewModel = RootViewModel(repository, subscription)
+        viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedIn("uid-1"))
         dispatcher.scheduler.advanceUntilIdle()
-        assertEquals(RootState.RequiresSubscription("uid-1"), viewModel.rootState.value)
-        subscription.emitTier(ContentTier.PREMIUM)
-        dispatcher.scheduler.advanceUntilIdle()
         assertEquals(RootState.SignedIn("uid-1"), viewModel.rootState.value)
-        subscription.emitTier(ContentTier.FREE)
-        dispatcher.scheduler.advanceUntilIdle()
-        assertEquals(RootState.RequiresSubscription("uid-1"), viewModel.rootState.value)
     }
 
     @Test
     fun `an account switch removes access and sign out never leaves the shell mounted`() = runTest(dispatcher) {
-        viewModel = RootViewModel(repository, subscription)
+        viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedIn("uid-1"))
         dispatcher.scheduler.advanceUntilIdle()
         assertEquals(RootState.SignedIn("uid-1"), viewModel.rootState.value)
         subscription.emitTier(ContentTier.FREE)
         repository.setAuthState(AuthState.SignedIn("uid-2"))
         dispatcher.scheduler.advanceUntilIdle()
-        assertEquals(RootState.RequiresSubscription("uid-2"), viewModel.rootState.value)
+        assertEquals(RootState.SignedIn("uid-2"), viewModel.rootState.value)
         repository.setAuthState(AuthState.SignedOut)
         subscription.emitTier(ContentTier.PREMIUM)
         dispatcher.scheduler.advanceUntilIdle()
@@ -76,7 +70,7 @@ class RootViewModelTest {
 
     @Test
     fun `resolves to SignedOut when there is no session`() = runTest(dispatcher) {
-        viewModel = RootViewModel(repository, subscription)
+        viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedOut)
         dispatcher.scheduler.advanceUntilIdle()
 
@@ -86,7 +80,7 @@ class RootViewModelTest {
     @Test
     fun `holds InitializingProfile while signed in but the profile doc doesn't exist yet`() = runTest(dispatcher) {
         repository.setAccountStatus("uid-1", AccountStatus.Initializing)
-        viewModel = RootViewModel(repository, subscription)
+        viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedIn("uid-1"))
         dispatcher.scheduler.advanceUntilIdle()
 
@@ -96,7 +90,7 @@ class RootViewModelTest {
     @Test
     fun `advances to SignedIn once the profile becomes ready`() = runTest(dispatcher) {
         repository.setAccountStatus("uid-1", AccountStatus.Initializing)
-        viewModel = RootViewModel(repository, subscription)
+        viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedIn("uid-1"))
         dispatcher.scheduler.advanceUntilIdle()
         assertEquals(RootState.InitializingProfile, viewModel.rootState.value)
@@ -109,7 +103,7 @@ class RootViewModelTest {
 
     @Test
     fun `resolves straight to SignedIn when the profile already exists and terms are current`() = runTest(dispatcher) {
-        viewModel = RootViewModel(repository, subscription)
+        viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedIn("uid-1"))
         dispatcher.scheduler.advanceUntilIdle()
 
@@ -119,7 +113,7 @@ class RootViewModelTest {
     @Test
     fun `unverified email cannot enter a paid account`() = runTest(dispatcher) {
         repository.setAccountStatus("uid-1", AccountStatus.RequiresEmailVerification)
-        viewModel = RootViewModel(repository, subscription)
+        viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedIn("uid-1"))
         dispatcher.scheduler.advanceUntilIdle()
         assertEquals(RootState.RequiresEmailVerification, viewModel.rootState.value)
@@ -131,7 +125,7 @@ class RootViewModelTest {
     @Test
     fun `incomplete profile remains blocked even when subscribed`() = runTest(dispatcher) {
         repository.setAccountStatus("uid-1", AccountStatus.RequiresProfileCompletion)
-        viewModel = RootViewModel(repository, subscription)
+        viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedIn("uid-1"))
         dispatcher.scheduler.advanceUntilIdle()
         assertEquals(RootState.RequiresProfileCompletion, viewModel.rootState.value)
@@ -143,7 +137,7 @@ class RootViewModelTest {
     @Test
     fun `holds RequiresPolicyAcceptance when the profile is missing current policy acceptance`() = runTest(dispatcher) {
         repository.setAccountStatus("uid-1", AccountStatus.RequiresPolicyAcceptance)
-        viewModel = RootViewModel(repository, subscription)
+        viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedIn("uid-1"))
         dispatcher.scheduler.advanceUntilIdle()
 
@@ -153,7 +147,7 @@ class RootViewModelTest {
     @Test
     fun `advances to SignedIn once policy acceptance is recorded`() = runTest(dispatcher) {
         repository.setAccountStatus("uid-1", AccountStatus.RequiresPolicyAcceptance)
-        viewModel = RootViewModel(repository, subscription)
+        viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedIn("uid-1"))
         dispatcher.scheduler.advanceUntilIdle()
         assertEquals(RootState.RequiresPolicyAcceptance, viewModel.rootState.value)
@@ -167,7 +161,7 @@ class RootViewModelTest {
     @Test
     fun `a profile listener failure is a retryable account error, not an infinite spinner`() = runTest(dispatcher) {
         repository.setAccountStatus("uid-1", AccountStatus.Unavailable(AppError.Unauthorized))
-        viewModel = RootViewModel(repository, subscription)
+        viewModel = RootViewModel(repository)
         repository.setAuthState(AuthState.SignedIn("uid-1"))
         dispatcher.scheduler.advanceUntilIdle()
 

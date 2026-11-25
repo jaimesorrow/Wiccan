@@ -72,6 +72,8 @@ export function contentFromStoredDocument(id: string, data: FirebaseFirestore.Do
     citations: Array.isArray(data.citations) ? data.citations : [],
     adaptationNotes: Array.isArray(data.adaptationNotes) ? data.adaptationNotes : [],
     sourcePassageId: typeof data.sourcePassageId === "string" ? data.sourcePassageId : undefined,
+    illustrationUrl: typeof data.illustrationUrl === "string" && data.illustrationUrl.trim()
+      ? data.illustrationUrl.trim() : undefined,
     practicalReview: data.practicalReview,
   };
   rememberStoredContentHash(content, practicalContentHash(data));
