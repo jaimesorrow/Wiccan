@@ -21,8 +21,8 @@ class GrimoireNavigationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `normal app entry goes straight to Today without a preference destination`() {
-        assertEquals(WiccanDestinations.TODAY, WiccanDestinations.startDestination(startOnPaywall = false))
+    fun `normal app entry goes straight to Home without a preference destination`() {
+        assertEquals(WiccanDestinations.HOME, WiccanDestinations.startDestination(startOnPaywall = false))
         assertEquals(WiccanDestinations.PAYWALL, WiccanDestinations.startDestination(startOnPaywall = true))
     }
 

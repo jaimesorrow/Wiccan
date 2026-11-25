@@ -175,9 +175,10 @@ class AuthRepositoryImplTest {
         val snapshot: DocumentSnapshot = mockk()
         every { snapshot.getString("firstName") } returns "Raven"
         every { snapshot.getString("lastName") } returns "Moon"
+        every { snapshot.getString("username") } returns "raven_moon"
         userDoc("uid-1", completedTask(snapshot))
 
-        assertEquals(ProfileName("Raven", "Moon"), repository.currentProfileName())
+        assertEquals(ProfileName("Raven", "Moon", "raven_moon"), repository.currentProfileName())
     }
 
     @Test

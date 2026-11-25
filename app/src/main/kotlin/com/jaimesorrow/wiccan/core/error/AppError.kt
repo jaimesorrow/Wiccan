@@ -17,6 +17,8 @@ sealed class AppError {
     object Cancelled : AppError()
     data class PurchaseVerificationFailed(val reason: String? = null) : AppError()
 
+    object UsernameTaken : AppError()
+
     /** Email/password sign-in rejected the password or credential. */
     object InvalidCredentials : AppError()
 

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -36,8 +35,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
+import com.jaimesorrow.wiccan.ui.theme.GrimoireButton
+import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.wiccan.app.R
 
 /**
@@ -70,90 +72,91 @@ fun PolicyAcceptanceScreen(
         }
     }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { insets ->
-        Column(
-            modifier = Modifier
-                .padding(insets)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 32.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            WiccanEmblem(
-                modifier = Modifier.testTag("policy-logo"),
-                size = 56.dp,
-                contentDescription = stringResource(R.string.policy_logo_description),
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = stringResource(R.string.policy_title),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.policy_body),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.TERMS) }) {
-                    Text(stringResource(R.string.policy_terms))
-                }
-                TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) {
-                    Text(stringResource(R.string.policy_privacy))
-                }
-            }
-            TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.CONTENT_SAFETY) }) {
-                Text(stringResource(R.string.policy_safety))
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-
-            PolicyAgreement.entries.forEach { agreement ->
-                AgreementRow(
-                    text = stringResource(agreement.labelRes()),
-                    checked = agreement in state.agreed,
-                    onCheckedChange = { viewModel.onEvent(PolicyAcceptanceUiEvent.AgreementChanged(agreement, it)) },
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.policy_optional),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            AgreementRow(
-                text = stringResource(R.string.policy_share_analytics),
-                checked = state.shareAnalytics,
-                onCheckedChange = { viewModel.onEvent(PolicyAcceptanceUiEvent.ShareAnalyticsChanged(it)) },
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = { viewModel.onEvent(PolicyAcceptanceUiEvent.ContinueClicked) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = state.canContinue,
+    MidnightGrimoireTheme {
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            containerColor = MaterialTheme.colorScheme.background,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+        ) { insets ->
+            Column(
+                modifier = Modifier
+                    .padding(insets)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 32.dp, vertical = 24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(stringResource(R.string.policy_continue))
-            }
-
-            TextButton(onClick = onAccountClick) { Text(stringResource(R.string.onboarding_account)) }
-
-            if (state.isSubmitting) {
-                Spacer(modifier = Modifier.height(12.dp))
-                CircularProgressIndicator(
-                    modifier = Modifier.semantics { contentDescription = loadingDescription },
-                    color = MaterialTheme.colorScheme.primary,
+                WiccanEmblem(
+                    modifier = Modifier.testTag("policy-logo"),
+                    size = 56.dp,
+                    contentDescription = stringResource(R.string.policy_logo_description),
                 )
+                WiccanBotanicalAccent(width = 108.dp)
+                Text(
+                    text = stringResource(R.string.policy_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.policy_body),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.TERMS) }) {
+                        Text(stringResource(R.string.policy_terms))
+                    }
+                    TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) {
+                        Text(stringResource(R.string.policy_privacy))
+                    }
+                }
+                TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.CONTENT_SAFETY) }) {
+                    Text(stringResource(R.string.policy_safety))
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+
+                PolicyAgreement.entries.forEach { agreement ->
+                    AgreementRow(
+                        text = stringResource(agreement.labelRes()),
+                        checked = agreement in state.agreed,
+                        onCheckedChange = { viewModel.onEvent(PolicyAcceptanceUiEvent.AgreementChanged(agreement, it)) },
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.policy_optional),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                AgreementRow(
+                    text = stringResource(R.string.policy_share_analytics),
+                    checked = state.shareAnalytics,
+                    onCheckedChange = { viewModel.onEvent(PolicyAcceptanceUiEvent.ShareAnalyticsChanged(it)) },
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                GrimoireButton(
+                    text = stringResource(R.string.policy_continue),
+                    onClick = { viewModel.onEvent(PolicyAcceptanceUiEvent.ContinueClicked) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = state.canContinue,
+                )
+
+                TextButton(onClick = onAccountClick) { Text(stringResource(R.string.onboarding_account)) }
+
+                if (state.isSubmitting) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    CircularProgressIndicator(
+                        modifier = Modifier.semantics { contentDescription = loadingDescription },
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
         }
     }

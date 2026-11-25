@@ -19,6 +19,7 @@ fun Throwable.toAppError(): AppError {
             FirebaseFunctionsException.Code.PERMISSION_DENIED,
             -> AppError.Unauthorized
             FirebaseFunctionsException.Code.NOT_FOUND -> AppError.NotFound
+            FirebaseFunctionsException.Code.ALREADY_EXISTS -> AppError.UsernameTaken
             FirebaseFunctionsException.Code.UNAVAILABLE,
             FirebaseFunctionsException.Code.DEADLINE_EXCEEDED,
             -> AppError.Network

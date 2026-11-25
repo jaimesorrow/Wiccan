@@ -14,6 +14,7 @@ data class TodayUiState(
     val poolExhausted: Boolean = false,
     /** The last refresh failed and nothing is cached, so the screen shows a retry panel. */
     val loadFailed: Boolean = false,
+    val lessonLocked: Boolean = false,
 )
 
 sealed class TodayUiEvent {

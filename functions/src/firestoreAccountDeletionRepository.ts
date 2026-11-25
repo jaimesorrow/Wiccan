@@ -23,7 +23,16 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionPort {
   ) {}
 
   async deleteUserProfile(uid: string): Promise<void> {
-    await this.db.collection(USERS_COLLECTION).doc(uid).delete();
+    const userRef = this.db.collection(USERS_COLLECTION).doc(uid);
+    await this.db.runTransaction(async (transaction) => {
+      const user = await transaction.get(userRef);
+      const username = user.get("username");
+      const key = typeof username === "string" ? username.trim().toLowerCase() : "";
+      const reservationRef = key ? this.db.collection("usernames").doc(key) : null;
+      const reservation = reservationRef ? await transaction.get(reservationRef) : null;
+      if (reservationRef && reservation?.get("uid") === uid) transaction.delete(reservationRef);
+      if (user.exists) transaction.delete(userRef);
+    });
   }
 
   async deleteUserContentHistory(uid: string): Promise<void> {

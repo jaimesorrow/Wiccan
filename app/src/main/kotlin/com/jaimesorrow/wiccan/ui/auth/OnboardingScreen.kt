@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -29,8 +28,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
+import com.jaimesorrow.wiccan.ui.theme.GrimoireButton
+import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
+import com.jaimesorrow.wiccan.ui.theme.grimoireFieldColors
 import com.wiccan.app.R
 
 @Composable
@@ -44,75 +47,96 @@ fun OnboardingScreen(
     val step = if (verification) OnboardingStep.VERIFY_EMAIL else OnboardingStep.PROFILE
     LaunchedEffect(step) { viewModel.onStepShown(step) }
     val loadingDescription = stringResource(R.string.loading_description)
-    Scaffold(containerColor = MaterialTheme.colorScheme.background) { insets ->
-        Column(
-            modifier = Modifier.padding(insets).fillMaxSize().imePadding()
-                .verticalScroll(rememberScrollState()).padding(32.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            WiccanFullLogo(modifier = Modifier.testTag("onboarding-logo"), width = 150.dp)
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                stringResource(if (verification) R.string.onboarding_verify_title else R.string.onboarding_name_title),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                stringResource(if (verification) R.string.onboarding_verify_body else R.string.onboarding_name_body),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            if (verification) {
-                Button(onClick = viewModel::checkVerification, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) {
-                    Text(stringResource(R.string.onboarding_verified_button))
-                }
-                TextButton(onClick = viewModel::resendVerification, enabled = !state.busy) {
-                    Text(stringResource(R.string.onboarding_resend_button))
-                }
-            } else {
-                OutlinedTextField(
-                    value = state.firstName,
-                    onValueChange = viewModel::setFirstName,
-                    label = { Text(stringResource(R.string.onboarding_first_name)) },
+    MidnightGrimoireTheme {
+        Scaffold(containerColor = MaterialTheme.colorScheme.background) { insets ->
+            Column(
+                modifier = Modifier.padding(insets).fillMaxSize().imePadding()
+                    .verticalScroll(rememberScrollState()).padding(32.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                WiccanFullLogo(modifier = Modifier.testTag("onboarding-logo"), width = 150.dp)
+                WiccanBotanicalAccent(modifier = Modifier.padding(vertical = 4.dp))
+                Text(
+                    stringResource(if (verification) R.string.onboarding_verify_title else R.string.onboarding_name_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                OutlinedTextField(
-                    value = state.lastName,
-                    onValueChange = viewModel::setLastName,
-                    label = { Text(stringResource(R.string.onboarding_last_name)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = viewModel::completeProfile, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) {
-                    Text(stringResource(R.string.onboarding_continue))
-                }
-            }
-            if (state.busy) {
-                Spacer(modifier = Modifier.height(12.dp))
-                CircularProgressIndicator(modifier = Modifier.semantics { contentDescription = loadingDescription })
-            }
-            state.noticeFor(step)?.let { message ->
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    stringResource(message),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.testTag("onboarding-notice"),
+                    stringResource(if (verification) R.string.onboarding_verify_body else R.string.onboarding_name_body),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-            }
-            Spacer(modifier = Modifier.height(18.dp))
-            TextButton(onClick = viewModel::signOut, enabled = !state.busy) {
-                Text(stringResource(R.string.onboarding_sign_out))
-            }
-            TextButton(onClick = onAccountClick) { Text(stringResource(R.string.onboarding_account)) }
-            TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) {
-                Text(stringResource(R.string.onboarding_privacy))
+                Spacer(modifier = Modifier.height(24.dp))
+                if (verification) {
+                    GrimoireButton(
+                        text = stringResource(R.string.onboarding_verified_button),
+                        onClick = viewModel::checkVerification,
+                        enabled = !state.busy,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    TextButton(onClick = viewModel::resendVerification, enabled = !state.busy) {
+                        Text(stringResource(R.string.onboarding_resend_button))
+                    }
+                } else {
+                    OutlinedTextField(
+                        value = state.firstName,
+                        onValueChange = viewModel::setFirstName,
+                        label = { Text(stringResource(R.string.onboarding_first_name)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = grimoireFieldColors(),
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = state.lastName,
+                        onValueChange = viewModel::setLastName,
+                        label = { Text(stringResource(R.string.onboarding_last_name)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = grimoireFieldColors(),
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = state.username,
+                        onValueChange = viewModel::setUsername,
+                        label = { Text(stringResource(R.string.onboarding_username)) },
+                        supportingText = { Text(stringResource(R.string.onboarding_username_hint)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        isError = state.usernameHasError,
+                        colors = grimoireFieldColors(),
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    GrimoireButton(
+                        text = stringResource(R.string.onboarding_continue),
+                        onClick = viewModel::completeProfile,
+                        enabled = !state.busy,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                if (state.busy) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    CircularProgressIndicator(modifier = Modifier.semantics { contentDescription = loadingDescription })
+                }
+                state.noticeFor(step)?.let { message ->
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        stringResource(message),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.testTag("onboarding-notice"),
+                    )
+                }
+                Spacer(modifier = Modifier.height(18.dp))
+                TextButton(onClick = viewModel::signOut, enabled = !state.busy) {
+                    Text(stringResource(R.string.onboarding_sign_out))
+                }
+                TextButton(onClick = onAccountClick) { Text(stringResource(R.string.onboarding_account)) }
+                TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) {
+                    Text(stringResource(R.string.onboarding_privacy))
+                }
             }
         }
     }
