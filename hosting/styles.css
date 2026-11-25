@@ -598,11 +598,7 @@ main { padding-bottom: 40px; }
   .copyright { grid-column: auto; }
 }
 
-/* Explore Wiccan and the homepage conversion block. */
-.showcase { display: grid; grid-template-columns: minmax(220px, 340px) 1fr; gap: 56px; align-items: center; margin-block: 0 72px; }
-.showcase.reverse { grid-template-columns: 1fr minmax(220px, 340px); }
-.showcase.reverse .showcase-media { order: 2; }
-.showcase-media { margin: 0; justify-self: center; width: 100%; max-width: 340px; }
+/* Phone frames for the homepage device row. */
 .phone-frame {
   position: relative;
   padding: 10px;
@@ -619,8 +615,6 @@ main { padding-bottom: 40px; }
   border-radius: 28px;
   background: var(--bg);
 }
-.showcase-copy h3 { font-family: var(--display); font-size: clamp(1.5rem, 2.6vw, 2.1rem); line-height: 1.2; margin: 0.2em 0 0.5em; color: var(--ivory); }
-.showcase-copy > p:not(.kicker) { color: var(--text); font-size: 1.08rem; }
 .trial-offer {
   text-align: center;
   max-width: 680px;
@@ -656,12 +650,6 @@ main { padding-bottom: 40px; }
 }
 .different span { color: var(--gold-bright); }
 .testing-prerequisite { color: var(--text); }
-
-@media (max-width: 860px) {
-  .showcase, .showcase.reverse { grid-template-columns: 1fr; gap: 32px; margin-bottom: 56px; }
-  .showcase.reverse .showcase-media { order: 0; }
-  .showcase-media { max-width: 280px; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
