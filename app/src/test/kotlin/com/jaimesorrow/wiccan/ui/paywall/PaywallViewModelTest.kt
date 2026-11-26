@@ -238,9 +238,10 @@ class PaywallViewModelTest {
         viewModel.refreshOffer()
         dispatcher.scheduler.advanceUntilIdle()
 
-        // Mid-refresh: nothing is cleared and no spinner replaces the plans.
-        assertEquals(before, viewModel.state.value)
-        assertFalse(viewModel.state.value.isLoadingPrice)
+        // Mid-refresh: nothing is cleared, but checkout is disabled until the
+        // refreshed terms and what the user sees are committed together.
+        assertEquals(before.copy(isLoadingPrice = true), viewModel.state.value)
+        assertTrue(viewModel.state.value.isLoadingPrice)
         // A second resume while one refresh is running does not start another.
         viewModel.refreshOffer()
         dispatcher.scheduler.advanceUntilIdle()

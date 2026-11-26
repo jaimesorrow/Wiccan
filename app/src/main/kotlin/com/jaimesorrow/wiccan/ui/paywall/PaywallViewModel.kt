@@ -79,7 +79,13 @@ class PaywallViewModel @Inject constructor(
         _state.update { it.copy(isLoadingPrice = true) }
         viewModelScope.launch {
             try {
-                val monthly = (subscriptionRepository.getOffer() as? AppResult.Success)?.data ?: return@launch
+                val monthly = (subscriptionRepository.getOffer() as? AppResult.Success)?.data ?: run {
+                    // Keep the last verified terms visible if Play cannot be
+                    // reached, and make them purchasable again; the cache was
+                    // not replaced on a failed lookup.
+                    _state.update { it.copy(isLoadingPrice = false) }
+                    return@launch
+                }
                 val yearly = (subscriptionRepository.getYearlyOffer() as? AppResult.Success)?.data
                 applyOffers(monthly, yearly)
             } finally {
