@@ -138,9 +138,9 @@ class OnboardingFlowButtonsTest {
                 )
             }
         }
-        composeRule.onNodeWithText("I've verified my email").assertExists()
+        composeRule.onNodeWithText("I opened the moonlit link").assertExists()
         composeRule.onNodeWithTag("onboarding-logo").assertExists()
-        composeRule.onNodeWithText("Resend verification email").assertExists()
+        composeRule.onNodeWithText("Send the moonlit link again").assertExists()
         click("Account & support / Delete Account")
         click("Privacy Policy")
         click("Sign out")

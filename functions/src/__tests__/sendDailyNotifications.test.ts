@@ -31,23 +31,23 @@ describe("sendDailyNotifications", () => {
     expect(fcm.sentTo).toHaveLength(2);
     expect(fcm.sentTo[0]).toEqual({
       token: "token-1",
-      title: "Your spell awaits",
-      body: "The moon has turned. Candle of Clear Intent",
+      title: "A spell awaits beneath the moon",
+      body: "The moon has turned, and today’s spell rests upon your altar: Candle of Clear Intent",
     });
   });
 
   it("names each content type and keeps the lesson title in the body", () => {
     expect(dailyNotificationCopy("spell", "Candle of Clear Intent")).toEqual({
-      title: "Your spell awaits",
-      body: "The moon has turned. Candle of Clear Intent",
+      title: "A spell awaits beneath the moon",
+      body: "The moon has turned, and today’s spell rests upon your altar: Candle of Clear Intent",
     });
     expect(dailyNotificationCopy("potion", "Moonwater")).toEqual({
-      title: "Your potion awaits",
-      body: "The moon has turned. Moonwater",
+      title: "A potion awaits beneath the moon",
+      body: "The moon has turned, and today’s potion rests upon your altar: Moonwater",
     });
     expect(dailyNotificationCopy("lesson", "The Threshold")).toEqual({
-      title: "Your lesson awaits",
-      body: "The moon has turned. The Threshold",
+      title: "A lesson awaits beneath the moon",
+      body: "The moon has turned, and today’s lesson rests upon your altar: The Threshold",
     });
   });
 

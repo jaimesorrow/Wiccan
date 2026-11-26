@@ -42,10 +42,10 @@
     <string name="auth_logo_description">Wiccan</string>
 
     <!-- Email verification and name step -->
-    <string name="onboarding_verify_title">Confirm this email.</string>
-    <string name="onboarding_verify_body">Check your inbox for a verification message from Wiccan. Open the link, then return here to continue.</string>
-    <string name="onboarding_verified_button">I\'ve verified my email</string>
-    <string name="onboarding_resend_button">Resend verification email</string>
+    <string name="onboarding_verify_title">Seal your place in the circle.</string>
+    <string name="onboarding_verify_body">A moonlit message has been sent to your inbox. Open its verification link, then return here. The Grimoire remains sealed until your email is confirmed.</string>
+    <string name="onboarding_verified_button">I opened the moonlit link</string>
+    <string name="onboarding_resend_button">Send the moonlit link again</string>
     <string name="onboarding_name_title">What name should the Grimoire keep?</string>
     <string name="onboarding_name_body">Add your first and last name. No billing address or card details are needed here.</string>
     <string name="onboarding_first_name">First name</string>
@@ -323,6 +323,7 @@
     <string name="error_no_new_lesson">No new lessons remain. Your earlier lessons wait in your Grimoire.</string>
     <string name="error_subscription_required">An active trial or subscription is required. Restore or subscribe to continue.</string>
     <string name="error_google_sign_in">Google sign-in isn\'t available right now. Use your email and password.</string>
+    <string name="error_verification_email_delivery">Your account was created, but the moonlit link could not be sent. Please try again from the verification screen.</string>
     <string name="error_cancelled">Cancelled.</string>
     <string name="error_purchase_verification">We couldn\'t verify that purchase with Google Play. Try again, or contact support.</string>
     <string name="error_invalid_credentials">The gate stayed shut. Check your email and password, then try again.</string>
