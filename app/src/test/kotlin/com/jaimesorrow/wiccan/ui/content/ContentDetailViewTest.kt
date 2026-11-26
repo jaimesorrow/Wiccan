@@ -38,6 +38,7 @@ class ContentDetailViewTest {
             safetyNote = null,
             tags = emptyList(),
             status = ContentStatus.PUBLISHED,
+            incantation = "By this small flame,\nI name my purpose.",
             reflection = "What should your home feel like?",
             practice = "Pause and choose one quality to bring inside.",
         )
@@ -46,6 +47,8 @@ class ContentDetailViewTest {
         for (text in listOf("Home & Hearth", "The Threshold", "The working", "Reflection", "Practice")) {
             composeRule.onNodeWithText(text).assertExists()
         }
+        composeRule.onNodeWithText("Incantation").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(content.incantation!!).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText(content.reflection!!).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText(content.practice!!).performScrollTo().assertIsDisplayed()
     }

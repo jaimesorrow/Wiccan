@@ -8,7 +8,7 @@ it says so instead of pretending.
 
 > **Status 2026-11-19:** no signed bundle has been built yet — the four
 > `RELEASE_*` secrets below are not set. See [STATUS.md](STATUS.md) for the
-> current blockers and the ordered next steps. `versionCode` is 1 and has
+> current blockers and the ordered next steps. `versionCode` is 2 and has
 > never been uploaded.
 
 ## Signing

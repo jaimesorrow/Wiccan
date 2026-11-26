@@ -185,16 +185,20 @@ async function main() {
   const invalidProfile = await call("completeOnboardingProfile", token, {
     firstName: "Line\nBreak",
     lastName: "Account",
+    username: "rowan_wilde",
   });
   ok("profile completion rejects control characters", invalidProfile?.error?.status === "INVALID_ARGUMENT");
   const profile = await call("completeOnboardingProfile", token, {
     firstName: "  Rowan  ",
     lastName: "Wilde",
+    username: "rowan_wilde",
   });
   ok("verified account can complete its profile", !profile?.error, JSON.stringify(profile).slice(0, 200));
   const profileDocument = await db.collection("users").doc(uid).get();
   ok("profile completion trims and stores the names",
-    profileDocument.get("firstName") === "Rowan" && profileDocument.get("lastName") === "Wilde");
+    profileDocument.get("firstName") === "Rowan" &&
+    profileDocument.get("lastName") === "Wilde" &&
+    profileDocument.get("username") === "rowan_wilde");
   for (const timezone of [null, 7, "", " UTC", "UTC ", "Not/A_Real_Zone", "x".repeat(256)]) {
     const invalid = await call("getTodayContent", token, { timezone });
     ok(`getTodayContent rejects invalid timezone ${JSON.stringify(timezone).slice(0, 60)}`,

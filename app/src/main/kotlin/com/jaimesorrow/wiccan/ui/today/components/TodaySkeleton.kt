@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.wiccan.app.R
 
 /**
@@ -57,7 +58,7 @@ fun TodaySkeleton(modifier: Modifier = Modifier) {
         Placeholder(widthFraction = 0.65f, height = 36.dp)
         Placeholder(widthFraction = 0.9f, height = 18.dp)
         Placeholder(widthFraction = 0.7f, height = 18.dp)
-        HairlineDivider(modifier = Modifier.padding(vertical = 8.dp))
+        WiccanBotanicalAccent(width = 116.dp)
         repeat(4) { Placeholder(widthFraction = 1f, height = 14.dp) }
         Placeholder(widthFraction = 0.55f, height = 14.dp)
     }

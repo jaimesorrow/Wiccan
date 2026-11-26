@@ -10,6 +10,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.jaimesorrow.wiccan.MainActivity
+import com.wiccan.app.R
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,8 +51,9 @@ class AppLaunchSmokeTest {
         waitForSignIn()
         composeRule.onNode(hasText("Terms") and hasClickAction()).assertExists()
         composeRule.onNode(hasText("Privacy") and hasClickAction()).assertExists()
-        val submit = composeRule.onAllNodes((hasText("Sign In") or hasText("Create Account")) and hasClickAction())
-        check(submit.fetchSemanticsNodes().isNotEmpty()) { "No sign-in or create-account button" }
+        val submitLabel = composeRule.activity.getString(R.string.auth_enter_grimoire)
+        val submit = composeRule.onAllNodes(hasText(submitLabel) and hasClickAction())
+        check(submit.fetchSemanticsNodes().isNotEmpty()) { "No Enter the Grimoire button" }
     }
 
     @Test

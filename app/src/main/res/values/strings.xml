@@ -3,7 +3,7 @@
     <string name="app_name">Wiccan</string>
 
     <!-- Sign-in, create account, password recovery -->
-    <string name="auth_intro_headline">The moonlit path begins here.</string>
+    <string name="auth_intro_headline">Sign in to your digital book of shadows.</string>
     <string name="auth_intro_body">Candle spells, herbs, cord and knot work, and lunar rites, drawn from historical grimoires. One guided practice arrives each day, and your Grimoire keeps what you find.</string>
     <string name="auth_subscription_requirement">A subscription is required after onboarding.</string>
     <string name="auth_daily_line">The moon has turned. Your next practice awaits.</string>
@@ -35,6 +35,10 @@
     <string name="auth_error_password_required">Enter your password.</string>
     <string name="auth_error_password_short">Password must be at least 6 characters.</string>
     <string name="auth_error_password_mismatch">Those passwords don\'t match.</string>
+    <string name="auth_error_username_invalid">Use 3–24 letters, numbers, or underscores.</string>
+    <string name="auth_username">Username</string>
+    <string name="auth_enter_grimoire">Enter the Grimoire</string>
+    <string name="auth_quiet_quote">To ignite your quiet inner grimoire</string>
     <string name="auth_logo_description">Wiccan</string>
 
     <!-- Email verification and name step -->
@@ -46,6 +50,8 @@
     <string name="onboarding_name_body">Add your first and last name. No billing address or card details are needed here.</string>
     <string name="onboarding_first_name">First name</string>
     <string name="onboarding_last_name">Last name</string>
+    <string name="onboarding_username">Community username</string>
+    <string name="onboarding_username_hint">3–24 letters, numbers, or underscores. This will be your Coven name.</string>
     <string name="onboarding_continue">Continue</string>
     <string name="onboarding_sign_out">Sign out</string>
     <string name="onboarding_account">Account &amp; support / Delete Account</string>
@@ -53,10 +59,11 @@
     <string name="onboarding_notice_resent">If your email still needs confirming, a new message is on its way.</string>
     <string name="onboarding_notice_not_verified">Verification checked. Confirm your email before continuing.</string>
     <string name="onboarding_notice_name_invalid">Enter your first and last names (up to 60 characters each).</string>
+    <string name="onboarding_notice_profile_invalid">Enter your name and a username using 3–24 letters, numbers, or underscores.</string>
     <string name="onboarding_notice_saved">Your name is kept.</string>
     <string name="onboarding_notice_signed_out">You have signed out.</string>
     <string name="onboarding_notice_failed">The spell faltered. Check your connection and try again.</string>
-    <string name="loading_description">Loading</string>
+    <string name="loading_description">The pages are turning</string>
 
     <!-- Policy acceptance. Agreement text stays plain. -->
     <string name="policy_title">A pause before the path opens</string>
@@ -132,7 +139,7 @@
     <string name="today_look_again">Look again</string>
     <string name="today_retry">Try again</string>
     <string name="today_error_title">Today\'s page is hidden for now</string>
-    <string name="today_error_body">We couldn\'t open today\'s practice. Try again, or visit your Grimoire.</string>
+    <string name="today_error_body">The page would not open. Try again, or visit your Grimoire.</string>
     <string name="today_loading">Loading today\'s practice</string>
     <string name="today_logo_description">Wiccan</string>
 
@@ -144,7 +151,7 @@
     <string name="content_application">In a Wiccan practice</string>
     <string name="content_materials">What you\'ll need</string>
     <string name="content_method">The working</string>
-    <string name="content_incantation">Words you may speak</string>
+    <string name="content_incantation">Incantation</string>
     <string name="content_incantation_note">A note on those words</string>
     <string name="content_timing">When to work</string>
     <string name="content_correspondences">Correspondences</string>
@@ -166,6 +173,30 @@
     <string name="content_citation_locator">Exact locator: %1$s</string>
     <string name="content_verified_source">Verified source details</string>
     <string name="content_saved">Kept in your Grimoire</string>
+    <string name="home_welcome">WELCOME, SEEKER</string>
+    <string name="home_today_lesson">Today\'s lesson</string>
+    <string name="home_lesson_waiting">The day\'s page is still being inked.</string>
+    <string name="home_lesson_open_hint">The page set aside for you is ready to open.</string>
+    <string name="home_locked_lesson_title">Today\'s lesson is locked</string>
+    <string name="home_locked_lesson_body">A 7-day free trial opens the daily lesson. Trial and subscribed readers continue straight in.</string>
+    <string name="home_unlock_lesson">Unlock with a 7-day trial</string>
+    <string name="home_wheel_title">Wheel of the Year</string>
+    <string name="home_wheel_image">Wheel of the Year altar</string>
+    <string name="home_next_sabbat">Next: %1$s</string>
+    <string name="home_cosmic_title">Cosmic Timing</string>
+    <string name="home_planetary_hour_label">PLANETARY HOUR</string>
+    <string name="home_hour_of">The Hour of %1$s</string>
+    <string name="home_hour_unavailable">The hour waits on a place in the world</string>
+    <string name="home_use_location">Share a rough place, so the hour can be named</string>
+    <string name="home_tides_title">TIDES &amp; ASTRO-WEATHER</string>
+    <string name="home_moon_in_sign">Moon in %1$s · %2$d%% illuminated</string>
+    <string name="home_tides_unavailable">Coastal tide data is not available on this device.</string>
+    <string name="home_voc_title">VOID OF COURSE</string>
+    <string name="home_voc_active">Void of course until the Moon enters %1$s. Favor reflection over beginning a new working.</string>
+    <string name="home_voc_clear">The Moon in %1$s still meets a classical aspect before it changes sign.</string>
+    <string name="home_alignment_title">SPIRITUAL ALIGNMENT</string>
+    <string name="home_alignment">Work that matches %2$s and the Moon in %1$s has the clearer timing.</string>
+    <string name="error_username_taken">That name is already spoken in the circle. Choose another.</string>
     <string name="content_logo_description">Wiccan</string>
 
     <!-- Grimoire -->
@@ -179,7 +210,7 @@
     <string name="grimoire_category_count">%1$s (%2$d)</string>
     <string name="grimoire_expand">Show this category</string>
     <string name="grimoire_collapse">Hide this category</string>
-    <string name="grimoire_loading">Loading your Grimoire</string>
+    <string name="grimoire_loading">The Grimoire is opening</string>
     <string name="grimoire_logo_description">Wiccan</string>
     <string name="category_candle_spells">Candle Spells</string>
     <string name="category_herbal_rituals">Herbal Rituals</string>
@@ -208,7 +239,7 @@
 
     <!-- Settings, account, delete. Delete warning stays plain. -->
     <string name="settings_title">Settings</string>
-    <string name="settings_subtitle">Tend your account, reminders, and palette.</string>
+    <string name="settings_subtitle">Tend the quiet of your account, the evening bell, and the grimoire\'s colors.</string>
     <string name="settings_account_title">Account &amp; support</string>
     <string name="settings_account_subtitle">Your name, email, and subscription.</string>
     <string name="settings_back">← Back</string>
@@ -222,9 +253,13 @@
     <string name="settings_manage_subscription">Manage Subscription</string>
     <string name="settings_manage_subscription_unavailable">Open Google Play to manage your subscription.</string>
     <string name="settings_notifications">Daily practice reminder</string>
-    <string name="settings_notifications_hint">A note when the day\'s spell, potion, or lesson is ready.</string>
+    <string name="settings_notifications_hint">A soft bell when the day\'s working is laid upon the altar.</string>
     <string name="settings_palette">Palette</string>
-    <string name="settings_palette_hint">The Wheel of the Year is the recommended default. You can also lock any of the six.</string>
+    <string name="settings_palette_hint">Midnight Grimoire holds these pages. A choice you save is remembered.</string>
+    <string name="settings_section_spiritual">SPIRITUAL PREFERENCES</string>
+    <string name="settings_section_grimoire">GRIMOIRE VIEW</string>
+    <string name="settings_section_data">MY DATA &amp; ACCOUNT</string>
+    <string name="settings_section_circle">THE INNER CIRCLE</string>
     <string name="settings_analytics">Usage analytics &amp; crash reports</string>
     <string name="settings_analytics_hint">Optional. Helps improve Wiccan; never used for ads.</string>
     <string name="settings_delete">Delete Account</string>
@@ -258,9 +293,9 @@
     <string name="palette_ivory">Light / Ivory</string>
     <string name="palette_ivory_mood">Pale as moonlight</string>
     <string name="theme_mode_wheel">Automatic — Wheel of the Year</string>
-    <string name="theme_mode_wheel_hint">Recommended. The palette turns with the seasons.</string>
+    <string name="theme_mode_wheel_hint">A saved choice. The wheel remembers the turning year.</string>
     <string name="theme_mode_system">Follow system</string>
-    <string name="theme_mode_system_hint">Near Black when the device is in dark mode, Light/Ivory in light mode.</string>
+    <string name="theme_mode_system_hint">Near Black when the device keeps night, Light/Ivory when it keeps day.</string>
 
     <!-- Legal document chrome. Document text is not in this file. -->
     <string name="legal_back">← Back</string>
@@ -269,9 +304,17 @@
     <string name="legal_logo_description">Wiccan</string>
 
     <!-- Navigation -->
+    <string name="nav_home">Home</string>
     <string name="nav_today">Today</string>
+    <string name="home_open_spell">Open today\'s spell</string>
+    <string name="home_open_lesson">Open today\'s lesson</string>
+    <string name="home_open_potion">Open today\'s potion</string>
+    <string name="home_open_practice">Open today\'s practice</string>
+    <string name="home_today_practice">Today\'s practice</string>
+    <string name="daily_back">Back</string>
     <string name="nav_grimoire">Grimoire</string>
     <string name="nav_settings">Settings</string>
+    <string name="content_lesson_image_description">Illustration for %1$s</string>
 
     <!-- Errors -->
     <string name="error_network">The spell faltered. Check your connection and try again.</string>

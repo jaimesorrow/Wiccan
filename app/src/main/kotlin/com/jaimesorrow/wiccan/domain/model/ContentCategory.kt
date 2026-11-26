@@ -31,6 +31,26 @@ enum class ContentCategory {
     ;
 
     companion object {
+        /** Categories offered by the current Grimoire taxonomy, including empty shelves. */
+        val libraryCategories: List<ContentCategory> = listOf(
+            CANDLE_SPELLS,
+            HERBAL_RITUALS,
+            CORD_KNOT_WORK,
+            LUNAR_PRACTICES,
+            CHARMS_TALISMANS,
+            CANDLE_MAGIC,
+            HERBS_BOTANICALS,
+            POTIONS_INFUSIONS,
+            CRYSTALS_STONES,
+            CORD_KNOT_MAGIC,
+            MOON_MAGIC_TIMING,
+            ELEMENTAL_MAGIC,
+            ALTARS_SACRED_SPACE,
+            DIVINATION,
+            ELEMENTAL_PRACTICES,
+            PROTECTION_CLEANSING_WARDING,
+        )
+
         /** Parses practical kebab-case IDs and legacy PascalCase values from Firestore. */
         fun fromWireValue(value: String): ContentCategory = when (value) {
             "candle-spells" -> CANDLE_SPELLS

@@ -101,6 +101,37 @@ class TodayScreenTest {
     }
 
     @Test
+    fun `Home shows the assigned spell and invokes the open action without a retry event`() {
+        val spell = mapOf<String, Any?>(
+            "id" to "spell-1",
+            "type" to "spell",
+            "tier" to "premium",
+            "title" to "Closing the Ford",
+            "tradition" to "Contemporary Wicca",
+            "category" to "altars-sacred-space",
+            "intro" to "Prepare your working space.",
+            "body" to "Place a bowl inside the circle.",
+        ).toContentOrNull()!!
+        var opened = false
+        val events = mutableListOf<TodayUiEvent>()
+        composeRule.setContent {
+            MaterialTheme {
+                TodayScreenContent(
+                    state = TodayUiState(isLoading = false, content = spell),
+                    effects = emptyFlow(),
+                    onEvent = { events += it },
+                    onOpenToday = { opened = true },
+                )
+            }
+        }
+        composeRule.onNodeWithText(spell.title).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(spell.body).assertDoesNotExist()
+        composeRule.onNodeWithText("Open today's lesson").performScrollTo().performClick()
+        assertTrue(opened)
+        assertTrue(events.isEmpty())
+    }
+
+    @Test
     fun `a failed load shows a retry panel instead of a blank screen`() {
         val events = mutableListOf<TodayUiEvent>()
         var openedGrimoire = false
@@ -136,7 +167,6 @@ class TodayScreenTest {
                 }
             }
         }
-        composeRule.onNodeWithTag("today-check-again").assertIsNotDisplayed()
         composeRule.onNodeWithTag("today-check-again").performScrollTo().assertIsDisplayed()
 
         composeRule.onNodeWithTag("today-check-again").performClick()

@@ -1,7 +1,8 @@
 import { Firestore, Timestamp } from "firebase-admin/firestore";
 import { Content, ContentCategory, ContentTier, isContentCategory } from "./types";
+import { practicalContentHash } from "./practicalLesson";
 import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort, SubscriptionRequiredError } from "./contentRepositoryPort";
-import { contentSimilarityKey, isEligibleForDailyDelivery, sharesContentSimilarity, similarityReservationId } from "./contentEligibility";
+import { contentSimilarityKey, isEligibleForDailyDelivery, rememberStoredContentHash, sharesContentSimilarity, similarityReservationId } from "./contentEligibility";
 import { assertAccountWriteAllowed } from "./accountWriteGuard";
 import { hasSubscriptionAccess } from "./subscriptionAccess";
 
@@ -24,8 +25,13 @@ function historyDocId(uid: string, today: string): string {
   return `${uid}_${today}`;
 }
 
-function toContent(id: string, data: FirebaseFirestore.DocumentData): Content {
-  return {
+/**
+ * Maps a stored `content` document into the normalized Content object used by
+ * daily delivery. The publisher's checksum is retained separately as
+ * non-serializable WeakMap metadata so display defaults cannot alter it.
+ */
+export function contentFromStoredDocument(id: string, data: FirebaseFirestore.DocumentData): Content {
+  const content: Content = {
     id,
     type: data.type,
     tier: data.tier,
@@ -34,8 +40,11 @@ function toContent(id: string, data: FirebaseFirestore.DocumentData): Content {
     category: isContentCategory(data.primaryCategoryId) ? data.primaryCategoryId :
       isContentCategory(data.category) ? data.category : DEFAULT_CATEGORY,
     title: data.title,
+    slug: typeof data.slug === "string" ? data.slug : undefined,
     intro: data.intro,
+    introduction: typeof data.introduction === "string" ? data.introduction : undefined,
     body: data.body,
+    lesson: typeof data.lesson === "string" ? data.lesson : undefined,
     reflection: data.reflection ?? null,
     practice: data.practice ?? null,
     materials: data.materials ?? null,
@@ -63,8 +72,12 @@ function toContent(id: string, data: FirebaseFirestore.DocumentData): Content {
     citations: Array.isArray(data.citations) ? data.citations : [],
     adaptationNotes: Array.isArray(data.adaptationNotes) ? data.adaptationNotes : [],
     sourcePassageId: typeof data.sourcePassageId === "string" ? data.sourcePassageId : undefined,
+    illustrationUrl: typeof data.illustrationUrl === "string" && data.illustrationUrl.trim()
+      ? data.illustrationUrl.trim() : undefined,
     practicalReview: data.practicalReview,
   };
+  rememberStoredContentHash(content, practicalContentHash(data));
+  return content;
 }
 
 export class FirestoreContentRepository implements ContentRepositoryPort {
@@ -94,7 +107,7 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
   async getContentById(id: string): Promise<Content | null> {
     const doc = await this.db.collection(CONTENT_COLLECTION).doc(id).get();
     if (!doc.exists) return null;
-    return toContent(doc.id, doc.data()!);
+    return contentFromStoredDocument(doc.id, doc.data()!);
   }
 
   async getPublishedContentForTier(tier: ContentTier): Promise<Content[]> {
@@ -103,7 +116,7 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
       .collection(CONTENT_COLLECTION)
       .where("status", "==", "published")
       .get();
-    return snap.docs.map((doc) => toContent(doc.id, doc.data()));
+    return snap.docs.map((doc) => contentFromStoredDocument(doc.id, doc.data()));
   }
 
   async assignDailyContent(uid: string, today: string, candidate: Content, ancientLessonSourceIds: ReadonlySet<string>): Promise<string> {
@@ -134,7 +147,7 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
         txn.get(this.db.collection(HISTORY_COLLECTION).where("userId", "==", uid)),
       ]);
       if (!currentDocument.exists) throw new ContentNoLongerEligibleError(candidate.id);
-      const current = toContent(currentDocument.id, currentDocument.data()!);
+      const current = contentFromStoredDocument(currentDocument.id, currentDocument.data()!);
       if (current.status !== "published" ||
           !isEligibleForDailyDelivery(current, ancientLessonSourceIds)) {
         throw new ContentNoLongerEligibleError(candidate.id);
@@ -165,7 +178,7 @@ export class FirestoreContentRepository implements ContentRepositoryPort {
           if (history.docs.some((entry) => {
             const content = historicalById.get(entry.get("contentId"));
             if (content?.exists) {
-              return sharesContentSimilarity(toContent(content.id, content.data()!), current);
+              return sharesContentSimilarity(contentFromStoredDocument(content.id, content.data()!), current);
             }
             // A deleted historical document cannot resolve newer editorial
             // groups. Keep its recorded passage as a conservative fallback.

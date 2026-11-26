@@ -1,0 +1,88 @@
+{
+  "id": "maqlu-088-two-cornel-sticks-at-the-outer-gate",
+  "body": "Timing: On a new moon morning, or when you move into a new home. Allow about thirty minutes.\n\nChoose your two staves on a walk, as if they chose you. Speak over them indoors first, where the people they will guard sleep and laugh.\n\n1. Find two straight fallen sticks on a walk. Brush them clean and let them dry.\n2. Hold both sticks together in your hands inside your home. Take three slow breaths and think of everyone who lives there.\n3. Speak the incantation over the sticks three times.\n4. Go to the outer entrance. Standing outside facing the door, set the first stick to the right side, pushed into a pot of soil, leaned against the wall or tied to a railing.\n5. Set the second stick to the left side in the same way.\n6. Step back, look at the pair framing the doorway and say 'Right and left, keep this door.'\n\nClosing and grounding: Step inside, close the door and lean your back against it for a moment. Breathe three slow breaths, feeling the house settle around you, before you carry on.",
+  "category": "HomeAndHearth",
+  "citations": [
+    {
+      "title": "Maqlu Ritual Tablet, obv. 119'-121'",
+      "author": "Oracc: Corpus of Mesopotamian Anti-witchcraft Rituals (CMAwRo), ed. D. Schwemer et al.",
+      "url": "https://oracc.museum.upenn.edu/cmawro/Q002713",
+      "accessedAt": "",
+      "usageNote": "Supports the one- or two-sentence historical context in the introduction only; the practice itself is original modern work.",
+      "rightsNote": "Paraphrase only; no translated passage is reproduced. URL not reachable from the box on 2026-11-15; access date left blank for an editor."
+    }
+  ],
+  "correspondences": {
+    "herbs": [],
+    "stones": [],
+    "symbols": [
+      "Pair",
+      "Threshold",
+      "Right and left"
+    ],
+    "days": [],
+    "elements": [],
+    "moonPhases": [
+      "New"
+    ],
+    "colors": []
+  },
+  "durationMinutes": 30,
+  "incantation": "Wood of the old earth, stand at my gate. Right hand and left, keep your watch: let good come in like sunlight, and let trouble pass by like wind.",
+  "intro": "The Maqlû Ritual Tablet records an incantation spoken over two sticks of cornel wood, after which one was set to the right and the other to the left of the outer gate. This modern spell keeps the paired staves on either side of an entrance. Fallen wood and your own words set two quiet sentinels at the edge of your home. This is an original modern working, not a reconstruction of the ancient rite.",
+  "introduction": "The Maqlû Ritual Tablet records an incantation spoken over two sticks of cornel wood, after which one was set to the right and the other to the left of the outer gate. This modern spell keeps the paired staves on either side of an entrance. Fallen wood and your own words set two quiet sentinels at the edge of your home. This is an original modern working, not a reconstruction of the ancient rite.",
+  "lesson": "Timing: On a new moon morning, or when you move into a new home. Allow about thirty minutes.\n\nChoose your two staves on a walk, as if they chose you. Speak over them indoors first, where the people they will guard sleep and laugh.\n\n1. Find two straight fallen sticks on a walk. Brush them clean and let them dry.\n2. Hold both sticks together in your hands inside your home. Take three slow breaths and think of everyone who lives there.\n3. Speak the incantation over the sticks three times.\n4. Go to the outer entrance. Standing outside facing the door, set the first stick to the right side, pushed into a pot of soil, leaned against the wall or tied to a railing.\n5. Set the second stick to the left side in the same way.\n6. Step back, look at the pair framing the doorway and say 'Right and left, keep this door.'\n\nClosing and grounding: Step inside, close the door and lean your back against it for a moment. Breathe three slow breaths, feeling the house settle around you, before you carry on.",
+  "lessonType": "spell",
+  "materials": [
+    "Two straight fallen sticks (About 30 cm each)",
+    "Two small pots of soil or two stones",
+    "Twine (Short pieces)"
+  ],
+  "practice": "Each week, straighten the staves and whisper the closing line to them. When the season turns, return them to the earth and choose fresh ones.",
+  "primaryCategoryId": "altars-sacred-space",
+  "reflection": "When you come home now, past your two sentinels, what feels different about the threshold?",
+  "requiresPotionDisclosure": false,
+  "rightsReviewRequired": false,
+  "safetyNote": "Place sticks so they do not block the doorway, trip anyone or poke into a walkway. Use only fallen wood. Follow any rules for shared entrances or rented properties.",
+  "secondaryCategoryIds": [
+    "charms-talismans"
+  ],
+  "slug": "two-guardian-staves-at-the-outer-door",
+  "sourceCitation": "Maqlu Ritual Tablet, obv. 119'-121'",
+  "sourceId": "mesopotamian-maqlu",
+  "sourceUrl": "https://oracc.museum.upenn.edu/cmawro/Q002713",
+  "status": "published",
+  "summary": "Charge two sticks with spoken words and set one on each side of your front door, gate or balcony entrance as quiet guardians of the threshold.",
+  "tags": [
+    "protection",
+    "home",
+    "threshold",
+    "new-moon",
+    "home-hearth"
+  ],
+  "tier": "premium",
+  "timing": "On a new moon morning, or when you move into a new home. Allow about thirty minutes.",
+  "title": "Two Guardian Staves at the Outer Door",
+  "tools": [
+    {
+      "name": "Two straight fallen sticks",
+      "quantity": "About 30 cm each",
+      "required": true,
+      "substitution": "Two wooden dowels"
+    },
+    {
+      "name": "Two small pots of soil or two stones",
+      "quantity": "",
+      "required": false,
+      "substitution": "Lean them in a corner of the door frame"
+    },
+    {
+      "name": "Twine",
+      "quantity": "Short pieces",
+      "required": false,
+      "substitution": ""
+    }
+  ],
+  "tradition": "Modern Witchcraft (inspired by the Mesopotamian Maqlû)",
+  "type": "spell"
+}

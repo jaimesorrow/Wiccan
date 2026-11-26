@@ -6,7 +6,9 @@ import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.core.auth.CurrentUserProvider
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
+import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.repository.ContentRepository
+import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -25,9 +27,10 @@ class TodayViewModel @Inject constructor(
     private val contentRepository: ContentRepository,
     private val currentUserProvider: CurrentUserProvider,
     private val analyticsLogger: AnalyticsLogger,
+    subscriptionRepository: SubscriptionRepository,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(TodayUiState())
+    private val _state = MutableStateFlow(TodayUiState(lessonLocked = true))
     val state: StateFlow<TodayUiState> = _state.asStateFlow()
 
     // Buffered so an effect emitted while nothing is collecting isn't dropped.
@@ -37,6 +40,7 @@ class TodayViewModel @Inject constructor(
 
     init {
         observeCache()
+        observeAccess(subscriptionRepository)
         refresh()
     }
 
@@ -59,10 +63,18 @@ class TodayViewModel @Inject constructor(
                 }
                 .collect { cached ->
                     _state.update { it.copy(content = cached) }
-                    if (cached != null) {
+                    if (cached != null && !_state.value.lessonLocked) {
                         analyticsLogger.logDailyContentViewed(cached.type, cached.tier)
                     }
                 }
+        }
+    }
+
+    private fun observeAccess(subscriptionRepository: SubscriptionRepository) {
+        viewModelScope.launch {
+            subscriptionRepository.observeTier().collect { tier ->
+                _state.update { it.copy(lessonLocked = tier != ContentTier.PREMIUM) }
+            }
         }
     }
 
@@ -81,10 +93,16 @@ class TodayViewModel @Inject constructor(
                 }
                 is AppResult.Failure -> {
                     val exhausted = result.error is AppError.NoNewLesson
+                    val locked = result.error is AppError.SubscriptionRequired
                     _state.update {
-                        it.copy(isLoading = false, poolExhausted = exhausted, loadFailed = !exhausted)
+                        it.copy(
+                            isLoading = false,
+                            poolExhausted = exhausted,
+                            loadFailed = !exhausted && !locked,
+                            lessonLocked = locked || it.lessonLocked,
+                        )
                     }
-                    if (result.error !is AppError.NoNewLesson) {
+                    if (result.error !is AppError.NoNewLesson && !locked) {
                         effectChannel.send(TodayUiEffect.ShowSnackbar(result.error))
                     }
                 }
