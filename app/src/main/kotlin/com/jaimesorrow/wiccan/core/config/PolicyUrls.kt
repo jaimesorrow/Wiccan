@@ -15,5 +15,5 @@ object PolicyUrls {
     const val PRIVACY_POLICY = "https://wiccan.app/privacy.html"
     const val POTION_SAFETY = "https://wiccan.app/potion-safety.html"
     const val ACCOUNT_DELETION_URL = "https://wiccan.app/delete-account.html"
-    const val SUPPORT_EMAIL = "hello@wiccan.app"
+    const val SUPPORT_EMAIL = "customerservice@wiccan.app"
 }

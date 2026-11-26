@@ -38,15 +38,16 @@ export function renderVerificationEmail(
     "If you didn't create a Wiccan account, you can ignore this email.",
     "",
     "The Wiccan Circle",
+    "Questions along your path? Contact customerservice@wiccan.app",
   ].join("\n");
 
   const html = `<!doctype html>
 <html lang="en">
-  <body style="margin:0;padding:0;background:#090711;color:#f7f0df;font-family:Arial,sans-serif">
+  <body style="margin:0;padding:0;background:#000000;color:#f7f0df;font-family:Arial,sans-serif">
     <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">Open your moonlit verification link to enter Wiccan.</div>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#090711;padding:36px 12px">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#000000;padding:36px 12px">
       <tr><td align="center">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:620px;background:#171322;border:1px solid #5a496c">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:620px;background:#171322;border:1px solid #d4af37">
           <tr><td style="height:5px;background:#c9a85e;font-size:0;line-height:0">&nbsp;</td></tr>
           <tr><td style="padding:34px 46px 0;text-align:center">
             <p style="margin:0;color:#8f7aa8;font-family:Georgia,serif;font-size:16px;letter-spacing:12px">◐ ○ ● ○ ◑</p>
@@ -74,7 +75,8 @@ export function renderVerificationEmail(
           </td></tr>
           <tr><td style="background:#100d19;border-top:1px solid #3d334a;padding:25px 40px;color:#807488;font-family:Georgia,'Times New Roman',serif;font-size:12px;line-height:1.7;text-align:center">
             <span style="color:#bca56d;letter-spacing:4px">❧ &nbsp; ✦ &nbsp; ❧</span><br>
-            <span style="color:#a494b5">The Wiccan Circle</span>
+            <span style="color:#a494b5">The Wiccan Circle</span><br>
+            Questions along your path? <a href="mailto:customerservice@wiccan.app" style="color:#d8bd78">customerservice@wiccan.app</a>
           </td></tr>
         </table>
         <p style="margin:18px 0 0;color:#61586b;font-size:10px;line-height:1.5;text-align:center">© Wiccan</p>
