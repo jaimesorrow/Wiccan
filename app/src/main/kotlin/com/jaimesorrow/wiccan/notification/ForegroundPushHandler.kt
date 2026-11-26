@@ -31,6 +31,9 @@ class ForegroundPushHandler @Inject constructor(
     /** Returns true when a notification was posted. */
     suspend fun handle(content: ForegroundNotificationContent): Boolean {
         if (!addressedToSignedInAccount(content)) return false
+        // FCM also has a server TTL, but reject a late delivery defensively
+        // before showing stale cancellation advice after trial conversion.
+        if (content.isBillingReminder && content.expiryTimeMillis?.let { it <= System.currentTimeMillis() } == true) return false
         if (content.isBillingReminder) return poster.post(content)
         val enabled = withTimeoutOrNull(PREFERENCE_READ_TIMEOUT_MS) {
             notificationRepository.notificationsEnabled

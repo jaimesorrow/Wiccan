@@ -72,6 +72,11 @@ class PaywallViewModel @Inject constructor(
             return
         }
         refreshing = true
+        // The visible offer is intentionally kept on screen, but it is no
+        // longer purchasable until the refreshed Play terms are committed.
+        // This prevents checkout against a new cache while the old trial or
+        // price is still being advertised.
+        _state.update { it.copy(isLoadingPrice = true) }
         viewModelScope.launch {
             try {
                 val monthly = (subscriptionRepository.getOffer() as? AppResult.Success)?.data ?: return@launch

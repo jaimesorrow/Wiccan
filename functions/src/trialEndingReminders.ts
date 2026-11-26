@@ -99,18 +99,27 @@ export async function sendTrialEndingReminders(
         summary.skipped++;
         continue;
       }
+      // Do not consume the single reminder when the account has no registered
+      // device. A later hourly run can still notify the user after they sign
+      // back in, provided their trial has not ended.
+      const recipients = allDevices.filter((device) => device.uid === candidate.uid);
+      if (recipients.length === 0) {
+        summary.skipped++;
+        continue;
+      }
       if (!(await trials.claimReminder(candidate.uid, candidate.purchaseToken, expiry))) {
         summary.skipped++;
         continue;
       }
       summary.reminded++;
       // Every device this account is signed in on, whatever its daily-practice choice.
-      const recipients = allDevices.filter((device) => device.uid === candidate.uid);
+      const ttlMillis = Math.max(1, expiry - nowMillis);
       for (const device of recipients) {
         const copy = trialEndingCopy(expiry, device.timeZone);
         const result = await fcm.send(device.token, copy.title, copy.body, BILLING_REMINDERS_CHANNEL_ID, {
           dataOnly: true,
-          data: { type: BILLING_REMINDER_TYPE, uid: candidate.uid, productId },
+          data: { type: BILLING_REMINDER_TYPE, uid: candidate.uid, productId, expiryTimeMillis: String(expiry) },
+          ttlMillis,
         });
         if (result.delivered) {
           summary.sent++;

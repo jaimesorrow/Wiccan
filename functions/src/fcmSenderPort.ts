@@ -15,6 +15,8 @@ export type FcmSendResult =
 export interface FcmSendOptions {
   dataOnly?: boolean;
   data?: Record<string, string>;
+  /** Android delivery lifetime in milliseconds; expired billing reminders are discarded by FCM. */
+  ttlMillis?: number;
 }
 
 export interface FcmSenderPort {

@@ -80,7 +80,13 @@ describe("sendTrialEndingReminders", () => {
     for (const sent of fcm.sentTo) {
       expect(sent.options).toEqual({
         dataOnly: true,
-        data: { type: BILLING_REMINDER_TYPE, uid: "user-1", productId: "wiccan_premium_yearly" },
+        data: {
+          type: BILLING_REMINDER_TYPE,
+          uid: "user-1",
+          productId: "wiccan_premium_yearly",
+          expiryTimeMillis: String(TRIAL_END),
+        },
+        ttlMillis: TRIAL_END - NOW.getTime(),
       });
     }
   });

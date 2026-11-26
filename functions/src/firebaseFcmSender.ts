@@ -23,7 +23,10 @@ export class FirebaseFcmSender implements FcmSenderPort {
         await this.messaging.send({
           token,
           data: { ...(options.data ?? {}), title, body, channelId: channel },
-          android: { priority: "high" },
+          android: {
+            priority: "high",
+            ...(options.ttlMillis !== undefined ? { ttl: options.ttlMillis } : {}),
+          },
         });
       } else {
         await this.messaging.send({

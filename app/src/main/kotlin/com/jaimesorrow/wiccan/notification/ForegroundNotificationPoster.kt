@@ -56,6 +56,8 @@ data class ForegroundNotificationContent(
     val accountUid: String? = null,
     /** Verified Play product whose management page the billing reminder should open. */
     val productId: String? = null,
+    /** Verified trial expiry; an old billing reminder is never shown after this instant. */
+    val expiryTimeMillis: Long? = null,
 ) {
     val isBillingReminder: Boolean
         get() = channelId == BILLING_REMINDERS_CHANNEL_ID || type == BILLING_REMINDER_TYPE
@@ -82,6 +84,7 @@ fun resolveForegroundContent(
         type = data["type"]?.takeIf { it.isNotBlank() },
         accountUid = data["uid"]?.takeIf { it.isNotBlank() },
         productId = data["productId"]?.takeIf { it.isNotBlank() },
+        expiryTimeMillis = data["expiryTimeMillis"]?.toLongOrNull(),
     )
 }
 

@@ -287,7 +287,9 @@ private fun PlanChoice(state: PaywallUiState, onSelect: (SubscriptionPlan) -> Un
     Column(modifier = Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         PlanCard(
             title = stringResource(R.string.paywall_plan_yearly),
-            badge = stringResource(R.string.paywall_plan_best_value),
+            badge = state.yearlySavingsPercent?.takeIf { it > 0 }?.let {
+                stringResource(R.string.paywall_plan_best_value)
+            },
             price = stringResource(R.string.paywall_plan_yearly_price, state.yearlyPrice.orEmpty()),
             details = listOfNotNull(
                 state.yearlyMonthlyEquivalent?.let { stringResource(R.string.paywall_plan_yearly_equivalent, it) },
