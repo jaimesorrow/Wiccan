@@ -166,9 +166,9 @@ async function main() {
   // Emulator-only fixture: the profile document onUserCreated writes in
   // production. The Auth trigger does not fire in this emulator run.
   await db.collection("users").doc(uid).set({ tier: "free" }, { merge: true });
-  const staleTerms = await call("acceptTerms", token, { termsVersion: 4, privacyVersion: 5 });
+  const staleTerms = await call("acceptTerms", token, { termsVersion: 5, privacyVersion: 6 });
   ok("acceptTerms rejects an outdated version", staleTerms?.error?.status === "FAILED_PRECONDITION");
-  const terms = await call("acceptTerms", token, { termsVersion: 5, privacyVersion: 5 });
+  const terms = await call("acceptTerms", token, { termsVersion: 6, privacyVersion: 6 });
   ok("acceptTerms succeeds", !terms?.error, JSON.stringify(terms).slice(0, 200));
   ok("users/{uid} exists afterwards", (await db.collection("users").doc(uid).get()).exists);
 

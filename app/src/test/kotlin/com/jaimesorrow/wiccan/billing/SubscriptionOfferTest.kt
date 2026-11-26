@@ -1,6 +1,7 @@
 package com.jaimesorrow.wiccan.billing
 
 import com.android.billingclient.api.ProductDetails
+import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals
@@ -43,8 +44,7 @@ class SubscriptionOfferTest {
     }
 
     @Test
-    fun `wrong US price yearly plans and unsupported promotional phases fail closed`() {
-        assertNull(product(offer(null, renewal(micros = 4_990_000))).subscriptionOffer())
+    fun `yearly periods on the monthly product and unsupported promotional phases fail closed`() {
         assertNull(product(offer(null, renewal(period = "P1Y"))).subscriptionOffer())
         assertNull(product(offer("promo", trial(period = "P3D"), renewal())).subscriptionOffer())
         assertNull(product(offer("intro", renewal())).subscriptionOffer())
@@ -59,10 +59,55 @@ class SubscriptionOfferTest {
     }
 
     @Test
-    fun `legacy yearly product cannot be offered at the monthly checkout`() {
+    fun `the yearly product never accepts monthly terms`() {
         val product = product(offer(null, renewal()))
         every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
         assertNull(product.subscriptionOffer())
+    }
+
+    @Test
+    fun `yearly plan at US 39_99 with a seven-day trial is offered as the yearly plan`() {
+        val product = product(
+            offer(null, renewal(period = "P1Y", price = "$39.99", micros = 39_990_000)),
+            offer("trial", trial(), renewal(period = "P1Y", price = "$39.99", micros = 39_990_000)),
+        )
+        every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        val selected = product.subscriptionOffer()!!
+        assertEquals(SubscriptionPlan.YEARLY, selected.plan)
+        assertTrue(selected.hasFreeTrial)
+        assertEquals("$39.99", selected.formattedPrice)
+        assertEquals(39_990_000L, selected.priceAmountMicros)
+        assertEquals("USD", selected.priceCurrencyCode)
+    }
+
+    @Test
+    fun `a Play Console price change is shown and sold at Play's price instead of hiding the plan`() {
+        val yearly = product(offer(null, renewal(period = "P1Y", price = "$49.99", micros = 49_990_000)))
+        every { yearly.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        val yearlyOffer = yearly.subscriptionOffer()!!
+        assertEquals("$49.99", yearlyOffer.formattedPrice)
+        assertEquals(49_990_000L, yearlyOffer.priceAmountMicros)
+
+        val monthlyOffer = product(offer(null, renewal(price = "$4.99", micros = 4_990_000))).subscriptionOffer()!!
+        assertEquals("$4.99", monthlyOffer.formattedPrice)
+    }
+
+    @Test
+    fun `a price change between display and checkout still has to be refreshed first`() {
+        val displayed = product(offer(null, renewal())).subscriptionOffer()!!
+        val repriced = product(offer(null, renewal(price = "$6.99", micros = 6_990_000)))
+        assertTrue(runCatching { repriced.requireUnchangedOffer(displayed) }.exceptionOrNull() is PlayBillingException)
+    }
+
+    @Test
+    fun `Terms base prices are the single documented reference`() {
+        assertEquals("$5.99", TermsBasePrices.usdText(SubscriptionPlan.MONTHLY))
+        assertEquals("$39.99", TermsBasePrices.usdText(SubscriptionPlan.YEARLY))
+    }
+
+    @Test
+    fun `monthly offer is labeled monthly`() {
+        assertEquals(SubscriptionPlan.MONTHLY, product(offer(null, renewal())).subscriptionOffer()!!.plan)
     }
 
     @Test
