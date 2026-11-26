@@ -1,4 +1,6 @@
-import { sendTrialEndingReminders, trialEndingCopy, BILLING_REMINDERS_CHANNEL_ID } from "../trialEndingReminders";
+import {
+  sendTrialEndingReminders, trialEndingCopy, BILLING_REMINDERS_CHANNEL_ID, BILLING_REMINDER_TYPE,
+} from "../trialEndingReminders";
 import { FakeTrialReminderRepository } from "../testUtils/fakeTrialReminderRepository";
 import { FakePlayBillingPort } from "../testUtils/fakePlayBillingPort";
 import { FakeNotificationUserRepository } from "../testUtils/fakeNotificationUserRepository";
@@ -63,13 +65,40 @@ describe("sendTrialEndingReminders", () => {
     expect(fcm.sentTo).toHaveLength(0);
   });
 
-  it("respects a device's notification opt-out and clears a dead token", async () => {
+  it("does not depend on the daily-practice switch: a device with the daily push off still gets it", async () => {
     const { trials, billing, devices, fcm } = setup();
+    await devices.setNotificationsEnabled("user-1", "phone", false);
     await devices.setNotificationsEnabled("user-1", "tablet", false);
+    const summary = await sendTrialEndingReminders(trials, billing, devices, fcm, NOW);
+    expect(summary).toMatchObject({ reminded: 1, sent: 2, failed: 0 });
+    expect(fcm.sentTo.map((sent) => sent.token)).toEqual(["phone", "tablet"]);
+  });
+
+  it("sends a data message tagged with the account, so the app can refuse it after sign-out", async () => {
+    const { trials, billing, devices, fcm } = setup();
+    await sendTrialEndingReminders(trials, billing, devices, fcm, NOW);
+    for (const sent of fcm.sentTo) {
+      expect(sent.options).toEqual({
+        dataOnly: true,
+        data: { type: BILLING_REMINDER_TYPE, uid: "user-1", productId: "wiccan_premium_yearly" },
+      });
+    }
+  });
+
+  it("only reaches devices the user is still signed in on, never another account's device", async () => {
+    const { trials, billing, devices, fcm } = setup();
+    // Signing out unregisters the device (unregisterDeviceToken clears it).
+    await devices.clearToken("user-1", "tablet");
+    await sendTrialEndingReminders(trials, billing, devices, fcm, NOW);
+    expect(fcm.sentTo.map((sent) => sent.token)).toEqual(["phone"]);
+  });
+
+  it("clears a dead token", async () => {
+    const { trials, billing, devices, fcm } = setup();
     fcm.respondWith("phone", { delivered: false, staleToken: true, error: "gone" });
     const summary = await sendTrialEndingReminders(trials, billing, devices, fcm, NOW);
-    expect(summary).toMatchObject({ reminded: 1, sent: 0, failed: 1 });
-    expect(fcm.sentTo.map((sent) => sent.token)).toEqual(["phone"]);
+    expect(summary).toMatchObject({ reminded: 1, sent: 1, failed: 1 });
+    expect(fcm.sentTo.map((sent) => sent.token)).toEqual(["phone", "tablet"]);
     expect(devices.cleared).toEqual([{ uid: "user-1", token: "phone" }]);
   });
 

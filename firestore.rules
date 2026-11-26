@@ -6,8 +6,8 @@ service cloud.firestore {
     // CURRENT_PRIVACY_VERSION in functions/src/policyVersions.ts and the app's
     // PolicyVersions (scripts/release-preflight.sh checks all three).
     function acceptedCurrentPolicies(user) {
-      return user.data.get('acceptedTermsVersion', 0) == 4
-        && user.data.get('acceptedPrivacyVersion', 0) == 4;
+      return user.data.get('acceptedTermsVersion', 0) == 6
+        && user.data.get('acceptedPrivacyVersion', 0) == 6;
     }
     // Content and Grimoire reads need a verified, active subscriber who has
     // accepted the current policies; the profile itself stays readable so

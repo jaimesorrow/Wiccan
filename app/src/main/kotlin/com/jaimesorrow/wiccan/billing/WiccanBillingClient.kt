@@ -31,10 +31,6 @@ import kotlinx.coroutines.sync.withLock
 const val PREMIUM_MONTHLY_PRODUCT_ID = "wiccan_premium_monthly"
 const val PREMIUM_YEARLY_PRODUCT_ID = "wiccan_premium_yearly"
 
-/** US base prices the paywall will sell. Any other USD price fails closed. */
-const val PREMIUM_MONTHLY_USD_PRICE_MICROS = 5_990_000L
-const val PREMIUM_YEARLY_USD_PRICE_MICROS = 39_990_000L
-
 val PREMIUM_PRODUCT_IDS: Set<String> = setOf(
     PREMIUM_MONTHLY_PRODUCT_ID,
     PREMIUM_YEARLY_PRODUCT_ID,
@@ -184,22 +180,25 @@ private fun planForProduct(productId: String): SubscriptionPlan? = when (product
 }
 
 /**
- * Only the configured plan for this product (monthly P1M at US $5.99, or
- * yearly P1Y at US $39.99), optionally preceded by a seven-day free trial.
- * Anything else, including a wrong US price, fails closed.
+ * Only the configured plan shape for this product (monthly P1M or yearly
+ * P1Y, auto-renewing), optionally preceded by a seven-day free trial.
+ * Any other shape fails closed.
+ *
+ * The price is not pinned: the paywall shows and sells whatever price Play
+ * returns, so a Play Console price change never hides a plan. The US base
+ * prices in the Terms live in [TermsBasePrices]; see docs/V1_1_PLAN.md.
  */
 internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
     val plan = planForProduct(productId) ?: return null
-    val (expectedPeriod, expectedUsdMicros) = when (plan) {
-        SubscriptionPlan.MONTHLY -> "P1M" to PREMIUM_MONTHLY_USD_PRICE_MICROS
-        SubscriptionPlan.YEARLY -> "P1Y" to PREMIUM_YEARLY_USD_PRICE_MICROS
+    val expectedPeriod = when (plan) {
+        SubscriptionPlan.MONTHLY -> "P1M"
+        SubscriptionPlan.YEARLY -> "P1Y"
     }
     return subscriptionOfferDetails.orEmpty().mapNotNull { offer ->
         val phases = offer.pricingPhases.pricingPhaseList
         val renewal = phases.lastOrNull() ?: return@mapNotNull null
         if (renewal.recurrenceMode != ProductDetails.RecurrenceMode.INFINITE_RECURRING ||
-            renewal.billingPeriod != expectedPeriod || renewal.priceAmountMicros <= 0 ||
-            (renewal.priceCurrencyCode == "USD" && renewal.priceAmountMicros != expectedUsdMicros)
+            renewal.billingPeriod != expectedPeriod || renewal.priceAmountMicros <= 0
         ) {
             return@mapNotNull null
         }

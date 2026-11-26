@@ -104,14 +104,18 @@
     <string name="paywall_plan_monthly">Monthly</string>
     <string name="paywall_plan_best_value">Best value</string>
     <string name="paywall_plan_yearly_price">%1$s / year</string>
-    <string name="paywall_plan_yearly_equivalent">Works out to %1$s / month, billed once a year</string>
-    <string name="paywall_plan_yearly_savings">Save %1$d%% compared with paying monthly</string>
+    <string name="paywall_plan_yearly_equivalent">%1$s / month, billed once a year</string>
+    <string name="paywall_plan_yearly_savings">Save %1$d%% vs. monthly</string>
     <string name="paywall_plan_monthly_price">%1$s / month</string>
     <string name="paywall_plan_monthly_detail">Billed every month</string>
     <string name="paywall_plan_trial_badge">7-day free trial</string>
-    <string name="paywall_plan_selected_description">Selected</string>
-    <string name="paywall_price_then_year">Then %1$s per year. Auto-renews until canceled.</string>
-    <string name="paywall_price_no_trial_year">%1$s per year. Trial unavailable for this Play account.</string>
+    <string name="paywall_price_no_trial_year">Billed %1$s every year. Auto-renews until canceled.</string>
+    <string name="paywall_price_no_trial_month_plain">Billed %1$s every month. Auto-renews until canceled.</string>
+    <string name="paywall_selected_yearly_trial">Yearly: 7 days free, then %1$s/year</string>
+    <string name="paywall_selected_yearly">Yearly: %1$s/year</string>
+    <string name="paywall_selected_monthly_trial">Monthly: 7 days free, then %1$s/month</string>
+    <string name="paywall_selected_monthly">Monthly: %1$s/month</string>
+    <string name="paywall_selected_renews">Auto-renews until canceled. Cancel anytime in Google Play.</string>
     <string name="paywall_trial_disclosure_year">No charge during the 7-day trial. Google Play charges %1$s yearly after the trial unless canceled before it ends. Cancel anytime through Google Play.</string>
     <!-- Billing reminder notification channel. Plain. -->
     <string name="notification_channel_billing_name">Trial and billing reminders</string>
@@ -290,4 +294,5 @@
     <string name="notification_channel_daily_name">Daily practice</string>
     <string name="notification_channel_daily_description">A note when the day\'s spell, potion, or lesson is ready.</string>
     <string name="notification_daily_default_title">Today\'s practice awaits</string>
+    <string name="notification_billing_default_title">Wiccan subscription reminder</string>
 </resources>

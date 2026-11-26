@@ -1,7 +1,9 @@
 package com.jaimesorrow.wiccan.ui.legal
 
+import com.jaimesorrow.wiccan.billing.TermsBasePrices
 import com.jaimesorrow.wiccan.core.config.PolicyUrls
 import com.jaimesorrow.wiccan.domain.model.PolicyVersions
+import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -24,6 +26,23 @@ class LegalDocumentsTest {
         assertTrue(text.contains("Google Play", ignoreCase = true))
         assertTrue(text.contains("medical", ignoreCase = true))
         assertTrue(text.contains("AI assistance", ignoreCase = true))
+    }
+
+    @Test
+    fun `terms v6 list both plans with their trial renewal and cancel terms`() {
+        assertEquals(6, PolicyVersions.TERMS)
+        assertEquals(6, PolicyVersions.PRIVACY)
+        val text = WiccanLegalDocuments.terms.auditText()
+        // Prices come from the single TermsBasePrices constant, so a price change fails here until the Terms change.
+        val monthly = TermsBasePrices.usdText(SubscriptionPlan.MONTHLY)
+        val yearly = TermsBasePrices.usdText(SubscriptionPlan.YEARLY)
+        assertTrue(text.contains("monthly plan with a US base price of $monthly per month"))
+        assertTrue(text.contains("yearly plan with a US base price of $yearly per year"))
+        assertTrue(text.contains("7-day free trial"))
+        assertTrue(text.contains("Google Play charges the yearly price once a year until you cancel"))
+        assertTrue(text.contains("cancel either plan at any time through Google Play"))
+        val privacy = WiccanLegalDocuments.privacy.auditText()
+        assertTrue(privacy.contains("a reminder before the trial ends"))
     }
 
     @Test
@@ -73,7 +92,7 @@ class LegalDocumentsTest {
     @Test
     fun `safety guidance rejects hazardous and professional uses`() {
         val text = WiccanLegalDocuments.contentSafety.auditText()
-        listOf("ingest", "burn", "poison control", "emergency", "consent", "human")
+        listOf("ingest", "burn", "poison control", "emergency", "consent", "automated and AI review")
             .forEach { required -> assertTrue("Missing safety guidance: $required", text.contains(required, true)) }
     }
 

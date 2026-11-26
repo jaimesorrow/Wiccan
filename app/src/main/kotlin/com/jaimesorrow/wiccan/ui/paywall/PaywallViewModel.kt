@@ -7,6 +7,7 @@ import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.billing.yearlyMonthlyEquivalent
 import com.jaimesorrow.wiccan.billing.yearlySavingsPercent
 import com.jaimesorrow.wiccan.core.result.AppResult
+import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,9 +55,32 @@ class PaywallViewModel @Inject constructor(
         _state.update { it.copy(selectedPlan = plan) }
     }
 
-    /** A returning subscriber may no longer be eligible for the trial shown last time. */
+    /** True while a resume refresh runs in the background with the current offers still shown. */
+    private var refreshing = false
+
+    /**
+     * A returning subscriber may no longer be eligible for the trial shown last
+     * time, so offers are re-read on resume. The plans already on screen stay
+     * put while that runs (no spinner, no flash, no scroll jump); they are
+     * replaced only when Play answers. A failed refresh keeps them silently.
+     */
     fun refreshOffer() {
-        if (!_state.value.isLoadingPrice) loadPrice()
+        val current = _state.value
+        if (current.isLoadingPrice || refreshing) return
+        if (current.price == null) {
+            loadPrice()
+            return
+        }
+        refreshing = true
+        viewModelScope.launch {
+            try {
+                val monthly = (subscriptionRepository.getOffer() as? AppResult.Success)?.data ?: return@launch
+                val yearly = (subscriptionRepository.getYearlyOffer() as? AppResult.Success)?.data
+                applyOffers(monthly, yearly)
+            } finally {
+                refreshing = false
+            }
+        }
     }
 
     fun subscribe(activity: Activity) {
@@ -93,30 +117,33 @@ class PaywallViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = subscriptionRepository.getOffer()) {
                 is AppResult.Success -> {
-                    val monthly = result.data
                     val yearly = (subscriptionRepository.getYearlyOffer() as? AppResult.Success)?.data
-                    _state.update {
-                        it.copy(
-                            isLoadingPrice = false,
-                            price = monthly.formattedPrice,
-                            hasFreeTrial = monthly.hasFreeTrial,
-                            yearlyPrice = yearly?.formattedPrice,
-                            yearlyHasFreeTrial = yearly?.hasFreeTrial == true,
-                            yearlyMonthlyEquivalent = yearly?.let(::yearlyMonthlyEquivalent),
-                            yearlySavingsPercent = yearly?.let { offer -> yearlySavingsPercent(offer, monthly) },
-                            selectedPlan = when {
-                                yearly == null -> SubscriptionPlan.MONTHLY
-                                userPickedPlan -> it.selectedPlan
-                                else -> SubscriptionPlan.YEARLY
-                            },
-                        )
-                    }
+                    applyOffers(result.data, yearly)
                 }
                 is AppResult.Failure -> {
                     _state.update { it.copy(isLoadingPrice = false) }
                     effectChannel.send(PaywallUiEffect.ShowSnackbar(result.error))
                 }
             }
+        }
+    }
+
+    private fun applyOffers(monthly: SubscriptionOffer, yearly: SubscriptionOffer?) {
+        _state.update {
+            it.copy(
+                isLoadingPrice = false,
+                price = monthly.formattedPrice,
+                hasFreeTrial = monthly.hasFreeTrial,
+                yearlyPrice = yearly?.formattedPrice,
+                yearlyHasFreeTrial = yearly?.hasFreeTrial == true,
+                yearlyMonthlyEquivalent = yearly?.let(::yearlyMonthlyEquivalent),
+                yearlySavingsPercent = yearly?.let { offer -> yearlySavingsPercent(offer, monthly) },
+                selectedPlan = when {
+                    yearly == null -> SubscriptionPlan.MONTHLY
+                    userPickedPlan -> it.selectedPlan
+                    else -> SubscriptionPlan.YEARLY
+                },
+            )
         }
     }
 

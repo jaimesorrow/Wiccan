@@ -2,6 +2,7 @@ package com.jaimesorrow.wiccan.notification
 
 import android.Manifest
 import android.app.Application
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
@@ -65,6 +66,49 @@ class ForegroundNotificationPosterTest {
     }
 
     @Test
+    fun `tapping a data-only billing reminder opens Play subscription management, not Today`() {
+        shadowOf(context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        val content = resolveForegroundContent(
+            notificationTitle = null,
+            notificationBody = null,
+            data = mapOf(
+                "type" to BILLING_REMINDER_TYPE,
+                "uid" to "uid-a",
+                "title" to "Your free trial ends soon",
+                "body" to "Ends Jan 7",
+                "channelId" to BILLING_REMINDERS_CHANNEL_ID,
+                "productId" to "wiccan_premium_yearly",
+            ),
+        )!!
+        assertTrue(content.isBillingReminder)
+        assertEquals("uid-a", content.accountUid)
+
+        assertTrue(ForegroundNotificationPoster(context).post(content))
+
+        val reminder = shadowOf(manager).getNotification(BILLING_REMINDER_NOTIFICATION_ID)
+        assertEquals(BILLING_REMINDERS_CHANNEL_ID, reminder.channelId)
+        val tapIntent = shadowOf(reminder.contentIntent).savedIntent
+        assertEquals(Intent.ACTION_VIEW, tapIntent.action)
+        assertEquals("wiccan_premium_yearly", tapIntent.data?.getQueryParameter("sku"))
+        assertEquals("com.jaimesorrow.wiccan", tapIntent.data?.getQueryParameter("package"))
+        assertFalse(isOpenTodayRequest(tapIntent))
+        assertNull(tapIntent.component)
+    }
+
+    @Test
+    fun `a billing reminder without a title gets its own fallback title`() {
+        shadowOf(context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+
+        ForegroundNotificationPoster(context).post(
+            ForegroundNotificationContent(title = null, body = "Ends Jan 7", type = BILLING_REMINDER_TYPE),
+        )
+
+        val reminder = shadowOf(manager).getNotification(BILLING_REMINDER_NOTIFICATION_ID)
+        assertEquals("Wiccan subscription reminder", shadowOf(reminder).contentTitle)
+        assertNull(shadowOf(manager).getNotification(DAILY_PRACTICE_NOTIFICATION_ID))
+    }
+
+    @Test
     fun `nothing is posted without POST_NOTIFICATIONS on API 33+`() {
         shadowOf(context).denyPermissions(Manifest.permission.POST_NOTIFICATIONS)
 
@@ -112,5 +156,63 @@ class ForegroundNotificationPosterTest {
         )
         assertNull(resolveForegroundContent(null, null, emptyMap()))
         assertNull(resolveForegroundContent("", "", mapOf("unrelated" to "x")))
+    }
+
+    private fun billingReminderContent() = resolveForegroundContent(
+        notificationTitle = null,
+        notificationBody = null,
+        data = mapOf(
+            "type" to BILLING_REMINDER_TYPE,
+            "uid" to "uid-a",
+            "title" to "Your free trial ends soon",
+            "body" to "Ends Jan 7",
+            "channelId" to BILLING_REMINDERS_CHANNEL_ID,
+            "productId" to "wiccan_premium_yearly",
+        ),
+    )!!
+
+    @Test
+    fun `a muted billing_reminders channel stays muted when a reminder is posted`() {
+        shadowOf(context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        manager.createNotificationChannel(
+            NotificationChannel(
+                BILLING_REMINDERS_CHANNEL_ID,
+                "Trial and billing reminders",
+                NotificationManager.IMPORTANCE_NONE,
+            ),
+        )
+
+        ForegroundNotificationPoster(context).post(billingReminderContent())
+
+        // The poster defers display to Android: it still calls notify(), and
+        // a channel at IMPORTANCE_NONE is what the system uses to suppress it.
+        // Recreating the channel on post must not undo the user's mute.
+        assertEquals(
+            NotificationManager.IMPORTANCE_NONE,
+            manager.getNotificationChannel(BILLING_REMINDERS_CHANNEL_ID).importance,
+        )
+    }
+
+    @Test
+    fun `muting the daily channel does not hide a billing reminder`() {
+        shadowOf(context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        manager.createNotificationChannel(
+            NotificationChannel(
+                DAILY_PRACTICE_CHANNEL_ID,
+                "Daily practice reminder",
+                NotificationManager.IMPORTANCE_NONE,
+            ),
+        )
+
+        assertTrue(ForegroundNotificationPoster(context).post(billingReminderContent()))
+
+        val reminder = shadowOf(manager).getNotification(BILLING_REMINDER_NOTIFICATION_ID)
+        assertNotNull(reminder)
+        assertEquals(BILLING_REMINDERS_CHANNEL_ID, reminder.channelId)
+        assertEquals(
+            NotificationManager.IMPORTANCE_DEFAULT,
+            manager.getNotificationChannel(BILLING_REMINDERS_CHANNEL_ID).importance,
+        )
+        assertNull(shadowOf(manager).getNotification(DAILY_PRACTICE_NOTIFICATION_ID))
     }
 }

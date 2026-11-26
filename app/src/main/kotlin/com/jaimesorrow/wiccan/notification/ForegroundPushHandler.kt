@@ -12,10 +12,16 @@ import kotlinx.coroutines.withTimeoutOrNull
 private const val PREFERENCE_READ_TIMEOUT_MS = 2_000L
 
 /**
- * Decides whether a push received in the foreground should be shown. A push
- * can be in flight when the user signs out or turns the daily reminder off,
- * so it is only posted while someone is signed in and that account's reminder
- * is on ([NotificationRepository.notificationsEnabled] is false when signed out).
+ * Decides whether a push the app draws itself should be shown. A push can be
+ * in flight when the user signs out or turns the daily reminder off, so
+ * nothing is posted unless someone is signed in, and a push addressed to an
+ * account (`data.uid`) is shown only to that account.
+ *
+ * - Daily practice: also needs this account's daily reminder on
+ *   ([NotificationRepository.notificationsEnabled] is false when signed out).
+ * - Trial/billing reminders: do not depend on the daily switch; the user
+ *   mutes them with the separate `billing_reminders` Android channel, which
+ *   Android applies when the notification is posted.
  */
 class ForegroundPushHandler @Inject constructor(
     private val notificationRepository: NotificationRepository,
@@ -24,13 +30,19 @@ class ForegroundPushHandler @Inject constructor(
 ) {
     /** Returns true when a notification was posted. */
     suspend fun handle(content: ForegroundNotificationContent): Boolean {
-        if (currentUserProvider.currentUserId == null) return false
+        if (!addressedToSignedInAccount(content)) return false
+        if (content.isBillingReminder) return poster.post(content)
         val enabled = withTimeoutOrNull(PREFERENCE_READ_TIMEOUT_MS) {
             notificationRepository.notificationsEnabled
                 .catch { t -> if (t is CancellationException) throw t else emit(false) }
                 .firstOrNull()
         } ?: false
-        if (!enabled || currentUserProvider.currentUserId == null) return false
+        if (!enabled || !addressedToSignedInAccount(content)) return false
         return poster.post(content)
+    }
+
+    private fun addressedToSignedInAccount(content: ForegroundNotificationContent): Boolean {
+        val uid = currentUserProvider.currentUserId ?: return false
+        return content.accountUid == null || content.accountUid == uid
     }
 }

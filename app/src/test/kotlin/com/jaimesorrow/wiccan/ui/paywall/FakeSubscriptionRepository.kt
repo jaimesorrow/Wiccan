@@ -6,6 +6,7 @@ import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -22,6 +23,9 @@ class FakeSubscriptionRepository : SubscriptionRepository {
     var priceResult: AppResult<String> = AppResult.Success("$5.99")
     var hasFreeTrial: Boolean = true
     var priceCallCount: Int = 0
+
+    /** When set, getOffer() suspends until it completes, to observe the screen mid-refresh. */
+    var offerGate: CompletableDeferred<Unit>? = null
     var restoreResult: AppResult<Unit> = AppResult.Success(Unit)
     var restoreCallCount: Int = 0
 
@@ -35,6 +39,7 @@ class FakeSubscriptionRepository : SubscriptionRepository {
 
     override suspend fun getOffer(): AppResult<SubscriptionOffer> {
         priceCallCount++
+        offerGate?.await()
         return when (val result = priceResult) {
             is AppResult.Success -> AppResult.Success(
                 SubscriptionOffer(result.data, hasFreeTrial, "offer-token", SubscriptionPlan.MONTHLY, 5_990_000L, "USD"),
