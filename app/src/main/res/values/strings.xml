@@ -85,9 +85,6 @@
     <string name="paywall_account">Account &amp; support</string>
     <string name="paywall_headline">Walk the moonlit path</string>
     <string name="paywall_body">Candle spells, herbal rites, cord and knot work, and lunar practices, inspired by historical grimoires.</string>
-    <string name="paywall_benefit_daily">A guided practice, new each day</string>
-    <string name="paywall_benefit_grimoire">A Grimoire that keeps what you find</string>
-    <string name="paywall_benefit_subscription">One subscription for the whole path</string>
     <string name="paywall_price_unavailable">Subscription unavailable</string>
     <string name="paywall_trial_free">7 days free</string>
     <string name="paywall_price_month">%1$s / month</string>
@@ -102,6 +99,34 @@
     <string name="paywall_paid_disclosure">Google Play handles payment and automatic renewals. Cancel anytime through Google Play.</string>
     <string name="paywall_restore_checked">Purchases checked. Access opens when an active subscription is verified.</string>
     <string name="paywall_logo_description">Wiccan</string>
+    <!-- Paywall v1.1: what's inside (mystical voice). -->
+    <string name="paywall_inside_heading">Within the grimoire</string>
+    <string name="paywall_inside_grimoire">The Grimoire: every spell, potion, and lesson you gather, kept in one book</string>
+    <string name="paywall_inside_daily">A guided rite each dawn, with clear steps from candle to close</string>
+    <string name="paywall_inside_seasonal">Rites for the moon\'s phases and the eight sabbats of the turning year</string>
+    <string name="paywall_inside_sources">Drawn from historical grimoires and magical papyri, with sources cited where available</string>
+    <!-- Paywall v1.1: plan choice. Prices, renewal, trial, and cancellation stay plain. -->
+    <string name="paywall_choose_plan">Choose your plan</string>
+    <string name="paywall_plan_yearly">Yearly</string>
+    <string name="paywall_plan_monthly">Monthly</string>
+    <string name="paywall_plan_best_value">Best value</string>
+    <string name="paywall_plan_yearly_price">%1$s / year</string>
+    <string name="paywall_plan_yearly_equivalent">%1$s / month, billed once a year</string>
+    <string name="paywall_plan_yearly_savings">Save %1$d%% vs. monthly</string>
+    <string name="paywall_plan_monthly_price">%1$s / month</string>
+    <string name="paywall_plan_monthly_detail">Billed every month</string>
+    <string name="paywall_plan_trial_badge">7-day free trial</string>
+    <string name="paywall_price_no_trial_year">Billed %1$s every year. Auto-renews until canceled.</string>
+    <string name="paywall_price_no_trial_month_plain">Billed %1$s every month. Auto-renews until canceled.</string>
+    <string name="paywall_selected_yearly_trial">Yearly: 7 days free, then %1$s/year</string>
+    <string name="paywall_selected_yearly">Yearly: %1$s/year</string>
+    <string name="paywall_selected_monthly_trial">Monthly: 7 days free, then %1$s/month</string>
+    <string name="paywall_selected_monthly">Monthly: %1$s/month</string>
+    <string name="paywall_selected_renews">Auto-renews until canceled. Cancel anytime in Google Play.</string>
+    <string name="paywall_trial_disclosure_year">No charge during the 7-day trial. Google Play charges %1$s yearly after the trial unless canceled before it ends. Cancel anytime through Google Play.</string>
+    <!-- Billing reminder notification channel. Plain. -->
+    <string name="notification_channel_billing_name">Trial and billing reminders</string>
+    <string name="notification_channel_billing_description">A reminder before a free trial ends and the paid subscription starts.</string>
 
     <!-- Today -->
     <string name="today_spell">Today\'s spell</string>
@@ -312,4 +337,5 @@
     <string name="notification_channel_daily_name">Daily practice</string>
     <string name="notification_channel_daily_description">A note when the day\'s spell, potion, or lesson is ready.</string>
     <string name="notification_daily_default_title">Today\'s practice awaits</string>
+    <string name="notification_billing_default_title">Wiccan subscription reminder</string>
 </resources>

@@ -40,6 +40,7 @@ export async function recheckLapsedSubscriptions(
         subscriptionState: info.state,
         expiryTimeMillis: info.expiryTimeMillis,
         autoRenewing: info.autoRenewing,
+        inFreeTrial: info.inFreeTrial === true,
       });
       if (syncedTier === "free") downgraded++;
       const premiumProduct = info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id));

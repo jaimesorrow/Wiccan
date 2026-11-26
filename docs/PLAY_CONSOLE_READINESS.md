@@ -169,7 +169,7 @@ Terms/Privacy changes. The operator is Jaime Sorrow (individual developer, Alask
 
 ## Terms, user responsibilities, and screen placement
 
-Native policy version 5 includes Wiccan-specific terms and disclosures:
+Native policy version 6 includes Wiccan-specific terms and disclosures:
 
 - historical, educational, and spiritual-reflection purpose;
 - an explicit “No promise or guarantee of results” section: no spell, potion,

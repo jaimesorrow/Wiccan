@@ -67,6 +67,29 @@ describe("handleRtdnNotification", () => {
     expect(result).toEqual({ uid: "user-1", tier: "premium" });
   });
 
+  it("records a yearly trial-to-paid conversion so no trial reminder fires afterwards", async () => {
+    const billing = new FakePlayBillingPort();
+    billing.respondWith(TOKEN, "active", ["wiccan_premium_yearly"], { autoRenewing: true, inFreeTrial: false });
+    const users = new FakeUserRepository(["user-1"]);
+    await users.setTier("user-1", "premium", TOKEN);
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    expect(await handleRtdnNotification(TOKEN, billing, users, subscriptions)).toEqual({ uid: "user-1", tier: "premium" });
+    expect(subscriptions.records.get("user-1")).toMatchObject({ productId: "wiccan_premium_yearly", inFreeTrial: false });
+  });
+
+  it("keeps access during the grace period and drops it on account hold", async () => {
+    const billing = new FakePlayBillingPort();
+    billing.respondWith(TOKEN, "in_grace_period", ["wiccan_premium_yearly"]);
+    const users = new FakeUserRepository(["user-1"]);
+    await users.setTier("user-1", "premium", TOKEN);
+    const subscriptions = new FakeSubscriptionRecordRepository();
+    expect((await handleRtdnNotification(TOKEN, billing, users, subscriptions))?.tier).toBe("premium");
+
+    billing.respondWith(TOKEN, "on_hold", ["wiccan_premium_yearly"]);
+    expect((await handleRtdnNotification(TOKEN, billing, users, subscriptions))?.tier).toBe("free");
+  });
+
   it("downgrades an active token switched to an unrelated product", async () => {
     const billing = new FakePlayBillingPort();
     billing.respondWith(TOKEN, "active", ["unrelated_subscription"]);

@@ -5,7 +5,10 @@ import app.cash.turbine.test
 import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
+import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
+import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -161,5 +164,108 @@ class PaywallViewModelTest {
             cancelAndConsumeRemainingEvents()
         }
         assertFalse(viewModel.state.value.isRestoring)
+    }
+
+    private val yearly = SubscriptionOffer("$39.99", true, "yearly-token", SubscriptionPlan.YEARLY, 39_990_000L, "USD")
+
+    @Test
+    fun `without a yearly plan in Play the paywall stays monthly-only and buys monthly`() = runTest(dispatcher) {
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertFalse(viewModel.state.value.hasYearlyPlan)
+        assertEquals(SubscriptionPlan.MONTHLY, viewModel.state.value.selectedPlan)
+
+        viewModel.onEvent(PaywallUiEvent.PlanSelected(SubscriptionPlan.YEARLY))
+        viewModel.subscribe(mockk())
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(listOf(SubscriptionPlan.MONTHLY), repository.launchedPlans)
+    }
+
+    @Test
+    fun `yearly leads as the preselected best value with its per-month price and saving`() = runTest(dispatcher) {
+        repository.yearlyOffer = yearly
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        val state = viewModel.state.value
+        assertTrue(state.hasYearlyPlan)
+        assertEquals(SubscriptionPlan.YEARLY, state.selectedPlan)
+        assertEquals("$39.99", state.yearlyPrice)
+        assertEquals(44, state.yearlySavingsPercent)
+        assertTrue(state.selectedHasFreeTrial)
+
+        viewModel.subscribe(mockk())
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(listOf(SubscriptionPlan.YEARLY), repository.launchedPlans)
+    }
+
+    @Test
+    fun `choosing monthly buys monthly and survives an offer refresh`() = runTest(dispatcher) {
+        repository.yearlyOffer = yearly
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEvent(PaywallUiEvent.PlanSelected(SubscriptionPlan.MONTHLY))
+        viewModel.refreshOffer()
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(SubscriptionPlan.MONTHLY, viewModel.state.value.selectedPlan)
+        assertEquals("$5.99", viewModel.state.value.selectedPrice)
+
+        viewModel.subscribe(mockk())
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(listOf(SubscriptionPlan.MONTHLY), repository.launchedPlans)
+    }
+
+    @Test
+    fun `each plan shows its own trial eligibility`() = runTest(dispatcher) {
+        repository.yearlyOffer = yearly.copy(hasFreeTrial = false)
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertFalse(viewModel.state.value.selectedHasFreeTrial)
+        viewModel.onEvent(PaywallUiEvent.PlanSelected(SubscriptionPlan.MONTHLY))
+        assertTrue(viewModel.state.value.selectedHasFreeTrial)
+    }
+
+    @Test
+    fun `a resume refresh keeps both plans on screen until Play answers`() = runTest(dispatcher) {
+        repository.yearlyOffer = yearly
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        val before = viewModel.state.value
+        assertTrue(before.hasYearlyPlan)
+
+        val gate = CompletableDeferred<Unit>()
+        repository.offerGate = gate
+        repository.hasFreeTrial = false
+        viewModel.refreshOffer()
+        dispatcher.scheduler.advanceUntilIdle()
+
+        // Mid-refresh: nothing is cleared, but checkout is disabled until the
+        // refreshed terms and what the user sees are committed together.
+        assertEquals(before.copy(isLoadingPrice = true), viewModel.state.value)
+        assertTrue(viewModel.state.value.isLoadingPrice)
+        // A second resume while one refresh is running does not start another.
+        viewModel.refreshOffer()
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(2, repository.priceCallCount)
+
+        gate.complete(Unit)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertFalse(viewModel.state.value.hasFreeTrial)
+        assertEquals("$5.99", viewModel.state.value.price)
+        assertEquals("$39.99", viewModel.state.value.yearlyPrice)
+        assertEquals(SubscriptionPlan.YEARLY, viewModel.state.value.selectedPlan)
+    }
+
+    @Test
+    fun `a failed resume refresh keeps the plans already shown`() = runTest(dispatcher) {
+        repository.yearlyOffer = yearly
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        val before = viewModel.state.value
+
+        repository.priceResult = AppResult.Failure(AppError.Network)
+        viewModel.refreshOffer()
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(before, viewModel.state.value)
     }
 }
