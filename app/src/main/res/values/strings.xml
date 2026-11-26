@@ -43,7 +43,7 @@
 
     <!-- Email verification and name step -->
     <string name="onboarding_verify_title">Seal your place in the circle.</string>
-    <string name="onboarding_verify_body">A moonlit message has been sent to your inbox. Open its verification link, then return here. The Grimoire remains sealed until your email is confirmed.</string>
+    <string name="onboarding_verify_body">Check your inbox for a moonlit verification link, then return here. If it has not arrived, tap Send the moonlit link again. The Grimoire remains sealed until your email is confirmed.</string>
     <string name="onboarding_verified_button">I opened the moonlit link</string>
     <string name="onboarding_resend_button">Send the moonlit link again</string>
     <string name="onboarding_name_title">What name should the Grimoire keep?</string>

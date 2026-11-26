@@ -139,7 +139,8 @@ class AuthRepositoryImpl @Inject constructor(
         AppResult.Failure(t.toAppError())
     }
 
-    override suspend fun createAccountWithEmail(email: String, password: String, username: String): AppResult<Unit> = try {
+    override suspend fun createAccountWithEmail(email: String, password: String, username: String): AppResult<Unit> {
+        return try {
         firebaseAuth.createUserWithEmailAndPassword(email, password).await()
         // A new account must never pretend that its verification message was
         // sent. The verification gate remains closed until the link is used,
@@ -157,8 +158,9 @@ class AuthRepositoryImpl @Inject constructor(
         analyticsLogger.logSignUpCompleted()
         accountFunctionsDataSource.reserveUsername(username)
         AppResult.Success(Unit)
-    } catch (t: Throwable) {
-        AppResult.Failure(t.toAppError())
+        } catch (t: Throwable) {
+            AppResult.Failure(t.toAppError())
+        }
     }
 
     override suspend fun sendPasswordReset(email: String): AppResult<Unit> = try {
