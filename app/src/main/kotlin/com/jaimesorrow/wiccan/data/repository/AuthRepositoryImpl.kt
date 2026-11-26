@@ -141,23 +141,23 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun createAccountWithEmail(email: String, password: String, username: String): AppResult<Unit> {
         return try {
-        firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-        // A new account must never pretend that its verification message was
-        // sent. The verification gate remains closed until the link is used,
-        // and the caller receives the delivery failure rather than a silent
-        // dead end.
-        try {
-            accountFunctionsDataSource.sendVerificationEmail()
-        } catch (t: Throwable) {
-            if (t is CancellationException) throw t
-            // The Firebase account is intentionally kept signed in so the
-            // verification screen can offer a retry. Root gating still keeps
-            // all app content sealed for this unverified account.
-            return AppResult.Failure(AppError.VerificationEmailDeliveryFailed)
-        }
-        analyticsLogger.logSignUpCompleted()
-        accountFunctionsDataSource.reserveUsername(username)
-        AppResult.Success(Unit)
+            firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+            // A new account must never pretend that its verification message was
+            // sent. The verification gate remains closed until the link is used,
+            // and the caller receives the delivery failure rather than a silent
+            // dead end.
+            try {
+                accountFunctionsDataSource.sendVerificationEmail()
+            } catch (t: Throwable) {
+                if (t is CancellationException) throw t
+                // The Firebase account is intentionally kept signed in so the
+                // verification screen can offer a retry. Root gating still keeps
+                // all app content sealed for this unverified account.
+                return AppResult.Failure(AppError.VerificationEmailDeliveryFailed)
+            }
+            analyticsLogger.logSignUpCompleted()
+            accountFunctionsDataSource.reserveUsername(username)
+            AppResult.Success(Unit)
         } catch (t: Throwable) {
             AppResult.Failure(t.toAppError())
         }
