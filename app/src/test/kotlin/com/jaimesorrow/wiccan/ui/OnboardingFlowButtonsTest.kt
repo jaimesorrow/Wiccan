@@ -182,7 +182,7 @@ class OnboardingFlowButtonsTest {
         click("Account & support")
         click("Terms")
         click("Privacy")
-        click("Restore Purchases")
+        click("Already subscribed? Restore your subscription")
         assertEquals(listOf("account", "terms", "privacy"), clicks)
         assertEquals(1, subscriptions.restoreCallCount)
     }
