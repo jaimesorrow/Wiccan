@@ -41,7 +41,7 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.TERMS,
         title = "Terms of Service",
         version = PolicyVersions.TERMS,
-        effectiveDate = "November 21, 2026",
+        effectiveDate = "November 27, 2026",
         introduction =
             "These Terms of Service (“Terms”) are an agreement between you and Jaime Sorrow (“Wiccan,” “we,” or “us”) " +
                 "and govern your use of the Wiccan app and related services. By accepting them, you agree to use the app " +
