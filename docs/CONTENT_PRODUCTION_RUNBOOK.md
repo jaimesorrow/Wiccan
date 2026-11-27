@@ -24,6 +24,22 @@ npm run audit-content -- --project wiccan-android --output /secure/live-content-
 
 The report includes counts for delivery-related top-level collections, content status/type distributions, update-time preconditions, previously delivered IDs, configuration presence, duplicate concerns, and an actionable violation list. It never prints document bodies from user, subscription, or payment collections.
 
+For the narrower catalog preflight used before grimoire source intake, read only
+the `type` and `status` fields from `content` plus
+`settings/disclosures.potionSafetyDisclosure`:
+
+```bash
+cd functions
+npm ci
+npm run inventory-content -- --project wiccan-android --output /secure/live-content-inventory.json
+```
+
+This report contains the project ID, content counts by type and status, whether
+the shared potion disclosure exists, and the observation time in
+`America/Anchorage`. It does not retrieve authored content bodies or any user,
+subscription, or payment documents. The output file is created with owner-only
+permissions and the command refuses every project except `wiccan-android`.
+
 ## Backup and restore drill
 
 Capture locally with owner-only permissions. Upload only to a pre-reviewed private GCS bucket that enforces public-access prevention, versioning, retention, and encryption.
