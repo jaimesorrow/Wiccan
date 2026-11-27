@@ -24,6 +24,7 @@ import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import com.jaimesorrow.wiccan.domain.model.SubscriptionState
+import com.jaimesorrow.wiccan.domain.model.VerifiedTier
 import com.jaimesorrow.wiccan.domain.model.YearlySwitchOffer
 import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import javax.inject.Inject
@@ -35,6 +36,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Singleton
@@ -155,6 +157,14 @@ class SubscriptionRepositoryImpl @Inject constructor(
         throw t
     } catch (t: Throwable) {
         AppResult.Failure(t.toAppError())
+    }
+
+    override fun observeVerifiedTier(): Flow<VerifiedTier> {
+        val userId = currentUserProvider.currentUserId ?: return flowOf(VerifiedTier.UNVERIFIED)
+        return userTierDataSource.observeVerifiedTier(userId).map { tier ->
+            // A snapshot for an account that is no longer signed in confirms nothing.
+            if (currentUserProvider.currentUserId == userId) tier else VerifiedTier.UNVERIFIED
+        }
     }
 
     override suspend fun getOffer(): AppResult<SubscriptionOffer> = try {

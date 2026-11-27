@@ -6,8 +6,10 @@ import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import com.jaimesorrow.wiccan.domain.model.SubscriptionState
+import com.jaimesorrow.wiccan.domain.model.VerifiedTier
 import com.jaimesorrow.wiccan.domain.model.YearlySwitchOffer
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 /**
  * The only layer allowed to touch the Billing Library or the tier stored
@@ -40,6 +42,14 @@ interface SubscriptionRepository {
 
     /** Requests Play's own transactional payment-recovery message. */
     suspend fun showTransactionalMessage(activity: Activity): AppResult<Unit>
+
+    /**
+     * The tier with its provenance, for gates that must fail closed the other
+     * way (ads): [VerifiedTier.FREE] only when a server snapshot confirms it.
+     * Defaults to [VerifiedTier.UNVERIFIED], so an implementation that cannot
+     * tell never shows ads.
+     */
+    fun observeVerifiedTier(): Flow<VerifiedTier> = flowOf(VerifiedTier.UNVERIFIED)
 
     /** Current eligible monthly offer, including its actual trial and renewal price. */
     suspend fun getOffer(): AppResult<SubscriptionOffer>

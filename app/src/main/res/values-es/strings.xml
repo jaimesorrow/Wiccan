@@ -262,6 +262,9 @@
     <string name="settings_section_circle">EL CÍRCULO INTERIOR</string>
     <string name="settings_analytics">Análisis de uso e informes de fallos</string>
     <string name="settings_analytics_hint">Opcional. Ayuda a mejorar Wiccan; nunca se usa para anuncios.</string>
+    <string name="settings_ad_privacy_choices">Opciones de privacidad</string>
+    <string name="settings_ad_privacy_choices_hint">Revisa o cambia cómo Google AdMob usa tus datos para los anuncios que se muestran a quienes no están suscritos.</string>
+    <string name="ad_label">Anuncio</string>
     <string name="settings_delete">Eliminar cuenta</string>
     <string name="settings_delete_title">¿Eliminar cuenta?</string>
     <string name="settings_delete_body">Wiccan primero cancela la renovación activa de Google Play y luego elimina de forma permanente tu cuenta, el historial de entrega, los dispositivos y el registro de suscripción. Si no se puede confirmar la cancelación, la eliminación se detiene para que puedas intentarlo de nuevo. Pueden permanecer hashes seudónimos limitados contra el fraude. Esto no se puede deshacer.</string>
