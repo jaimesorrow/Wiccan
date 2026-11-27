@@ -38,7 +38,7 @@ class WiccanAppShellNavigationTest {
     private lateinit var navController: NavHostController
 
     private val stubScreens = WiccanNavScreens(
-        dailyContent = { _, onOpenToday, onBack, onOpenGrimoire, _ ->
+        dailyContent = { _, onOpenToday, onBack, onOpenGrimoire, _, _ ->
             Column {
                 Text(if (onOpenToday == null) "screen:today" else "screen:home")
                 onOpenToday?.let { Button(onClick = it) { Text("stub:open-today") } }

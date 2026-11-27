@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -89,11 +90,12 @@ fun GrimoirePlainOutlineButton(
 ) {
     Box(
         modifier = modifier
+            .defaultMinSize(minHeight = 48.dp)
             .clip(CardShape)
             .border(1.dp, WiccanPaletteColors.Grimoire.Border, CardShape)
             .grimoireCornerFlourishes(arm = 10.dp)
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -114,11 +116,12 @@ fun GrimoireOutlineButton(
 ) {
     Box(
         modifier = modifier
+            .defaultMinSize(minHeight = 48.dp)
             .clip(CardShape)
             .border(1.dp, WiccanPaletteColors.Grimoire.Border, CardShape)
             .grimoireCornerFlourishes(arm = 10.dp)
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -141,8 +144,9 @@ fun GrimoireTextLink(
         text = text,
         color = WiccanPaletteColors.Grimoire.Gold,
         modifier = modifier
+            .defaultMinSize(minHeight = 48.dp)
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 4.dp, vertical = 8.dp),
+            .padding(horizontal = 8.dp, vertical = 14.dp),
         style = MaterialTheme.typography.labelLarge,
     )
 }

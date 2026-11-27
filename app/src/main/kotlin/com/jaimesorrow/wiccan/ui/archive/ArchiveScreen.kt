@@ -52,6 +52,9 @@ import com.jaimesorrow.wiccan.domain.model.HistoryEntry
 import com.jaimesorrow.wiccan.sky.CelestialCalculator
 import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
+import com.jaimesorrow.wiccan.ui.brand.lineArt
 import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.theme.GrimoireBannerSlot
@@ -147,13 +150,13 @@ internal fun ArchiveScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         listOf(
-                            R.drawable.grimoire_crystal_citrine,
-                            R.drawable.grimoire_crystal_clear,
-                            R.drawable.grimoire_crystal_smoky,
-                            R.drawable.grimoire_crystal_obsidian,
+                            WiccanLineArtKind.CrystalCitrine,
+                            WiccanLineArtKind.CrystalClear,
+                            WiccanLineArtKind.CrystalSmoky,
+                            WiccanLineArtKind.CrystalObsidian,
                         ).forEach { art ->
-                            Image(
-                                painter = painterResource(art),
+                            WiccanLineArt(
+                                kind = art,
                                 contentDescription = null,
                                 modifier = Modifier.size(32.dp),
                             )
@@ -312,12 +315,7 @@ private fun CategoryHeader(
     onClick: (() -> Unit)?,
 ) {
     val shape = RoundedCornerShape(6.dp)
-    val artwork = when (category) {
-        ContentCategory.LUNAR_PRACTICES, ContentCategory.MOON_MAGIC_TIMING, ContentCategory.MOON_AND_SEASONAL ->
-            R.drawable.wiccan_category_lunar
-        ContentCategory.CORD_KNOT_WORK, ContentCategory.CORD_KNOT_MAGIC -> R.drawable.wiccan_category_cord
-        else -> null
-    }
+    val artwork = category.lineArt()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -339,14 +337,12 @@ private fun CategoryHeader(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (artwork != null) {
-            Image(
-                painter = painterResource(artwork),
+            WiccanLineArt(
+                kind = artwork,
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .padding(end = 12.dp)
-                    .size(width = 56.dp, height = 42.dp)
-                    .clip(RoundedCornerShape(8.dp)),
+                    .size(width = 56.dp, height = 42.dp),
             )
         }
         Text(

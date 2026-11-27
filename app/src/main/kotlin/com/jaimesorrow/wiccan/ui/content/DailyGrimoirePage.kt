@@ -1,6 +1,5 @@
 package com.jaimesorrow.wiccan.ui.content
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -37,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.sky.CelestialCalculator
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
 import com.jaimesorrow.wiccan.ui.theme.GrimoireCandleGlow
 import com.jaimesorrow.wiccan.ui.theme.GrimoireMoonPhases
 import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
@@ -57,7 +57,7 @@ private val ShellMuted = WiccanPaletteColors.Grimoire.Muted
 
 /**
  * Today's lesson: dark grimoire shell (titles, materials, safety) with the numbered
- * step-by-step directions on a tattered parchment inset in IM Fell DW Pica.
+ * Working step on tattered parchment in Pinyon Script; reflection and practice use the dark shell.
  */
 @Composable
 internal fun DailyGrimoirePage(
@@ -125,8 +125,8 @@ private fun LessonShellContent(
     val body = MaterialTheme.typography.bodyLarge.copy(color = ShellText, lineHeight = 26.sp)
     val stepStyle = MaterialTheme.typography.bodyLarge.copy(
         fontFamily = WiccanGrimoireStepsFont,
-        fontSize = 20.sp,
-        lineHeight = 30.sp,
+        fontSize = 22.sp,
+        lineHeight = 34.sp,
         color = Ink,
     )
     val tools = content.tools.ifEmpty { content.materials.orEmpty() }
@@ -157,10 +157,7 @@ private fun LessonShellContent(
             GrimoireOrnamentalDivider()
             Text(content.intro, color = ShellText, style = body)
         }
-        val hasSteps = content.body.isNotBlank() ||
-            !content.reflection.isNullOrBlank() ||
-            !content.practice.isNullOrBlank()
-        if (hasSteps) {
+        if (content.body.isNotBlank()) {
             GrimoireOrnamentalDivider(modifier = Modifier.padding(top = 4.dp))
             LessonTatteredParchment(
                 modifier = Modifier
@@ -168,31 +165,29 @@ private fun LessonShellContent(
                     .testTag("lesson_steps_parchment"),
                 seed = content.id.hashCode(),
             ) {
-                if (content.body.isNotBlank()) {
-                    LessonRomanSection(
-                        step = step++,
-                        label = stringResource(R.string.content_method),
-                        body = content.body,
-                        stepStyle = stepStyle,
-                    )
-                }
-                content.reflection?.takeIf { it.isNotBlank() }?.let {
-                    LessonRomanSection(
-                        step = step++,
-                        label = stringResource(R.string.content_reflection),
-                        body = it,
-                        stepStyle = stepStyle,
-                    )
-                }
-                content.practice?.takeIf { it.isNotBlank() }?.let {
-                    LessonRomanSection(
-                        step = step,
-                        label = stringResource(R.string.content_practice),
-                        body = it,
-                        stepStyle = stepStyle,
-                    )
-                }
+                ParchmentWorkingSection(
+                    step = step++,
+                    label = stringResource(R.string.content_method),
+                    body = content.body,
+                    stepStyle = stepStyle,
+                )
             }
+        }
+        content.reflection?.takeIf { it.isNotBlank() }?.let {
+            ShellStepSection(
+                step = step++,
+                label = stringResource(R.string.content_reflection),
+                body = it,
+                bodyStyle = body,
+            )
+        }
+        content.practice?.takeIf { it.isNotBlank() }?.let {
+            ShellStepSection(
+                step = step,
+                label = stringResource(R.string.content_practice),
+                body = it,
+                bodyStyle = body,
+            )
         }
         LessonClosingBlock(
             safetyNote = content.safetyNote,
@@ -235,8 +230,8 @@ private fun LessonTitleHeader(title: String, candleReserveEnd: Dp) {
         ) {
             GrimoireCandleGlow(Modifier.fillMaxSize())
         }
-        Image(
-            painter = painterResource(R.drawable.grimoire_candle),
+        WiccanLineArt(
+            kind = WiccanLineArtKind.Candle,
             contentDescription = candleDescription,
             modifier = Modifier
                 .align(Alignment.TopEnd)
@@ -262,19 +257,35 @@ private fun LessonTitleHeader(title: String, candleReserveEnd: Dp) {
 }
 
 @Composable
-private fun LessonRomanSection(
+private fun ParchmentWorkingSection(
     step: Int,
     label: String,
     body: String,
     stepStyle: androidx.compose.ui.text.TextStyle,
 ) {
-    GrimoireOrnamentalDivider(inkOnParchment = true, modifier = Modifier.padding(vertical = 4.dp))
     ParchmentSectionTitle("${roman(step)}. $label")
     Text(
         body,
         color = Ink,
         style = stepStyle,
-        modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+        modifier = Modifier.padding(top = 6.dp, bottom = 10.dp),
+    )
+}
+
+@Composable
+private fun ShellStepSection(
+    step: Int,
+    label: String,
+    body: String,
+    bodyStyle: androidx.compose.ui.text.TextStyle,
+) {
+    GrimoireOrnamentalDivider(modifier = Modifier.padding(top = 8.dp))
+    ShellSectionTitle("${roman(step)}. $label")
+    Text(
+        body,
+        color = ShellText,
+        style = bodyStyle,
+        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
     )
 }
 
@@ -299,8 +310,9 @@ private fun ParchmentSectionTitle(text: String) {
         modifier = Modifier.semantics { heading() },
         style = MaterialTheme.typography.titleSmall.copy(
             fontFamily = WiccanGrimoireStepsFont,
-            fontSize = 18.sp,
-            letterSpacing = 0.6.sp,
+            fontSize = 20.sp,
+            lineHeight = 30.sp,
+            letterSpacing = 0.4.sp,
         ),
     )
 }

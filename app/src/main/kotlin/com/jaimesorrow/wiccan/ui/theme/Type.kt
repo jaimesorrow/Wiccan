@@ -56,11 +56,11 @@ internal val WiccanHandwritingFont = FontFamily(
 )
 
 /**
- * IM Fell DW Pica, OFL (assets/fonts/OFL-IMFellDWPica.txt). Calligraphic grimoire voice for
- * numbered lesson steps on the tattered parchment panel only.
+ * Pinyon Script, OFL (assets/fonts/OFL-PinyonScript.txt). Calligraphic voice for the Working step
+ * on the tattered parchment panel only — sturdy enough for 1.0x and 1.3x body copy.
  */
 internal val WiccanGrimoireStepsFont = FontFamily(
-    Font(R.font.im_fell_dw_pica_regular, weight = FontWeight.Normal),
+    Font(R.font.pinyon_script_regular, weight = FontWeight.Normal),
 )
 
 /**

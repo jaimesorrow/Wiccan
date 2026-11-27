@@ -4,7 +4,6 @@ import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,6 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,19 +40,20 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.jaimesorrow.wiccan.data.location.lastKnownCoordinate
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.sky.CelestialCalculator
 import com.jaimesorrow.wiccan.sky.ClassicalPlanet
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
 import com.jaimesorrow.wiccan.ui.theme.GrimoireCandleGlow
 import com.jaimesorrow.wiccan.ui.theme.GrimoireDashedConnector
 import com.jaimesorrow.wiccan.ui.theme.GrimoireFloralBackdrop
@@ -70,6 +73,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.TextStyle
+import kotlinx.coroutines.launch
 
 private val CardShape = RoundedCornerShape(6.dp)
 private val Gold = WiccanPaletteColors.Grimoire.Border
@@ -83,6 +87,7 @@ internal fun SpellbookHome(
     onOpenToday: () -> Unit,
     onOpenPaywall: () -> Unit,
     onOpenGrimoire: () -> Unit,
+    onOpenSettings: () -> Unit,
 ) {
     MidnightGrimoireTheme {
         val context = LocalContext.current
@@ -97,6 +102,10 @@ internal fun SpellbookHome(
         val sabbat = remember(today) { CelestialCalculator.sabbatFor(today) }
         val hour = remember(coordinate) { CelestialCalculator.planetaryHour(now, zone, coordinate) }
         val voidOfCourse = remember(today) { CelestialCalculator.voidOfCourse(now) }
+        val scrollState = rememberScrollState()
+        val scope = rememberCoroutineScope()
+        val lessonAnchor = remember { BringIntoViewRequester() }
+        val wheelAnchor = remember { BringIntoViewRequester() }
         Box(modifier = Modifier.fillMaxSize().background(WiccanPaletteColors.Grimoire.Background)) {
             GrimoireFloralBackdrop(Modifier.fillMaxSize())
             GrimoireSettingsHeaderAccent(
@@ -109,7 +118,7 @@ internal fun SpellbookHome(
                     .widthIn(max = 520.dp)
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -117,15 +126,31 @@ internal fun SpellbookHome(
                 WiccanFullLogo(width = 148.dp)
                 GrimoireInkLabel(stringResource(R.string.motif_today_page))
                 WelcomeCard(moon = moon, today = today)
-                HomeSectionTileRow()
+                HomeSectionTileRow(
+                    onLesson = {
+                        if (lessonLocked) {
+                            onOpenPaywall()
+                        } else {
+                            onOpenToday()
+                        }
+                    },
+                    onWheel = { scope.launch { wheelAnchor.bringIntoView() } },
+                    onGrimoire = onOpenGrimoire,
+                    onSettings = onOpenSettings,
+                )
                 GrimoireOrnamentalDivider(modifier = Modifier.padding(horizontal = 8.dp))
                 GrimoireDashedConnector(Modifier.fillMaxWidth().height(28.dp))
                 LessonCard(
                     content = content,
                     locked = lessonLocked,
                     onOpen = { if (lessonLocked) onOpenPaywall() else onOpenToday() },
+                    modifier = Modifier.bringIntoViewRequester(lessonAnchor),
                 )
-                WheelCard(today = today, sabbat = sabbat)
+                WheelCard(
+                    today = today,
+                    sabbat = sabbat,
+                    modifier = Modifier.bringIntoViewRequester(wheelAnchor),
+                )
                 CosmicCard(
                     moon = moon,
                     hour = hour,
@@ -149,7 +174,12 @@ internal fun SpellbookHome(
 }
 
 @Composable
-private fun HomeSectionTileRow() {
+private fun HomeSectionTileRow(
+    onLesson: () -> Unit,
+    onWheel: () -> Unit,
+    onGrimoire: () -> Unit,
+    onSettings: () -> Unit,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -158,11 +188,15 @@ private fun HomeSectionTileRow() {
             GrimoireHomeSectionTile(
                 label = stringResource(R.string.home_today_lesson),
                 glyph = GrimoireHomeSectionGlyph.LESSON,
+                onClick = onLesson,
+                testTag = "home-tile-lesson",
                 modifier = Modifier.weight(1f),
             )
             GrimoireHomeSectionTile(
                 label = stringResource(R.string.home_wheel_title),
                 glyph = GrimoireHomeSectionGlyph.WHEEL,
+                onClick = onWheel,
+                testTag = "home-tile-wheel",
                 modifier = Modifier.weight(1f),
             )
         }
@@ -173,11 +207,15 @@ private fun HomeSectionTileRow() {
             GrimoireHomeSectionTile(
                 label = stringResource(R.string.nav_grimoire),
                 glyph = GrimoireHomeSectionGlyph.GRIMOIRE,
+                onClick = onGrimoire,
+                testTag = "home-tile-grimoire",
                 modifier = Modifier.weight(1f),
             )
             GrimoireHomeSectionTile(
                 label = stringResource(R.string.nav_settings),
                 glyph = GrimoireHomeSectionGlyph.SETTINGS,
+                onClick = onSettings,
+                testTag = "home-tile-settings",
                 modifier = Modifier.weight(1f),
             )
         }
@@ -213,8 +251,13 @@ private fun WelcomeCard(moon: com.jaimesorrow.wiccan.sky.MoonObservation, today:
 }
 
 @Composable
-private fun LessonCard(content: Content?, locked: Boolean, onOpen: () -> Unit) {
-    GrimoireCard {
+private fun LessonCard(
+    content: Content?,
+    locked: Boolean,
+    onOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    GrimoireCard(modifier) {
         Text(
             text = stringResource(R.string.home_today_lesson),
             color = WiccanPaletteColors.Grimoire.Gold,
@@ -247,18 +290,21 @@ private fun LessonCard(content: Content?, locked: Boolean, onOpen: () -> Unit) {
 }
 
 @Composable
-private fun WheelCard(today: LocalDate, sabbat: com.jaimesorrow.wiccan.sky.SabbatObservance) {
-    GrimoireCard {
+private fun WheelCard(
+    today: LocalDate,
+    sabbat: com.jaimesorrow.wiccan.sky.SabbatObservance,
+    modifier: Modifier = Modifier,
+) {
+    GrimoireCard(modifier) {
         Text(
             text = stringResource(R.string.home_wheel_title),
             color = Ink,
             style = MaterialTheme.typography.headlineSmall,
         )
-        Image(
-            painter = painterResource(R.drawable.wiccan_photo_wheel),
+        WiccanLineArt(
+            kind = WiccanLineArtKind.Wheel,
             contentDescription = stringResource(R.string.home_wheel_image),
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxWidth().height(92.dp).clip(CardShape),
+            modifier = Modifier.fillMaxWidth().height(92.dp),
         )
         MonthGrid(today)
         Text(
@@ -286,16 +332,18 @@ private fun CosmicCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .testTag("home_cosmic_card")
             .clip(CardShape)
-            .background(WiccanPaletteColors.Parchment.Background)
-            .border(1.dp, WiccanPaletteColors.Parchment.Border, CardShape)
+            .background(WiccanPaletteColors.Grimoire.CardFill)
+            .border(1.dp, Gold, CardShape)
+            .grimoireCornerFlourishes()
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
             text = stringResource(R.string.home_cosmic_title),
-            color = WiccanPaletteColors.Parchment.Ink,
-            style = MaterialTheme.typography.headlineSmall,
+            color = WiccanPaletteColors.Grimoire.Gold,
+            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = WiccanDisplayFont),
         )
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
             PlanetaryDial(active = hour?.planet)
@@ -311,8 +359,8 @@ private fun CosmicCard(
                     } else {
                         stringResource(R.string.home_hour_unavailable)
                     },
-                    color = WiccanPaletteColors.Parchment.Ink,
-                    style = MaterialTheme.typography.titleMedium.copy(fontFamily = WiccanEditorialFont),
+                    color = Ink,
+                    style = MaterialTheme.typography.titleMedium,
                 )
                 if (!hasLocation) {
                     Text(
@@ -381,9 +429,9 @@ private fun CosmicCard(
 }
 
 @Composable
-private fun GrimoireCard(content: @Composable () -> Unit) {
+private fun GrimoireCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(CardShape)
             .background(WiccanPaletteColors.Grimoire.CardFill)
@@ -435,14 +483,14 @@ private fun GrimoireAction(text: String, onClick: () -> Unit, modifier: Modifier
 private fun PlateAccents() {
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
         listOf(
-            R.drawable.grimoire_crystal_labradorite,
-            R.drawable.grimoire_crystal_amethyst,
-            R.drawable.grimoire_petal,
-            R.drawable.grimoire_crystal_rose,
-            R.drawable.grimoire_crystal_moonstone,
+            WiccanLineArtKind.CrystalLabradorite,
+            WiccanLineArtKind.CrystalAmethyst,
+            WiccanLineArtKind.Petal,
+            WiccanLineArtKind.CrystalRose,
+            WiccanLineArtKind.CrystalMoonstone,
         ).forEach { art ->
-            Image(
-                painter = painterResource(art),
+            WiccanLineArt(
+                kind = art,
                 contentDescription = null,
                 modifier = Modifier.size(40.dp),
             )

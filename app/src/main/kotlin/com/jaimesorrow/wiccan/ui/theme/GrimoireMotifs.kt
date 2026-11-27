@@ -3,8 +3,10 @@ package com.jaimesorrow.wiccan.ui.theme
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,6 +31,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -372,16 +375,24 @@ fun GrimoireHomeSectionGlyphIcon(
 fun GrimoireHomeSectionTile(
     label: String,
     glyph: GrimoireHomeSectionGlyph,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    testTag: String? = null,
 ) {
+    val fontScale = LocalDensity.current.fontScale
+    val labelSize = if (fontScale > 1.15f) 10.sp else 11.sp
+    val labelLineHeight = if (fontScale > 1.15f) 14.sp else 15.sp
     val tileShape = RoundedCornerShape(6.dp)
     Column(
         modifier = modifier
+            .defaultMinSize(minHeight = 72.dp, minWidth = 48.dp)
             .clip(tileShape)
             .background(WiccanPaletteColors.Grimoire.CardFill)
             .border(1.dp, WiccanPaletteColors.Grimoire.Border, tileShape)
             .grimoireCornerFlourishes(arm = 8.dp)
-            .padding(8.dp),
+            .clickable(onClick = onClick)
+            .then(if (testTag != null) Modifier.testTag(testTag) else Modifier)
+            .padding(horizontal = 6.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
@@ -391,7 +402,12 @@ fun GrimoireHomeSectionTile(
             color = WiccanPaletteColors.Grimoire.Gold,
             textAlign = TextAlign.Center,
             maxLines = 2,
-            style = MaterialTheme.typography.labelSmall.copy(fontFamily = WiccanDisplayFont),
+            softWrap = true,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontFamily = WiccanDisplayFont,
+                fontSize = labelSize,
+                lineHeight = labelLineHeight,
+            ),
         )
     }
 }

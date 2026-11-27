@@ -55,6 +55,7 @@ fun TodayScreen(
     modifier: Modifier = Modifier,
     viewModel: TodayViewModel = hiltViewModel(),
     onOpenGrimoire: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
     onOpenToday: (() -> Unit)? = null,
     onOpenPaywall: () -> Unit = {},
     onBack: (() -> Unit)? = null,
@@ -76,6 +77,7 @@ fun TodayScreen(
         onEvent = viewModel::onEvent,
         modifier = modifier,
         onOpenGrimoire = onOpenGrimoire,
+        onOpenSettings = onOpenSettings,
         onOpenToday = onOpenToday,
         onOpenPaywall = onOpenPaywall,
         onBack = onBack,
@@ -93,6 +95,7 @@ internal fun TodayScreenContent(
     onEvent: (TodayUiEvent) -> Unit,
     modifier: Modifier = Modifier,
     onOpenGrimoire: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
     onOpenToday: (() -> Unit)? = null,
     onOpenPaywall: () -> Unit = {},
     onBack: (() -> Unit)? = null,
@@ -144,6 +147,7 @@ internal fun TodayScreenContent(
                             onOpenToday = onOpenToday,
                             onOpenPaywall = onOpenPaywall,
                             onOpenGrimoire = onOpenGrimoire,
+                            onOpenSettings = onOpenSettings,
                         )
                         // A retry from the exhausted or error panel keeps that panel on
                         // screen (and its scroll position) instead of swapping in the skeleton.

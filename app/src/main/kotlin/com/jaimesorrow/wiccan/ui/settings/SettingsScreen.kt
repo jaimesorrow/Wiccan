@@ -243,7 +243,7 @@ fun SettingsScreen(
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
-                GrimoireOutlineButton(
+                GrimoirePlainOutlineButton(
                     text = stringResource(R.string.settings_manage_subscription),
                     onClick = {
                         openExternal(
@@ -251,7 +251,9 @@ fun SettingsScreen(
                             subscriptionUnavailable,
                         )
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("settings-manage-subscription"),
                 )
 
                 state.yearlySwitchOffer?.let { offer ->

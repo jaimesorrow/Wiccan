@@ -1,9 +1,14 @@
 package com.jaimesorrow.wiccan.ui.today
 
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,6 +44,8 @@ import com.jaimesorrow.wiccan.domain.usecase.DeleteAccountUseCase
 import com.jaimesorrow.wiccan.ui.archive.ArchiveScreenContent
 import com.jaimesorrow.wiccan.ui.archive.ArchiveTab
 import com.jaimesorrow.wiccan.ui.archive.ArchiveUiState
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
 import com.jaimesorrow.wiccan.ui.auth.FakeAuthRepository
 import com.jaimesorrow.wiccan.ui.auth.OnboardingScreen
 import com.jaimesorrow.wiccan.ui.auth.OnboardingViewModel
@@ -211,6 +218,21 @@ class GrimoireScreenScreenshotTest {
     }
 
     @Test
+    fun `capture daily lesson with reflection below parchment`() {
+        composeRule.setContent {
+            MidnightGrimoireTheme {
+                DailyGrimoirePage(content = sampleLesson())
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("What did the dark make visible?").performScrollTo()
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(
+            filePath = "build/outputs/roborazzi/wiccan-lesson-working-and-reflection.png",
+        )
+    }
+
+    @Test
     fun `capture daily lesson at 130 percent text`() {
         composeRule.setContent {
             val density = LocalDensity.current.density
@@ -221,11 +243,78 @@ class GrimoireScreenScreenshotTest {
             }
         }
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag("lesson_quill_ornament").performScrollTo()
+        composeRule.onNodeWithText("What did the dark make visible?").performScrollTo()
         composeRule.waitForIdle()
         composeRule.onRoot().captureRoboImage(
             filePath = "build/outputs/roborazzi/wiccan-lesson-font-130.png",
         )
+    }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "w360dp-h2800dp-xhdpi", application = android.app.Application::class)
+    fun `capture home cosmic at 130 percent text`() {
+        composeRule.setContent {
+            val density = LocalDensity.current.density
+            CompositionLocalProvider(LocalDensity provides Density(density, fontScale = 1.3f)) {
+                MidnightGrimoireTheme {
+                    SpellbookHome(
+                        content = sampleLesson(),
+                        lessonLocked = false,
+                        onOpenToday = {},
+                        onOpenPaywall = {},
+                        onOpenGrimoire = {},
+                        onOpenSettings = {},
+                    )
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("home_cosmic_card").performScrollTo()
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/wiccan-home-cosmic-130.png")
+    }
+
+    @Test
+    fun `capture settings manage subscription`() {
+        val viewModel = settingsViewModel()
+        composeRule.setContent {
+            MidnightGrimoireTheme { SettingsScreen(viewModel = viewModel) }
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("settings-manage-subscription").performScrollTo()
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(
+            filePath = "build/outputs/roborazzi/wiccan-settings-manage-subscription.png",
+        )
+    }
+
+    @OptIn(ExperimentalLayoutApi::class)
+    @Test
+    @Config(sdk = [34], qualifiers = "w360dp-h2400dp-xhdpi", application = android.app.Application::class)
+    fun `capture line art contact sheet`() {
+        composeRule.setContent {
+            MidnightGrimoireTheme {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        maxItemsInEachRow = 5,
+                    ) {
+                        WiccanLineArtKind.entries.forEach { kind ->
+                            WiccanLineArt(kind = kind, modifier = Modifier.size(48.dp))
+                        }
+                    }
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/wiccan-line-art-contact-sheet.png")
     }
 
     @Test

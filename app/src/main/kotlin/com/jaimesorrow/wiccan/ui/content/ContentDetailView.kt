@@ -1,8 +1,6 @@
 package com.jaimesorrow.wiccan.ui.content
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -50,6 +48,9 @@ import com.jaimesorrow.wiccan.domain.model.ContentType
 import com.jaimesorrow.wiccan.ui.archive.displayName
 import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
+import com.jaimesorrow.wiccan.ui.brand.lessonLineArt
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.jaimesorrow.wiccan.ui.today.components.ContentTypePill
@@ -326,10 +327,9 @@ private fun DailyLessonHero(content: Content) {
             .clip(shape)
             .border(1.dp, DailyGold.copy(alpha = 0.72f), shape),
     ) {
-        Image(
-            painter = painterResource(content.lessonArtwork()),
+        WiccanLineArt(
+            kind = content.lessonLineArt(),
             contentDescription = stringResource(R.string.content_lesson_image_description, content.title),
-            contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
         )
         Box(
@@ -346,33 +346,10 @@ private fun DailyLessonHero(content: Content) {
     }
 }
 
-@DrawableRes
-private fun Content.lessonArtwork(): Int {
-    when (illustrationKey?.trim()?.lowercase()) {
-        "lunar", "moon", "moon-phases" -> return R.drawable.wiccan_category_lunar
-        "cord-knot", "cord", "knot-work" -> return R.drawable.wiccan_category_cord
-        "grimoire", "ritual", "botanical", "herbal", "candle" -> return R.drawable.wiccan_home_hero
-    }
-    val categoryArtwork = when (category) {
-        ContentCategory.CORD_KNOT_WORK, ContentCategory.CORD_KNOT_MAGIC -> R.drawable.wiccan_category_cord
-        ContentCategory.LUNAR_PRACTICES,
-        ContentCategory.MOON_MAGIC_TIMING,
-        ContentCategory.MOON_AND_SEASONAL -> R.drawable.wiccan_category_lunar
-        else -> R.drawable.wiccan_home_hero
-    }
-    // Content identity adds deterministic variation for lessons in broad categories while
-    // preserving a stable illustration for the same delivered lesson across recompositions.
-    return when (Math.floorMod(id.hashCode(), 5)) {
-        0 -> R.drawable.wiccan_category_lunar
-        1 -> R.drawable.wiccan_category_cord
-        else -> categoryArtwork
-    }
-}
-
 @Composable
 internal fun CandleOrnament(modifier: Modifier = Modifier) {
-    Image(
-        painter = painterResource(R.drawable.grimoire_candle),
+    WiccanLineArt(
+        kind = WiccanLineArtKind.Candle,
         contentDescription = stringResource(R.string.lesson_candle_description),
         modifier = modifier,
     )

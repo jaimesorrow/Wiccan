@@ -84,6 +84,7 @@ internal class WiccanNavScreens(
         onOpenToday: (() -> Unit)?,
         onBack: (() -> Unit)?,
         onOpenGrimoire: () -> Unit,
+        onOpenSettings: () -> Unit,
         onOpenPaywall: () -> Unit,
     ) -> Unit,
     val archive: @Composable (onNavigateToDetail: (String) -> Unit) -> Unit,
@@ -94,12 +95,13 @@ internal class WiccanNavScreens(
 )
 
 private fun productionScreens(settingsViewModel: SettingsViewModel) = WiccanNavScreens(
-    dailyContent = { graphEntry, onOpenToday, onBack, onOpenGrimoire, onOpenPaywall ->
+    dailyContent = { graphEntry, onOpenToday, onBack, onOpenGrimoire, onOpenSettings, onOpenPaywall ->
         TodayScreen(
             viewModel = hiltViewModel(graphEntry),
             onOpenToday = onOpenToday,
             onBack = onBack,
             onOpenGrimoire = onOpenGrimoire,
+            onOpenSettings = onOpenSettings,
             onOpenPaywall = onOpenPaywall,
         )
     },
@@ -173,6 +175,10 @@ internal fun WiccanAppShellContent(
         navController.selectTab(WiccanDestinations.ARCHIVE)
     }
 
+    fun openSettings() {
+        navController.selectTab(WiccanDestinations.SETTINGS)
+    }
+
     // A notification tap asks for Today from wherever the user is in the shell.
     LaunchedEffect(openTodayRequested) {
         if (openTodayRequested) {
@@ -207,7 +213,7 @@ internal fun WiccanAppShellContent(
                 val graphEntry = remember(entry) {
                     navController.getBackStackEntry(requireNotNull(entry.destination.parent).id)
                 }
-                screens.dailyContent(graphEntry, ::openToday, null, ::openGrimoire, ::openPaywall)
+                screens.dailyContent(graphEntry, ::openToday, null, ::openGrimoire, ::openSettings, ::openPaywall)
             }
             composable(
                 WiccanDestinations.TODAY,
@@ -216,7 +222,14 @@ internal fun WiccanAppShellContent(
                 val graphEntry = remember(entry) {
                     navController.getBackStackEntry(requireNotNull(entry.destination.parent).id)
                 }
-                screens.dailyContent(graphEntry, null, { navController.popBackStackIfPossible() }, ::openGrimoire, ::openPaywall)
+                screens.dailyContent(
+                    graphEntry,
+                    null,
+                    { navController.popBackStackIfPossible() },
+                    ::openGrimoire,
+                    ::openSettings,
+                    ::openPaywall,
+                )
             }
             composable(WiccanDestinations.ARCHIVE) {
                 screens.archive { contentId -> navController.navigate(WiccanDestinations.archiveDetail(contentId)) }
