@@ -10,11 +10,15 @@ which always serve test ads and never earn or charge anything:
 
 ## What the app does
 
-- **Who sees ads:** only users without an active subscription. The gate reads the
-  server-verified tier from `SubscriptionRepository.observeTier()` (monthly or
-  yearly Premium, including a trial, hides ads at once). A FREE tier must hold for
-  3 seconds before an ad may load, so a subscriber's cached FREE tier on a cold
-  start never flashes an ad (`ads/AdVisibility.kt`, tested in `AdVisibilityTest`).
+- **Who sees ads (fails closed):** only users the *server* confirms have no active
+  subscription. The gate reads `SubscriptionRepository.observeVerifiedTier()`,
+  which is `FREE` only for a server snapshot. A disk-cache or missing snapshot, a
+  Firestore error, the 10-second verification timeout, a locally reached expiry,
+  a signed-out user or an account switch are all `UNVERIFIED`, and `UNVERIFIED`
+  never shows an ad or asks for ad consent. A server-confirmed `FREE` must hold for
+  3 seconds before an ad may load. `PREMIUM` (monthly or yearly, a trial, or
+  grace) hides ads at once, including mid-session (`ads/AdVisibility.kt`, tested in
+  `AdVisibilityTest`, `AdsViewModelTest`, `UserTierDataSourceTest`).
 - **Where:** one adaptive anchored banner at the bottom of the Grimoire screen,
   above the navigation bar, in a midnight frame with a thin gold top rule and a
   plain "Advertisement" label. Nothing renders until an ad loads (offline or no
@@ -23,6 +27,23 @@ which always serve test ads and never earn or charge anything:
 - **Consent:** Google's User Messaging Platform runs before the Mobile Ads SDK
   initializes or any ad is requested (`ads/UmpAdConsentController.kt`). Settings
   shows a **Privacy choices** row only when UMP says it is required.
+- **18+ request configuration and init order:** before `MobileAds.initialize`,
+  `MobileAdsStarter` sets `RequestConfiguration` with
+  `tagForChildDirectedTreatment = FALSE`, `tagForUnderAgeOfConsent = FALSE` and
+  `maxAdContentRating = MA` (the audience is 18+ and the app is not in Families).
+  The banner composes (and calls `loadAd`) only after the initialization-complete
+  callback, as well as the tier gate and UMP `canRequestAds`
+  (`MobileAdsStarterTest`).
+- **Location:** the app uses the legacy Google Mobile Ads SDK
+  (`play-services-ads` 25.5.0). Its `RequestConfiguration` has no location
+  switch, and Google's Play data-disclosure page for this SDK lists only the IP
+  address (from which Google may estimate a general location). The
+  `setCoarseLocationCollectionEnabled(false)` switch exists only in the separate
+  GMA Next-Gen SDK, which collects `ACCESS_COARSE_LOCATION` by default since
+  1.7.0. If the app ever moves to Next-Gen, set that switch to `false` in
+  `MobileAdsStarter` unless the policy discloses ad use of device location.
+  Whether to keep and disclose `ACCESS_COARSE_LOCATION` (added in #207 for Home
+  planetary hours) or remove it is the owner's decision, still open.
 - **Advertising ID:** the manifest now declares
   `com.google.android.gms.permission.AD_ID` explicitly. Nothing removed it before
   (Firebase Analytics already merged it in), but the app told Google that all ad
@@ -45,10 +66,14 @@ which always serve test ads and never earn or charge anything:
 5. Publish `https://wiccan.app/app-ads.txt` with the line AdMob gives you
    (`google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0`), and make sure
    the Play listing's developer website is `https://wiccan.app`.
-6. Play Console (see below), then decide whether the ad change to the privacy
-   policy needs a new policy **version 7** (re-acceptance in the app; requires
-   the Android, Functions, Firestore rules and emulator script version bump
-   together - see `scripts/release-preflight.sh`).
+6. Privacy policy **version 7** is prepared on this branch (Android
+   `PolicyVersions.PRIVACY`, `functions/src/policyVersions.ts`, `firestore.rules`,
+   `scripts/release-preflight.sh`, `scripts/e2e-emulator.mjs`, the rules tests and
+   the `hosting/privacy.html` label). Rollout order: (a) the owner approves the
+   merge (merging publishes `hosting/privacy.html` through `pages.yml`); (b) a v7
+   app build reaches **every** Play track (Alpha still has versionCode 2 / policy
+   v5); (c) only then deploy the v7 Functions and Firestore rules. Deploying the
+   v7 backend first locks older builds out at onboarding.
 
 ## Play Console changes (owner)
 

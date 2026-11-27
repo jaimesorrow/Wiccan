@@ -8,4 +8,4 @@
  * values.
  */
 export const CURRENT_TERMS_VERSION = 6;
-export const CURRENT_PRIVACY_VERSION = 6;
+export const CURRENT_PRIVACY_VERSION = 7;

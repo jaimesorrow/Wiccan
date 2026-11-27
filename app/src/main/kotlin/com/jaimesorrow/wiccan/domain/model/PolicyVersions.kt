@@ -9,5 +9,5 @@ package com.jaimesorrow.wiccan.domain.model
  */
 object PolicyVersions {
     const val TERMS = 6
-    const val PRIVACY = 6
+    const val PRIVACY = 7
 }
