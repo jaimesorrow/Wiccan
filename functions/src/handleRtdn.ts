@@ -46,7 +46,15 @@ export async function handleRtdnNotification(
   const tier = tierForSubscription(info);
 
   const syncedTier = await users.setTier(
-    uid, tier, purchaseToken, isReplacement ? "replacement" : "refresh", predecessorForSync ?? undefined,
+    uid,
+    tier,
+    purchaseToken,
+    isReplacement ? "replacement" : "refresh",
+    predecessorForSync ?? undefined,
+    {
+      subscriptionState: info.state,
+      productId: info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id)) ?? info.productIds[0] ?? "unknown",
+    },
   );
   if (syncedTier === null) return null;
   await subscriptions.save(uid, {

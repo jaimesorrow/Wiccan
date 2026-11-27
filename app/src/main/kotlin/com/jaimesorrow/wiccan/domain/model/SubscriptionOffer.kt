@@ -12,4 +12,34 @@ data class SubscriptionOffer(
     /** Renewal price in micros of [priceCurrencyCode], as reported by Play (0 when unknown). */
     val priceAmountMicros: Long = 0L,
     val priceCurrencyCode: String = "",
+    /** Play-owned lapsed-subscriber promotion, accepted only when tagged `winback`. */
+    val isWinBack: Boolean = false,
+    /** First-period promotional price shown by Play for a validated win-back offer. */
+    val winBackFormattedPrice: String? = null,
 )
+
+/** Server-mirrored Play state; UNKNOWN is the safe fallback for absent/legacy profiles. */
+enum class SubscriptionState {
+    ACTIVE,
+    IN_GRACE_PERIOD,
+    ON_HOLD,
+    PAUSED,
+    CANCELED,
+    EXPIRED,
+    PENDING,
+    UNKNOWN,
+    ;
+
+    companion object {
+        fun fromWire(value: String?): SubscriptionState = when (value) {
+            "active" -> ACTIVE
+            "in_grace_period" -> IN_GRACE_PERIOD
+            "on_hold" -> ON_HOLD
+            "paused" -> PAUSED
+            "canceled" -> CANCELED
+            "expired" -> EXPIRED
+            "pending" -> PENDING
+            else -> UNKNOWN
+        }
+    }
+}

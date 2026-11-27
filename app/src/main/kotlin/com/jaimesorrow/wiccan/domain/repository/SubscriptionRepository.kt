@@ -5,6 +5,7 @@ import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
+import com.jaimesorrow.wiccan.domain.model.SubscriptionState
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -26,6 +27,12 @@ interface SubscriptionRepository {
      * state is never trusted as the source of truth.
      */
     fun observeTier(): Flow<ContentTier>
+
+    /** Informational server-mirrored Play state; never used to grant access. */
+    fun observeSubscriptionState(): Flow<SubscriptionState>
+
+    /** Requests Play's own transactional payment-recovery message. */
+    suspend fun showTransactionalMessage(activity: Activity): AppResult<Unit>
 
     /** Current eligible monthly offer, including its actual trial and renewal price. */
     suspend fun getOffer(): AppResult<SubscriptionOffer>
