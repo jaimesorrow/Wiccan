@@ -46,6 +46,7 @@ class SubscriptionRepositoryImplTest {
     @Before
     fun setUp() {
         every { billingClient.purchaseUpdates } returns emptyFlow()
+        every { billingClient.recoveryUpdates } returns emptyFlow()
         every { currentUser.currentUserId } returns "uid-123"
         repository = SubscriptionRepositoryImpl(billingClient, functions, userTier, currentUser, analytics)
     }
@@ -66,6 +67,20 @@ class SubscriptionRepositoryImplTest {
         every { userTier.observeTier("other-user") } returns flowOf(ContentTier.PREMIUM, ContentTier.FREE, ContentTier.FREE)
         repository.observeTier().toList()
         verify(exactly = 1) { analytics.logSubscriptionLapsed() }
+    }
+
+    @Test
+    fun `Play recovery status update reconciles owned subscriptions with the server`() {
+        val recovered = purchase()
+        every { billingClient.recoveryUpdates } returns flowOf(Unit)
+        coEvery { billingClient.queryOwnedSubscriptions() } returns listOf(recovered)
+        coEvery { functions.verifyPurchase("token", PREMIUM_MONTHLY_PRODUCT_ID) } returns Unit
+
+        repository = SubscriptionRepositoryImpl(billingClient, functions, userTier, currentUser, analytics)
+
+        coVerify(timeout = 2_000, exactly = 1) {
+            functions.verifyPurchase("token", PREMIUM_MONTHLY_PRODUCT_ID)
+        }
     }
 
     @Test
@@ -234,6 +249,7 @@ class SubscriptionRepositoryImplTest {
         val offer = mockk<ProductDetails.SubscriptionOfferDetails> {
             every { offerId } returns null
             every { offerToken } returns "yearly-token"
+            every { offerTags } returns emptyList()
             every { pricingPhases } returns phases
         }
         val product = mockk<ProductDetails> {
@@ -256,6 +272,7 @@ class SubscriptionRepositoryImplTest {
         val offer = mockk<ProductDetails.SubscriptionOfferDetails> {
             every { offerId } returns null
             every { offerToken } returns "monthly-token"
+            every { offerTags } returns emptyList()
             every { pricingPhases } returns phases
         }
         val product = mockk<ProductDetails> {

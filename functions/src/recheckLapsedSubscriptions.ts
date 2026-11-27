@@ -33,7 +33,17 @@ export async function recheckLapsedSubscriptions(
     try {
       const info = await billing.getSubscriptionState(user.purchaseToken);
       const tier = tierForSubscription(info);
-      const syncedTier = await users.setTier(user.uid, tier, user.purchaseToken, "refresh");
+      const syncedTier = await users.setTier(
+        user.uid,
+        tier,
+        user.purchaseToken,
+        "refresh",
+        undefined,
+        {
+          subscriptionState: info.state,
+          productId: info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id)) ?? info.productIds[0] ?? "unknown",
+        },
+      );
       if (syncedTier === null) continue;
       await subscriptions.save(user.uid, {
         productId: info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id)) ?? info.productIds[0] ?? "unknown",
