@@ -17,6 +17,14 @@
       ]
     },
     {
+      "collectionGroup": "subscriptions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "inFreeTrial", "order": "ASCENDING" },
+        { "fieldPath": "expiryTimeMillis", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "content",
       "queryScope": "COLLECTION",
       "fields": [

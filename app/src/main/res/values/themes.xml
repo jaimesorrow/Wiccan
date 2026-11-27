@@ -6,9 +6,8 @@
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
-    <!-- AndroidX SplashScreen theme: dark background with the approved gold
-         emblem (brand/), default (fade) exit transition. Switches to
-         Theme.Wiccan once installSplashScreen() dismisses it. -->
+    <!-- The approved gold emblem on midnight black matches the branded
+         subscription loading screen after the system splash fades. -->
     <style name="Theme.Wiccan.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/window_background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_emblem</item>

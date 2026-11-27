@@ -37,9 +37,25 @@ describe("GooglePlayBillingRepository", () => {
     expect(await repository.getSubscriptionState("token")).toEqual({
       state: "active", productIds: ["another_subscription", "wiccan_premium_monthly", "wiccan_premium_yearly"],
       expiryTimeMillis: Date.parse("2027-10-20T00:00:00Z"), autoRenewing: true, acknowledged: true,
-      obfuscatedExternalAccountId: "account-hash", linkedPurchaseToken: "previous-token",
+      obfuscatedExternalAccountId: "account-hash", linkedPurchaseToken: "previous-token", inFreeTrial: false,
     });
     expect(get).toHaveBeenCalledWith({ packageName: "com.jaimesorrow.wiccan", token: "token" });
+  });
+
+  it("reports a free-trial phase only from a Wiccan premium line item", async () => {
+    get.mockResolvedValue({ data: { subscriptionState: "SUBSCRIPTION_STATE_ACTIVE", lineItems: [
+      { productId: "wiccan_premium_yearly", expiryTime: "2027-01-08T00:00:00Z",
+        autoRenewingPlan: { autoRenewEnabled: true }, offerPhase: { freeTrial: {} } },
+    ] } });
+    expect(await repository.getSubscriptionState("token")).toMatchObject({
+      inFreeTrial: true, expiryTimeMillis: Date.parse("2027-01-08T00:00:00Z"), autoRenewing: true,
+    });
+
+    get.mockResolvedValue({ data: { subscriptionState: "SUBSCRIPTION_STATE_ACTIVE", lineItems: [
+      { productId: "unrelated", offerPhase: { freeTrial: {} } },
+      { productId: "wiccan_premium_monthly", expiryTime: "2027-01-08T00:00:00Z", offerPhase: { basePrice: {} } },
+    ] } });
+    expect((await repository.getSubscriptionState("token")).inFreeTrial).toBe(false);
   });
 
   it("normalizes missing/invalid premium expiry to null, never NaN", async () => {
