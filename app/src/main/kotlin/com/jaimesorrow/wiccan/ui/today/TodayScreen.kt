@@ -40,7 +40,6 @@ import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
-import com.jaimesorrow.wiccan.ui.content.ContentDetailView
 import com.jaimesorrow.wiccan.ui.content.DailyGrimoirePage
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.jaimesorrow.wiccan.ui.today.components.TodaySkeleton

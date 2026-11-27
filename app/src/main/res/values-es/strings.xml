@@ -319,7 +319,6 @@
     <string name="nav_grimoire">Grimorio</string>
     <string name="nav_settings">Ajustes</string>
     <string name="content_lesson_image_description">Ilustración de %1$s</string>
-    <string name="content_lessons_english_notice">El texto de las lecciones está disponible actualmente en inglés.</string>
     <string name="error_network">El hechizo flaqueó. Comprueba tu conexión e inténtalo de nuevo.</string>
     <string name="error_unauthorized">El círculo se ha cerrado. Inicia sesión de nuevo.</string>
     <string name="error_not_found">No se pudo encontrar esa página del Grimorio.</string>
