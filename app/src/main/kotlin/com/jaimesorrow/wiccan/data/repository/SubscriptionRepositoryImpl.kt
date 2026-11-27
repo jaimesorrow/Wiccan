@@ -4,12 +4,12 @@ import android.app.Activity
 import android.util.Log
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.Purchase.PurchaseState
 import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.billing.PREMIUM_MONTHLY_PRODUCT_ID
 import com.jaimesorrow.wiccan.billing.PREMIUM_PRODUCT_IDS
 import com.jaimesorrow.wiccan.billing.PREMIUM_YEARLY_PRODUCT_ID
 import com.jaimesorrow.wiccan.billing.WiccanBillingClient
+import com.jaimesorrow.wiccan.billing.monthlySwitchPurchaseToken
 import com.jaimesorrow.wiccan.billing.obfuscatedAccountId
 import com.jaimesorrow.wiccan.billing.productId
 import com.jaimesorrow.wiccan.billing.subscriptionOffer
@@ -142,6 +142,8 @@ class SubscriptionRepositoryImpl @Inject constructor(
         return userTierDataSource.observeProductId(userId)
     }
 
+    override fun observePurchaseFlowDismissed(): Flow<Unit> = billingClient.purchaseFlowDismissed
+
     override suspend fun showTransactionalMessage(activity: Activity): AppResult<Unit> = try {
         val result = billingClient.showTransactionalMessage(activity)
         if (result.responseCode == BillingClient.BillingResponseCode.OK) {
@@ -217,16 +219,16 @@ class SubscriptionRepositoryImpl @Inject constructor(
                 ?: return AppResult.Failure(
                     AppError.PurchaseVerificationFailed("Refresh the subscription offer before switching plans."),
                 )
-            val oldPurchaseToken = billingClient.queryOwnedSubscriptions()
-                .firstOrNull { purchase ->
-                    purchase.purchaseState == PurchaseState.PURCHASED &&
-                        PREMIUM_MONTHLY_PRODUCT_ID in purchase.products
-                }?.purchaseToken
-                ?: return AppResult.Failure(
-                    AppError.PurchaseVerificationFailed(
-                        "Your monthly subscription could not be found. Open Google Play to manage it, or try again.",
-                    ),
-                )
+            val serverPurchaseToken = userTierDataSource.currentPurchaseToken(userId)
+            val oldPurchaseToken = monthlySwitchPurchaseToken(
+                billingClient.queryOwnedSubscriptions(),
+                obfuscatedAccountId(userId),
+                serverPurchaseToken,
+            ) ?: return AppResult.Failure(
+                AppError.PurchaseVerificationFailed(
+                    "Your monthly subscription could not be found. Open Google Play to manage it, or try again.",
+                ),
+            )
             val result = billingClient.launchPlanChangeFlow(activity, userId, offer, oldPurchaseToken)
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                 AppResult.Success(Unit)

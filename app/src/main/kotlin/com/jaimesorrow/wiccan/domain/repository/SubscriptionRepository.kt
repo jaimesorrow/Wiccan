@@ -35,6 +35,9 @@ interface SubscriptionRepository {
     /** Server-mirrored Play product ID, or null when unknown. Never used to grant access. */
     fun observeProductId(): Flow<String?>
 
+    /** Emitted when a Play purchase sheet closes without a new purchase. */
+    fun observePurchaseFlowDismissed(): Flow<Unit>
+
     /** Requests Play's own transactional payment-recovery message. */
     suspend fun showTransactionalMessage(activity: Activity): AppResult<Unit>
 

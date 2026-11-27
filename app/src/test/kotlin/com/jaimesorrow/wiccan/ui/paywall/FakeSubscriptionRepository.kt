@@ -10,6 +10,7 @@ import com.jaimesorrow.wiccan.domain.model.YearlySwitchOffer
 import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class FakeSubscriptionRepository : SubscriptionRepository {
@@ -17,6 +18,7 @@ class FakeSubscriptionRepository : SubscriptionRepository {
     private val tierFlow = MutableStateFlow(ContentTier.FREE)
     private val stateFlow = MutableStateFlow(SubscriptionState.UNKNOWN)
     private val productIdFlow = MutableStateFlow<String?>(null)
+    private val purchaseFlowDismissed = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     var launchCalls: MutableList<Activity> = mutableListOf()
     var launchedPlans: MutableList<SubscriptionPlan> = mutableListOf()
 
@@ -50,6 +52,7 @@ class FakeSubscriptionRepository : SubscriptionRepository {
     override fun observeTier(): Flow<ContentTier> = tierFlow
     override fun observeSubscriptionState(): Flow<SubscriptionState> = stateFlow
     override fun observeProductId(): Flow<String?> = productIdFlow
+    override fun observePurchaseFlowDismissed(): Flow<Unit> = purchaseFlowDismissed
     override suspend fun showTransactionalMessage(activity: Activity): AppResult<Unit> {
         transactionalMessageCalls += activity
         return transactionalMessageResult
@@ -106,5 +109,9 @@ class FakeSubscriptionRepository : SubscriptionRepository {
 
     fun emitProductId(productId: String?) {
         productIdFlow.value = productId
+    }
+
+    fun emitPurchaseFlowDismissed() {
+        purchaseFlowDismissed.tryEmit(Unit)
     }
 }

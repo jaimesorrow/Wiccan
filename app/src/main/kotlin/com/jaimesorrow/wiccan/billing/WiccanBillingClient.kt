@@ -57,11 +57,17 @@ class WiccanBillingClient @Inject constructor(
     private val recoveryUpdateChannel = Channel<Unit>(Channel.UNLIMITED)
     val recoveryUpdates: Flow<Unit> = recoveryUpdateChannel.receiveAsFlow()
 
+    /** Emitted when a Play billing sheet closes without a new purchase (cancel or error). */
+    private val purchaseFlowDismissedChannel = Channel<Unit>(Channel.UNLIMITED)
+    val purchaseFlowDismissed: Flow<Unit> = purchaseFlowDismissedChannel.receiveAsFlow()
+
     private val connectionMutex = Mutex()
 
     private val listener = PurchasesUpdatedListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
             purchaseUpdateChannel.trySend(purchases)
+        } else if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
+            purchaseFlowDismissedChannel.trySend(Unit)
         }
     }
 

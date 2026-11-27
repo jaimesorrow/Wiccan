@@ -11,6 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 /**
  * Streams server-verified access and closes it at the verified expiry.
@@ -46,6 +47,14 @@ class UserTierDataSource @Inject constructor(
                 }
             }
         awaitClose { registration.remove() }
+    }
+
+    /** Server-mirrored Play purchase token, or null when unknown. Never used to grant access. */
+    suspend fun currentPurchaseToken(userId: String): String? = try {
+        val snapshot = firestore.collection(USERS_COLLECTION).document(userId).get().await()
+        (snapshot.get(PURCHASE_TOKEN_FIELD) as? String)?.takeIf { it.isNotBlank() }
+    } catch (_: Throwable) {
+        null
     }
 
     fun observeTier(userId: String): Flow<ContentTier> = callbackFlow {
@@ -96,6 +105,7 @@ class UserTierDataSource @Inject constructor(
         const val TIER_FIELD = "tier"
         const val SUBSCRIPTION_STATE_FIELD = "subscriptionState"
         const val PRODUCT_ID_FIELD = "productId"
+        const val PURCHASE_TOKEN_FIELD = "purchaseToken"
     }
 }
 

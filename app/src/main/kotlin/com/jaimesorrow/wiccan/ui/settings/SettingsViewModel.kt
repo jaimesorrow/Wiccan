@@ -4,10 +4,11 @@ import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
-import com.jaimesorrow.wiccan.billing.canShowYearlySwitch
+import com.jaimesorrow.wiccan.billing.isYearlySwitchEligible
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.data.local.ThemePreferences
 import com.jaimesorrow.wiccan.domain.model.AuthState
+import com.jaimesorrow.wiccan.domain.model.SubscriptionState
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
 import com.jaimesorrow.wiccan.domain.repository.NotificationRepository
@@ -50,6 +51,11 @@ class SettingsViewModel @Inject constructor(
     /** Set once the user edits either name field; after that the saved name never overwrites the form. */
     private var nameEdited = false
 
+    /** True after Play's yearly switch sheet opens, until it is dismissed or the plan is no longer monthly. */
+    private var switchInFlight = false
+    private var latestSubscriptionState = SubscriptionState.UNKNOWN
+    private var latestProductId: String? = null
+
     init {
         viewModelScope.launch {
             // This ViewModel can outlive a sign-out (the onboarding copy is
@@ -85,27 +91,25 @@ class SettingsViewModel @Inject constructor(
             ) { tier, subscriptionState, productId ->
                 Triple(tier, subscriptionState, productId)
             }.collectLatest { (tier, subscriptionState, productId) ->
-                val eligible = canShowYearlySwitch(
-                    tier,
-                    subscriptionState,
-                    productId,
-                    switchOfferAvailable = true,
-                )
+                latestSubscriptionState = subscriptionState
+                latestProductId = productId
+                val eligible = isYearlySwitchEligible(tier, subscriptionState, productId)
+                if (!eligible) switchInFlight = false
                 _state.update {
-                    it.copy(tier = tier, yearlySwitchOffer = if (eligible) it.yearlySwitchOffer else null)
+                    it.copy(
+                        tier = tier,
+                        yearlySwitchOffer = if (eligible && !switchInFlight) it.yearlySwitchOffer else null,
+                    )
                 }
-                if (!eligible) return@collectLatest
-                when (val result = subscriptionRepository.getYearlySwitchOffer()) {
-                    is AppResult.Success -> _state.update { current ->
-                        val stillEligible = canShowYearlySwitch(
-                            current.tier,
-                            subscriptionState,
-                            productId,
-                            switchOfferAvailable = result.data != null,
-                        )
-                        current.copy(yearlySwitchOffer = if (stillEligible) result.data else null)
-                    }
-                    is AppResult.Failure -> _state.update { it.copy(yearlySwitchOffer = null) }
+                if (!eligible || switchInFlight) return@collectLatest
+                loadYearlySwitchOffer()
+            }
+        }
+        viewModelScope.launch {
+            subscriptionRepository.observePurchaseFlowDismissed().collect {
+                switchInFlight = false
+                if (isYearlySwitchEligible(state.value.tier, latestSubscriptionState, latestProductId)) {
+                    loadYearlySwitchOffer()
                 }
             }
         }
@@ -298,12 +302,30 @@ class SettingsViewModel @Inject constructor(
         _state.update { it.copy(isSwitchBusy = true) }
         viewModelScope.launch {
             when (val result = subscriptionRepository.launchSwitchToYearly(activity)) {
-                is AppResult.Success -> _state.update { it.copy(isSwitchBusy = false) }
+                is AppResult.Success -> {
+                    switchInFlight = true
+                    _state.update { it.copy(isSwitchBusy = false, yearlySwitchOffer = null) }
+                }
                 is AppResult.Failure -> {
+                    switchInFlight = false
                     _state.update { it.copy(isSwitchBusy = false) }
                     effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
                 }
             }
+        }
+    }
+
+    private suspend fun loadYearlySwitchOffer() {
+        when (val result = subscriptionRepository.getYearlySwitchOffer()) {
+            is AppResult.Success -> _state.update { current ->
+                val stillEligible = isYearlySwitchEligible(
+                    current.tier,
+                    latestSubscriptionState,
+                    latestProductId,
+                ) && !switchInFlight && result.data != null
+                current.copy(yearlySwitchOffer = if (stillEligible) result.data else null)
+            }
+            is AppResult.Failure -> _state.update { it.copy(yearlySwitchOffer = null) }
         }
     }
 }

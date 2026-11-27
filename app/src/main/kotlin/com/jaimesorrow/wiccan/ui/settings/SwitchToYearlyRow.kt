@@ -17,9 +17,8 @@ import com.wiccan.app.R
 
 /**
  * Isolated Settings row for switching an active monthly subscription to
- * yearly. Kept in its own file so it stays easy to rebase against the
- * Midnight Grimoire restyle in draft PR #226, which also touches Settings
- * strings but not this composable.
+ * yearly. Prices come from Play's ProductDetails and are shown in plain
+ * billing wording.
  */
 @Composable
 fun SwitchToYearlyRow(

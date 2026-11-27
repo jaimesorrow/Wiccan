@@ -301,6 +301,25 @@ class SubscriptionRepositoryImplTest {
         val billingResult = mockk<BillingResult>()
         every { billingResult.responseCode } returns BillingClient.BillingResponseCode.OK
         val offer = loadYearlySwitchOffer()
+        val accountId = obfuscatedAccountId("uid-123")
+        coEvery { userTier.currentPurchaseToken("uid-123") } returns null
+        coEvery { billingClient.queryOwnedSubscriptions() } returns listOf(
+            purchase(token = "other-monthly", accountId = obfuscatedAccountId("other-user")),
+            purchase(token = "monthly-token", accountId = accountId),
+        )
+        coEvery { billingClient.launchPlanChangeFlow(activity, "uid-123", offer, "monthly-token") } returns billingResult
+
+        assertTrue(repository.launchSwitchToYearly(activity) is AppResult.Success)
+        coVerify(exactly = 1) { billingClient.launchPlanChangeFlow(activity, "uid-123", offer, "monthly-token") }
+    }
+
+    @Test
+    fun `switching to yearly uses the server-verified token when Play omits the account hash`() = runTest {
+        val activity = mockk<Activity>()
+        val billingResult = mockk<BillingResult>()
+        every { billingResult.responseCode } returns BillingClient.BillingResponseCode.OK
+        val offer = loadYearlySwitchOffer()
+        coEvery { userTier.currentPurchaseToken("uid-123") } returns "monthly-token"
         coEvery { billingClient.queryOwnedSubscriptions() } returns listOf(purchase(token = "monthly-token"))
         coEvery { billingClient.launchPlanChangeFlow(activity, "uid-123", offer, "monthly-token") } returns billingResult
 
@@ -310,10 +329,24 @@ class SubscriptionRepositoryImplTest {
 
     @Test
     fun `switching to yearly fails closed without a loaded offer or a monthly purchase`() = runTest {
+        coEvery { userTier.currentPurchaseToken("uid-123") } returns null
         assertTrue(repository.launchSwitchToYearly(mockk()) is AppResult.Failure)
         loadYearlySwitchOffer()
         coEvery { billingClient.queryOwnedSubscriptions() } returns listOf(purchase(product = PREMIUM_YEARLY_PRODUCT_ID))
         assertTrue(repository.launchSwitchToYearly(mockk()) is AppResult.Failure)
+        coEvery { billingClient.queryOwnedSubscriptions() } returns listOf(
+            purchase(token = "other-monthly", accountId = obfuscatedAccountId("other-user")),
+        )
+        val result = repository.launchSwitchToYearly(mockk())
+        assertTrue(result is AppResult.Failure)
+        assertEquals(
+            AppResult.Failure(
+                AppError.PurchaseVerificationFailed(
+                    "Your monthly subscription could not be found. Open Google Play to manage it, or try again.",
+                ),
+            ),
+            result,
+        )
         coVerify(exactly = 0) { billingClient.launchPlanChangeFlow(any(), any(), any(), any()) }
     }
 

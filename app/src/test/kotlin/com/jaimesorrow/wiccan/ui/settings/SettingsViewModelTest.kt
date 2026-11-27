@@ -361,5 +361,14 @@ class SettingsViewModelTest {
         assertEquals(1, subscriptionRepository.switchLaunchCallCount)
         assertEquals(listOf(activity), subscriptionRepository.launchCalls)
         assertFalse(viewModel.state.value.isSwitchBusy)
+        assertNull(viewModel.state.value.yearlySwitchOffer)
+
+        viewModel.switchToYearly(activity)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(1, subscriptionRepository.switchLaunchCallCount)
+
+        subscriptionRepository.emitPurchaseFlowDismissed()
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(YearlySwitchOffer("switch-token", "$39.99", "$0.99"), viewModel.state.value.yearlySwitchOffer)
     }
 }
