@@ -1,7 +1,9 @@
 package com.jaimesorrow.wiccan.ui.settings
 
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
@@ -83,6 +85,8 @@ fun SettingsScreen(
     onPrivacyClick: () -> Unit = {},
     onContentSafetyClick: () -> Unit = {},
     onPotionSafetyClick: () -> Unit = {},
+    // Ad "Privacy choices" entry (UMP); production wires AdPrivacyChoicesRow.
+    privacyChoices: @Composable () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -459,6 +463,37 @@ internal fun ThemeModePicker(
     }
 }
 
+@Composable
+internal fun AppLanguagePicker(
+    selected: AppLanguage,
+    onSelected: (AppLanguage) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.selectableGroup().testTag("language-picker")) {
+        AppLanguage.entries.forEach { language ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = language == selected,
+                        onClick = { onSelected(language) },
+                        role = Role.RadioButton,
+                    )
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(selected = language == selected, onClick = null)
+                Text(
+                    text = stringResource(language.labelRes),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(start = 8.dp),
+                )
+            }
+        }
+    }
+}
+
 private fun supportEmailIntent(): Intent =
     Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${PolicyUrls.CUSTOMER_SERVICE_EMAIL}"))
 
@@ -467,4 +502,10 @@ private fun appVersionName(context: Context): String = try {
         ?: context.getString(R.string.settings_version_unknown)
 } catch (t: Throwable) {
     context.getString(R.string.settings_version_unknown)
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
