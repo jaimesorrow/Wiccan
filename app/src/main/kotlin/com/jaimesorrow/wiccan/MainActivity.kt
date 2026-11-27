@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -62,6 +63,7 @@ import com.jaimesorrow.wiccan.ui.paywall.SubscriptionSetupEffect
 import com.jaimesorrow.wiccan.ui.paywall.SubscriptionSetupViewModel
 import com.jaimesorrow.wiccan.ui.policy.PolicyAcceptanceScreen
 import com.jaimesorrow.wiccan.ui.settings.SettingsScreen
+import com.jaimesorrow.wiccan.ui.settings.AppLanguageManager
 import com.jaimesorrow.wiccan.ui.theme.ThemeViewModel
 import com.jaimesorrow.wiccan.ui.theme.WiccanTheme
 import com.wiccan.app.R
@@ -78,6 +80,10 @@ import dagger.hilt.android.AndroidEntryPoint
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguageManager.localizedContext(newBase))
+    }
+
     private val rootViewModel: RootViewModel by viewModels()
     private val themeViewModel: ThemeViewModel by viewModels()
 
