@@ -5,6 +5,19 @@ import { FakeContentRepository, makeContent, makeReviewedLesson } from "../testU
 const UID = "user-123";
 const TODAY = "2026-09-09";
 
+function previousDeliveries(count: number) {
+  return Array.from({ length: count }, (_, index) => ({
+    userId: UID,
+    contentId: `previous-${index}`,
+    deliveredDate: `2026-08-${String(index + 1).padStart(2, "0")}`,
+    title: `Previous ${index}`,
+    type: "spell" as const,
+    tradition: "European folk magic",
+    category: "MoonAndSeasonal" as const,
+  }));
+}
+
+
 describe("selectTodayContent", () => {
   it("prefers the lowest starter rank during a subscriber's first week", async () => {
     const repo = new FakeContentRepository();
@@ -46,16 +59,58 @@ describe("selectTodayContent", () => {
       makeReviewedLesson({ id: "starter", sourceId: "ancient-source", starterRank: 1 }),
       makeContent({ id: "unranked" }),
     ];
-    repo.history = Array.from({ length: 7 }, (_, index) => ({
-      userId: UID, contentId: `previous-${index}`, deliveredDate: `2026-09-0${index + 1}`, title: `Previous ${index}`,
-      type: "spell" as const, tradition: "European folk magic", category: "MoonAndSeasonal" as const,
-    }));
+    repo.history = previousDeliveries(7);
     const random = jest.spyOn(Math, "random").mockReturnValue(0.75);
     try {
       expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id).toBe("unranked");
     } finally {
       random.mockRestore();
     }
+  });
+
+  it("still prefers a starter lesson after six deliveries", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeReviewedLesson({ id: "starter", sourceId: "ancient-source", starterRank: 7 }),
+      makeContent({ id: "unranked" }),
+    ];
+    repo.history = previousDeliveries(6);
+    const random = jest.spyOn(Math, "random").mockReturnValue(0.75);
+    try {
+      expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id).toBe("starter");
+    } finally {
+      random.mockRestore();
+    }
+  });
+
+  it("falls back to regular daily selection when no starter lessons remain in the first week", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeReviewedLesson({ id: "already-seen-starter", sourceId: "ancient-source", starterRank: 1 }),
+      makeContent({ id: "unranked" }),
+    ];
+    repo.history = [{
+      userId: UID, contentId: "already-seen-starter", deliveredDate: "2026-09-08",
+      title: "Title already-seen-starter", type: "lesson", tradition: "Wiccan / Modern Witchcraft",
+      category: "divination",
+    }];
+    const random = jest.spyOn(Math, "random").mockReturnValue(0);
+    try {
+      expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id).toBe("unranked");
+    } finally {
+      random.mockRestore();
+    }
+  });
+
+  it("never treats a ranked potion as a curated starter lesson", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "ranked-potion", type: "potion", starterRank: 1 }),
+      makeReviewedLesson({ id: "starter-lesson", sourceId: "ancient-source", starterRank: 2 }),
+    ];
+
+    expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id)
+      .toBe("starter-lesson");
   });
 
   it("selects a published, in-tier candidate on the first call of the day and records it", async () => {

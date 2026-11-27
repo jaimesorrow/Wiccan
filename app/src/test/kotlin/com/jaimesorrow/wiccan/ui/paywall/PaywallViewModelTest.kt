@@ -299,4 +299,50 @@ class PaywallViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
         assertFalse(viewModel.state.value.subscriptionOnHold)
     }
+
+    @Test
+    fun `grace and other non-hold states keep payment recovery copy hidden`() = runTest(dispatcher) {
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        repository.emitSubscriptionState(SubscriptionState.ON_HOLD)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertTrue(viewModel.state.value.subscriptionOnHold)
+
+        val hidden = listOf(
+            SubscriptionState.UNKNOWN,
+            SubscriptionState.ACTIVE,
+            SubscriptionState.IN_GRACE_PERIOD,
+            SubscriptionState.PAUSED,
+            SubscriptionState.CANCELED,
+            SubscriptionState.EXPIRED,
+            SubscriptionState.PENDING,
+        )
+        for (state in hidden) {
+            repository.emitSubscriptionState(state)
+            dispatcher.scheduler.advanceUntilIdle()
+            assertFalse("expected $state to hide the on-hold card", viewModel.state.value.subscriptionOnHold)
+        }
+    }
+
+    @Test
+    fun `winback prices are applied per plan and a missing offer leaves them unset`() = runTest(dispatcher) {
+        repository.hasFreeTrial = false
+        repository.monthlyWinBackPrice = "$2.99"
+        repository.yearlyOffer = yearly.copy(
+            hasFreeTrial = false,
+            isWinBack = true,
+            winBackFormattedPrice = "$19.99",
+        )
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals("$2.99", viewModel.state.value.monthlyWinBackPrice)
+        assertEquals("$19.99", viewModel.state.value.yearlyWinBackPrice)
+
+        repository.monthlyWinBackPrice = null
+        repository.yearlyOffer = yearly.copy(hasFreeTrial = false, isWinBack = false, winBackFormattedPrice = null)
+        viewModel.onEvent(PaywallUiEvent.RetryPriceClicked)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(null, viewModel.state.value.monthlyWinBackPrice)
+        assertEquals(null, viewModel.state.value.yearlyWinBackPrice)
+    }
 }
