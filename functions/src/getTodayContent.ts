@@ -22,6 +22,15 @@ function pickRandom(items: Content[]): Content {
   return items[Math.floor(Math.random() * items.length)];
 }
 
+function pickCandidate(items: Content[], deliveredCount: number): Content {
+  if (deliveredCount < 7) {
+    const ranked = items.filter((item) => item.type === "lesson" && item.starterRank !== undefined)
+      .sort((left, right) => left.starterRank! - right.starterRank!);
+    if (ranked.length > 0) return ranked[0];
+  }
+  return pickRandom(items);
+}
+
 /** Preserve the committed assignment if its underlying document was removed. */
 export class DailyAssignmentUnavailableError extends Error {
   constructor(contentId: string) {
@@ -50,7 +59,9 @@ async function readAssignedContent(uid: string, contentId: string, repo: Content
  * 3. Exclude anything already delivered to the user.
  * 4. If nothing remains, log pool exhaustion and fail closed. Never repeat
  *    a lesson already delivered to this user.
- * 5. Pick a candidate at random and atomically reserve both its content
+ * 5. During a subscriber's first seven deliveries, prefer the lowest unseen
+ *    editor-assigned `starterRank`; otherwise pick a candidate at random.
+ *    Atomically reserve both its content
  *    ID and today's assignment. If another date reserved that ID first,
  *    retry with a different candidate. If another call won today, return
  *    that same-day winner. Never deliver the same ID on two days.
@@ -90,7 +101,7 @@ export async function selectTodayContent(
   });
 
   while (candidates.length > 0) {
-    const candidate = pickRandom(candidates);
+    const candidate = pickCandidate(candidates, deliveredIds.length);
     let assignedId: string;
     try {
       assignedId = await repo.assignDailyContent(uid, today, candidate, ancientLessonSourceIds);

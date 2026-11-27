@@ -1,4 +1,10 @@
 import { ContentTier } from "./types";
+import { PlaySubscriptionState } from "./playBillingPort";
+
+export interface SubscriptionProfileState {
+  subscriptionState: PlaySubscriptionState;
+  productId: string;
+}
 
 export interface PremiumUserRecord {
   uid: string;
@@ -29,6 +35,7 @@ export interface UserRepositoryPort {
     purchaseToken: string,
     source?: TierSyncSource,
     previousPurchaseToken?: string,
+    subscription?: SubscriptionProfileState,
   ): Promise<ContentTier | null>;
 
   /**

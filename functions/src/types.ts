@@ -65,6 +65,8 @@ export interface Content extends PracticalLessonFields {
   similarityGroupId?: string;
   /** Optional https URL or storage path for this lesson's hero. Not part of selection. */
   illustrationUrl?: string;
+  /** Editorial first-week order. Values 1-7 are preferred for a subscriber's first seven deliveries. */
+  starterRank?: number;
 }
 
 /**

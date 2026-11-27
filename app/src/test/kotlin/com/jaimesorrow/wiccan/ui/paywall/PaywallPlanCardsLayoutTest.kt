@@ -74,6 +74,23 @@ class PaywallPlanCardsLayoutTest {
     @Config(qualifiers = "w320dp-h533dp-xhdpi")
     fun `small 320x533 keeps both plans readable at 150 percent text`() = readableOnSmallScreen(1.5f)
 
+    @Test
+    @Config(qualifiers = "w411dp-h891dp-xxhdpi")
+    fun `payment recovery and winback terms are visible`() {
+        render(
+            fontScale = 1.0f,
+            dark = false,
+            state = bothPlans.copy(
+                selectedPlan = SubscriptionPlan.MONTHLY,
+                subscriptionOnHold = true,
+                monthlyWinBackPrice = "$2.99",
+            ),
+        )
+
+        composeRule.onNodeWithTag("payment-on-hold").assertIsDisplayed()
+        composeRule.onNodeWithTag("winback-offer").performScrollTo().assertIsDisplayed()
+    }
+
     private fun aboveTheFold(fontScale: Float) {
         render(fontScale, dark = fontScale == 1.3f)
         val viewport = bounds("paywall-scroll")
@@ -107,7 +124,7 @@ class PaywallPlanCardsLayoutTest {
         assertTrue("Sticky footer must fit on screen", footer.bottom <= bounds(null).bottom + 0.5f)
     }
 
-    private fun render(fontScale: Float, dark: Boolean) {
+    private fun render(fontScale: Float, dark: Boolean, state: PaywallUiState = bothPlans) {
         composeRule.setContent {
             val density = LocalDensity.current.density
             CompositionLocalProvider(LocalDensity provides Density(density, fontScale)) {
@@ -116,7 +133,7 @@ class PaywallPlanCardsLayoutTest {
                     typography = LocallyResolvableTypography,
                 ) {
                     PaywallContent(
-                        state = bothPlans,
+                        state = state,
                         insets = PaddingValues(0.dp),
                         onAccountClick = {},
                         onTermsClick = {},

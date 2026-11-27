@@ -127,6 +127,12 @@
     <string name="paywall_selected_monthly">Monthly: %1$s/month</string>
     <string name="paywall_selected_renews">Auto-renews until canceled. Cancel anytime in Google Play.</string>
     <string name="paywall_trial_disclosure_year">No charge during the 7-day trial. Google Play charges %1$s yearly after the trial unless canceled before it ends. Cancel anytime through Google Play.</string>
+    <string name="paywall_payment_failed_title">Payment needs attention</string>
+    <string name="paywall_payment_failed_body">Your payment didn’t go through. Update it in Google Play to restore access.</string>
+    <string name="paywall_update_payment">Update payment in Google Play</string>
+    <string name="paywall_winback_offer">Return for %1$s for the first billing period, then the regular Google Play price.</string>
+    <string name="paywall_selected_monthly_winback">Monthly: %1$s for the first month, then %2$s/month</string>
+    <string name="paywall_selected_yearly_winback">Yearly: %1$s for the first year, then %2$s/year</string>
     <!-- Billing reminder notification channel. Plain. -->
     <string name="notification_channel_billing_name">Trial and billing reminders</string>
     <string name="notification_channel_billing_description">A reminder before a free trial ends and the paid subscription starts.</string>
@@ -348,4 +354,8 @@
     <string name="notification_channel_daily_description">A note when the day\'s spell, potion, or lesson is ready.</string>
     <string name="notification_daily_default_title">Today\'s practice awaits</string>
     <string name="notification_billing_default_title">Wiccan subscription reminder</string>
+    <string name="notification_permission_title">Let the grimoire call to you each dawn</string>
+    <string name="notification_permission_body">Allow notifications for the optional daily practice and trial-ending reminder. You can turn them off anytime in Settings.</string>
+    <string name="notification_permission_continue">Continue</string>
+    <string name="notification_permission_not_now">Not now</string>
 </resources>

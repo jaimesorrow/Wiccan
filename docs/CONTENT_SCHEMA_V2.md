@@ -21,6 +21,12 @@ body, reflection, practice, materials (string[]), safetyNote, tags, status
 (draft|published), sourceId, sourceCitation, sourceUrl, rightsReviewRequired,
 similarityGroupId`, plus optional additive fields from `PracticalLessonFields`.
 
+An optional editorial `starterRank` integer from 1 through 7 identifies a
+curated first-week lesson. During a subscriber's first seven deliveries the
+selector prefers the lowest unseen rank; after that it uses normal random
+selection. The field does not publish a draft or bypass safety, source,
+rights, duplicate, or eligibility review.
+
 ## Canonical lesson (v2)
 
 ```text

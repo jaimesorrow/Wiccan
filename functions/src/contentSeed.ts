@@ -34,6 +34,7 @@ const SeedContentSchema = z.object({
   sourceCitation: z.string().min(1),
   sourceUrl: z.string().url(),
   similarityGroupId: z.string().trim().min(1).optional(),
+  starterRank: z.number().int().min(1).max(7).optional(),
   rightsNotes: z.string().nullable().optional(),
   /**
    * True when the entry still contains a phrase taken from a modern

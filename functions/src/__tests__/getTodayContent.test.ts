@@ -6,6 +6,58 @@ const UID = "user-123";
 const TODAY = "2026-09-09";
 
 describe("selectTodayContent", () => {
+  it("prefers the lowest starter rank during a subscriber's first week", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "unranked" }),
+      makeReviewedLesson({ id: "starter-2", sourceId: "ancient-source", starterRank: 2 }),
+      makeReviewedLesson({ id: "starter-1", sourceId: "ancient-source", starterRank: 1 }),
+    ];
+
+    expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id).toBe("starter-1");
+  });
+
+  it("advances to the lowest unseen starter rank", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeReviewedLesson({ id: "starter-1", sourceId: "ancient-source", starterRank: 1 }),
+      makeReviewedLesson({ id: "starter-2", sourceId: "ancient-source", starterRank: 2 }),
+      makeReviewedLesson({ id: "starter-3", sourceId: "ancient-source", starterRank: 3 }),
+    ];
+    repo.history = [{ userId: UID, contentId: "starter-1", deliveredDate: "2026-09-08", title: "Title starter-1", type: "spell", tradition: "European folk magic", category: "MoonAndSeasonal" }];
+
+    expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id).toBe("starter-2");
+  });
+
+  it("never treats a ranked spell as a curated starter lesson", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "ranked-spell", starterRank: 1 }),
+      makeReviewedLesson({ id: "starter-lesson", sourceId: "ancient-source", starterRank: 2 }),
+    ];
+
+    expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id)
+      .toBe("starter-lesson");
+  });
+
+  it("returns to random selection after seven deliveries", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeReviewedLesson({ id: "starter", sourceId: "ancient-source", starterRank: 1 }),
+      makeContent({ id: "unranked" }),
+    ];
+    repo.history = Array.from({ length: 7 }, (_, index) => ({
+      userId: UID, contentId: `previous-${index}`, deliveredDate: `2026-09-0${index + 1}`, title: `Previous ${index}`,
+      type: "spell" as const, tradition: "European folk magic", category: "MoonAndSeasonal" as const,
+    }));
+    const random = jest.spyOn(Math, "random").mockReturnValue(0.75);
+    try {
+      expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id).toBe("unranked");
+    } finally {
+      random.mockRestore();
+    }
+  });
+
   it("selects a published, in-tier candidate on the first call of the day and records it", async () => {
     const repo = new FakeContentRepository();
     repo.content = [

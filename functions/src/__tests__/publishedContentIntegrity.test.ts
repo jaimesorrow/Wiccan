@@ -61,6 +61,14 @@ describe("published content integrity", () => {
     expect(content.adaptationNotes).toEqual([]);
   });
 
+  it("maps only valid first-week starter ranks", () => {
+    const fixture = loadFixture("published-spell-maqlu-088.json");
+    expect(contentFromStoredDocument(fixture.id, { ...storedFields(fixture), starterRank: 4 }).starterRank).toBe(4);
+    expect(contentFromStoredDocument(fixture.id, { ...storedFields(fixture), starterRank: 0 }).starterRank).toBeUndefined();
+    expect(contentFromStoredDocument(fixture.id, { ...storedFields(fixture), starterRank: 8 }).starterRank).toBeUndefined();
+    expect(contentFromStoredDocument(fixture.id, { ...storedFields(fixture), starterRank: 1.5 }).starterRank).toBeUndefined();
+  });
+
   it.each(fixtures)("$name: is served by getTodayContent", async ({ file }) => {
     const fixture = loadFixture(file);
     const content = mapped(fixture);

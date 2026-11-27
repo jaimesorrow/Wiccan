@@ -9,6 +9,7 @@ import com.jaimesorrow.wiccan.billing.yearlySavingsPercent
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
+import com.jaimesorrow.wiccan.domain.model.SubscriptionState
 import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -39,6 +40,11 @@ class PaywallViewModel @Inject constructor(
     init {
         analyticsLogger.logPaywallViewed()
         loadPrice()
+        viewModelScope.launch {
+            subscriptionRepository.observeSubscriptionState().collect { subscriptionState ->
+                _state.update { it.copy(subscriptionOnHold = subscriptionState == SubscriptionState.ON_HOLD) }
+            }
+        }
     }
 
     fun onEvent(event: PaywallUiEvent) {
@@ -123,6 +129,8 @@ class PaywallViewModel @Inject constructor(
                 yearlyHasFreeTrial = false,
                 yearlyMonthlyEquivalent = null,
                 yearlySavingsPercent = null,
+                monthlyWinBackPrice = null,
+                yearlyWinBackPrice = null,
             )
         }
         viewModelScope.launch {
@@ -149,6 +157,8 @@ class PaywallViewModel @Inject constructor(
                 yearlyHasFreeTrial = yearly?.hasFreeTrial == true,
                 yearlyMonthlyEquivalent = yearly?.let(::yearlyMonthlyEquivalent),
                 yearlySavingsPercent = yearly?.let { offer -> yearlySavingsPercent(offer, monthly) },
+                monthlyWinBackPrice = monthly.winBackFormattedPrice,
+                yearlyWinBackPrice = yearly?.winBackFormattedPrice,
                 selectedPlan = when {
                     yearly == null -> SubscriptionPlan.MONTHLY
                     userPickedPlan -> it.selectedPlan
