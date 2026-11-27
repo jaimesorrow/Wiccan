@@ -74,6 +74,21 @@ class OnboardingViewModelTest {
     }
 
     @Test
+    fun `verification delivery failure survives routing to the verification gate`() {
+        val repository = FakeAuthRepository().apply {
+            verificationDeliveryFailurePending = true
+        }
+        val viewModel = OnboardingViewModel(repository)
+
+        viewModel.onStepShown(OnboardingStep.VERIFY_EMAIL)
+
+        assertEquals(R.string.error_verification_email_delivery, viewModel.state.value.notice)
+        assertFalse(repository.verificationDeliveryFailurePending)
+        viewModel.onStepShown(OnboardingStep.VERIFY_EMAIL)
+        assertEquals(R.string.error_verification_email_delivery, viewModel.state.value.notice)
+    }
+
+    @Test
     fun `names and notices are cleared when the account changes`() = runTest(dispatcher) {
         val repository = FakeAuthRepository()
         repository.setAuthState(AuthState.SignedIn("uid-a"))
