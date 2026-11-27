@@ -6,7 +6,10 @@ import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import com.jaimesorrow.wiccan.domain.model.SubscriptionState
+import com.jaimesorrow.wiccan.domain.model.VerifiedTier
+import com.jaimesorrow.wiccan.domain.model.YearlySwitchOffer
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 /**
  * The only layer allowed to touch the Billing Library or the tier stored
@@ -31,8 +34,22 @@ interface SubscriptionRepository {
     /** Informational server-mirrored Play state; never used to grant access. */
     fun observeSubscriptionState(): Flow<SubscriptionState>
 
+    /** Server-mirrored Play product ID, or null when unknown. Never used to grant access. */
+    fun observeProductId(): Flow<String?>
+
+    /** Emitted when a Play purchase sheet closes without a new purchase. */
+    fun observePurchaseFlowDismissed(): Flow<Unit>
+
     /** Requests Play's own transactional payment-recovery message. */
     suspend fun showTransactionalMessage(activity: Activity): AppResult<Unit>
+
+    /**
+     * The tier with its provenance, for gates that must fail closed the other
+     * way (ads): [VerifiedTier.FREE] only when a server snapshot confirms it.
+     * Defaults to [VerifiedTier.UNVERIFIED], so an implementation that cannot
+     * tell never shows ads.
+     */
+    fun observeVerifiedTier(): Flow<VerifiedTier> = flowOf(VerifiedTier.UNVERIFIED)
 
     /** Current eligible monthly offer, including its actual trial and renewal price. */
     suspend fun getOffer(): AppResult<SubscriptionOffer>
@@ -43,6 +60,19 @@ interface SubscriptionRepository {
      * then falls back to the monthly plan alone.
      */
     suspend fun getYearlyOffer(): AppResult<SubscriptionOffer?>
+
+    /**
+     * Yearly offer used when an active monthly subscriber switches plans.
+     * Prefers the Play offer tagged `switch-yearly`, otherwise the yearly
+     * base plan. `Success(null)` when the yearly product is unavailable.
+     */
+    suspend fun getYearlySwitchOffer(): AppResult<YearlySwitchOffer?>
+
+    /**
+     * Launches Play's subscription replacement UI from monthly to yearly,
+     * using the switch offer last loaded for this account.
+     */
+    suspend fun launchSwitchToYearly(activity: Activity): AppResult<Unit>
 
     /**
      * Re-queries Play for subscriptions the signed-in Google account already

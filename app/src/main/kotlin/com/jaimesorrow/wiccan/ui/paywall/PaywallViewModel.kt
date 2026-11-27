@@ -125,8 +125,10 @@ class PaywallViewModel @Inject constructor(
                 isLoadingPrice = true,
                 price = null,
                 hasFreeTrial = false,
+                freeTrialDays = null,
                 yearlyPrice = null,
                 yearlyHasFreeTrial = false,
+                yearlyFreeTrialDays = null,
                 yearlyMonthlyEquivalent = null,
                 yearlySavingsPercent = null,
                 monthlyWinBackPrice = null,
@@ -153,12 +155,15 @@ class PaywallViewModel @Inject constructor(
                 isLoadingPrice = false,
                 price = monthly.formattedPrice,
                 hasFreeTrial = monthly.hasFreeTrial,
+                freeTrialDays = monthly.freeTrialDays,
                 yearlyPrice = yearly?.formattedPrice,
                 yearlyHasFreeTrial = yearly?.hasFreeTrial == true,
+                yearlyFreeTrialDays = yearly?.freeTrialDays,
                 yearlyMonthlyEquivalent = yearly?.let(::yearlyMonthlyEquivalent),
                 yearlySavingsPercent = yearly?.let { offer -> yearlySavingsPercent(offer, monthly) },
                 monthlyWinBackPrice = monthly.winBackFormattedPrice,
                 yearlyWinBackPrice = yearly?.winBackFormattedPrice,
+                yearlyWinBackBillingPeriod = yearly?.winBackBillingPeriod,
                 selectedPlan = when {
                     yearly == null -> SubscriptionPlan.MONTHLY
                     userPickedPlan -> it.selectedPlan

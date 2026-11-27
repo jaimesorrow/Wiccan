@@ -72,6 +72,8 @@ fun SettingsScreen(
     onPrivacyClick: () -> Unit = {},
     onContentSafetyClick: () -> Unit = {},
     onPotionSafetyClick: () -> Unit = {},
+    // Ad "Privacy choices" entry (UMP); production wires AdPrivacyChoicesRow.
+    privacyChoices: @Composable () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -223,6 +225,15 @@ fun SettingsScreen(
                 Text(stringResource(R.string.settings_manage_subscription))
             }
 
+            state.yearlySwitchOffer?.let { offer ->
+                Spacer(modifier = Modifier.height(12.dp))
+                SwitchToYearlyRow(
+                    offer = offer,
+                    enabled = !state.isSwitchBusy && !state.isAccountBusy && !state.isDeleting,
+                    onClick = { context.findActivity()?.let(viewModel::switchToYearly) },
+                )
+            }
+
             if (!accountOnly) {
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(
@@ -321,6 +332,7 @@ fun SettingsScreen(
                 }
                 Switch(checked = state.shareAnalytics, onCheckedChange = null)
             }
+            privacyChoices()
 
             Spacer(modifier = Modifier.height(24.dp))
             OutlinedButton(

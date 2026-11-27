@@ -25,6 +25,20 @@ val hasKeystoreProperties = keystorePropertiesFile.exists()
 val useFirebaseEmulators = providers.gradleProperty("useFirebaseEmulators")
     .map(String::toBooleanStrict)
     .getOrElse(false)
+// Google's public AdMob sample IDs (https://developers.google.com/admob/android/test-ads).
+// They always serve test ads and never earn or charge anything.
+val admobTestAppId = "ca-app-pub-3940256099942544~3347511713"
+val admobTestBannerUnitId = "ca-app-pub-3940256099942544/9214589741"
+
+/**
+ * AdMob identity per flavor: the app ID goes into the manifest (read by the
+ * Mobile Ads SDK at startup) and the banner unit ID into BuildConfig.
+ */
+fun com.android.build.api.dsl.ProductFlavor.admobIds(appId: String, bannerUnitId: String) {
+    manifestPlaceholders["admobAppId"] = appId
+    buildConfigField("String", "ADMOB_GRIMOIRE_BANNER_UNIT_ID", "\"$bannerUnitId\"")
+}
+
 val keystoreProperties = Properties().apply {
     if (hasKeystoreProperties) {
         load(keystorePropertiesFile.inputStream())
@@ -56,13 +70,19 @@ android {
         create("dev") {
             dimension = "environment"
             versionNameSuffix = "-dev"
+            admobIds(admobTestAppId, admobTestBannerUnitId)
         }
         create("staging") {
             dimension = "environment"
             versionNameSuffix = "-staging"
+            admobIds(admobTestAppId, admobTestBannerUnitId)
         }
         create("prod") {
             dimension = "environment"
+            // Still Google's public TEST IDs. Replace with the real AdMob app ID
+            // and Grimoire banner unit ID only when the AdMob account exists and
+            // ads are approved to ship - see docs/ADMOB.md.
+            admobIds(admobTestAppId, admobTestBannerUnitId)
         }
     }
 
@@ -244,6 +264,9 @@ dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     implementation(libs.billing.ktx)
+
+    implementation(libs.play.services.ads)
+    implementation(libs.user.messaging.platform)
 
     implementation(libs.glance.appwidget)
 

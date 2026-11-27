@@ -18,6 +18,7 @@ import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
+import com.jaimesorrow.wiccan.domain.model.YearlySwitchOffer
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.security.MessageDigest
 import javax.inject.Inject
@@ -56,11 +57,17 @@ class WiccanBillingClient @Inject constructor(
     private val recoveryUpdateChannel = Channel<Unit>(Channel.UNLIMITED)
     val recoveryUpdates: Flow<Unit> = recoveryUpdateChannel.receiveAsFlow()
 
+    /** Emitted when a Play billing sheet closes without a new purchase (cancel or error). */
+    private val purchaseFlowDismissedChannel = Channel<Unit>(Channel.UNLIMITED)
+    val purchaseFlowDismissed: Flow<Unit> = purchaseFlowDismissedChannel.receiveAsFlow()
+
     private val connectionMutex = Mutex()
 
     private val listener = PurchasesUpdatedListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
             purchaseUpdateChannel.trySend(purchases)
+        } else if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
+            purchaseFlowDismissedChannel.trySend(Unit)
         }
     }
 
@@ -152,6 +159,35 @@ class WiccanBillingClient @Inject constructor(
         return client.launchBillingFlow(activity, flowParams)
     }
 
+    /**
+     * Replaces the caller's current monthly subscription with the yearly
+     * plan, using [YEARLY_SWITCH_REPLACEMENT_MODE].
+     */
+    suspend fun launchPlanChangeFlow(
+        activity: Activity,
+        userId: String,
+        expectedOffer: YearlySwitchOffer,
+        oldPurchaseToken: String,
+    ): BillingResult {
+        val productDetails = queryProductDetails(PREMIUM_YEARLY_PRODUCT_ID)
+        productDetails.requireUnchangedSwitchOffer(expectedOffer)
+
+        val flowParams = BillingFlowParams.newBuilder()
+            .setObfuscatedAccountId(obfuscatedAccountId(userId))
+            .setProductDetailsParamsList(
+                listOf(
+                    BillingFlowParams.ProductDetailsParams.newBuilder()
+                        .setProductDetails(productDetails)
+                        .setOfferToken(expectedOffer.offerToken)
+                        .build(),
+                ),
+            )
+            .setSubscriptionUpdateParams(yearlySwitchUpdateParams(oldPurchaseToken))
+            .build()
+
+        return client.launchBillingFlow(activity, flowParams)
+    }
+
     suspend fun queryOwnedSubscriptions(): List<Purchase> {
         ensureConnected()
         val params = QueryPurchasesParams.newBuilder()
@@ -198,8 +234,9 @@ private fun planForProduct(productId: String): SubscriptionPlan? = when (product
 
 /**
  * Only the configured plan shape for this product (monthly P1M or yearly
- * P1Y, auto-renewing), optionally preceded by a seven-day free trial or a
- * discounted intro whose own offer tags include `winback`. Base-plan tags
+ * P1Y, auto-renewing), optionally preceded by a seven- or fourteen-day
+ * free trial or a discounted intro whose own offer tags include `winback`.
+ * Base-plan tags
  * are ignored for selection: a tagged base plan stays a regular plan, and
  * a base plan is never treated as a win-back offer even if it carries that
  * tag. Any other shape fails closed.
@@ -222,24 +259,25 @@ internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
         ) {
             return@mapNotNull null
         }
-        val hasTrial = phases.size == 2 && phases.first().let { trial ->
-            trial.priceAmountMicros == 0L && trial.billingPeriod in setOf("P7D", "P1W") &&
+        val trialDays = phases.firstOrNull()?.let { trial ->
+            if (phases.size == 2 &&
+                trial.priceAmountMicros == 0L &&
                 (
                     (trial.recurrenceMode == ProductDetails.RecurrenceMode.FINITE_RECURRING && trial.billingCycleCount == 1) ||
                         (trial.recurrenceMode == ProductDetails.RecurrenceMode.NON_RECURRING && trial.billingCycleCount == 0)
                     )
+            ) {
+                freeTrialDays(trial.billingPeriod)
+            } else {
+                null
+            }
         }
+        val hasTrial = trialDays != null
         // Win-back is identified only by this offer's own tags and offerId.
         // Play also puts base-plan tags in offerTags when offerId is null, so
         // a tagged base plan must still be accepted as the regular plan.
         val isWinBack = offer.offerId != null && offer.offerTags.contains(WIN_BACK_TAG) &&
-            phases.size == 2 && phases.first().let { intro ->
-                intro.priceAmountMicros in 1L until renewal.priceAmountMicros &&
-                    intro.priceCurrencyCode == renewal.priceCurrencyCode &&
-                    intro.billingPeriod == expectedPeriod &&
-                    intro.recurrenceMode == ProductDetails.RecurrenceMode.FINITE_RECURRING &&
-                    intro.billingCycleCount == 1
-            }
+            phases.size == 2 && isDiscountedIntro(phases.first(), renewal, expectedPeriod)
         if (!hasTrial && !isWinBack && (phases.size != 1 || offer.offerId != null)) {
             return@mapNotNull null
         }
@@ -252,15 +290,125 @@ internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
             priceCurrencyCode = renewal.priceCurrencyCode,
             isWinBack = isWinBack,
             winBackFormattedPrice = if (isWinBack) phases.first().formattedPrice else null,
+            winBackBillingPeriod = if (isWinBack) phases.first().billingPeriod else null,
+            freeTrialDays = trialDays,
         )
     }.sortedWith(compareByDescending<SubscriptionOffer> { it.hasFreeTrial }.thenByDescending { it.isWinBack }).firstOrNull()
 }
 
 private const val WIN_BACK_TAG = "winback"
+private const val SWITCH_YEARLY_TAG = "switch-yearly"
+
+/** Play billing periods accepted as a free trial: 7 days (P7D/P1W) or 14 days (P14D/P2W). */
+internal fun freeTrialDays(billingPeriod: String): Int? = when (billingPeriod) {
+    "P7D", "P1W" -> 7
+    "P14D", "P2W" -> 14
+    else -> null
+}
+
+/**
+ * Google Play "Single payment" intro phases (the live $0.99 first-month
+ * offers) arrive as [ProductDetails.RecurrenceMode.NON_RECURRING] with
+ * billing period `P1M`, including on the yearly base plan. A same-period
+ * finite recurring intro remains valid for older offer shapes.
+ */
+private fun isDiscountedIntro(
+    intro: ProductDetails.PricingPhase,
+    renewal: ProductDetails.PricingPhase,
+    expectedRenewalPeriod: String,
+): Boolean {
+    if (intro.priceAmountMicros !in 1L until renewal.priceAmountMicros) return false
+    if (intro.priceCurrencyCode != renewal.priceCurrencyCode) return false
+    val finiteSamePeriod = intro.billingPeriod == expectedRenewalPeriod &&
+        intro.recurrenceMode == ProductDetails.RecurrenceMode.FINITE_RECURRING &&
+        intro.billingCycleCount == 1
+    val firstMonthPromo = intro.billingPeriod == "P1M" && isSingleMonthIntro(intro)
+    return finiteSamePeriod || firstMonthPromo
+}
+
+/** True for Play's Single payment (`NON_RECURRING`) or a one-cycle `P1M` finite intro. */
+private fun isSingleMonthIntro(intro: ProductDetails.PricingPhase): Boolean =
+    when (intro.recurrenceMode) {
+        ProductDetails.RecurrenceMode.NON_RECURRING -> intro.billingCycleCount in 0..1
+        ProductDetails.RecurrenceMode.FINITE_RECURRING -> intro.billingCycleCount == 1
+        else -> false
+    }
+
+/**
+ * Prefer the yearly offer tagged `switch-yearly` (its own tags, never a
+ * base-plan tag). Fall back to the yearly base plan when that offer is
+ * missing or the wrong shape. Trials are never selected: a plan change
+ * is not a new-customer trial.
+ */
+internal fun ProductDetails.yearlySwitchOffer(): YearlySwitchOffer? {
+    if (productId != PREMIUM_YEARLY_PRODUCT_ID) return null
+    val offers = subscriptionOfferDetails.orEmpty()
+    val tagged = offers.firstNotNullOfOrNull { offer ->
+        if (offer.offerId == null || !offer.offerTags.contains(SWITCH_YEARLY_TAG)) {
+            null
+        } else {
+            offer.toYearlySwitchOffer()
+        }
+    }
+    if (tagged != null) return tagged
+    return offers.firstNotNullOfOrNull { offer ->
+        if (offer.offerId != null) null else offer.toYearlySwitchOffer()
+    }
+}
+
+private fun ProductDetails.SubscriptionOfferDetails.toYearlySwitchOffer(): YearlySwitchOffer? {
+    val phases = pricingPhases.pricingPhaseList
+    val renewal = phases.lastOrNull() ?: return null
+    if (renewal.recurrenceMode != ProductDetails.RecurrenceMode.INFINITE_RECURRING ||
+        renewal.billingPeriod != "P1Y" || renewal.priceAmountMicros <= 0
+    ) {
+        return null
+    }
+    val intro = when {
+        phases.size == 1 && offerId == null -> null
+        phases.size == 2 &&
+            isDiscountedIntro(phases.first(), renewal, "P1Y") &&
+            phases.first().billingPeriod == "P1M" -> phases.first()
+        else -> return null
+    }
+    return YearlySwitchOffer(
+        offerToken = offerToken,
+        yearlyFormattedPrice = renewal.formattedPrice,
+        introFormattedPrice = intro?.formattedPrice,
+        priceAmountMicros = renewal.priceAmountMicros,
+        priceCurrencyCode = renewal.priceCurrencyCode,
+    )
+}
+
+/**
+ * [BillingFlowParams.SubscriptionUpdateParams.ReplacementMode.CHARGE_PRORATED_PRICE]
+ * is only allowed when the new plan costs more per unit of time. The yearly
+ * plan is cheaper per month than the monthly plan, so Play would reject
+ * that mode. [BillingFlowParams.SubscriptionUpdateParams.ReplacementMode.WITH_TIME_PRORATION]
+ * applies the yearly plan immediately and credits unused monthly time by
+ * moving the next billing date forward. Settings does not describe that
+ * credit; Google Play confirms the charge before payment.
+ */
+internal const val YEARLY_SWITCH_REPLACEMENT_MODE =
+    BillingFlowParams.SubscriptionUpdateParams.ReplacementMode.WITH_TIME_PRORATION
+
+internal fun yearlySwitchUpdateParams(
+    oldPurchaseToken: String,
+): BillingFlowParams.SubscriptionUpdateParams =
+    BillingFlowParams.SubscriptionUpdateParams.newBuilder()
+        .setOldPurchaseToken(oldPurchaseToken)
+        .setSubscriptionReplacementMode(YEARLY_SWITCH_REPLACEMENT_MODE)
+        .build()
 
 /** Require the fresh Play terms to match the offer the user saw. */
 internal fun ProductDetails.requireUnchangedOffer(expected: SubscriptionOffer) {
     if (subscriptionOffer() != expected) {
+        throw PlayBillingException("Your Google Play offer changed. Refresh the subscription offer and try again.")
+    }
+}
+
+internal fun ProductDetails.requireUnchangedSwitchOffer(expected: YearlySwitchOffer) {
+    if (yearlySwitchOffer() != expected) {
         throw PlayBillingException("Your Google Play offer changed. Refresh the subscription offer and try again.")
     }
 }

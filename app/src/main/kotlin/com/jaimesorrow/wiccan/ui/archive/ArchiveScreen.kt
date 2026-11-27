@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jaimesorrow.wiccan.ads.GrimoireBannerAd
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.HistoryEntry
@@ -66,6 +67,8 @@ fun ArchiveScreen(
     modifier: Modifier = Modifier,
     viewModel: ArchiveViewModel = hiltViewModel(),
     onNavigateToDetail: (String) -> Unit = {},
+    // Non-subscribers only; renders nothing for Premium (see GrimoireBannerAd).
+    bottomAd: @Composable () -> Unit = { GrimoireBannerAd() },
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -77,7 +80,7 @@ fun ArchiveScreen(
         }
     }
 
-    ArchiveScreenContent(state = state, onEvent = viewModel::onEvent, modifier = modifier)
+    ArchiveScreenContent(state = state, onEvent = viewModel::onEvent, modifier = modifier, bottomBar = bottomAd)
 }
 
 @Composable
@@ -85,11 +88,13 @@ internal fun ArchiveScreenContent(
     state: ArchiveUiState,
     onEvent: (ArchiveUiEvent) -> Unit,
     modifier: Modifier = Modifier,
+    bottomBar: @Composable () -> Unit = {},
 ) {
     MidnightGrimoireTheme {
         Scaffold(
             modifier = modifier.fillMaxSize(),
             containerColor = MaterialTheme.colorScheme.background,
+            bottomBar = bottomBar,
         ) { insets ->
             Column(modifier = Modifier.padding(insets).fillMaxSize().wiccanPageWash()) {
                 Box(

@@ -22,7 +22,7 @@ import {
 const OWNER = "owner";
 const OTHER = "other";
 const HISTORY_PATH = `userContentHistory/${OWNER}_2026-10-06`;
-const CURRENT_POLICIES = { acceptedTermsVersion: 6, acceptedPrivacyVersion: 6 };
+const CURRENT_POLICIES = { acceptedTermsVersion: 7, acceptedPrivacyVersion: 7 };
 const ACTIVE_SUBSCRIBER = {
   tier: "premium",
   subscriptionExpiresAtMillis: Date.now() + 3_600_000,
@@ -235,8 +235,8 @@ describe("delivered published-content read policy", () => {
     { tier: "premium", subscriptionExpiresAtMillis: "2099" },
     { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000, deletionInProgress: true },
     { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 },
-    { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: 5 },
-    { ...ACTIVE_SUBSCRIBER, acceptedPrivacyVersion: 5 },
+    { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: 6 },
+    { ...ACTIVE_SUBSCRIBER, acceptedPrivacyVersion: 6 },
   ]) {
     it(`blocks all lesson and history access for inactive profiles ${JSON.stringify(fields)}`, async () => {
       await environment.withSecurityRulesDisabled(async (context) => {
@@ -265,7 +265,7 @@ describe("delivered published-content read policy", () => {
   });
 });
 
-describe("policy v6 acceptance", () => {
+describe("policy v7 acceptance", () => {
   async function setOwner(fields) {
     await environment.withSecurityRulesDisabled(async (context) => {
       await setDoc(doc(context.firestore(), `users/${OWNER}`), fields);
@@ -279,7 +279,7 @@ describe("policy v6 acceptance", () => {
     await assertSucceeds(getDoc(doc(ownerDb(), `users/${OWNER}`)));
   }
 
-  it("allows content and history reads when both accepted policy versions are 6", async () => {
+  it("allows content and history reads when both accepted policy versions are 7", async () => {
     await setOwner({ ...ACTIVE_SUBSCRIBER });
     await assertSucceeds(getDoc(doc(ownerDb(), "content/published-free")));
     await assertSucceeds(getDoc(doc(ownerDb(), "content/published-premium")));
@@ -287,15 +287,16 @@ describe("policy v6 acceptance", () => {
   });
 
   const rejected = [
-    ["an older terms version", { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: 5 }],
-    ["an older privacy version", { ...ACTIVE_SUBSCRIBER, acceptedPrivacyVersion: 5 }],
+    ["an older terms version", { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: 6 }],
+    ["an older privacy version", { ...ACTIVE_SUBSCRIBER, acceptedPrivacyVersion: 6 }],
+    ["a much older privacy version", { ...ACTIVE_SUBSCRIBER, acceptedPrivacyVersion: 5 }],
     ["both older versions", { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: 4, acceptedPrivacyVersion: 4 }],
-    ["a future terms version", { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: 7 }],
-    ["a future privacy version", { ...ACTIVE_SUBSCRIBER, acceptedPrivacyVersion: 7 }],
-    ["a string terms version", { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: "6" }],
-    ["a string privacy version", { ...ACTIVE_SUBSCRIBER, acceptedPrivacyVersion: "6" }],
+    ["a future terms version", { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: 8 }],
+    ["a future privacy version", { ...ACTIVE_SUBSCRIBER, acceptedPrivacyVersion: 8 }],
+    ["a string terms version", { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: "7" }],
+    ["a string privacy version", { ...ACTIVE_SUBSCRIBER, acceptedPrivacyVersion: "7" }],
     ["a boolean terms version", { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: true }],
-    ["a non-integer terms version", { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: 6.5 }],
+    ["a non-integer terms version", { ...ACTIVE_SUBSCRIBER, acceptedTermsVersion: 7.5 }],
     ["missing policy versions", { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000 }],
     [
       "terms accepted without privacy",
@@ -311,15 +312,15 @@ describe("policy v6 acceptance", () => {
 
   it("rejects a client writing or forging policy acceptance on their profile", async () => {
     await assertFails(updateDoc(doc(ownerDb(), `users/${OWNER}`), {
-      acceptedTermsVersion: 6,
-      acceptedPrivacyVersion: 6,
+      acceptedTermsVersion: 7,
+      acceptedPrivacyVersion: 7,
     }));
     await setOwner({
       ...ACTIVE_SUBSCRIBER,
       acceptedTermsVersion: 5,
       acceptedPrivacyVersion: 5,
     });
-    await assertFails(updateDoc(doc(ownerDb(), `users/${OWNER}`), { acceptedTermsVersion: 6 }));
+    await assertFails(updateDoc(doc(ownerDb(), `users/${OWNER}`), { acceptedTermsVersion: 7 }));
     await assertFails(setDoc(doc(ownerDb(), `users/${OWNER}`), { ...ACTIVE_SUBSCRIBER }));
     await assertContentAndHistoryDenied();
   });
