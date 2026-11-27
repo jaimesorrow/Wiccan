@@ -80,6 +80,10 @@ describe("recheckLapsedSubscriptions", () => {
     expect(await recheckLapsedSubscriptions(billing, users, subscriptions))
       .toEqual({ checked: 1, downgraded: 0, failed: 0 });
     expect(users.users.get("user-recovered")?.tier).toBe("premium");
+    expect(users.users.get("user-recovered")).toMatchObject({
+      subscriptionState: "active",
+      productId: PRODUCT_ID,
+    });
     expect(subscriptions.records.get("user-recovered")?.subscriptionState).toBe("active");
   });
 
