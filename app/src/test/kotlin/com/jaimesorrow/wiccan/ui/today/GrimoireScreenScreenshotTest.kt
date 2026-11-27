@@ -12,7 +12,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -182,10 +181,20 @@ class GrimoireScreenScreenshotTest {
             }
         }
         composeRule.waitForIdle()
-        composeRule.onNode(hasText("a flame unattended", substring = true), useUnmergedTree = true)
-            .performScrollTo()
-        composeRule.waitForIdle()
         composeRule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/wiccan-lesson.png")
+    }
+
+    @Test
+    fun `capture daily lesson bottom`() {
+        composeRule.setContent {
+            MidnightGrimoireTheme {
+                DailyGrimoirePage(content = sampleLesson())
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("lesson_quill_ornament").performScrollTo()
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/wiccan-lesson-bottom.png")
     }
 
     @Test
@@ -199,8 +208,7 @@ class GrimoireScreenScreenshotTest {
             }
         }
         composeRule.waitForIdle()
-        composeRule.onNode(hasText("a flame unattended", substring = true), useUnmergedTree = true)
-            .performScrollTo()
+        composeRule.onNodeWithTag("lesson_quill_ornament").performScrollTo()
         composeRule.waitForIdle()
         composeRule.onRoot().captureRoboImage(
             filePath = "build/outputs/roborazzi/wiccan-lesson-font-130.png",

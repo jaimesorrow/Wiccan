@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jaimesorrow.wiccan.domain.model.Content
@@ -157,9 +159,14 @@ private fun LessonLeaf(
     )
     val scrollState = rememberScrollState()
     val fontScale = LocalDensity.current.fontScale
-    val topCandleBand = 104.dp * fontScale
-    val endCandleInset = 116.dp * fontScale
-    val startTextInset = 18.dp
+    val horizontalInset = 18.dp
+    val candleReserveEnd = 96.dp * fontScale
+    val pageMargins = Modifier.padding(
+        start = horizontalInset,
+        end = horizontalInset,
+        top = 18.dp,
+        bottom = 24.dp,
+    )
     Box(modifier = modifier) {
         Image(
             painter = painterResource(R.drawable.grimoire_parchment),
@@ -185,27 +192,12 @@ private fun LessonLeaf(
                         Modifier.fillMaxWidth()
                     },
                 )
-                .padding(
-                    start = startTextInset,
-                    end = endCandleInset,
-                    top = 18.dp,
-                    bottom = 24.dp,
-                ),
+                .then(pageMargins),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Spacer(Modifier.height(topCandleBand))
-            Text(
-                text = content.title,
-                color = Ink,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics { heading() },
-                style = MaterialTheme.typography.displaySmall.copy(
-                    fontFamily = Quill,
-                    fontSize = 40.sp,
-                    lineHeight = 44.sp,
-                ),
+            LessonTitleHeader(
+                title = content.title,
+                candleReserveEnd = candleReserveEnd,
             )
             Text(
                 text = stringResource(R.string.today_lesson),
@@ -260,27 +252,51 @@ private fun LessonLeaf(
                 Modifier
                     .padding(top = 16.dp)
                     .size(width = 116.dp, height = 84.dp)
+                    .testTag("lesson_quill_ornament")
                     .semantics { contentDescription = quillDescription },
             )
             Spacer(Modifier.height(28.dp))
         }
+    }
+}
+
+@Composable
+private fun LessonTitleHeader(title: String, candleReserveEnd: Dp) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 96.dp),
+    ) {
+        val candleDescription = stringResource(R.string.lesson_candle_description)
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 6.dp, end = 10.dp)
+                .padding(top = 2.dp)
                 .size(104.dp),
         ) {
             GrimoireCandleGlow(Modifier.fillMaxSize())
         }
-        val candleDescription = stringResource(R.string.lesson_candle_description)
         Image(
             painter = painterResource(R.drawable.grimoire_candle),
             contentDescription = candleDescription,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 8.dp, end = 10.dp)
-                .size(width = 88.dp, height = 96.dp)
-                .offset(x = 0.dp, y = 0.dp),
+                .padding(top = 4.dp)
+                .size(width = 88.dp, height = 96.dp),
+        )
+        Text(
+            text = title,
+            color = Ink,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = candleReserveEnd, top = 8.dp, bottom = 4.dp)
+                .semantics { heading() },
+            style = MaterialTheme.typography.displaySmall.copy(
+                fontFamily = Quill,
+                fontSize = 40.sp,
+                lineHeight = 44.sp,
+            ),
         )
     }
 }
