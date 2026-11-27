@@ -179,6 +179,7 @@ private fun LessonShellContent(
                 label = stringResource(R.string.content_reflection),
                 body = it,
                 bodyStyle = body,
+                modifier = Modifier.testTag("lesson_reflection_shell"),
             )
         }
         content.practice?.takeIf { it.isNotBlank() }?.let {
@@ -187,6 +188,7 @@ private fun LessonShellContent(
                 label = stringResource(R.string.content_practice),
                 body = it,
                 bodyStyle = body,
+                modifier = Modifier.testTag("lesson_practice_shell"),
             )
         }
         LessonClosingBlock(
@@ -263,7 +265,11 @@ private fun ParchmentWorkingSection(
     body: String,
     stepStyle: androidx.compose.ui.text.TextStyle,
 ) {
-    ParchmentSectionTitle("${roman(step)}. $label")
+    ParchmentSectionTitle(
+        "${roman(step)}. ${label.replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
+        }}"
+    )
     Text(
         body,
         color = Ink,
@@ -278,15 +284,18 @@ private fun ShellStepSection(
     label: String,
     body: String,
     bodyStyle: androidx.compose.ui.text.TextStyle,
+    modifier: Modifier = Modifier,
 ) {
-    GrimoireOrnamentalDivider(modifier = Modifier.padding(top = 8.dp))
-    ShellSectionTitle("${roman(step)}. $label")
-    Text(
-        body,
-        color = ShellText,
-        style = bodyStyle,
-        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
-    )
+    Column(modifier = modifier) {
+        GrimoireOrnamentalDivider(modifier = Modifier.padding(top = 8.dp))
+        ShellSectionTitle("${roman(step)}. $label")
+        Text(
+            body,
+            color = ShellText,
+            style = bodyStyle,
+            modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
+        )
+    }
 }
 
 @Composable
@@ -304,15 +313,16 @@ private fun ShellSectionTitle(text: String) {
 
 @Composable
 private fun ParchmentSectionTitle(text: String) {
+    val title = text.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
     Text(
-        text = text.uppercase(Locale.ROOT),
+        text = title,
         color = Ink,
         modifier = Modifier.semantics { heading() },
         style = MaterialTheme.typography.titleSmall.copy(
-            fontFamily = WiccanGrimoireStepsFont,
-            fontSize = 20.sp,
-            lineHeight = 30.sp,
-            letterSpacing = 0.4.sp,
+            fontFamily = WiccanDisplayFont,
+            fontSize = 18.sp,
+            lineHeight = 26.sp,
+            letterSpacing = 0.6.sp,
         ),
     )
 }

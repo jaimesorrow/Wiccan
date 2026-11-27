@@ -218,6 +218,7 @@ class GrimoireScreenScreenshotTest {
     }
 
     @Test
+    @Config(sdk = [34], qualifiers = "w360dp-h640dp-xhdpi", application = android.app.Application::class)
     fun `capture daily lesson with reflection below parchment`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
@@ -225,7 +226,7 @@ class GrimoireScreenScreenshotTest {
             }
         }
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("What did the dark make visible?").performScrollTo()
+        composeRule.onNodeWithTag("lesson_reflection_shell").performScrollTo()
         composeRule.waitForIdle()
         composeRule.onRoot().captureRoboImage(
             filePath = "build/outputs/roborazzi/wiccan-lesson-working-and-reflection.png",
