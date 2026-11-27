@@ -219,7 +219,7 @@ internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
                         (trial.recurrenceMode == ProductDetails.RecurrenceMode.NON_RECURRING && trial.billingCycleCount == 0)
                     )
         }
-        val isWinBack = offer.offerTags.contains(WIN_BACK_TAG) && offer.offerId != null &&
+        val isWinBack = offer.offerId != null && offer.offerTags.contains(WIN_BACK_TAG) &&
             phases.size == 2 && phases.first().let { intro ->
                 intro.priceAmountMicros in 1L until renewal.priceAmountMicros &&
                     intro.priceCurrencyCode == renewal.priceCurrencyCode &&
@@ -239,7 +239,7 @@ internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
             priceAmountMicros = renewal.priceAmountMicros,
             priceCurrencyCode = renewal.priceCurrencyCode,
             isWinBack = isWinBack,
-            winBackFormattedPrice = phases.firstOrNull()?.formattedPrice.takeIf { isWinBack },
+            winBackFormattedPrice = if (isWinBack) phases.first().formattedPrice else null,
         )
     }.sortedWith(compareByDescending<SubscriptionOffer> { it.hasFreeTrial }.thenByDescending { it.isWinBack }).firstOrNull()
 }
