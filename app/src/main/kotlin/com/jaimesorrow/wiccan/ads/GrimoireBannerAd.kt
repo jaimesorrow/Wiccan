@@ -44,10 +44,15 @@ import com.wiccan.app.R
  * bottom of the screen, above the app's navigation bar. Renders nothing for
  * subscribers, before consent allows ad requests, or when no ad has loaded
  * (offline or no fill), so it never leaves an empty gap.
+ *
+ * Self-contained so it works in any bottom slot: pass [showTopRule] = false
+ * when the host already draws its own gold hairline (for example a themed
+ * `grimoire-banner-slot`), to avoid a double rule.
  */
 @Composable
 fun GrimoireBannerAd(
     modifier: Modifier = Modifier,
+    showTopRule: Boolean = true,
     viewModel: AdsViewModel = hiltViewModel(),
 ) {
     val tierAllowsAds by viewModel.tierAllowsAds.collectAsStateWithLifecycle()
@@ -57,12 +62,12 @@ fun GrimoireBannerAd(
         if (tierAllowsAds && activity != null) viewModel.gatherConsent(activity)
     }
     if (showAds) {
-        AnchoredBanner(adUnitId = BuildConfig.ADMOB_GRIMOIRE_BANNER_UNIT_ID, modifier = modifier)
+        AnchoredBanner(adUnitId = BuildConfig.ADMOB_GRIMOIRE_BANNER_UNIT_ID, showTopRule = showTopRule, modifier = modifier)
     }
 }
 
 @Composable
-private fun AnchoredBanner(adUnitId: String, modifier: Modifier = Modifier) {
+private fun AnchoredBanner(adUnitId: String, showTopRule: Boolean, modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val context = LocalContext.current
         val widthDp = maxWidth.value.toInt()
@@ -91,7 +96,7 @@ private fun AnchoredBanner(adUnitId: String, modifier: Modifier = Modifier) {
             }
         }
 
-        GrimoireAdFrame(showChrome = loaded) {
+        GrimoireAdFrame(showChrome = loaded, showTopRule = showTopRule) {
             AndroidView(
                 factory = { banner.view },
                 modifier = Modifier
@@ -110,14 +115,14 @@ private fun AnchoredBanner(adUnitId: String, modifier: Modifier = Modifier) {
  * bar and is never mistaken for Wiccan content.
  */
 @Composable
-internal fun GrimoireAdFrame(showChrome: Boolean, ad: @Composable () -> Unit) {
+internal fun GrimoireAdFrame(showChrome: Boolean, showTopRule: Boolean = true, ad: @Composable () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background),
     ) {
         if (showChrome) {
-            HorizontalDivider(thickness = 0.5.dp, color = grimoireGold().copy(alpha = 0.6f))
+            if (showTopRule) HorizontalDivider(thickness = 0.5.dp, color = grimoireGold().copy(alpha = 0.6f))
             Text(
                 text = stringResource(R.string.ad_label),
                 style = MaterialTheme.typography.labelSmall,
