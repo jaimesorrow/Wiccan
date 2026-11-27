@@ -1,4 +1,4 @@
-import { canonicalizeLocale } from "../locale";
+import { canonicalizeLocale, optionalCanonicalizeLocale } from "../locale";
 
 describe("canonicalizeLocale", () => {
   it.each([
@@ -15,4 +15,18 @@ describe("canonicalizeLocale", () => {
     "falls back to English for unsupported input %p",
     (input) => expect(canonicalizeLocale(input)).toBe("en"),
   );
+});
+
+describe("optionalCanonicalizeLocale", () => {
+  it("leaves an absent locale undefined so a token refresh cannot reset a saved language", () => {
+    expect(optionalCanonicalizeLocale(undefined)).toBeUndefined();
+    expect(optionalCanonicalizeLocale(null)).toBeUndefined();
+    expect(optionalCanonicalizeLocale("")).toBeUndefined();
+    expect(optionalCanonicalizeLocale("   ")).toBeUndefined();
+  });
+
+  it("still canonicalizes a present value, including unsupported tags, to a supported locale", () => {
+    expect(optionalCanonicalizeLocale("es-MX")).toBe("es");
+    expect(optionalCanonicalizeLocale("fr")).toBe("en");
+  });
 });

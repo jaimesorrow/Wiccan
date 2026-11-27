@@ -8,7 +8,12 @@ import androidx.compose.ui.test.performClick
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34], application = android.app.Application::class)
 class AppLanguagePickerTest {
     @get:Rule
     val composeRule = createComposeRule()
@@ -22,6 +27,7 @@ class AppLanguagePickerTest {
             }
         }
         composeRule.onNodeWithText("Use device language").assertIsDisplayed()
+        composeRule.onNodeWithText("English").assertIsDisplayed()
         composeRule.onNodeWithText("Español").assertIsDisplayed()
         composeRule.onNodeWithText("Português (Brasil)").assertIsDisplayed().performClick()
         assertEquals(AppLanguage.PORTUGUESE_BRAZIL, selected)

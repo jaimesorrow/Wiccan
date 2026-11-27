@@ -56,6 +56,14 @@ describe("sendDailyNotifications", () => {
       title: "Un hechizo te espera bajo la luna",
       body: "La luna ha cambiado, y el hechizo de hoy descansa sobre tu altar: Intención clara",
     });
+    expect(dailyNotificationCopy("potion", "Agua de luna", "es")).toEqual({
+      title: "Una poción te espera bajo la luna",
+      body: "La luna ha cambiado, y la poción de hoy descansa sobre tu altar: Agua de luna",
+    });
+    expect(dailyNotificationCopy("lesson", "El umbral", "es")).toEqual({
+      title: "Una lección te espera bajo la luna",
+      body: "La luna ha cambiado, y la lección de hoy descansa sobre tu altar: El umbral",
+    });
     expect(dailyNotificationCopy("lesson", "O limiar", "pt-BR")).toEqual({
       title: "Uma lição espera sob a lua",
       body: "A lua mudou, e a lição de hoje repousa em seu altar: O limiar",

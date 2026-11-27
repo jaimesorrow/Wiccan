@@ -36,8 +36,10 @@ class AccountFunctionsDataSource @Inject constructor(
             .await()
     }
 
-    suspend fun sendVerificationEmail() {
-        functions.getHttpsCallable(VERIFICATION_EMAIL_FUNCTION_NAME).call().await()
+    suspend fun sendVerificationEmail(locale: String) {
+        functions.getHttpsCallable(VERIFICATION_EMAIL_FUNCTION_NAME)
+            .call(mapOf("locale" to locale))
+            .await()
     }
 
     private companion object {

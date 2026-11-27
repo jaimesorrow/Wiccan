@@ -290,6 +290,7 @@ fun SettingsScreen(
                     selected = AppLanguageManager.selected(context),
                     onSelected = { language ->
                         context.findActivity()?.let { AppLanguageManager.select(it, language) }
+                        viewModel.onEvent(SettingsUiEvent.LanguageChanged)
                     },
                 )
             }

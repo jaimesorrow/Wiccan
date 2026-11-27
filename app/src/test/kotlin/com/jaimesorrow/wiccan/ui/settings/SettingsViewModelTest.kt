@@ -303,4 +303,14 @@ class SettingsViewModelTest {
 
         assertEquals(1, repository.deleteAccountCallCount)
     }
+
+    @Test
+    fun `LanguageChanged refreshes the registered device locale`() = runTest(dispatcher) {
+        coEvery { notificationRepository.refreshAndRegisterToken() } returns AppResult.Success(Unit)
+
+        viewModel.onEvent(SettingsUiEvent.LanguageChanged)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        coVerify { notificationRepository.refreshAndRegisterToken() }
+    }
 }

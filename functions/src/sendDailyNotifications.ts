@@ -18,7 +18,8 @@ export function dailyNotificationCopy(
 ): { title: string; body: string } {
   if (locale === "es") {
     const kind = type === "spell" ? "hechizo" : type === "potion" ? "poción" : "lección";
-    return { title: `Un ${kind} te espera bajo la luna`, body: `La luna ha cambiado, y ${kind === "poción" ? "la" : "el"} ${kind} de hoy descansa sobre tu altar: ${contentTitle}` };
+    const feminine = kind !== "hechizo";
+    return { title: `${feminine ? "Una" : "Un"} ${kind} te espera bajo la luna`, body: `La luna ha cambiado, y ${feminine ? "la" : "el"} ${kind} de hoy descansa sobre tu altar: ${contentTitle}` };
   }
   if (locale === "pt-BR") {
     const kind = type === "spell" ? "feitiço" : type === "potion" ? "poção" : "lição";

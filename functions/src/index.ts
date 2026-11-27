@@ -44,7 +44,7 @@ import { loadContentSources } from "./contentSource";
 import { loadSourcePassages } from "./sourcePassages";
 import { sendTrialEndingReminders } from "./trialEndingReminders";
 import { FirestoreTrialReminderRepository } from "./firestoreTrialReminderRepository";
-import { canonicalizeLocale } from "./locale";
+import { canonicalizeLocale, optionalCanonicalizeLocale } from "./locale";
 
 initializeApp();
 
@@ -339,7 +339,7 @@ export const registerDeviceToken = onCall(CALLABLE_OPTIONS, async (request) => {
   if (requestedTimeZone !== undefined && !timeZone) {
     throw new HttpsError("invalid-argument", "timeZone must be a valid bounded time-zone identifier.");
   }
-  const locale = canonicalizeLocale(request.data?.locale);
+  const locale = optionalCanonicalizeLocale(request.data?.locale);
   const enabled = request.data?.enabled;
   const updateChoice = request.data?.updateChoice;
   if ((enabled !== undefined && typeof enabled !== "boolean") ||

@@ -8,3 +8,10 @@ export function canonicalizeLocale(value: unknown): SupportedLocale {
   if (normalized === "pt-br") return "pt-BR";
   return "en";
 }
+
+/** Canonicalizes a present locale. Absent or empty values stay undefined so a token refresh cannot reset a saved language to English. */
+export function optionalCanonicalizeLocale(value: unknown): SupportedLocale | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === "string" && value.trim() === "") return undefined;
+  return canonicalizeLocale(value);
+}
