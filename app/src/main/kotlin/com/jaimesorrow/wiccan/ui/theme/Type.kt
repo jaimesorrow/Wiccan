@@ -2,9 +2,11 @@ package com.jaimesorrow.wiccan.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.Font as GoogleDownloadableFont
 import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.sp
 import com.wiccan.app.R
@@ -22,14 +24,35 @@ private val GoogleFontProvider = GoogleFont.Provider(
 )
 
 /**
- * Cinzel: an elegant, letterspaced classical serif used sparingly for the
- * Wiccan wordmark, major section headings, and ritual/lesson titles - the
- * "editorial" voice of the app. Never used for long-form body copy.
+ * Cinzel, bundled from Google Fonts under the OFL (see assets/fonts/OFL-Cinzel.txt).
+ * Letterspaced classical serif for the wordmark, screen titles, and short ritual headings.
+ * Never used for long-form body copy. Bundled, rather than downloaded at runtime, so the
+ * face is present offline and in screenshot tests.
  */
-private val WiccanDisplayFont = FontFamily(
-    Font(googleFont = GoogleFont("Cinzel"), fontProvider = GoogleFontProvider, weight = FontWeight.Normal),
-    Font(googleFont = GoogleFont("Cinzel"), fontProvider = GoogleFontProvider, weight = FontWeight.Medium),
-    Font(googleFont = GoogleFont("Cinzel"), fontProvider = GoogleFontProvider, weight = FontWeight.SemiBold),
+internal val WiccanDisplayFont = FontFamily(
+    Font(R.font.cinzel_regular, weight = FontWeight.Normal),
+    Font(R.font.cinzel_medium, weight = FontWeight.Medium),
+    Font(R.font.cinzel_semibold, weight = FontWeight.SemiBold),
+)
+
+/**
+ * Cormorant Garamond, OFL (assets/fonts/OFL-CormorantGaramond.txt). Editorial serif for
+ * lesson prose and card titles. Italic is the grimoire-page voice; upright is for short headings.
+ */
+internal val WiccanEditorialFont = FontFamily(
+    Font(R.font.cormorant_garamond_regular, weight = FontWeight.Normal),
+    Font(R.font.cormorant_garamond_medium, weight = FontWeight.Medium),
+    Font(R.font.cormorant_garamond_semibold, weight = FontWeight.SemiBold),
+    Font(R.font.cormorant_garamond_italic, weight = FontWeight.Normal, style = FontStyle.Italic),
+)
+
+/**
+ * Caveat, OFL (assets/fonts/OFL-Caveat.txt). Handwritten labels and marginal notes only.
+ * Too irregular for body, billing, legal, safety, or verification copy.
+ */
+internal val WiccanHandwritingFont = FontFamily(
+    Font(R.font.caveat_regular, weight = FontWeight.Normal),
+    Font(R.font.caveat_medium, weight = FontWeight.Medium),
 )
 
 /**
@@ -40,10 +63,10 @@ private val WiccanDisplayFont = FontFamily(
  * with no Google Play Services) - never a blocking or crashing path.
  */
 private val WiccanBodyFont = FontFamily(
-    Font(googleFont = GoogleFont("Manrope"), fontProvider = GoogleFontProvider, weight = FontWeight.Normal),
-    Font(googleFont = GoogleFont("Manrope"), fontProvider = GoogleFontProvider, weight = FontWeight.Medium),
-    Font(googleFont = GoogleFont("Manrope"), fontProvider = GoogleFontProvider, weight = FontWeight.SemiBold),
-    Font(googleFont = GoogleFont("Manrope"), fontProvider = GoogleFontProvider, weight = FontWeight.Bold),
+    GoogleDownloadableFont(googleFont = GoogleFont("Manrope"), fontProvider = GoogleFontProvider, weight = FontWeight.Normal),
+    GoogleDownloadableFont(googleFont = GoogleFont("Manrope"), fontProvider = GoogleFontProvider, weight = FontWeight.Medium),
+    GoogleDownloadableFont(googleFont = GoogleFont("Manrope"), fontProvider = GoogleFontProvider, weight = FontWeight.SemiBold),
+    GoogleDownloadableFont(googleFont = GoogleFont("Manrope"), fontProvider = GoogleFontProvider, weight = FontWeight.Bold),
 )
 
 /**

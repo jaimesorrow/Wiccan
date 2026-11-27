@@ -153,16 +153,19 @@ internal object WiccanPaletteColors {
         val EmblemGold = Color(0xFFE8BC61)
     }
 
-    /** Locked midnight grimoire surfaces from the approved home and sign-in designs. */
+    /**
+     * Midnight Grimoire, shifted toward the spell-map ad: plum cards, thin gold rules,
+     * and cream ink. Gold and text both clear WCAG AA on the plum surfaces.
+     */
     object Grimoire {
-        val Background = Color(0xFF0E0E0C)
-        val Raised = Color(0xFF181512)
-        val CardFill = Color(0xFF1C1A16)
-        val Border = Color(0xFF9D7C3F)
-        val Gold = Color(0xFFB89047)
+        val Background = Color(0xFF110E16)
+        val Raised = Color(0xFF1A1424)
+        val CardFill = Color(0xFF241833)
+        val Border = Color(0xFFC6A15A)
+        val Gold = Color(0xFFE4C77A)
         val Bronze = Color(0xFF5C4314)
-        val Text = Color(0xFFDCD5C9)
-        val Muted = Color(0xFFB8A88A)
+        val Text = Color(0xFFF4EDE3)
+        val Muted = Color(0xFFD2C4B0)
         val OnGold = Color(0xFF1C1408)
     }
 

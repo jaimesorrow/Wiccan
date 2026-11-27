@@ -99,12 +99,12 @@ fun ContentDetailView(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top,
             ) {
-                CandleOrnament(Modifier.size(width = 52.dp, height = 74.dp))
                 Text(
                     text = "✦  ☾  ✦",
                     style = MaterialTheme.typography.titleMedium,
                     color = DailyGold,
                 )
+                CandleOrnament(Modifier.size(width = 72.dp, height = 84.dp))
             }
             Text(
                 stringResource(
@@ -286,7 +286,7 @@ fun ContentDetailView(
             }
         }
         if (isDailyLesson) {
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
                 QuillAndInkpotOrnament(Modifier.size(width = 112.dp, height = 88.dp))
             }
         }
@@ -362,106 +362,77 @@ private fun Content.lessonArtwork(): Int {
 
 @Composable
 internal fun CandleOrnament(modifier: Modifier = Modifier) {
-    Canvas(modifier) {
-        val stroke = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round)
-        drawLine(
-            DailyGold,
-            Offset(size.width * .35f, size.height * .42f),
-            Offset(size.width * .35f, size.height * .92f),
-            stroke.width,
-        )
-        drawLine(
-            DailyGold,
-            Offset(size.width * .65f, size.height * .42f),
-            Offset(size.width * .65f, size.height * .92f),
-            stroke.width,
-        )
-        drawLine(
-            DailyGold,
-            Offset(size.width * .35f, size.height * .92f),
-            Offset(size.width * .65f, size.height * .92f),
-            stroke.width,
-        )
-        val flame = Path().apply {
-            moveTo(size.width * .5f, size.height * .04f)
-            cubicTo(
-                size.width * .76f,
-                size.height * .19f,
-                size.width * .62f,
-                size.height * .37f,
-                size.width * .5f,
-                size.height * .4f,
-            )
-            cubicTo(
-                size.width * .34f,
-                size.height * .34f,
-                size.width * .31f,
-                size.height * .19f,
-                size.width * .5f,
-                size.height * .04f,
-            )
-            close()
-        }
-        drawPath(flame, Brush.verticalGradient(listOf(Color(0xFFE5C158), Color(0xFFA67C00))))
-    }
+    Image(
+        painter = painterResource(R.drawable.grimoire_candle),
+        contentDescription = stringResource(R.string.lesson_candle_description),
+        modifier = modifier,
+    )
 }
 
 @Composable
 internal fun QuillAndInkpotOrnament(modifier: Modifier = Modifier) {
     Canvas(modifier) {
-        val line = 1.4.dp.toPx()
-        val quill = Path().apply {
-            moveTo(size.width * .14f, size.height * .82f)
-            cubicTo(
-                size.width * .27f,
-                size.height * .5f,
-                size.width * .55f,
-                size.height * .12f,
-                size.width * .85f,
-                size.height * .08f,
-            )
-            cubicTo(
-                size.width * .74f,
-                size.height * .39f,
-                size.width * .43f,
-                size.height * .58f,
-                size.width * .14f,
-                size.height * .82f,
-            )
-        }
-        drawPath(quill, DailyInk, style = Stroke(width = line, cap = StrokeCap.Round))
-        drawLine(
-            DailyInk,
-            Offset(size.width * .14f, size.height * .82f),
-            Offset(size.width * .8f, size.height * .13f),
-            line,
-        )
-        drawLine(
-            DailyInk,
-            Offset(size.width * .38f, size.height * .59f),
-            Offset(size.width * .31f, size.height * .44f),
-            line,
-        )
-        drawLine(
-            DailyInk,
-            Offset(size.width * .5f, size.height * .46f),
-            Offset(size.width * .42f, size.height * .31f),
-            line,
-        )
-        drawArc(
-            color = DailyInk,
-            startAngle = 180f,
-            sweepAngle = 180f,
-            useCenter = false,
-            topLeft = Offset(size.width * .62f, size.height * .65f),
-            size = Size(size.width * .3f, size.height * .2f),
-            style = Stroke(line),
+        val ink = DailyInk
+        val brass = DailyGold
+        val shaft = Stroke(width = 2.2.dp.toPx(), cap = StrokeCap.Round)
+        drawOval(
+            brass,
+            topLeft = Offset(size.width * .02f, size.height * .70f),
+            size = Size(size.width * .36f, size.height * .14f),
         )
         drawRect(
-            color = DailyInk,
-            topLeft = Offset(size.width * .64f, size.height * .73f),
-            size = Size(size.width * .26f, size.height * .18f),
-            style = Stroke(line),
+            brass,
+            topLeft = Offset(size.width * .06f, size.height * .76f),
+            size = Size(size.width * .28f, size.height * .18f),
         )
+        drawOval(
+            ink,
+            topLeft = Offset(size.width * .10f, size.height * .72f),
+            size = Size(size.width * .18f, size.height * .07f),
+        )
+        val feather = Path().apply {
+            moveTo(size.width * .28f, size.height * .70f)
+            cubicTo(
+                size.width * .42f,
+                size.height * .40f,
+                size.width * .64f,
+                size.height * .16f,
+                size.width * .94f,
+                size.height * .04f,
+            )
+            cubicTo(
+                size.width * .72f,
+                size.height * .22f,
+                size.width * .50f,
+                size.height * .40f,
+                size.width * .30f,
+                size.height * .66f,
+            )
+            close()
+        }
+        drawPath(feather, ink)
+        drawLine(
+            brass.copy(alpha = 0.55f),
+            Offset(size.width * .32f, size.height * .62f),
+            Offset(size.width * .82f, size.height * .12f),
+            strokeWidth = 1.dp.toPx(),
+            cap = StrokeCap.Round,
+        )
+        drawLine(
+            ink,
+            Offset(size.width * .20f, size.height * .74f),
+            Offset(size.width * .86f, size.height * .10f),
+            strokeWidth = shaft.width,
+            cap = StrokeCap.Round,
+        )
+        listOf(0.46f to 0.46f, 0.58f to 0.34f, 0.70f to 0.22f).forEach { (x, y) ->
+            drawLine(
+                ink.copy(alpha = 0.75f),
+                Offset(size.width * x, size.height * y),
+                Offset(size.width * (x + 0.07f), size.height * (y - 0.08f)),
+                strokeWidth = 1.dp.toPx(),
+                cap = StrokeCap.Round,
+            )
+        }
     }
 }

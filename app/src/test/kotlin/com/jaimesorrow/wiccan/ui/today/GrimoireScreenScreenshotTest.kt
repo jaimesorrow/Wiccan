@@ -106,7 +106,9 @@ class GrimoireScreenScreenshotTest {
     @Test
     fun `capture paywall`() {
         val viewModel = PaywallViewModel(FakeSubscriptionRepository(), mockk<AnalyticsLogger>(relaxed = true))
-        capture("wiccan-paywall") { PaywallScreen(viewModel = viewModel) }
+        capture("wiccan-paywall") {
+            MidnightGrimoireTheme { PaywallScreen(viewModel = viewModel) }
+        }
         composeRule.waitUntil(timeoutMillis = 5_000) {
             composeRule.onAllNodesWithText("7 days free").fetchSemanticsNodes().isNotEmpty()
         }
@@ -117,7 +119,9 @@ class GrimoireScreenScreenshotTest {
     @Config(sdk = [34], qualifiers = "w360dp-h2200dp-xhdpi", application = android.app.Application::class)
     fun `capture settings`() {
         val viewModel = settingsViewModel()
-        capture("wiccan-settings") { SettingsScreen(viewModel = viewModel) }
+        capture("wiccan-settings") {
+            MidnightGrimoireTheme { SettingsScreen(viewModel = viewModel) }
+        }
     }
 
     @Test
@@ -165,12 +169,13 @@ class GrimoireScreenScreenshotTest {
     }
 
     @Test
-    @Config(sdk = [34], qualifiers = "w360dp-h1800dp-xhdpi", application = android.app.Application::class)
+    @Config(sdk = [34], qualifiers = "w360dp-h2600dp-xhdpi", application = android.app.Application::class)
     fun `capture daily lesson`() = capture("wiccan-lesson") {
         DailyGrimoirePage(content = sampleLesson())
     }
 
     @Test
+    @Config(sdk = [34], qualifiers = "w360dp-h1600dp-xhdpi", application = android.app.Application::class)
     fun `capture archive`() = capture("wiccan-archive") {
         ArchiveScreenContent(
             state = ArchiveUiState(
