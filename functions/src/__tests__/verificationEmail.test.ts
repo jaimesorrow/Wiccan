@@ -47,4 +47,22 @@ describe("renderVerificationEmail", () => {
     expect(message.html).toContain("Hi friend,");
     expect(message.text).toContain("Hi friend,");
   });
+
+  it("renders Spanish verification copy", () => {
+    const message = renderVerificationEmail("https://example.test/verify", "Luna", "es");
+
+    expect(message.subject).toBe("Tu camino en Wiccan te espera — verifica tu correo");
+    expect(message.html).toContain('lang="es"');
+    expect(message.text).toContain("Hola Luna,");
+    expect(message.text).toContain("Abrir el enlace a la luz de la luna");
+  });
+
+  it("renders Brazilian Portuguese verification copy", () => {
+    const message = renderVerificationEmail("https://example.test/verify", undefined, "pt-BR");
+
+    expect(message.subject).toBe("Seu caminho no Wiccan espera por você — confirme seu e-mail");
+    expect(message.html).toContain('lang="pt-BR"');
+    expect(message.text).toContain("Olá amiga ou amigo,");
+    expect(message.text).toContain("Abrir o link ao luar");
+  });
 });

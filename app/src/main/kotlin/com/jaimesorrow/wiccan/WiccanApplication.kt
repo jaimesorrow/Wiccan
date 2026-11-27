@@ -1,6 +1,7 @@
 package com.jaimesorrow.wiccan
 
 import android.app.Application
+import android.content.Context
 import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -9,6 +10,7 @@ import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.appcheck.AppCheckProviderInstaller
 import com.jaimesorrow.wiccan.notification.ensureBillingRemindersChannel
 import com.jaimesorrow.wiccan.notification.ensureDailyPracticeChannel
+import com.jaimesorrow.wiccan.ui.settings.AppLanguageManager
 import com.jaimesorrow.wiccan.worker.DailyContentWorker
 import com.jaimesorrow.wiccan.worker.WiccanWorkerFactory
 import com.wiccan.app.BuildConfig
@@ -33,6 +35,11 @@ class WiccanApplication : Application(), Configuration.Provider {
     lateinit var analyticsConsentManager: AnalyticsConsentManager
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    override fun attachBaseContext(base: Context) {
+        AppLanguageManager.migrateLegacyPreference(base)
+        super.attachBaseContext(AppLanguageManager.localizedContext(base))
+    }
 
     override val workManagerConfiguration: Configuration
         get() = wiccanWorkerFactory.workManagerConfiguration

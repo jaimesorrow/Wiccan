@@ -85,9 +85,19 @@ describe("handleRtdnNotification", () => {
     await users.setTier("user-1", "premium", TOKEN);
     const subscriptions = new FakeSubscriptionRecordRepository();
     expect((await handleRtdnNotification(TOKEN, billing, users, subscriptions))?.tier).toBe("premium");
+    expect(users.users.get("user-1")).toMatchObject({
+      tier: "premium",
+      subscriptionState: "in_grace_period",
+      productId: "wiccan_premium_yearly",
+    });
 
     billing.respondWith(TOKEN, "on_hold", ["wiccan_premium_yearly"]);
     expect((await handleRtdnNotification(TOKEN, billing, users, subscriptions))?.tier).toBe("free");
+    expect(users.users.get("user-1")).toMatchObject({
+      tier: "free",
+      subscriptionState: "on_hold",
+      productId: "wiccan_premium_yearly",
+    });
   });
 
   it("downgrades an active token switched to an unrelated product", async () => {
@@ -157,6 +167,29 @@ describe("handleRtdnNotification", () => {
       .toEqual({ uid: "user-1", tier: "premium" });
     expect(users.users.get("user-1")?.purchaseToken).toBe("replacement-token");
     expect(billing.acknowledgedTokens).toEqual([{ purchaseToken: "replacement-token", productId: PRODUCT_ID }]);
+  });
+
+  it("supersedes a monthly token when RTDN delivers a linked yearly replacement", async () => {
+    const billing = new FakePlayBillingPort();
+    billing.respondWith("yearly-token", "active", ["wiccan_premium_yearly"], { linkedPurchaseToken: TOKEN });
+    const users = new FakeUserRepository(["user-1"]);
+    await users.setTier("user-1", "premium", TOKEN, "purchase", undefined, {
+      subscriptionState: "active",
+      productId: PRODUCT_ID,
+    });
+    const subscriptions = new FakeSubscriptionRecordRepository();
+    expect(await handleRtdnNotification("yearly-token", billing, users, subscriptions))
+      .toEqual({ uid: "user-1", tier: "premium" });
+    expect(users.users.get("user-1")).toMatchObject({
+      tier: "premium",
+      purchaseToken: "yearly-token",
+      productId: "wiccan_premium_yearly",
+    });
+    expect(users.supersededTokens.has(TOKEN)).toBe(true);
+    expect(subscriptions.records.get("user-1")?.productId).toBe("wiccan_premium_yearly");
+    expect(billing.acknowledgedTokens).toEqual([
+      { purchaseToken: "yearly-token", productId: "wiccan_premium_yearly" },
+    ]);
   });
 
   it.each(["on_hold", "expired"] as const)(

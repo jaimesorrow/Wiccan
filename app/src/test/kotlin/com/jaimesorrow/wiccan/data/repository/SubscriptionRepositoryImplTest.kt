@@ -18,6 +18,8 @@ import com.jaimesorrow.wiccan.data.remote.UserTierDataSource
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
+import com.jaimesorrow.wiccan.domain.model.SubscriptionState
+import com.jaimesorrow.wiccan.domain.model.YearlySwitchOffer
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -46,6 +48,7 @@ class SubscriptionRepositoryImplTest {
     @Before
     fun setUp() {
         every { billingClient.purchaseUpdates } returns emptyFlow()
+        every { billingClient.recoveryUpdates } returns emptyFlow()
         every { currentUser.currentUserId } returns "uid-123"
         repository = SubscriptionRepositoryImpl(billingClient, functions, userTier, currentUser, analytics)
     }
@@ -66,6 +69,76 @@ class SubscriptionRepositoryImplTest {
         every { userTier.observeTier("other-user") } returns flowOf(ContentTier.PREMIUM, ContentTier.FREE, ContentTier.FREE)
         repository.observeTier().toList()
         verify(exactly = 1) { analytics.logSubscriptionLapsed() }
+    }
+
+    @Test
+    fun `signed-out subscription state is unknown and a signed-in profile is forwarded`() = runTest {
+        every { currentUser.currentUserId } returns null
+        assertEquals(listOf(SubscriptionState.UNKNOWN), repository.observeSubscriptionState().toList())
+
+        every { currentUser.currentUserId } returns "uid-123"
+        every { userTier.observeSubscriptionState("uid-123") } returns flowOf(
+            SubscriptionState.IN_GRACE_PERIOD,
+            SubscriptionState.ON_HOLD,
+        )
+        assertEquals(
+            listOf(SubscriptionState.IN_GRACE_PERIOD, SubscriptionState.ON_HOLD),
+            repository.observeSubscriptionState().toList(),
+        )
+    }
+
+    @Test
+    fun `signed-out product id is unknown and a signed-in profile is forwarded`() = runTest {
+        every { currentUser.currentUserId } returns null
+        assertEquals(listOf(null), repository.observeProductId().toList())
+
+        every { currentUser.currentUserId } returns "uid-123"
+        every { userTier.observeProductId("uid-123") } returns flowOf(
+            PREMIUM_MONTHLY_PRODUCT_ID,
+            PREMIUM_YEARLY_PRODUCT_ID,
+        )
+        assertEquals(
+            listOf(PREMIUM_MONTHLY_PRODUCT_ID, PREMIUM_YEARLY_PRODUCT_ID),
+            repository.observeProductId().toList(),
+        )
+    }
+
+    @Test
+    fun `Play transactional recovery message reports success and Play errors`() = runTest {
+        val activity = mockk<Activity>()
+        val ok = mockk<BillingResult>()
+        every { ok.responseCode } returns BillingClient.BillingResponseCode.OK
+        coEvery { billingClient.showTransactionalMessage(activity) } returns ok
+        assertEquals(AppResult.Success(Unit), repository.showTransactionalMessage(activity))
+
+        val failed = mockk<BillingResult>()
+        every { failed.responseCode } returns BillingClient.BillingResponseCode.ERROR
+        every { failed.debugMessage } returns "unavailable"
+        coEvery { billingClient.showTransactionalMessage(activity) } returns failed
+        assertEquals(
+            AppResult.Failure(AppError.PurchaseVerificationFailed("unavailable")),
+            repository.showTransactionalMessage(activity),
+        )
+    }
+
+    @Test(expected = CancellationException::class)
+    fun `Play transactional recovery message preserves coroutine cancellation`() = runTest {
+        coEvery { billingClient.showTransactionalMessage(any()) } throws CancellationException("backgrounded")
+        repository.showTransactionalMessage(mockk())
+    }
+
+    @Test
+    fun `Play recovery status update reconciles owned subscriptions with the server`() {
+        val recovered = purchase()
+        every { billingClient.recoveryUpdates } returns flowOf(Unit)
+        coEvery { billingClient.queryOwnedSubscriptions() } returns listOf(recovered)
+        coEvery { functions.verifyPurchase("token", PREMIUM_MONTHLY_PRODUCT_ID) } returns Unit
+
+        repository = SubscriptionRepositoryImpl(billingClient, functions, userTier, currentUser, analytics)
+
+        coVerify(timeout = 2_000, exactly = 1) {
+            functions.verifyPurchase("token", PREMIUM_MONTHLY_PRODUCT_ID)
+        }
     }
 
     @Test
@@ -222,6 +295,92 @@ class SubscriptionRepositoryImplTest {
         coVerify(exactly = 1) { functions.verifyPurchase("token", PREMIUM_YEARLY_PRODUCT_ID) }
     }
 
+    @Test
+    fun `switching to yearly launches a replacement with the monthly purchase token`() = runTest {
+        val activity = mockk<Activity>()
+        val billingResult = mockk<BillingResult>()
+        every { billingResult.responseCode } returns BillingClient.BillingResponseCode.OK
+        val offer = loadYearlySwitchOffer()
+        val accountId = obfuscatedAccountId("uid-123")
+        coEvery { userTier.currentPurchaseToken("uid-123") } returns null
+        coEvery { billingClient.queryOwnedSubscriptions() } returns listOf(
+            purchase(token = "other-monthly", accountId = obfuscatedAccountId("other-user")),
+            purchase(token = "monthly-token", accountId = accountId),
+        )
+        coEvery { billingClient.launchPlanChangeFlow(activity, "uid-123", offer, "monthly-token") } returns billingResult
+
+        assertTrue(repository.launchSwitchToYearly(activity) is AppResult.Success)
+        coVerify(exactly = 1) { billingClient.launchPlanChangeFlow(activity, "uid-123", offer, "monthly-token") }
+    }
+
+    @Test
+    fun `switching to yearly uses the server-verified token when Play omits the account hash`() = runTest {
+        val activity = mockk<Activity>()
+        val billingResult = mockk<BillingResult>()
+        every { billingResult.responseCode } returns BillingClient.BillingResponseCode.OK
+        val offer = loadYearlySwitchOffer()
+        coEvery { userTier.currentPurchaseToken("uid-123") } returns "monthly-token"
+        coEvery { billingClient.queryOwnedSubscriptions() } returns listOf(purchase(token = "monthly-token"))
+        coEvery { billingClient.launchPlanChangeFlow(activity, "uid-123", offer, "monthly-token") } returns billingResult
+
+        assertTrue(repository.launchSwitchToYearly(activity) is AppResult.Success)
+        coVerify(exactly = 1) { billingClient.launchPlanChangeFlow(activity, "uid-123", offer, "monthly-token") }
+    }
+
+    @Test
+    fun `switching to yearly fails closed without a loaded offer or a monthly purchase`() = runTest {
+        coEvery { userTier.currentPurchaseToken("uid-123") } returns null
+        assertTrue(repository.launchSwitchToYearly(mockk()) is AppResult.Failure)
+        loadYearlySwitchOffer()
+        coEvery { billingClient.queryOwnedSubscriptions() } returns listOf(purchase(product = PREMIUM_YEARLY_PRODUCT_ID))
+        assertTrue(repository.launchSwitchToYearly(mockk()) is AppResult.Failure)
+        coEvery { billingClient.queryOwnedSubscriptions() } returns listOf(
+            purchase(token = "other-monthly", accountId = obfuscatedAccountId("other-user")),
+        )
+        val result = repository.launchSwitchToYearly(mockk())
+        assertTrue(result is AppResult.Failure)
+        assertEquals(
+            AppResult.Failure(
+                AppError.PurchaseVerificationFailed(
+                    "Your monthly subscription could not be found. Open Google Play to manage it, or try again.",
+                ),
+            ),
+            result,
+        )
+        coVerify(exactly = 0) { billingClient.launchPlanChangeFlow(any(), any(), any(), any()) }
+    }
+
+    private suspend fun loadYearlySwitchOffer(): YearlySwitchOffer {
+        val intro = mockk<ProductDetails.PricingPhase> {
+            every { recurrenceMode } returns ProductDetails.RecurrenceMode.NON_RECURRING
+            every { billingPeriod } returns "P1M"
+            every { priceAmountMicros } returns 990_000L
+            every { priceCurrencyCode } returns "USD"
+            every { formattedPrice } returns "$0.99"
+            every { billingCycleCount } returns 0
+        }
+        val renewal = mockk<ProductDetails.PricingPhase> {
+            every { recurrenceMode } returns ProductDetails.RecurrenceMode.INFINITE_RECURRING
+            every { billingPeriod } returns "P1Y"
+            every { priceAmountMicros } returns 39_990_000L
+            every { priceCurrencyCode } returns "USD"
+            every { formattedPrice } returns "$39.99"
+        }
+        val phases = mockk<ProductDetails.PricingPhases> { every { pricingPhaseList } returns listOf(intro, renewal) }
+        val offer = mockk<ProductDetails.SubscriptionOfferDetails> {
+            every { offerId } returns "switch-yearly-1mo-099"
+            every { offerToken } returns "switch-token"
+            every { offerTags } returns listOf("switch-yearly")
+            every { pricingPhases } returns phases
+        }
+        val product = mockk<ProductDetails> {
+            every { productId } returns PREMIUM_YEARLY_PRODUCT_ID
+            every { subscriptionOfferDetails } returns listOf(offer)
+        }
+        coEvery { billingClient.queryProductDetails(PREMIUM_YEARLY_PRODUCT_ID) } returns product
+        return (repository.getYearlySwitchOffer() as AppResult.Success).data!!
+    }
+
     private suspend fun loadYearlyOffer(): SubscriptionOffer {
         val phase = mockk<ProductDetails.PricingPhase> {
             every { recurrenceMode } returns ProductDetails.RecurrenceMode.INFINITE_RECURRING
@@ -234,6 +393,7 @@ class SubscriptionRepositoryImplTest {
         val offer = mockk<ProductDetails.SubscriptionOfferDetails> {
             every { offerId } returns null
             every { offerToken } returns "yearly-token"
+            every { offerTags } returns emptyList()
             every { pricingPhases } returns phases
         }
         val product = mockk<ProductDetails> {
@@ -256,6 +416,7 @@ class SubscriptionRepositoryImplTest {
         val offer = mockk<ProductDetails.SubscriptionOfferDetails> {
             every { offerId } returns null
             every { offerToken } returns "monthly-token"
+            every { offerTags } returns emptyList()
             every { pricingPhases } returns phases
         }
         val product = mockk<ProductDetails> {

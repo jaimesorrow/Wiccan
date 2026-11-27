@@ -1,9 +1,22 @@
 import { ContentPoolExhaustedError, DailyAssignmentUnavailableError, selectTodayContent } from "../getTodayContent";
-import { SubscriptionRequiredError } from "../contentRepositoryPort";
+import { ContentNoLongerEligibleError, SubscriptionRequiredError } from "../contentRepositoryPort";
 import { FakeContentRepository, makeContent, makeReviewedLesson } from "../testUtils/fakeContentRepository";
 
 const UID = "user-123";
 const TODAY = "2026-09-09";
+
+function previousDeliveries(count: number) {
+  return Array.from({ length: count }, (_, index) => ({
+    userId: UID,
+    contentId: `previous-${index}`,
+    deliveredDate: `2026-08-${String(index + 1).padStart(2, "0")}`,
+    title: `Previous ${index}`,
+    type: "spell" as const,
+    tradition: "European folk magic",
+    category: "MoonAndSeasonal" as const,
+  }));
+}
+
 
 describe("selectTodayContent", () => {
   it("prefers an unseen matching seasonal item on a sabbat", async () => {
@@ -26,6 +39,136 @@ describe("selectTodayContent", () => {
 
     expect((await selectTodayContent(UID, "2026-03-03", repo)).id).toBe("ordinary");
   });
+
+  it("prioritizes first-week starter lessons over matching seasonal items", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "samhain", seasonalWindow: { kind: "sabbat", id: "samhain" } }),
+      makeReviewedLesson({ id: "starter", sourceId: "ancient-source", starterRank: 1 }),
+    ];
+
+    expect((await selectTodayContent(UID, "2026-10-31", repo, new Set(["ancient-source"]))).id).toBe("starter");
+  });
+
+  it("prefers matching seasonal items after the first seven deliveries", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeReviewedLesson({ id: "starter", sourceId: "ancient-source", starterRank: 1 }),
+      makeContent({ id: "samhain", seasonalWindow: { kind: "sabbat", id: "samhain" } }),
+    ];
+    repo.history = previousDeliveries(7);
+
+    expect((await selectTodayContent(UID, "2026-10-31", repo, new Set(["ancient-source"]))).id).toBe("samhain");
+  });
+
+  it("falls back to a seasonal item when a starter becomes ineligible", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeReviewedLesson({ id: "starter", sourceId: "ancient-source", starterRank: 1 }),
+      makeContent({ id: "samhain", seasonalWindow: { kind: "sabbat", id: "samhain" } }),
+    ];
+    const assign = repo.assignDailyContent.bind(repo);
+    jest.spyOn(repo, "assignDailyContent").mockImplementationOnce(async () => {
+      throw new ContentNoLongerEligibleError("starter");
+    }).mockImplementation(assign);
+
+    expect((await selectTodayContent(UID, "2026-10-31", repo, new Set(["ancient-source"]))).id).toBe("samhain");
+  });
+
+  it("prefers the lowest starter rank during a subscriber's first week", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "unranked" }),
+      makeReviewedLesson({ id: "starter-2", sourceId: "ancient-source", starterRank: 2 }),
+      makeReviewedLesson({ id: "starter-1", sourceId: "ancient-source", starterRank: 1 }),
+    ];
+
+    expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id).toBe("starter-1");
+  });
+
+  it("advances to the lowest unseen starter rank", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeReviewedLesson({ id: "starter-1", sourceId: "ancient-source", starterRank: 1 }),
+      makeReviewedLesson({ id: "starter-2", sourceId: "ancient-source", starterRank: 2 }),
+      makeReviewedLesson({ id: "starter-3", sourceId: "ancient-source", starterRank: 3 }),
+    ];
+    repo.history = [{ userId: UID, contentId: "starter-1", deliveredDate: "2026-09-08", title: "Title starter-1", type: "spell", tradition: "European folk magic", category: "MoonAndSeasonal" }];
+
+    expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id).toBe("starter-2");
+  });
+
+  it("never treats a ranked spell as a curated starter lesson", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "ranked-spell", starterRank: 1 }),
+      makeReviewedLesson({ id: "starter-lesson", sourceId: "ancient-source", starterRank: 2 }),
+    ];
+
+    expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id)
+      .toBe("starter-lesson");
+  });
+
+  it("returns to random selection after seven deliveries", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeReviewedLesson({ id: "starter", sourceId: "ancient-source", starterRank: 1 }),
+      makeContent({ id: "unranked" }),
+    ];
+    repo.history = previousDeliveries(7);
+    const random = jest.spyOn(Math, "random").mockReturnValue(0.75);
+    try {
+      expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id).toBe("unranked");
+    } finally {
+      random.mockRestore();
+    }
+  });
+
+  it("still prefers a starter lesson after six deliveries", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeReviewedLesson({ id: "starter", sourceId: "ancient-source", starterRank: 7 }),
+      makeContent({ id: "unranked" }),
+    ];
+    repo.history = previousDeliveries(6);
+    const random = jest.spyOn(Math, "random").mockReturnValue(0.75);
+    try {
+      expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id).toBe("starter");
+    } finally {
+      random.mockRestore();
+    }
+  });
+
+  it("falls back to regular daily selection when no starter lessons remain in the first week", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeReviewedLesson({ id: "already-seen-starter", sourceId: "ancient-source", starterRank: 1 }),
+      makeContent({ id: "unranked" }),
+    ];
+    repo.history = [{
+      userId: UID, contentId: "already-seen-starter", deliveredDate: "2026-09-08",
+      title: "Title already-seen-starter", type: "lesson", tradition: "Wiccan / Modern Witchcraft",
+      category: "divination",
+    }];
+    const random = jest.spyOn(Math, "random").mockReturnValue(0);
+    try {
+      expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id).toBe("unranked");
+    } finally {
+      random.mockRestore();
+    }
+  });
+
+  it("never treats a ranked potion as a curated starter lesson", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "ranked-potion", type: "potion", starterRank: 1 }),
+      makeReviewedLesson({ id: "starter-lesson", sourceId: "ancient-source", starterRank: 2 }),
+    ];
+
+    expect((await selectTodayContent(UID, TODAY, repo, new Set(["ancient-source"]))).id)
+      .toBe("starter-lesson");
+  });
+
   it("selects a published, in-tier candidate on the first call of the day and records it", async () => {
     const repo = new FakeContentRepository();
     repo.content = [

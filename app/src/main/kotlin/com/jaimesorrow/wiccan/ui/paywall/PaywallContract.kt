@@ -8,15 +8,24 @@ data class PaywallUiState(
     /** Monthly renewal price from Play; null when the monthly offer could not be loaded. */
     val price: String? = null,
     val hasFreeTrial: Boolean = false,
+    /** Length of the monthly free-trial phase in days, when [hasFreeTrial] is true. */
+    val freeTrialDays: Int? = null,
     val isRestoring: Boolean = false,
     /** Yearly renewal price from Play; null hides the yearly plan and keeps the monthly-only paywall. */
     val yearlyPrice: String? = null,
     val yearlyHasFreeTrial: Boolean = false,
+    /** Length of the yearly free-trial phase in days, when [yearlyHasFreeTrial] is true. */
+    val yearlyFreeTrialDays: Int? = null,
     /** Yearly price per month in Play's currency, e.g. "$3.33". */
     val yearlyMonthlyEquivalent: String? = null,
     /** Whole-percent saving against twelve monthly payments, e.g. 44. */
     val yearlySavingsPercent: Int? = null,
     val selectedPlan: SubscriptionPlan = SubscriptionPlan.MONTHLY,
+    val subscriptionOnHold: Boolean = false,
+    val monthlyWinBackPrice: String? = null,
+    val yearlyWinBackPrice: String? = null,
+    /** Play intro period for a yearly win-back offer, e.g. `P1M` or `P1Y`. */
+    val yearlyWinBackBillingPeriod: String? = null,
 ) {
     val hasYearlyPlan: Boolean get() = price != null && yearlyPrice != null
 
@@ -26,6 +35,10 @@ data class PaywallUiState(
     /** Whether the plan the checkout button will buy starts with a free trial for this account. */
     val selectedHasFreeTrial: Boolean
         get() = if (selectedPlan == SubscriptionPlan.YEARLY) yearlyHasFreeTrial else hasFreeTrial
+
+    /** Trial length of the plan the checkout button will buy. */
+    val selectedFreeTrialDays: Int?
+        get() = if (selectedPlan == SubscriptionPlan.YEARLY) yearlyFreeTrialDays else freeTrialDays
 }
 
 sealed class PaywallUiEvent {

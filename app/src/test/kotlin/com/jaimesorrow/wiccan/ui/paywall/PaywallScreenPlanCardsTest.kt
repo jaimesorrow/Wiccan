@@ -8,6 +8,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
@@ -42,6 +43,7 @@ class PaywallScreenPlanCardsTest {
         SubscriptionPlan.YEARLY,
         39_990_000L,
         "USD",
+        freeTrialDays = 14,
     )
 
     @Test
@@ -77,6 +79,77 @@ class PaywallScreenPlanCardsTest {
         composeRule.onNodeWithText("Yearly").assertDoesNotExist()
         composeRule.onNodeWithText("7 days free").assertIsDisplayed()
         composeRule.onNodeWithText("Then $5.99 per month. Auto-renews until canceled.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `trial wording uses the offer period for each plan`() {
+        launch(yearlyOffer = yearly)
+
+        composeRule.onNodeWithText("Yearly: 14 days free, then $39.99/year").assertIsDisplayed()
+        composeRule.onNodeWithText("Start My 14-Day Free Trial").assertIsDisplayed()
+        composeRule.onNodeWithText(
+            "No charge during the 14-day trial. Google Play charges $39.99 yearly after the trial unless canceled before it ends. Cancel anytime through Google Play.",
+        ).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("14-day free trial", substring = true).performScrollTo().assertIsDisplayed()
+
+        composeRule.onNodeWithTag("paywall-plan-monthly").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("Monthly: 7 days free, then $5.99/month").assertIsDisplayed()
+        composeRule.onNodeWithText("Start My 7-Day Free Trial").assertIsDisplayed()
+        composeRule.onNodeWithText("7-day free trial", substring = true).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `winback checkout names the promotional period and renewal price`() {
+        val repository = FakeSubscriptionRepository().apply {
+            hasFreeTrial = false
+            monthlyWinBackPrice = "$2.99"
+        }
+        launch(repository)
+
+        composeRule.onNodeWithText("Monthly: $2.99 for the first month, then $5.99/month").assertIsDisplayed()
+        composeRule.onNodeWithText("Auto-renews until canceled. Cancel anytime in Google Play.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `without a winback offer the regular checkout terms stay in place`() {
+        val repository = FakeSubscriptionRepository().apply {
+            hasFreeTrial = false
+            yearlyOffer = yearly.copy(hasFreeTrial = false)
+        }
+        launch(repository)
+
+        composeRule.onNodeWithTag("winback-offer").assertDoesNotExist()
+        composeRule.onNodeWithText("Yearly: $39.99/year").assertIsDisplayed()
+        composeRule.onNodeWithText("Billed $39.99 every year. Auto-renews until canceled.").assertIsDisplayed()
+        composeRule.onNodeWithTag("paywall-plan-monthly").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("winback-offer").assertDoesNotExist()
+        composeRule.onNodeWithText("Monthly: $5.99/month").assertIsDisplayed()
+        composeRule.onNodeWithText("Billed $5.99 every month. Auto-renews until canceled.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `winback terms follow the selected plan and disappear when that plan has none`() {
+        val repository = FakeSubscriptionRepository().apply {
+            hasFreeTrial = false
+            yearlyOffer = yearly.copy(
+                hasFreeTrial = false,
+                isWinBack = true,
+                winBackFormattedPrice = "$19.99",
+            )
+        }
+        launch(repository)
+
+        composeRule.onNodeWithTag("winback-offer").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Return for $19.99 for the first billing period, then the regular Google Play price.")
+            .performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Yearly: $19.99 for the first year, then $39.99/year").assertIsDisplayed()
+
+        composeRule.onNodeWithTag("paywall-plan-monthly").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("winback-offer").assertDoesNotExist()
+        composeRule.onNodeWithText("Monthly: $5.99/month").assertIsDisplayed()
     }
 
     @Test

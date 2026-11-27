@@ -28,6 +28,13 @@ only gives a matching unseen item priority on that calendar day; it never
 bypasses publication, subscription, provenance, safety, rights, duplicate,
 or no-repeat gates. Missing or malformed windows receive normal selection.
 
+An optional editorial `starterRank` integer from 1 through 7 identifies a
+curated first-week lesson. During a subscriber's first seven deliveries the
+selector prefers the lowest unseen rank before seasonal matches; otherwise it
+prefers a matching seasonal item, falling back to random selection. The field
+does not publish a draft or bypass safety, source,
+rights, duplicate, or eligibility review.
+
 ## Canonical lesson (v2)
 
 ```text

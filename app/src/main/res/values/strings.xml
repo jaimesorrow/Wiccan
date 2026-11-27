@@ -86,19 +86,19 @@
     <string name="paywall_headline">Walk the moonlit path</string>
     <string name="paywall_body">Candle spells, herbal rites, cord and knot work, and lunar practices, inspired by historical grimoires.</string>
     <string name="paywall_price_unavailable">Subscription unavailable</string>
-    <string name="paywall_trial_free">7 days free</string>
+    <string name="paywall_trial_free">%1$d days free</string>
     <string name="paywall_price_month">%1$s / month</string>
     <string name="paywall_price_connect">Connect to Google Play to view your subscription offer.</string>
     <string name="paywall_price_then">Then %1$s per month. Auto-renews until canceled.</string>
     <string name="paywall_price_no_trial">%1$s per month. Trial unavailable for this Play account.</string>
     <string name="paywall_retry_price">Retry price</string>
-    <string name="paywall_start_trial">Start My 7-Day Free Trial</string>
+    <string name="paywall_start_trial">Start My %1$d-Day Free Trial</string>
     <string name="paywall_continue_subscription">Continue to Subscription</string>
     <string name="paywall_restore">Already subscribed? Restore your subscription</string>
     <string name="support_contact_message">Questions along your path? Contact customerservice@wiccan.app</string>
     <string name="subscription_check_title">Returning to your Grimoire</string>
     <string name="subscription_check_body">A moment beneath the moon while we confirm your access.</string>
-    <string name="paywall_trial_disclosure">No charge during the trial. Google Play charges %1$s monthly after the trial unless canceled before it ends. Cancel anytime through Google Play.</string>
+    <string name="paywall_trial_disclosure">No charge during the %1$d-day trial. Google Play charges %2$s monthly after the trial unless canceled before it ends. Cancel anytime through Google Play.</string>
     <string name="paywall_paid_disclosure">Google Play handles payment and automatic renewals. Cancel anytime through Google Play.</string>
     <string name="paywall_restore_checked">Purchases checked. Access opens when an active subscription is verified.</string>
     <string name="paywall_logo_description">Wiccan</string>
@@ -118,15 +118,22 @@
     <string name="paywall_plan_yearly_savings">Save %1$d%% vs. monthly</string>
     <string name="paywall_plan_monthly_price">%1$s / month</string>
     <string name="paywall_plan_monthly_detail">Billed every month</string>
-    <string name="paywall_plan_trial_badge">7-day free trial</string>
+    <string name="paywall_plan_trial_badge">%1$d-day free trial</string>
     <string name="paywall_price_no_trial_year">Billed %1$s every year. Auto-renews until canceled.</string>
     <string name="paywall_price_no_trial_month_plain">Billed %1$s every month. Auto-renews until canceled.</string>
-    <string name="paywall_selected_yearly_trial">Yearly: 7 days free, then %1$s/year</string>
+    <string name="paywall_selected_yearly_trial">Yearly: %1$d days free, then %2$s/year</string>
     <string name="paywall_selected_yearly">Yearly: %1$s/year</string>
-    <string name="paywall_selected_monthly_trial">Monthly: 7 days free, then %1$s/month</string>
+    <string name="paywall_selected_monthly_trial">Monthly: %1$d days free, then %2$s/month</string>
     <string name="paywall_selected_monthly">Monthly: %1$s/month</string>
     <string name="paywall_selected_renews">Auto-renews until canceled. Cancel anytime in Google Play.</string>
-    <string name="paywall_trial_disclosure_year">No charge during the 7-day trial. Google Play charges %1$s yearly after the trial unless canceled before it ends. Cancel anytime through Google Play.</string>
+    <string name="paywall_trial_disclosure_year">No charge during the %1$d-day trial. Google Play charges %2$s yearly after the trial unless canceled before it ends. Cancel anytime through Google Play.</string>
+    <string name="paywall_payment_failed_title">Payment needs attention</string>
+    <string name="paywall_payment_failed_body">Your payment didn’t go through. Update it in Google Play to restore access.</string>
+    <string name="paywall_update_payment">Update payment in Google Play</string>
+    <string name="paywall_winback_offer">Return for %1$s for the first billing period, then the regular Google Play price.</string>
+    <string name="paywall_selected_monthly_winback">Monthly: %1$s for the first month, then %2$s/month</string>
+    <string name="paywall_selected_yearly_winback">Yearly: %1$s for the first year, then %2$s/year</string>
+    <string name="paywall_selected_yearly_winback_month">Yearly: %1$s for the first month, then %2$s/year</string>
     <!-- Billing reminder notification channel. Plain. -->
     <string name="notification_channel_billing_name">Trial and billing reminders</string>
     <string name="notification_channel_billing_description">A reminder before a free trial ends and the paid subscription starts.</string>
@@ -256,10 +263,19 @@
     <string name="settings_sign_out">Sign out</string>
     <string name="settings_manage_subscription">Manage Subscription</string>
     <string name="settings_manage_subscription_unavailable">Open Google Play to manage your subscription.</string>
+    <string name="settings_switch_to_yearly">Switch to yearly</string>
+    <string name="settings_switch_to_yearly_base">Switch to %1$s/year. Google Play will confirm the charge before you pay. This switch does not include a free trial.</string>
+    <string name="settings_switch_to_yearly_intro">%1$s for the first month, then %2$s/year. Google Play will confirm the charge before you pay. This switch does not include a free trial.</string>
     <string name="settings_notifications">Daily practice reminder</string>
     <string name="settings_notifications_hint">A soft bell when the day\'s working is laid upon the altar.</string>
     <string name="settings_palette">Palette</string>
     <string name="settings_palette_hint">Midnight Grimoire holds these pages. A choice you save is remembered.</string>
+    <string name="settings_language">App language</string>
+    <string name="settings_language_hint">Choose the language for navigation and controls. Lessons remain in English.</string>
+    <string name="settings_language_system">Use device language</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_portuguese_brazil">Português (Brasil)</string>
+    <string name="settings_language_english">English</string>
     <string name="settings_section_spiritual">SPIRITUAL PREFERENCES</string>
     <string name="settings_section_grimoire">GRIMOIRE VIEW</string>
     <string name="settings_section_data">MY DATA &amp; ACCOUNT</string>
@@ -319,6 +335,7 @@
     <string name="nav_grimoire">Grimoire</string>
     <string name="nav_settings">Settings</string>
     <string name="content_lesson_image_description">Illustration for %1$s</string>
+    <string name="content_lessons_english_notice">Lesson text is currently available in English.</string>
 
     <!-- Errors -->
     <string name="error_network">The spell faltered. Check your connection and try again.</string>
@@ -343,4 +360,8 @@
     <string name="notification_channel_daily_description">A note when the day\'s spell, potion, or lesson is ready.</string>
     <string name="notification_daily_default_title">Today\'s practice awaits</string>
     <string name="notification_billing_default_title">Wiccan subscription reminder</string>
+    <string name="notification_permission_title">Let the grimoire call to you each dawn</string>
+    <string name="notification_permission_body">Allow notifications for the optional daily practice and trial-ending reminder. You can turn them off anytime in Settings.</string>
+    <string name="notification_permission_continue">Continue</string>
+    <string name="notification_permission_not_now">Not now</string>
 </resources>

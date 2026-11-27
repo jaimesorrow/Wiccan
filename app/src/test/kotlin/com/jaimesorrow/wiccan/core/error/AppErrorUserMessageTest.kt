@@ -46,7 +46,7 @@ class AppErrorUserMessageTest {
         assertTrue(context.getString(PolicyAgreement.NO_GUARANTEE.labelRes()).contains("does not promise or guarantee any result"))
         assertTrue(context.getString(PolicyAgreement.ADULT.labelRes()).contains("18"))
         assertTrue(context.getString(R.string.settings_delete_body).contains("cannot be undone"))
-        assertTrue(context.getString(R.string.paywall_trial_disclosure, "$4.99").contains("No charge during the trial"))
+        assertTrue(context.getString(R.string.paywall_trial_disclosure, 7, "$4.99").contains("No charge during the 7-day trial"))
     }
 
     @Test

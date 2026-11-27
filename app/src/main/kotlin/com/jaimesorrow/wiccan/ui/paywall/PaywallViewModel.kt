@@ -9,6 +9,7 @@ import com.jaimesorrow.wiccan.billing.yearlySavingsPercent
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
+import com.jaimesorrow.wiccan.domain.model.SubscriptionState
 import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -39,6 +40,11 @@ class PaywallViewModel @Inject constructor(
     init {
         analyticsLogger.logPaywallViewed()
         loadPrice()
+        viewModelScope.launch {
+            subscriptionRepository.observeSubscriptionState().collect { subscriptionState ->
+                _state.update { it.copy(subscriptionOnHold = subscriptionState == SubscriptionState.ON_HOLD) }
+            }
+        }
     }
 
     fun onEvent(event: PaywallUiEvent) {
@@ -119,10 +125,14 @@ class PaywallViewModel @Inject constructor(
                 isLoadingPrice = true,
                 price = null,
                 hasFreeTrial = false,
+                freeTrialDays = null,
                 yearlyPrice = null,
                 yearlyHasFreeTrial = false,
+                yearlyFreeTrialDays = null,
                 yearlyMonthlyEquivalent = null,
                 yearlySavingsPercent = null,
+                monthlyWinBackPrice = null,
+                yearlyWinBackPrice = null,
             )
         }
         viewModelScope.launch {
@@ -145,10 +155,15 @@ class PaywallViewModel @Inject constructor(
                 isLoadingPrice = false,
                 price = monthly.formattedPrice,
                 hasFreeTrial = monthly.hasFreeTrial,
+                freeTrialDays = monthly.freeTrialDays,
                 yearlyPrice = yearly?.formattedPrice,
                 yearlyHasFreeTrial = yearly?.hasFreeTrial == true,
+                yearlyFreeTrialDays = yearly?.freeTrialDays,
                 yearlyMonthlyEquivalent = yearly?.let(::yearlyMonthlyEquivalent),
                 yearlySavingsPercent = yearly?.let { offer -> yearlySavingsPercent(offer, monthly) },
+                monthlyWinBackPrice = monthly.winBackFormattedPrice,
+                yearlyWinBackPrice = yearly?.winBackFormattedPrice,
+                yearlyWinBackBillingPeriod = yearly?.winBackBillingPeriod,
                 selectedPlan = when {
                     yearly == null -> SubscriptionPlan.MONTHLY
                     userPickedPlan -> it.selectedPlan

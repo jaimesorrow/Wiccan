@@ -121,4 +121,14 @@ describe("sendTrialEndingReminders", () => {
     expect(copy.body).toContain("Unless you cancel before then");
     expect(copy.body).toContain("Google Play > Payments & subscriptions > Subscriptions");
   });
+
+  it("localizes reminder copy and its date for each supported locale", () => {
+    const spanish = trialEndingCopy(TRIAL_END, "Etc/UTC", "es");
+    expect(spanish.title).toBe("Tu prueba gratuita termina pronto");
+    expect(spanish.body).toContain("Si no cancelas antes");
+
+    const portuguese = trialEndingCopy(TRIAL_END, "Etc/UTC", "pt-BR");
+    expect(portuguese.title).toBe("Seu teste gratuito termina em breve");
+    expect(portuguese.body).toContain("Se você não cancelar antes");
+  });
 });

@@ -3,6 +3,7 @@ import { PREMIUM_PRODUCT_IDS } from "./tierPolicy";
 import { TrialReminderRepositoryPort } from "./trialReminderPort";
 import { NotificationUserRepositoryPort } from "./notificationUserRepositoryPort";
 import { FcmSenderPort } from "./fcmSenderPort";
+import { SupportedLocale } from "./locale";
 
 /** Must match the Android notification channel created in the app. */
 export const BILLING_REMINDERS_CHANNEL_ID = "billing_reminders";
@@ -26,18 +27,28 @@ export interface TrialReminderSummary {
  * happens next, and where to cancel. The server does not know the
  * localized price, so it points to the terms Google Play showed at signup.
  */
-export function trialEndingCopy(expiryTimeMillis: number, timeZone: string | null): { title: string; body: string } {
+export function trialEndingCopy(
+  expiryTimeMillis: number, timeZone: string | null, locale: SupportedLocale = "en",
+): { title: string; body: string } {
   let when: string;
   try {
-    when = new Intl.DateTimeFormat("en-US", {
+    when = new Intl.DateTimeFormat(locale === "es" ? "es" : locale === "pt-BR" ? "pt-BR" : "en-US", {
       month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
       timeZone: timeZone ?? "UTC", timeZoneName: "short",
     }).format(new Date(expiryTimeMillis));
   } catch {
-    when = new Intl.DateTimeFormat("en-US", {
+    when = new Intl.DateTimeFormat(locale === "es" ? "es" : locale === "pt-BR" ? "pt-BR" : "en-US", {
       month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "UTC", timeZoneName: "short",
     }).format(new Date(expiryTimeMillis));
   }
+  if (locale === "es") return {
+    title: "Tu prueba gratuita termina pronto",
+    body: `Tu prueba gratuita de Wiccan termina el ${when}. Si no cancelas antes, Google Play iniciará tu suscripción y cobrará el precio mostrado al registrarte. Adminístrala en Google Play > Pagos y suscripciones > Suscripciones.`,
+  };
+  if (locale === "pt-BR") return {
+    title: "Seu teste gratuito termina em breve",
+    body: `Seu teste gratuito do Wiccan termina em ${when}. Se você não cancelar antes, o Google Play iniciará sua assinatura e cobrará o preço mostrado no cadastro. Gerencie em Google Play > Pagamentos e assinaturas > Assinaturas.`,
+  };
   return {
     title: "Your free trial ends soon",
     body: `Your Wiccan free trial ends ${when}. Unless you cancel before then, Google Play will start your ` +
@@ -115,7 +126,7 @@ export async function sendTrialEndingReminders(
       // Every device this account is signed in on, whatever its daily-practice choice.
       const ttlMillis = Math.max(1, expiry - nowMillis);
       for (const device of recipients) {
-        const copy = trialEndingCopy(expiry, device.timeZone);
+        const copy = trialEndingCopy(expiry, device.timeZone, device.locale);
         const result = await fcm.send(device.token, copy.title, copy.body, BILLING_REMINDERS_CHANNEL_ID, {
           dataOnly: true,
           data: { type: BILLING_REMINDER_TYPE, uid: candidate.uid, productId, expiryTimeMillis: String(expiry) },

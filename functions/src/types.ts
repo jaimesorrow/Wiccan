@@ -76,6 +76,8 @@ export interface Content extends PracticalLessonFields {
   illustrationUrl?: string;
   /** Optional calendar window used only to prefer this item on a matching day. */
   seasonalWindow?: SeasonalWindow;
+  /** Editorial first-week order. Values 1-7 are preferred for a subscriber's first seven deliveries. */
+  starterRank?: number;
 }
 
 /**

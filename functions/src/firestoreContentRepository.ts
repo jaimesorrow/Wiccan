@@ -75,6 +75,8 @@ export function contentFromStoredDocument(id: string, data: FirebaseFirestore.Do
     illustrationUrl: typeof data.illustrationUrl === "string" && data.illustrationUrl.trim()
       ? data.illustrationUrl.trim() : undefined,
     seasonalWindow: parseSeasonalWindow(data.seasonalWindow),
+    starterRank: Number.isInteger(data.starterRank) && data.starterRank >= 1 && data.starterRank <= 7
+      ? data.starterRank : undefined,
     practicalReview: data.practicalReview,
   };
   rememberStoredContentHash(content, practicalContentHash(data));

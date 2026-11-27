@@ -1,7 +1,9 @@
 package com.jaimesorrow.wiccan.ui.settings
 
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
@@ -221,6 +223,15 @@ fun SettingsScreen(
                 Text(stringResource(R.string.settings_manage_subscription))
             }
 
+            state.yearlySwitchOffer?.let { offer ->
+                Spacer(modifier = Modifier.height(12.dp))
+                SwitchToYearlyRow(
+                    offer = offer,
+                    enabled = !state.isSwitchBusy && !state.isAccountBusy && !state.isDeleting,
+                    onClick = { context.findActivity()?.let(viewModel::switchToYearly) },
+                )
+            }
+
             if (!accountOnly) {
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(
@@ -270,6 +281,26 @@ fun SettingsScreen(
                 ThemeModePicker(
                     selected = state.themeMode,
                     onSelected = { viewModel.onEvent(SettingsUiEvent.ThemeModeSelected(it)) },
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    text = stringResource(R.string.settings_language),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+                Text(
+                    text = stringResource(R.string.settings_language_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                AppLanguagePicker(
+                    selected = AppLanguageManager.selected(context),
+                    onSelected = { language ->
+                        context.findActivity()?.let { AppLanguageManager.select(it, language) }
+                        viewModel.onEvent(SettingsUiEvent.LanguageChanged)
+                    },
                 )
             }
 
@@ -396,6 +427,37 @@ internal fun ThemeModePicker(
     }
 }
 
+@Composable
+internal fun AppLanguagePicker(
+    selected: AppLanguage,
+    onSelected: (AppLanguage) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.selectableGroup().testTag("language-picker")) {
+        AppLanguage.entries.forEach { language ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = language == selected,
+                        onClick = { onSelected(language) },
+                        role = Role.RadioButton,
+                    )
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(selected = language == selected, onClick = null)
+                Text(
+                    text = stringResource(language.labelRes),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(start = 8.dp),
+                )
+            }
+        }
+    }
+}
+
 private fun supportEmailIntent(): Intent =
     Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${PolicyUrls.CUSTOMER_SERVICE_EMAIL}"))
 
@@ -404,4 +466,10 @@ private fun appVersionName(context: Context): String = try {
         ?: context.getString(R.string.settings_version_unknown)
 } catch (t: Throwable) {
     context.getString(R.string.settings_version_unknown)
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }

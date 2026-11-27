@@ -1,4 +1,4 @@
-import { Content } from "./types";
+import { Content, SeasonalWindow } from "./types";
 import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort, SubscriptionRequiredError } from "./contentRepositoryPort";
 import { isLessonGenerationSource, loadContentSources } from "./contentSource";
 import { contentSimilarityKey, isEligibleForDailyDelivery } from "./contentEligibility";
@@ -21,6 +21,16 @@ export class ContentPoolExhaustedError extends Error {
 
 function pickRandom(items: Content[]): Content {
   return items[Math.floor(Math.random() * items.length)];
+}
+
+function pickCandidate(items: Content[], deliveredCount: number, seasonalWindow: SeasonalWindow | null): Content {
+  if (deliveredCount < 7) {
+    const ranked = items.filter((item) => item.type === "lesson" && item.starterRank !== undefined)
+      .sort((left, right) => left.starterRank! - right.starterRank!);
+    if (ranked.length > 0) return ranked[0];
+  }
+  const seasonal = items.filter((item) => matchesSeasonalWindow(item.seasonalWindow, seasonalWindow));
+  return pickRandom(seasonal.length > 0 ? seasonal : items);
 }
 
 /** Preserve the committed assignment if its underlying document was removed. */
@@ -51,7 +61,10 @@ async function readAssignedContent(uid: string, contentId: string, repo: Content
  * 3. Exclude anything already delivered to the user.
  * 4. If nothing remains, log pool exhaustion and fail closed. Never repeat
  *    a lesson already delivered to this user.
- * 5. Pick a candidate at random and atomically reserve both its content
+ * 5. During a subscriber's first seven deliveries, prefer the lowest unseen
+ *    editor-assigned `starterRank`; otherwise prefer a seasonal match or pick
+ *    a candidate at random.
+ *    Atomically reserve both its content
  *    ID and today's assignment. If another date reserved that ID first,
  *    retry with a different candidate. If another call won today, return
  *    that same-day winner. Never deliver the same ID on two days.
@@ -91,15 +104,8 @@ export async function selectTodayContent(
   });
 
   const seasonalWindow = seasonalWindowFor(today);
-  const seasonalCandidates = candidates.filter((content) =>
-    matchesSeasonalWindow(content.seasonalWindow, seasonalWindow),
-  );
-
   while (candidates.length > 0) {
-    const stillAvailableSeasonal = seasonalCandidates.filter((content) =>
-      candidates.some((candidate) => candidate.id === content.id),
-    );
-    const candidate = pickRandom(stillAvailableSeasonal.length > 0 ? stillAvailableSeasonal : candidates);
+    const candidate = pickCandidate(candidates, deliveredIds.length, seasonalWindow);
     let assignedId: string;
     try {
       assignedId = await repo.assignDailyContent(uid, today, candidate, ancientLessonSourceIds);

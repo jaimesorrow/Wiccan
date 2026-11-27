@@ -7,6 +7,7 @@ import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
+import com.jaimesorrow.wiccan.domain.model.SubscriptionState
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -108,6 +109,22 @@ class PaywallViewModelTest {
     }
 
     @Test
+    fun `failed reload clears a stale winback promotion`() = runTest(dispatcher) {
+        repository.hasFreeTrial = false
+        repository.monthlyWinBackPrice = "$2.99"
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals("$2.99", viewModel.state.value.monthlyWinBackPrice)
+
+        repository.priceResult = AppResult.Failure(AppError.Network)
+        viewModel.onEvent(PaywallUiEvent.RetryPriceClicked)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(null, viewModel.state.value.monthlyWinBackPrice)
+        assertEquals(null, viewModel.state.value.yearlyWinBackPrice)
+    }
+
+    @Test
     fun `subscribe delegates to the repository's launchPurchaseFlow`() = runTest(dispatcher) {
         val viewModel = PaywallViewModel(repository, analyticsLogger)
         val activity = mockk<Activity>()
@@ -166,7 +183,7 @@ class PaywallViewModelTest {
         assertFalse(viewModel.state.value.isRestoring)
     }
 
-    private val yearly = SubscriptionOffer("$39.99", true, "yearly-token", SubscriptionPlan.YEARLY, 39_990_000L, "USD")
+    private val yearly = SubscriptionOffer("$39.99", true, "yearly-token", SubscriptionPlan.YEARLY, 39_990_000L, "USD", freeTrialDays = 14)
 
     @Test
     fun `without a yearly plan in Play the paywall stays monthly-only and buys monthly`() = runTest(dispatcher) {
@@ -190,6 +207,9 @@ class PaywallViewModelTest {
         assertTrue(state.hasYearlyPlan)
         assertEquals(SubscriptionPlan.YEARLY, state.selectedPlan)
         assertEquals("$39.99", state.yearlyPrice)
+        assertEquals(7, state.freeTrialDays)
+        assertEquals(14, state.yearlyFreeTrialDays)
+        assertEquals(14, state.selectedFreeTrialDays)
         assertEquals(44, state.yearlySavingsPercent)
         assertTrue(state.selectedHasFreeTrial)
 
@@ -267,5 +287,65 @@ class PaywallViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(before, viewModel.state.value)
+    }
+
+    @Test
+    fun `server on-hold state enables payment recovery copy`() = runTest(dispatcher) {
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        repository.emitSubscriptionState(SubscriptionState.ON_HOLD)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertTrue(viewModel.state.value.subscriptionOnHold)
+
+        repository.emitSubscriptionState(SubscriptionState.ACTIVE)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertFalse(viewModel.state.value.subscriptionOnHold)
+    }
+
+    @Test
+    fun `grace and other non-hold states keep payment recovery copy hidden`() = runTest(dispatcher) {
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        repository.emitSubscriptionState(SubscriptionState.ON_HOLD)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertTrue(viewModel.state.value.subscriptionOnHold)
+
+        val hidden = listOf(
+            SubscriptionState.UNKNOWN,
+            SubscriptionState.ACTIVE,
+            SubscriptionState.IN_GRACE_PERIOD,
+            SubscriptionState.PAUSED,
+            SubscriptionState.CANCELED,
+            SubscriptionState.EXPIRED,
+            SubscriptionState.PENDING,
+        )
+        for (state in hidden) {
+            repository.emitSubscriptionState(state)
+            dispatcher.scheduler.advanceUntilIdle()
+            assertFalse("expected $state to hide the on-hold card", viewModel.state.value.subscriptionOnHold)
+        }
+    }
+
+    @Test
+    fun `winback prices are applied per plan and a missing offer leaves them unset`() = runTest(dispatcher) {
+        repository.hasFreeTrial = false
+        repository.monthlyWinBackPrice = "$2.99"
+        repository.yearlyOffer = yearly.copy(
+            hasFreeTrial = false,
+            isWinBack = true,
+            winBackFormattedPrice = "$19.99",
+        )
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals("$2.99", viewModel.state.value.monthlyWinBackPrice)
+        assertEquals("$19.99", viewModel.state.value.yearlyWinBackPrice)
+
+        repository.monthlyWinBackPrice = null
+        repository.yearlyOffer = yearly.copy(hasFreeTrial = false, isWinBack = false, winBackFormattedPrice = null)
+        viewModel.onEvent(PaywallUiEvent.RetryPriceClicked)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(null, viewModel.state.value.monthlyWinBackPrice)
+        assertEquals(null, viewModel.state.value.yearlyWinBackPrice)
     }
 }

@@ -7,6 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.MetadataChanges
 import com.jaimesorrow.wiccan.domain.model.ContentTier
+import com.jaimesorrow.wiccan.domain.model.SubscriptionState
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -46,6 +47,56 @@ class UserTierDataSourceTest {
     }
 
     @Test
+    fun `mirrored subscription state is read only from a server snapshot`() = runTest {
+        val listener = slot<EventListener<DocumentSnapshot>>()
+        val registration = mockk<ListenerRegistration>(relaxed = true)
+        val firestore = mockk<FirebaseFirestore>()
+        every {
+            firestore.collection("users").document("u").addSnapshotListener(MetadataChanges.INCLUDE, capture(listener))
+        } returns registration
+
+        UserTierDataSource(firestore).observeSubscriptionState("u").test {
+            runCurrent()
+            listener.captured.onEvent(stateSnapshot("on_hold", cached = true), null)
+            assertEquals(SubscriptionState.UNKNOWN, awaitItem())
+            listener.captured.onEvent(stateSnapshot("in_grace_period", cached = false), null)
+            assertEquals(SubscriptionState.IN_GRACE_PERIOD, awaitItem())
+            listener.captured.onEvent(stateSnapshot("on_hold", cached = false), null)
+            assertEquals(SubscriptionState.ON_HOLD, awaitItem())
+            listener.captured.onEvent(stateSnapshot("active", cached = false), null)
+            assertEquals(SubscriptionState.ACTIVE, awaitItem())
+            listener.captured.onEvent(null, mockk())
+            assertEquals(SubscriptionState.UNKNOWN, awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `mirrored product id is read only from a server snapshot`() = runTest {
+        val listener = slot<EventListener<DocumentSnapshot>>()
+        val registration = mockk<ListenerRegistration>(relaxed = true)
+        val firestore = mockk<FirebaseFirestore>()
+        every {
+            firestore.collection("users").document("u").addSnapshotListener(MetadataChanges.INCLUDE, capture(listener))
+        } returns registration
+
+        UserTierDataSource(firestore).observeProductId("u").test {
+            runCurrent()
+            listener.captured.onEvent(productSnapshot("wiccan_premium_monthly", cached = true), null)
+            assertEquals(null, awaitItem())
+            listener.captured.onEvent(productSnapshot("wiccan_premium_monthly", cached = false), null)
+            assertEquals("wiccan_premium_monthly", awaitItem())
+            listener.captured.onEvent(productSnapshot("wiccan_premium_yearly", cached = false), null)
+            assertEquals("wiccan_premium_yearly", awaitItem())
+            listener.captured.onEvent(productSnapshot("  ", cached = false), null)
+            assertEquals(null, awaitItem())
+            listener.captured.onEvent(null, mockk())
+            assertEquals(null, awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun `missing expired and deleting profiles fail closed`() {
         assertFalse(hasSubscriptionAccess("premium", 0, false, nowMillis = 100))
         assertFalse(hasSubscriptionAccess("premium", 100, false, nowMillis = 100))
@@ -59,6 +110,20 @@ class UserTierDataSourceTest {
         every { document.get("tier") } returns "premium"
         every { document.get("subscriptionExpiresAtMillis") } returns expiry
         every { document.get("deletionInProgress") } returns false
+        return document
+    }
+
+    private fun stateSnapshot(state: String?, cached: Boolean): DocumentSnapshot {
+        val document = mockk<DocumentSnapshot>()
+        every { document.metadata } returns mockk { every { isFromCache } returns cached }
+        every { document.get("subscriptionState") } returns state
+        return document
+    }
+
+    private fun productSnapshot(productId: String?, cached: Boolean): DocumentSnapshot {
+        val document = mockk<DocumentSnapshot>()
+        every { document.metadata } returns mockk { every { isFromCache } returns cached }
+        every { document.get("productId") } returns productId
         return document
     }
 }
