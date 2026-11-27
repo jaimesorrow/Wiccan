@@ -31,6 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
+import com.jaimesorrow.wiccan.ads.AdPrivacyChoicesRow
 import com.jaimesorrow.wiccan.ui.archive.ARCHIVE_DETAIL_CONTENT_ID_ARG
 import com.jaimesorrow.wiccan.ui.archive.ArchiveDetailScreen
 import com.jaimesorrow.wiccan.ui.archive.ArchiveScreen
@@ -108,6 +109,7 @@ private fun productionScreens(settingsViewModel: SettingsViewModel) = WiccanNavS
             onPrivacyClick = links.onPrivacyClick,
             onContentSafetyClick = links.onContentSafetyClick,
             onPotionSafetyClick = links.onPotionSafetyClick,
+            privacyChoices = { AdPrivacyChoicesRow() },
         )
     },
     // ArchiveDetailViewModel reads the contentId from SavedStateHandle itself.

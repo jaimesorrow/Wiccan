@@ -18,8 +18,10 @@ import kotlinx.coroutines.sync.withLock
  * Applies the user's analytics/crash-report choice to the Firebase SDKs.
  * The manifest starts both SDKs with collection off and every consent-mode
  * signal denied, so nothing is collected before [applyStoredConsent] runs
- * or before the user opts in. Ad-related consent is always denied: Wiccan
- * shows no ads, so the advertising ID is never used for advertising.
+ * or before the user opts in. Analytics' ad-related consent is always denied:
+ * analytics data is never used for advertising. The AdMob ads shown to
+ * non-subscribers have their own consent, gathered by UMP
+ * (com.jaimesorrow.wiccan.ads.AdConsentController).
  *
  * Every read/persist/apply sequence runs under one lock, so a slow startup
  * read can never re-enable collection after the user has withdrawn.

@@ -281,6 +281,10 @@
     <string name="settings_section_circle">THE INNER CIRCLE</string>
     <string name="settings_analytics">Usage analytics &amp; crash reports</string>
     <string name="settings_analytics_hint">Optional. Helps improve Wiccan; never used for ads.</string>
+    <string name="settings_ad_privacy_choices">Privacy choices</string>
+    <string name="settings_ad_privacy_choices_hint">Review or change how Google AdMob uses your data for the ads shown to non-subscribers.</string>
+    <!-- Plain label above the Grimoire banner ad; never styled as Wiccan content. -->
+    <string name="ad_label">Advertisement</string>
     <string name="settings_delete">Delete Account</string>
     <string name="settings_delete_title">Delete account?</string>
     <string name="settings_delete_body">Wiccan first cancels active Google Play renewal, then permanently deletes your account, delivery history, devices, and subscription record. If cancellation cannot be confirmed, deletion stops so you can retry. Limited pseudonymous anti-fraud hashes may remain. This cannot be undone.</string>

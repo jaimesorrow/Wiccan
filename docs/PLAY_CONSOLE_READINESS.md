@@ -46,7 +46,7 @@ These answers reflect the current code. Re-audit if functionality or SDKs change
 
 | Console topic | Wiccan answer | Evidence / release note |
 |---|---|---|
-| Contains ads | **No** | No ads SDK or ad surface is present. |
+| Contains ads | **Yes, once the AdMob change ships** (No for any build without it) | Google Mobile Ads SDK + UMP; one Grimoire banner for non-subscribers only. Data safety, advertising ID and app-ads.txt steps: `docs/ADMOB.md`. |
 | In-app purchases | **Yes — subscriptions** | Google Play Billing; monthly UI today, monthly/yearly product IDs accepted by the backend. |
 | App access restricted | **Yes** | Sign-in, policy acceptance and an active subscription or trial gate the app. Supply reviewer instructions and credentials. |
 | User-generated content | **No** | Users cannot post, message, upload, or share content. |
@@ -132,7 +132,7 @@ Additional form answers:
 - **Independent security review:** Do not claim one unless a qualifying review
   has actually been completed and remains valid.
 - **Data sale:** No.
-- **Behavioral advertising:** No.
+- **Behavioral advertising:** No for builds without AdMob. With AdMob, personalized ads are possible where the user consents (UMP), so update this answer and the Data safety form per `docs/ADMOB.md`.
 
 Explicit Analytics events are `sign_up_completed`, `daily_content_viewed`,
 `paywall_viewed`, `subscription_started`, `subscription_lapsed`, and

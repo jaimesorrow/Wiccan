@@ -72,6 +72,8 @@ fun SettingsScreen(
     onPrivacyClick: () -> Unit = {},
     onContentSafetyClick: () -> Unit = {},
     onPotionSafetyClick: () -> Unit = {},
+    // Ad "Privacy choices" entry (UMP); production wires AdPrivacyChoicesRow.
+    privacyChoices: @Composable () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -330,6 +332,7 @@ fun SettingsScreen(
                 }
                 Switch(checked = state.shareAnalytics, onCheckedChange = null)
             }
+            privacyChoices()
 
             Spacer(modifier = Modifier.height(24.dp))
             OutlinedButton(
