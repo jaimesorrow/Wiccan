@@ -59,7 +59,18 @@ class OnboardingViewModel @Inject constructor(
      * carry over once the root moves the user on, so switching steps drops it.
      */
     fun onStepShown(step: OnboardingStep) {
-        _state.update { if (it.step == step) it else it.copy(step = step, notice = null) }
+        val deliveryFailed = step == OnboardingStep.VERIFY_EMAIL &&
+            authRepository.consumeVerificationDeliveryFailure()
+        _state.update {
+            when {
+                deliveryFailed -> it.copy(
+                    step = step,
+                    notice = R.string.error_verification_email_delivery,
+                )
+                it.step == step -> it
+                else -> it.copy(step = step, notice = null)
+            }
+        }
     }
 
     fun setFirstName(value: String) {

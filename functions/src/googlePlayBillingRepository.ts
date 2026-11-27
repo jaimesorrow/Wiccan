@@ -71,8 +71,8 @@ export class GooglePlayBillingRepository implements PlayBillingPort {
     const lineItems = response.data.lineItems ?? [];
     const productIds = lineItems.map((item) => item.productId).filter((id): id is string => Boolean(id));
     // An unrelated/expired first line item must not decide Wiccan access.
-    const premiumExpiryTimes = lineItems
-      .filter((item) => item.productId && PREMIUM_PRODUCT_IDS.has(item.productId))
+    const premiumLineItems = lineItems.filter((item) => item.productId && PREMIUM_PRODUCT_IDS.has(item.productId));
+    const premiumExpiryTimes = premiumLineItems
       .map((item) => item.expiryTime ? Date.parse(item.expiryTime) : NaN)
       .filter(Number.isFinite);
     const expiryTimeMillis = premiumExpiryTimes.length ? Math.max(...premiumExpiryTimes) : null;
@@ -88,6 +88,7 @@ export class GooglePlayBillingRepository implements PlayBillingPort {
       acknowledged,
       obfuscatedExternalAccountId: response.data.externalAccountIdentifiers?.obfuscatedExternalAccountId ?? null,
       linkedPurchaseToken: response.data.linkedPurchaseToken ?? null,
+      inFreeTrial: premiumLineItems.some((item) => Boolean(item.offerPhase?.freeTrial)),
     };
   }
 

@@ -115,7 +115,7 @@ class SettingsScreenButtonsTest {
         click("Contact Support")
         val intent = lastStartedIntent()
         assertEquals(Intent.ACTION_SENDTO, intent.action)
-        assertEquals("mailto:${PolicyUrls.SUPPORT_EMAIL}", intent.data.toString())
+        assertEquals("mailto:${PolicyUrls.CUSTOMER_SERVICE_EMAIL}", intent.data.toString())
     }
 
     @Test
@@ -124,7 +124,10 @@ class SettingsScreenButtonsTest {
         click("Manage Subscription")
         val intent = lastStartedIntent()
         assertEquals(Intent.ACTION_VIEW, intent.action)
-        assertEquals("https://play.google.com/store/account/subscriptions", intent.data.toString())
+        assertEquals(
+            "https://play.google.com/store/account/subscriptions?package=com.jaimesorrow.wiccan",
+            intent.data.toString(),
+        )
     }
 
     @Test

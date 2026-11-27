@@ -30,7 +30,7 @@ class OnboardingScreenNoticeTest {
             MaterialTheme { OnboardingScreen(verification = verification, viewModel = viewModel) }
         }
 
-        composeRule.onNodeWithText("I've verified my email").performScrollTo().performClick()
+        composeRule.onNodeWithText("I opened the moonlit link").performScrollTo().performClick()
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Verification checked. Confirm your email before continuing.")
             .performScrollTo().assertIsDisplayed()

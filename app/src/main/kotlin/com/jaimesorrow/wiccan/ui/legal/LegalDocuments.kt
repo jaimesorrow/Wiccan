@@ -111,18 +111,22 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Subscriptions and billing",
                 listOf(
-                    "Wiccan requires a Google Play subscription after sign-in and onboarding. There is no free content plan. " +
-                        "Eligible new subscribers receive a 7-day free trial, followed by an automatically renewing monthly " +
-                        "subscription with a US base price of \$5.99. The purchase screen and Google Play show your actual " +
-                        "eligibility, localized price, and billing terms before you confirm.",
-                    "If a trial is offered, cancel before its end to avoid the first monthly charge. If no trial is " +
-                        "available, Google Play charges when you confirm. An active trial or subscription is required for all " +
-                        "daily content and Grimoire access.",
-                    "Unless canceled before renewal, the subscription renews at the then-current price and period shown by " +
-                        "Google Play. Manage or cancel it through Google Play → Payments & subscriptions → Subscriptions. " +
-                        "Cancellation normally preserves access until the verified expiry date. When access expires, the app " +
-                        "returns to the subscription screen; delivery history is preserved for renewal. Refund eligibility is " +
-                        "governed by applicable law and Google Play's refund rules.",
+                    "Wiccan requires a Google Play subscription after sign-in and onboarding. There is no free content " +
+                        "plan. Wiccan Premium comes in two plans: a monthly plan with a US base price of \$5.99 per month, " +
+                        "and a yearly plan with a US base price of \$39.99 per year. Eligible new subscribers receive a 7-day " +
+                        "free trial, followed by the automatically renewing plan they chose. The purchase screen and Google " +
+                        "Play show your actual eligibility, localized price, billing period, and terms before you confirm.",
+                    "Monthly plan: after any free trial, Google Play charges the monthly price once a month until you " +
+                        "cancel. Yearly plan: after any free trial, Google Play charges the yearly price once a year until " +
+                        "you cancel. If a trial is offered, cancel before it ends to avoid the first charge for your plan. If " +
+                        "no trial is available, Google Play charges when you confirm. During a free trial, the app may send a " +
+                        "reminder before the trial ends. An active trial or subscription is required for all daily content " +
+                        "and Grimoire access.",
+                    "Unless canceled before renewal, either plan renews at the then-current price and period shown by " +
+                        "Google Play. You can cancel either plan at any time through Google Play → Payments & subscriptions → " +
+                        "Subscriptions. Cancellation normally preserves access until the verified expiry date. When access " +
+                        "expires, the app returns to the subscription screen; delivery history is preserved for renewal. " +
+                        "Refund eligibility is governed by applicable law and Google Play's refund rules.",
                     "Restoring a purchase verifies entitlement with Google Play. Deleting an account first attempts to cancel " +
                         "active auto-renewal; deletion does not itself promise a refund.",
                 ),
@@ -253,7 +257,9 @@ object WiccanLegalDocuments {
                         "app removes this data from the device but does not delete your account.",
                     "Support messages: if you email hello@wiccan.app, we receive your email address and whatever your message " +
                         "contains.",
-                    "The app requests only the notification permission, for the optional daily reminder. It does not request " +
+                    "The app requests only the notification permission, for the optional daily reminder and, during a free " +
+                        "trial, a reminder before the trial ends. You can turn either off in Android's notification settings " +
+                        "for Wiccan. It does not request " +
                         "precise location, contacts, photos, camera, microphone, or health permissions. A device time-zone " +
                         "identifier is not used to infer precise location.",
                 ),
@@ -263,8 +269,9 @@ object WiccanLegalDocuments {
                 listOf(
                     "Information is used to authenticate accounts, send account emails (verification, password reset, and " +
                         "email-change confirmation), avoid repeating daily content, show archive history, deliver requested " +
-                        "notifications, verify subscription access, answer support requests, prevent fraud, enforce security, meet " +
-                        "legal or platform obligations, and, only if you opt in, diagnose crashes and understand app performance.",
+                        "notifications, remind you before a free trial ends, verify subscription access, answer support " +
+                        "requests, prevent fraud, enforce security, meet legal or platform obligations, and, only if you opt " +
+                        "in, diagnose crashes and understand app performance.",
                     "Wiccan uses an AI service (Anthropic's Claude) on its servers only to draft lesson text from historical " +
                         "source passages. Lessons are then checked by automated tools and an AI assistant under the owner's " +
                         "authorization before publishing. No account, usage, device, or other personal information is sent to the " +
