@@ -79,6 +79,32 @@ fun grimoireSwitchColors() = SwitchDefaults.colors(
     uncheckedThumbColor = WiccanPaletteColors.Grimoire.Gold,
 )
 
+/** Gold-outlined action for billing, verification, and other plain Manrope copy. */
+@Composable
+fun GrimoirePlainOutlineButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    Box(
+        modifier = modifier
+            .clip(CardShape)
+            .border(1.dp, WiccanPaletteColors.Grimoire.Border, CardShape)
+            .grimoireCornerFlourishes(arm = 10.dp)
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            color = WiccanPaletteColors.Grimoire.Text,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleSmall,
+        )
+    }
+}
+
 @Composable
 fun GrimoireOutlineButton(
     text: String,

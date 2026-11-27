@@ -150,25 +150,37 @@ internal fun SpellbookHome(
 
 @Composable
 private fun HomeSectionTileRow() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        GrimoireHomeSectionTile(
-            label = stringResource(R.string.home_today_lesson),
-            glyph = GrimoireHomeSectionGlyph.LESSON,
-            modifier = Modifier.weight(1f),
-        )
-        GrimoireHomeSectionTile(
-            label = stringResource(R.string.home_wheel_title),
-            glyph = GrimoireHomeSectionGlyph.WHEEL,
-            modifier = Modifier.weight(1f),
-        )
-        GrimoireHomeSectionTile(
-            label = stringResource(R.string.home_cosmic_title),
-            glyph = GrimoireHomeSectionGlyph.COSMIC,
-            modifier = Modifier.weight(1f),
-        )
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            GrimoireHomeSectionTile(
+                label = stringResource(R.string.home_today_lesson),
+                glyph = GrimoireHomeSectionGlyph.LESSON,
+                modifier = Modifier.weight(1f),
+            )
+            GrimoireHomeSectionTile(
+                label = stringResource(R.string.home_wheel_title),
+                glyph = GrimoireHomeSectionGlyph.WHEEL,
+                modifier = Modifier.weight(1f),
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            GrimoireHomeSectionTile(
+                label = stringResource(R.string.nav_grimoire),
+                glyph = GrimoireHomeSectionGlyph.GRIMOIRE,
+                modifier = Modifier.weight(1f),
+            )
+            GrimoireHomeSectionTile(
+                label = stringResource(R.string.nav_settings),
+                glyph = GrimoireHomeSectionGlyph.SETTINGS,
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 

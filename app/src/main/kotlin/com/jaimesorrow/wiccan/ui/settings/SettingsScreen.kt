@@ -56,6 +56,7 @@ import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
 import com.jaimesorrow.wiccan.ui.theme.GrimoireOutlineButton
+import com.jaimesorrow.wiccan.ui.theme.GrimoirePlainOutlineButton
 import com.jaimesorrow.wiccan.ui.theme.GrimoireSectionHeader
 import com.jaimesorrow.wiccan.ui.theme.GrimoireSettingsHeaderAccent
 import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
@@ -211,13 +212,13 @@ fun SettingsScreen(
                         singleLine = true,
                         colors = grimoireFieldColors(),
                     )
-                    GrimoireOutlineButton(
+                    GrimoirePlainOutlineButton(
                         text = stringResource(R.string.settings_verify_email),
                         onClick = { viewModel.onEvent(SettingsUiEvent.ChangeEmailClicked) },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !state.isAccountBusy,
                     )
-                    GrimoireOutlineButton(
+                    GrimoirePlainOutlineButton(
                         text = stringResource(R.string.settings_reset_password),
                         onClick = { viewModel.onEvent(SettingsUiEvent.ResetPasswordClicked) },
                         modifier = Modifier.fillMaxWidth(),

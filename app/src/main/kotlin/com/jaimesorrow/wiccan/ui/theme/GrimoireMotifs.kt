@@ -311,7 +311,8 @@ fun GrimoireBannerSlot(modifier: Modifier = Modifier) {
 enum class GrimoireHomeSectionGlyph {
     LESSON,
     WHEEL,
-    COSMIC,
+    GRIMOIRE,
+    SETTINGS,
 }
 
 @Composable
@@ -343,20 +344,25 @@ fun GrimoireHomeSectionGlyphIcon(
                     drawLine(gold, center, end, strokeWidth = 1.dp.toPx())
                 }
             }
-            GrimoireHomeSectionGlyph.COSMIC -> {
-                val arm = 12.dp.toPx()
-                val star = Path().apply {
-                    moveTo(center.x, center.y - arm)
-                    lineTo(center.x + arm * 0.28f, center.y - arm * 0.28f)
-                    lineTo(center.x + arm, center.y)
-                    lineTo(center.x + arm * 0.28f, center.y + arm * 0.28f)
-                    lineTo(center.x, center.y + arm)
-                    lineTo(center.x - arm * 0.28f, center.y + arm * 0.28f)
-                    lineTo(center.x - arm, center.y)
-                    lineTo(center.x - arm * 0.28f, center.y - arm * 0.28f)
-                    close()
+            GrimoireHomeSectionGlyph.GRIMOIRE -> {
+                val w = 16.dp.toPx()
+                val h = 20.dp.toPx()
+                val left = center.x - w / 2f
+                val top = center.y - h / 2f
+                drawRect(gold, topLeft = Offset(left, top), size = Size(w, h), style = stroke)
+                drawLine(gold, Offset(left + w * 0.5f, top), Offset(left + w * 0.5f, top + h), 1.dp.toPx())
+            }
+            GrimoireHomeSectionGlyph.SETTINGS -> {
+                val r = 11.dp.toPx()
+                drawCircle(gold, r, center, style = stroke)
+                repeat(6) { spoke ->
+                    val angle = spoke * (Math.PI / 3)
+                    val end = Offset(
+                        center.x + (r * 0.85f * kotlin.math.cos(angle)).toFloat(),
+                        center.y + (r * 0.85f * kotlin.math.sin(angle)).toFloat(),
+                    )
+                    drawCircle(gold, 1.6.dp.toPx(), end)
                 }
-                drawPath(star, gold, style = stroke)
             }
         }
     }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -36,7 +38,6 @@ import androidx.compose.ui.unit.sp
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.sky.CelestialCalculator
 import com.jaimesorrow.wiccan.ui.theme.GrimoireCandleGlow
-import com.jaimesorrow.wiccan.ui.theme.GrimoireFloralBackdrop
 import com.jaimesorrow.wiccan.ui.theme.GrimoireMoonPhases
 import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
 import com.jaimesorrow.wiccan.ui.theme.GrimoireSettingsHeaderAccent
@@ -76,7 +77,6 @@ internal fun DailyGrimoirePage(
     Box(
         pageModifier.background(Midnight),
     ) {
-        GrimoireFloralBackdrop(Modifier.fillMaxSize())
         GrimoireSettingsHeaderAccent(
             Modifier
                 .align(Alignment.TopEnd)
@@ -125,8 +125,8 @@ private fun LessonShellContent(
     val body = MaterialTheme.typography.bodyLarge.copy(color = ShellText, lineHeight = 26.sp)
     val stepStyle = MaterialTheme.typography.bodyLarge.copy(
         fontFamily = WiccanGrimoireStepsFont,
-        fontSize = 19.sp,
-        lineHeight = 28.sp,
+        fontSize = 20.sp,
+        lineHeight = 30.sp,
         color = Ink,
     )
     val tools = content.tools.ifEmpty { content.materials.orEmpty() }
@@ -230,7 +230,8 @@ private fun LessonTitleHeader(title: String, candleReserveEnd: Dp) {
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = 2.dp)
-                .size(104.dp),
+                .size(104.dp)
+                .clip(CircleShape),
         ) {
             GrimoireCandleGlow(Modifier.fillMaxSize())
         }
@@ -240,7 +241,8 @@ private fun LessonTitleHeader(title: String, candleReserveEnd: Dp) {
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = 4.dp)
-                .size(width = 88.dp, height = 96.dp),
+                .size(96.dp)
+                .clip(CircleShape),
         )
         Text(
             text = title,
@@ -295,9 +297,10 @@ private fun ParchmentSectionTitle(text: String) {
         text = text.uppercase(Locale.ROOT),
         color = Ink,
         modifier = Modifier.semantics { heading() },
-        style = MaterialTheme.typography.labelMedium.copy(
-            fontFamily = WiccanDisplayFont,
-            letterSpacing = 1.2.sp,
+        style = MaterialTheme.typography.titleSmall.copy(
+            fontFamily = WiccanGrimoireStepsFont,
+            fontSize = 18.sp,
+            letterSpacing = 0.6.sp,
         ),
     )
 }
