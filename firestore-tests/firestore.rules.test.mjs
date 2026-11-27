@@ -23,7 +23,13 @@ const OWNER = "owner";
 const OTHER = "other";
 const HISTORY_PATH = `userContentHistory/${OWNER}_2026-10-06`;
 const CURRENT_POLICIES = { acceptedTermsVersion: 6, acceptedPrivacyVersion: 6 };
-const ACTIVE_SUBSCRIBER = { tier: "premium", subscriptionExpiresAtMillis: Date.now() + 3_600_000, ...CURRENT_POLICIES };
+const ACTIVE_SUBSCRIBER = {
+  tier: "premium",
+  subscriptionExpiresAtMillis: Date.now() + 3_600_000,
+  subscriptionState: "active",
+  productId: "wiccan_premium_monthly",
+  ...CURRENT_POLICIES,
+};
 const LEGACY_HISTORY = {
   userId: OWNER,
   contentId: "historical-lesson",
@@ -157,11 +163,17 @@ describe("verified server tier", () => {
   it("allows reading one's own profile and rejects another user's profile", async () => {
     const ownProfile = await assertSucceeds(getDoc(doc(ownerDb(), `users/${OWNER}`)));
     assert.equal(ownProfile.data().tier, "premium");
+    assert.equal(ownProfile.data().subscriptionState, "active");
+    assert.equal(ownProfile.data().productId, "wiccan_premium_monthly");
     await assertFails(getDoc(doc(ownerDb(), `users/${OTHER}`)));
   });
 
   it("rejects tier escalation, profile replacement and client profile creation", async () => {
     await assertFails(updateDoc(doc(ownerDb(), `users/${OWNER}`), { tier: "premium" }));
+    await assertFails(updateDoc(doc(ownerDb(), `users/${OWNER}`), { subscriptionState: "active" }));
+    await assertFails(updateDoc(doc(ownerDb(), `users/${OWNER}`), {
+      productId: "wiccan_premium_yearly",
+    }));
     await assertFails(setDoc(doc(ownerDb(), `users/${OWNER}`), { tier: "premium" }));
     await assertFails(setDoc(doc(environment.authenticatedContext("new-user").firestore(), "users/new-user"), {
       tier: "premium",

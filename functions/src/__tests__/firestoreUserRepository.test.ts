@@ -63,6 +63,44 @@ function transactionalStore() {
 }
 
 describe("Firestore subscription ownership transactions", () => {
+  it("atomically mirrors the authoritative Play state on the readable user profile", async () => {
+    const store = transactionalStore();
+    store.rows.set("users/alice", { tier: "free" });
+    const users = new FirestoreUserRepository(store.db);
+
+    await users.setTier("alice", "free", "held-token", "purchase", undefined, {
+      subscriptionState: "on_hold",
+      productId: "wiccan_premium_monthly",
+    });
+
+    expect(store.rows.get("users/alice")).toMatchObject({
+      tier: "free",
+      purchaseToken: "held-token",
+      subscriptionState: "on_hold",
+      productId: "wiccan_premium_monthly",
+    });
+  });
+
+  it("does not let a stale refresh overwrite the mirrored current state", async () => {
+    const store = transactionalStore();
+    store.rows.set("users/alice", {
+      tier: "premium",
+      purchaseToken: "current-token",
+      subscriptionState: "active",
+      productId: "wiccan_premium_yearly",
+    });
+    const users = new FirestoreUserRepository(store.db);
+
+    expect(await users.setTier("alice", "free", "old-token", "refresh", undefined, {
+      subscriptionState: "expired",
+      productId: "wiccan_premium_monthly",
+    })).toBeNull();
+    expect(store.rows.get("users/alice")).toMatchObject({
+      subscriptionState: "active",
+      productId: "wiccan_premium_yearly",
+    });
+  });
+
   it("allows exactly one concurrent claimant and retains only hashed identity", async () => {
     const store = transactionalStore();
     store.rows.set("users/alice", { tier: "free" });

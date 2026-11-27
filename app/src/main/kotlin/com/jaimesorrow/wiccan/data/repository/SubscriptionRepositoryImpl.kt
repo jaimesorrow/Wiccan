@@ -20,6 +20,7 @@ import com.jaimesorrow.wiccan.data.remote.UserTierDataSource
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
+import com.jaimesorrow.wiccan.domain.model.SubscriptionState
 import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -58,6 +59,17 @@ class SubscriptionRepositoryImpl @Inject constructor(
                 }
             }
         }
+        scope.launch {
+            billingClient.recoveryUpdates.collect {
+                reconcileOwnedSubscriptions()
+            }
+        }
+    }
+
+    private suspend fun reconcileOwnedSubscriptions() {
+        runCatching { billingClient.queryOwnedSubscriptions() }
+            .getOrDefault(emptyList())
+            .forEach { handlePurchase(it) }
     }
 
     override suspend fun launchPurchaseFlow(activity: Activity, plan: SubscriptionPlan): AppResult<Unit> {
@@ -110,6 +122,24 @@ class SubscriptionRepositoryImpl @Inject constructor(
                 emit(tier)
             }
         }
+    }
+
+    override fun observeSubscriptionState(): Flow<SubscriptionState> {
+        val userId = currentUserProvider.currentUserId ?: return flowOf(SubscriptionState.UNKNOWN)
+        return userTierDataSource.observeSubscriptionState(userId)
+    }
+
+    override suspend fun showTransactionalMessage(activity: Activity): AppResult<Unit> = try {
+        val result = billingClient.showTransactionalMessage(activity)
+        if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+            AppResult.Success(Unit)
+        } else {
+            AppResult.Failure(AppError.PurchaseVerificationFailed(result.debugMessage))
+        }
+    } catch (t: CancellationException) {
+        throw t
+    } catch (t: Throwable) {
+        AppResult.Failure(t.toAppError())
     }
 
     override suspend fun getOffer(): AppResult<SubscriptionOffer> = try {
