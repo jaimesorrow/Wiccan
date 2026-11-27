@@ -13,6 +13,12 @@ interface AdConsentController {
     /** True once UMP reports that ads may be requested (consent obtained or not required). */
     val canRequestAds: StateFlow<Boolean>
 
+    /**
+     * True once `MobileAds.initialize` has completed (after the 18+ request
+     * configuration was set). No ad may be loaded before this.
+     */
+    val mobileAdsReady: StateFlow<Boolean>
+
     /** True when UMP requires a persistent "Privacy choices" entry point in Settings. */
     val privacyOptionsRequired: StateFlow<Boolean>
 

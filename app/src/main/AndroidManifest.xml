@@ -47,7 +47,7 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="${admobAppId}" />
-        <!-- Mobile Ads initializes only after UMP consent, from the background (AdConsentManager). -->
+        <!-- Mobile Ads initializes only after UMP consent, from the background (UmpAdConsentController / MobileAdsStarter). -->
         <meta-data
             android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
             android:value="true" />

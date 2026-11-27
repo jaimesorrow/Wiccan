@@ -19,6 +19,7 @@ import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import com.jaimesorrow.wiccan.domain.model.SubscriptionState
+import com.jaimesorrow.wiccan.domain.model.VerifiedTier
 import com.jaimesorrow.wiccan.domain.model.YearlySwitchOffer
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -444,5 +445,19 @@ class SubscriptionRepositoryImplTest {
                 every { obfuscatedAccountId } returns accountId
             }
         }
+    }
+
+    @Test
+    fun `verified tier fails closed when signed out or the account changes`() = runTest {
+        every { currentUser.currentUserId } returns null
+        assertEquals(listOf(VerifiedTier.UNVERIFIED), repository.observeVerifiedTier().toList())
+
+        every { currentUser.currentUserId } returns "uid-123"
+        every { userTier.observeVerifiedTier("uid-123") } returns flow {
+            emit(VerifiedTier.FREE)
+            every { currentUser.currentUserId } returns "other-user"
+            emit(VerifiedTier.FREE)
+        }
+        assertEquals(listOf(VerifiedTier.FREE, VerifiedTier.UNVERIFIED), repository.observeVerifiedTier().toList())
     }
 }

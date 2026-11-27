@@ -3,7 +3,6 @@ package com.jaimesorrow.wiccan.ads
 import android.app.Activity
 import android.content.Context
 import android.util.Log
-import com.google.android.gms.ads.MobileAds
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
@@ -21,7 +20,9 @@ import kotlinx.coroutines.launch
 
 /**
  * UMP-backed [AdConsentController]. The Mobile Ads SDK is initialized once,
- * off the main thread, and only after UMP allows ad requests. Every SDK call
+ * off the main thread, only after UMP allows ad requests, and with the 18+
+ * request configuration applied first (see [MobileAdsStarter]). Ads load only
+ * after [mobileAdsReady] reports the initialization callback. Every SDK call
  * is guarded: a consent or network failure leaves ads off instead of crashing.
  */
 @Singleton
@@ -34,13 +35,17 @@ class UmpAdConsentController @Inject constructor(
     }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val requestInFlight = AtomicBoolean(false)
-    private val mobileAdsStarted = AtomicBoolean(false)
+    private val mobileAds = MobileAdsStarter(GoogleMobileAdsSdk(context)) { e ->
+        Log.w(TAG, "Mobile Ads initialization failed", e)
+    }
 
     private val _canRequestAds = MutableStateFlow(false)
     override val canRequestAds: StateFlow<Boolean> = _canRequestAds.asStateFlow()
 
     private val _privacyOptionsRequired = MutableStateFlow(false)
     override val privacyOptionsRequired: StateFlow<Boolean> = _privacyOptionsRequired.asStateFlow()
+
+    override val mobileAdsReady: StateFlow<Boolean> = mobileAds.ready
 
     override fun gatherConsent(activity: Activity) {
         // A choice made in an earlier session lets ads start without waiting.
@@ -99,15 +104,7 @@ class UmpAdConsentController @Inject constructor(
     }
 
     private fun startMobileAds() {
-        if (!mobileAdsStarted.compareAndSet(false, true)) return
-        scope.launch {
-            try {
-                MobileAds.initialize(context) {}
-            } catch (e: RuntimeException) {
-                Log.w(TAG, "Mobile Ads initialization failed", e)
-                mobileAdsStarted.set(false)
-            }
-        }
+        scope.launch { mobileAds.start() }
     }
 
     private companion object {

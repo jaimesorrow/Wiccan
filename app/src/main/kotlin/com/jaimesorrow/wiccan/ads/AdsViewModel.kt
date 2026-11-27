@@ -13,8 +13,9 @@ import kotlinx.coroutines.flow.stateIn
 
 /**
  * Ad state for the one ad placement (the Grimoire banner) and the Settings
- * "Privacy choices" row. Reads the server-verified tier from
- * [SubscriptionRepository.observeTier] - the app's entitlement source of truth.
+ * "Privacy choices" row. Reads the tier with its provenance from
+ * [SubscriptionRepository.observeVerifiedTier]: ads fail closed and appear only
+ * once a server snapshot confirms FREE.
  */
 @HiltViewModel
 class AdsViewModel @Inject constructor(
@@ -22,13 +23,14 @@ class AdsViewModel @Inject constructor(
     private val consent: AdConsentController,
 ) : ViewModel() {
 
-    /** Non-subscriber, confirmed: consent may be gathered for ads. */
-    val tierAllowsAds: StateFlow<Boolean> = adsAllowedForTier(subscriptionRepository.observeTier())
+    /** Non-subscriber, confirmed by the server: consent may be gathered for ads. */
+    val tierAllowsAds: StateFlow<Boolean> = adsAllowedForTier(subscriptionRepository.observeVerifiedTier())
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), false)
 
     /** An ad may be requested and shown now. */
-    val showAds: StateFlow<Boolean> = combine(tierAllowsAds, consent.canRequestAds, ::shouldShowAds)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), false)
+    val showAds: StateFlow<Boolean> =
+        combine(tierAllowsAds, consent.canRequestAds, consent.mobileAdsReady, ::shouldShowAds)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), false)
 
     val privacyOptionsRequired: StateFlow<Boolean> = consent.privacyOptionsRequired
 

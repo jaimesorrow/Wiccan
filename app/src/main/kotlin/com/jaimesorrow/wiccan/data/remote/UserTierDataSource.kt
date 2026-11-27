@@ -4,12 +4,14 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.MetadataChanges
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionState
+import com.jaimesorrow.wiccan.domain.model.VerifiedTier
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -57,11 +59,19 @@ class UserTierDataSource @Inject constructor(
         null
     }
 
-    fun observeTier(userId: String): Flow<ContentTier> = callbackFlow {
+    /** Content access: anything short of a server-confirmed subscription is FREE. */
+    fun observeTier(userId: String): Flow<ContentTier> = observeVerifiedTier(userId).map { it.toContentTier() }
+
+    /**
+     * Entitlement with its provenance. Only a server snapshot yields [VerifiedTier.FREE]
+     * or [VerifiedTier.PREMIUM]; cache, error, timeout and a local expiry are
+     * [VerifiedTier.UNVERIFIED].
+     */
+    fun observeVerifiedTier(userId: String): Flow<VerifiedTier> = callbackFlow {
         var expiryJob: Job? = null
         val verificationTimeout = launch {
-            delay(10_000)
-            trySend(ContentTier.FREE)
+            delay(VERIFICATION_TIMEOUT_MILLIS)
+            trySend(VerifiedTier.UNVERIFIED)
         }
         val registration = firestore.collection(USERS_COLLECTION)
             .document(userId)
@@ -69,13 +79,13 @@ class UserTierDataSource @Inject constructor(
                 expiryJob?.cancel()
                 if (error != null) {
                     verificationTimeout.cancel()
-                    trySend(ContentTier.FREE)
+                    trySend(VerifiedTier.UNVERIFIED)
                     return@addSnapshotListener
                 }
                 // Disk cache alone never opens the app. Wait for a server
                 // snapshot (or the bounded timeout) on a cold start.
                 if (snapshot?.metadata?.isFromCache != false) {
-                    trySend(ContentTier.FREE)
+                    trySend(VerifiedTier.UNVERIFIED)
                     return@addSnapshotListener
                 }
                 verificationTimeout.cancel()
@@ -84,12 +94,13 @@ class UserTierDataSource @Inject constructor(
                 val remaining = expiry - System.currentTimeMillis()
                 val active =
                     hasSubscriptionAccess(snapshot.get(TIER_FIELD) as? String, expiry, snapshot.get("deletionInProgress") == true)
-                val tier = if (active) ContentTier.PREMIUM else ContentTier.FREE
+                val tier = if (active) VerifiedTier.PREMIUM else VerifiedTier.FREE
                 trySend(tier)
                 if (active) {
                     expiryJob = launch {
                         delay(remaining.coerceAtLeast(0))
-                        trySend(ContentTier.FREE)
+                        // Access closes now; FREE for ads waits for the server to confirm it.
+                        trySend(VerifiedTier.UNVERIFIED)
                     }
                 }
             }
@@ -102,6 +113,7 @@ class UserTierDataSource @Inject constructor(
 
     private companion object {
         const val USERS_COLLECTION = "users"
+        const val VERIFICATION_TIMEOUT_MILLIS = 10_000L
         const val TIER_FIELD = "tier"
         const val SUBSCRIPTION_STATE_FIELD = "subscriptionState"
         const val PRODUCT_ID_FIELD = "productId"
