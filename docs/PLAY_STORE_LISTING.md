@@ -11,7 +11,7 @@ against the build uploaded to Play before submission.
 | Default language | English (United States) |
 | App or game | App |
 | Free or paid | Free download; a Google Play subscription (free trial eligible) is required for daily content and Grimoire access |
-| Category | Lifestyle |
+| Category | Education |
 | Support email | `hello@wiccan.app` |
 | Website | `https://wiccan.app/` |
 | Privacy policy | `https://wiccan.app/privacy.html` |
@@ -19,18 +19,19 @@ against the build uploaded to Play before submission.
 
 ### Short description
 
-> Daily lessons, spells, and folklore for a thoughtful spiritual practice.
+> Explore cited witchcraft history through daily lessons and guided practice.
 
 ### Full description
 
-> Build a thoughtful daily practice with Wiccan. Explore original lessons,
-> spells, potions, and ritual studies inspired by historical folklore and source
-> material, with careful distinctions between historical belief, modern
-> symbolism, and personal reflection.
+> Explore the history of witchcraft through guided daily lessons grounded in
+> ancient texts, public-domain grimoires, folklore, and documented historical
+> sources. Every lesson includes a historical brief, a citation, and a source
+> link, with clear distinctions between historical belief, modern symbolism,
+> and personal reflection.
 >
-> Receive one selected entry each day, then revisit delivered entries in your
-> Grimoire. Lessons may include historical context, materials, an optional
-> practice, reflection prompts, and safety notes where extra care is needed.
+> Receive one selected lesson each day, follow its step-by-step optional
+> practice, and revisit delivered lessons in your Grimoire. Lessons may include
+> materials, reflection prompts, and safety notes where extra care is needed.
 >
 > Make the experience your own with seasonal and selectable themes. Optional
 > daily reminders help you return to your practice without turning it into an
@@ -57,16 +58,76 @@ Ready in the repository:
 - App icon: `brand/exports/google-play/wiccan_play_icon_512.png`
 - Feature graphic: `brand/exports/google-play/wiccan_feature_graphic_1024x500.png`
 
-Still required from a current Play-distributed build:
+Still required from a current Play-distributed production build. The phone
+images under `hosting/assets/screens/` are marketing-site assets and are not a
+substitute for this set:
 
-1. Today screen — one daily entry, with readable real content.
-2. Grimoire — delivered entries, without fabricated history.
-3. Lesson detail — source/reflection/safety sections visible.
-4. Theme selection — show the real theme choices.
-5. Optional: home-screen widget after its Play build is verified.
+1. Today lesson — readable real content and practice steps.
+2. Lesson detail — historical brief, citation and source link visible.
+3. Grimoire — delivered entries, without fabricated history.
+4. Paywall — monthly/yearly choice with real localized Play prices from a
+   license-tester build.
+5. Theme selection — show the real theme choices.
+6. Home-screen widget after its Play build is verified.
 
-Use at least two current phone screenshots. Do not use emulator-only states,
-mock subscription prices, draft-only content, or a screen that exposes an email,
+Prepare 6–8 screenshots (add seasonal content only if that feature ships) and
+a 30-second caption-only promo video showing the same real flow. Do not place
+prices in screenshot overlays. An unlisted YouTube video is acceptable for the
+promo-video URL.
+
+### Screenshot and creative brief
+
+Reference photography and concept mockups are visual direction only. Store
+graphics may borrow the current Midnight Grimoire presentation—near-black and
+parchment surfaces, antique-gold rules, botanical or celestial ornament,
+Cinzel headings, Manrope body copy, restrained photography and device framing—
+provided the treatment does not hide or materially alter the real app UI.
+The reference staging is also safe as decorative atmosphere: aged-parchment
+lunar or elemental diagrams, candlelight, amethyst, quartz, labradorite,
+lavender, rosemary or other herbs, a handwritten grimoire or journal, fountain
+pen, dark rustic wood, deep navy cloth, a crescent-shaped brass dish, and quiet
+window-lit ritual journaling. An overhead botanical/apothecary still life may
+also use a black stone mortar and pestle, dried rosemary, sage or lavender,
+amber apothecary bottles, an aged brass tool, candlelight and dark wood. Keep
+these objects outside the phone UI,
+subordinate to the real screen, and avoid copy or composition that presents
+them as an inventory, altar, required material set, verified historical
+artifact, or interactive app feature.
+
+Botanical and apothecary staging must not imply medical, health or treatment
+efficacy, safe ingestion, or a shipped Cabinet/inventory feature. Pair it only
+with factual historical/editorial copy and the app's existing safety posture.
+
+Every device screen and caption must describe functionality present in the
+uploaded production build. The approved screenshot set is limited to the
+current Home/moon-and-Wheel view, daily lesson reader and its materials,
+historical brief/citation/source, Grimoire, real-price subscription choice,
+theme selection, account/onboarding where useful, and the verified widget.
+
+Do not show or name **Cosmic Timing**, **Flow Mode**, **My Cabinet**,
+**Community Altar**, **Luna Grimoire**, or an expanded concept Home as app
+features. Reference images containing those concepts cannot be used as product
+screenshots. Their palette, texture, typography, decorative borders, celestial
+symbols and photographic mood may inform non-functional backgrounds or
+framing only when the final graphic cannot reasonably imply that the concept
+exists in the app.
+
+The Luna Grimoire sign-in/Home/Lesson View triptych is likewise composition and
+palette inspiration only. Do not reuse its name, screen layout, navigation,
+labels or other unverified UI in current Play assets or claims.
+
+Decorative editorial photos must remain separate from the mandatory real-app
+screenshots. They may be used in a feature-graphic concept or as restrained
+surrounding atmosphere, but they do not count toward the 6–8 screenshot set and
+must not replace, obscure or composite over the captured production UI.
+
+Keep overlays factual and short: cited history, one lesson each day, revisit
+lessons in the Grimoire, choose a theme, and manage a Play subscription. Avoid
+feature-roadmap language, outcome claims, accreditation claims, mock prices,
+unpublished content, or UI composited from several future concepts.
+
+Use the complete production set above. Do not use emulator-only states, mock
+subscription prices, draft-only content, or a screen that exposes an email,
 token, Firebase project detail, or other personal/operational information.
 
 ## Play Console declarations
@@ -80,6 +141,8 @@ choices are:
   review access.
 - User-generated content / social / chat: No.
 - Target audience: Adults 18+ only.
+- Store category: Education. Do not opt into Families or Teacher Approved;
+  those programs do not apply to this adult-only app.
 - Health app declaration: No health features, provided the submitted content
   continues to avoid diagnosis or treatment claims.
 - Account creation and deletion: Yes; deletion is available in-app and at the

@@ -56,7 +56,7 @@ These answers reflect the current code. Re-audit if functionality or SDKs change
 | Government app | **No** | No government affiliation or service. |
 | Health app declaration | **Recommended: No health features** | Wiccan is educational/spiritual reflection and disclaims diagnosis/treatment. Confirm that the store listing and every published lesson avoid health/medical claims; otherwise reassess. |
 | Target audience | **Recommended: adults 18+ only** | Conservative fit for occult themes, potions/materials, and safety responsibility. The owner must confirm this selection; do not market to children. |
-| Store category | **Recommended: Lifestyle** | Best fit for spiritual reflection and daily practice; owner may choose Books & Reference only if the listing is framed primarily as historical education. |
+| Store category | **Education — owner approved** | The listing leads with historical sources, citations and guided study without claiming accreditation or guaranteed outcomes. Keep the target audience adults 18+ only; do not opt into Families or Teacher Approved. |
 | Approximate location | **Yes — optional, analytics only** | Analytics-derived approximate location is collected only after the user opts in to analytics. Precise location is not collected. No location permission or location API is used. An IANA time-zone string is stored for notification timing and is not used to derive location. |
 | Account creation | **Yes** | Email/password or Google sign-in. |
 | Account deletion | **Yes** | In-app Settings → Delete Account, and the public page at https://wiccan.app/delete-account, which is live. |
@@ -197,7 +197,7 @@ Placement is intentionally layered:
 | Paywall | Terms and Privacy sit beside the localized recurring price and renewal/cancellation disclosure. |
 | Settings | Permanent access to Terms, Privacy, Content & Safety, support, subscription management, and account deletion. |
 
-Android and Functions policy constants are both version `5`
+Android and Functions policy constants are both version `6`
 (`PolicyVersions` and `functions/src/policyVersions.ts`); any future material
 change must bump the applicable versions together.
 
@@ -205,7 +205,7 @@ change must bump the applicable versions together.
 
 The paywall must keep all of these visible before purchase:
 
-- localized Google Play price and **per month** billing period;
+- localized Google Play price and the selected monthly or yearly billing period;
 - automatically renews until canceled;
 - Play charges the payment method on confirmation;
 - cancellation through Google Play and normal access through the paid period;
@@ -214,11 +214,10 @@ The paywall must keep all of these visible before purchase:
 - the required subscription (7-day trial for eligible new subscribers) is
   disclosed before purchase; there is no free content plan.
 
-The current UI purchases only `wiccan_premium_monthly`. The backend also
-allow-lists `wiccan_premium_yearly`, but do not advertise annual pricing until a
-real annual offer is exposed and its localized price/period are shown in-app.
-Repository planning prices are not authoritative; Play Console localized prices
-are authoritative.
+The current UI supports `wiccan_premium_monthly` and
+`wiccan_premium_yearly`, but must show a plan only when Google Play returns a
+real offer with its localized price and billing period. Repository planning
+prices are not authoritative; Play Console localized prices are authoritative.
 
 ## Permissions and SDK audit
 
@@ -239,16 +238,32 @@ Manager/Google ID, and Google Play Billing.
 
 - [ ] 512×512 PNG app icon and 1024×500 feature graphic (prepared in
   `brand/exports/google-play/`; not yet uploaded).
-- [ ] At least two current phone screenshots and accurate short/full descriptions.
+- [ ] Upload 6–8 current screenshots from a Play-distributed production build:
+  Today steps, historical brief + citation, Grimoire, paywall with real
+  localized Play prices, themes, and the verified widget. Marketing-site
+  screenshots are not production evidence.
+- [ ] Add a 30-second caption-only promo video of the same real flow; no outcome
+  claims or unverified feature footage.
+- [ ] Treat concept/reference images as art direction only. Do not show Cosmic
+  Timing, Flow Mode, My Cabinet, Community Altar, Luna Grimoire, or an expanded
+  concept Home as shipped UI. Decorative palette, type, texture, celestial and
+  botanical motifs are acceptable only when they do not imply those features.
+- [ ] Keep decorative/editorial photography separate from the required real-app
+  screenshot set; it neither replaces nor counts as a production screenshot.
+- [ ] Set category to Education, keep target audience at adults 18+ only, and do
+  not join Families or Teacher Approved.
+- [ ] Use the history-first short/full descriptions in `PLAY_STORE_LISTING.md`
+  and compare every claim with the uploaded build and published content.
 - [ ] “Contains ads” set to No and “In-app purchases” displayed.
-- [ ] Production signing/App Signing configured (upload keystore + the four
-  `RELEASE_*` repository secrets; none exist yet); version code incremented
-  for every new upload after the first (`versionCode` is currently 1).
+- [ ] Production signing/App Signing configured. The four `RELEASE_*`
+  repository secrets have produced a verified signed bundle; confirm Play App
+  Signing at the first upload. Increment the version code for every later
+  upload (`versionCode` is currently 4).
 - [ ] Current target API policy rechecked. Repo currently uses `targetSdk = 36`.
 - [ ] Production Firebase, App Check/Play Integrity, Auth certificates, Functions,
   Firestore rules/indexes, content, billing, RTDN, and alerts verified.
 - [ ] Closed/internal-track real-device pass: Google/email auth, policy gate,
-  Today, Grimoire, notifications, monthly purchase, restore, cancel, lapse,
+  Today, Grimoire, notifications, monthly/yearly purchase, restore, cancel, lapse,
   account deletion, and external deletion request.
 - [ ] Store listing claims compared against every published content item.
 - [ ] Rights/source review complete for published ancient-grimoire content.
