@@ -5,15 +5,18 @@ import android.content.res.Resources
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.data.remote.AccountFunctionsDataSource
 import com.jaimesorrow.wiccan.data.remote.GoogleCredentialDataSource
 import com.jaimesorrow.wiccan.domain.model.ProfileName
+import com.jaimesorrow.wiccan.ui.settings.AppLocaleProvider
 import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -37,19 +40,23 @@ class AuthRepositoryImplTest {
     private val firestore: FirebaseFirestore = mockk()
     private val googleCredentialDataSource: GoogleCredentialDataSource = mockk()
     private val accountFunctionsDataSource: AccountFunctionsDataSource = mockk()
+    private val appLocaleProvider: AppLocaleProvider = mockk()
+    private val analyticsLogger: AnalyticsLogger = mockk(relaxed = true)
     private lateinit var repository: AuthRepositoryImpl
 
     @Before
     fun setUp() {
         every { appContext.resources } returns resources
         every { appContext.packageName } returns "com.jaimesorrow.wiccan"
+        every { appLocaleProvider.languageTag() } returns "en"
         repository = AuthRepositoryImpl(
             appContext,
             firebaseAuth,
             firestore,
             googleCredentialDataSource,
             accountFunctionsDataSource,
-            mockk(),
+            appLocaleProvider,
+            analyticsLogger,
         )
     }
 
@@ -58,12 +65,25 @@ class AuthRepositoryImplTest {
         val user: FirebaseUser = mockk()
         every { firebaseAuth.currentUser } returns user
         every { user.isEmailVerified } returns false
-        coEvery { accountFunctionsDataSource.sendVerificationEmail() } returns Unit
+        coEvery { accountFunctionsDataSource.sendVerificationEmail("en") } returns Unit
 
         assertEquals(AppResult.Success(Unit), repository.sendEmailVerification())
 
-        coVerify(exactly = 1) { accountFunctionsDataSource.sendVerificationEmail() }
+        coVerify(exactly = 1) { accountFunctionsDataSource.sendVerificationEmail("en") }
         verify(exactly = 0) { user.sendEmailVerification() }
+    }
+
+    @Test
+    fun `verification email forwards the resolved app locale`() = runTest {
+        val user: FirebaseUser = mockk()
+        every { firebaseAuth.currentUser } returns user
+        every { user.isEmailVerified } returns false
+        every { appLocaleProvider.languageTag() } returns "pt-BR"
+        coEvery { accountFunctionsDataSource.sendVerificationEmail("pt-BR") } returns Unit
+
+        assertEquals(AppResult.Success(Unit), repository.sendEmailVerification())
+
+        coVerify(exactly = 1) { accountFunctionsDataSource.sendVerificationEmail("pt-BR") }
     }
 
     @Test
@@ -74,7 +94,45 @@ class AuthRepositoryImplTest {
 
         assertEquals(AppResult.Success(Unit), repository.sendEmailVerification())
 
-        coVerify(exactly = 0) { accountFunctionsDataSource.sendVerificationEmail() }
+        coVerify(exactly = 0) { accountFunctionsDataSource.sendVerificationEmail("en") }
+    }
+
+    @Test
+    fun `account creation records signup and username when verification delivery fails`() = runTest {
+        val user: FirebaseUser = mockk()
+        every { user.uid } returns "uid-new"
+        every { firebaseAuth.currentUser } returns user
+        every { firebaseAuth.createUserWithEmailAndPassword("new@example.com", "secret1") } returns
+            completedTask<AuthResult>(mockk())
+        coEvery { accountFunctionsDataSource.reserveUsername("new_witch") } returns Unit
+        coEvery { accountFunctionsDataSource.sendVerificationEmail("en") } throws IllegalStateException("smtp unavailable")
+
+        val result = repository.createAccountWithEmail("new@example.com", "secret1", "new_witch")
+
+        assertEquals(AppResult.Failure(AppError.VerificationEmailDeliveryFailed), result)
+        verify(exactly = 1) { analyticsLogger.logSignUpCompleted() }
+        coVerify(exactly = 1) { accountFunctionsDataSource.reserveUsername("new_witch") }
+        coVerify(exactly = 1) { accountFunctionsDataSource.sendVerificationEmail("en") }
+        assertTrue(repository.consumeVerificationDeliveryFailure())
+        assertFalse(repository.consumeVerificationDeliveryFailure())
+    }
+
+    @Test
+    fun `verification delivery failure is not exposed to a different signed in account`() = runTest {
+        val createdUser: FirebaseUser = mockk()
+        every { createdUser.uid } returns "uid-created"
+        every { firebaseAuth.currentUser } returns createdUser
+        every { firebaseAuth.createUserWithEmailAndPassword(any(), any()) } returns
+            completedTask<AuthResult>(mockk())
+        coEvery { accountFunctionsDataSource.reserveUsername(any()) } returns Unit
+        coEvery { accountFunctionsDataSource.sendVerificationEmail("en") } throws IllegalStateException("smtp unavailable")
+        repository.createAccountWithEmail("new@example.com", "secret1", "new_witch")
+
+        val otherUser: FirebaseUser = mockk()
+        every { otherUser.uid } returns "uid-other"
+        every { firebaseAuth.currentUser } returns otherUser
+
+        assertFalse(repository.consumeVerificationDeliveryFailure())
     }
 
     @Test
@@ -161,12 +219,12 @@ class AuthRepositoryImplTest {
         every { firestore.collection("users").document(uid).get() } returns task
     }
 
-    private fun completedTask(snapshot: DocumentSnapshot?, error: Exception? = null): Task<DocumentSnapshot> {
-        val task: Task<DocumentSnapshot> = mockk()
+    private fun <T> completedTask(result: T?, error: Exception? = null): Task<T> {
+        val task: Task<T> = mockk()
         every { task.isComplete } returns true
         every { task.isCanceled } returns false
         every { task.exception } returns error
-        every { task.result } returns snapshot
+        every { task.result } returns result
         return task
     }
 

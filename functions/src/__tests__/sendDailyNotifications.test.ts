@@ -31,24 +31,59 @@ describe("sendDailyNotifications", () => {
     expect(fcm.sentTo).toHaveLength(2);
     expect(fcm.sentTo[0]).toEqual({
       token: "token-1",
-      title: "Your spell awaits",
-      body: "The moon has turned. Candle of Clear Intent",
+      title: "A spell awaits beneath the moon",
+      body: "The moon has turned, and today’s spell rests upon your altar: Candle of Clear Intent",
     });
   });
 
   it("names each content type and keeps the lesson title in the body", () => {
     expect(dailyNotificationCopy("spell", "Candle of Clear Intent")).toEqual({
-      title: "Your spell awaits",
-      body: "The moon has turned. Candle of Clear Intent",
+      title: "A spell awaits beneath the moon",
+      body: "The moon has turned, and today’s spell rests upon your altar: Candle of Clear Intent",
     });
     expect(dailyNotificationCopy("potion", "Moonwater")).toEqual({
-      title: "Your potion awaits",
-      body: "The moon has turned. Moonwater",
+      title: "A potion awaits beneath the moon",
+      body: "The moon has turned, and today’s potion rests upon your altar: Moonwater",
     });
     expect(dailyNotificationCopy("lesson", "The Threshold")).toEqual({
-      title: "Your lesson awaits",
-      body: "The moon has turned. The Threshold",
+      title: "A lesson awaits beneath the moon",
+      body: "The moon has turned, and today’s lesson rests upon your altar: The Threshold",
     });
+  });
+
+  it("localizes daily copy for Spanish and Brazilian Portuguese", () => {
+    expect(dailyNotificationCopy("spell", "Intención clara", "es")).toEqual({
+      title: "Un hechizo te espera bajo la luna",
+      body: "La luna ha cambiado, y el hechizo de hoy descansa sobre tu altar: Intención clara",
+    });
+    expect(dailyNotificationCopy("potion", "Agua de luna", "es")).toEqual({
+      title: "Una poción te espera bajo la luna",
+      body: "La luna ha cambiado, y la poción de hoy descansa sobre tu altar: Agua de luna",
+    });
+    expect(dailyNotificationCopy("lesson", "El umbral", "es")).toEqual({
+      title: "Una lección te espera bajo la luna",
+      body: "La luna ha cambiado, y la lección de hoy descansa sobre tu altar: El umbral",
+    });
+    expect(dailyNotificationCopy("lesson", "O limiar", "pt-BR")).toEqual({
+      title: "Uma lição espera sob a lua",
+      body: "A lua mudou, e a lição de hoje repousa em seu altar: O limiar",
+    });
+  });
+
+  it("uses each device's locale when a user has mixed-language devices", async () => {
+    const content = new FakeContentRepository();
+    content.content = [makeContent({ id: "c1", type: "spell", title: "Candle" })];
+    const users = new FakeNotificationUserRepository();
+    users.setToken("user-1", "spanish-phone", null, "es");
+    users.setToken("user-1", "portuguese-tablet", null, "pt-BR");
+    const fcm = new FakeFcmSenderPort();
+
+    await sendDailyNotifications(users, content, fcm, ALL_ACCEPTED, NINE_AM_UTC);
+
+    expect(fcm.sentTo.find((sent) => sent.token === "spanish-phone")?.title)
+      .toBe("Un hechizo te espera bajo la luna");
+    expect(fcm.sentTo.find((sent) => sent.token === "portuguese-tablet")?.title)
+      .toBe("Um feitiço espera sob a lua");
   });
 
   it("clears a permanently stale token and counts it as skipped, not failed", async () => {
@@ -109,7 +144,7 @@ describe("sendDailyNotifications", () => {
     expect(summary).toEqual({ attempted: 2, sent: 1, skippedStale: 1, failed: 0 });
     expect(users.cleared).toEqual([{ uid: "user-1", token: "dead-token" }]);
     expect(await users.listDevicesWithToken()).toEqual([
-      { uid: "user-1", token: "healthy-token", timeZone: null, notificationsEnabled: true },
+      { uid: "user-1", token: "healthy-token", timeZone: null, notificationsEnabled: true, locale: "en" },
     ]);
   });
 
@@ -149,6 +184,7 @@ describe("sendDailyNotifications", () => {
       token: "disabled-token",
       timeZone: null,
       notificationsEnabled: false,
+      locale: "en",
     });
   });
 

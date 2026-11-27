@@ -41,7 +41,7 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.TERMS,
         title = "Terms of Service",
         version = PolicyVersions.TERMS,
-        effectiveDate = "November 21, 2026",
+        effectiveDate = "November 27, 2026",
         introduction =
             "These Terms of Service (“Terms”) are an agreement between you and Jaime Sorrow (“Wiccan,” “we,” or “us”) " +
                 "and govern your use of the Wiccan app and related services. By accepting them, you agree to use the app " +
@@ -111,18 +111,23 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Subscriptions and billing",
                 listOf(
-                    "Wiccan requires a Google Play subscription after sign-in and onboarding. There is no free content plan. " +
-                        "Eligible new subscribers receive a 7-day free trial, followed by an automatically renewing monthly " +
-                        "subscription with a US base price of \$5.99. The purchase screen and Google Play show your actual " +
-                        "eligibility, localized price, and billing terms before you confirm.",
-                    "If a trial is offered, cancel before its end to avoid the first monthly charge. If no trial is " +
-                        "available, Google Play charges when you confirm. An active trial or subscription is required for all " +
-                        "daily content and Grimoire access.",
-                    "Unless canceled before renewal, the subscription renews at the then-current price and period shown by " +
-                        "Google Play. Manage or cancel it through Google Play → Payments & subscriptions → Subscriptions. " +
-                        "Cancellation normally preserves access until the verified expiry date. When access expires, the app " +
-                        "returns to the subscription screen; delivery history is preserved for renewal. Refund eligibility is " +
-                        "governed by applicable law and Google Play's refund rules.",
+                    "Wiccan requires a Google Play subscription after sign-in and onboarding. There is no free content " +
+                        "plan. Wiccan Premium comes in two plans: a monthly plan with a US base price of \$5.99 per month, " +
+                        "and a yearly plan with a US base price of \$39.99 per year. Eligible new subscribers receive a free " +
+                        "trial at the length shown at checkout (7 days on the monthly plan, 14 days on the yearly plan), " +
+                        "followed by the automatically renewing plan they chose. The purchase screen and Google " +
+                        "Play show your actual eligibility, localized price, billing period, and terms before you confirm.",
+                    "Monthly plan: after any free trial, Google Play charges the monthly price once a month until you " +
+                        "cancel. Yearly plan: after any free trial, Google Play charges the yearly price once a year until " +
+                        "you cancel. If a trial is offered, cancel before it ends to avoid the first charge for your plan. If " +
+                        "no trial is available, Google Play charges when you confirm. During a free trial, the app may send a " +
+                        "reminder before the trial ends. An active trial or subscription is required for all daily content " +
+                        "and Grimoire access.",
+                    "Unless canceled before renewal, either plan renews at the then-current price and period shown by " +
+                        "Google Play. You can cancel either plan at any time through Google Play → Payments & subscriptions → " +
+                        "Subscriptions. Cancellation normally preserves access until the verified expiry date. When access " +
+                        "expires, the app returns to the subscription screen; delivery history is preserved for renewal. " +
+                        "Refund eligibility is governed by applicable law and Google Play's refund rules.",
                     "Restoring a purchase verifies entitlement with Google Play. Deleting an account first attempts to cancel " +
                         "active auto-renewal; deletion does not itself promise a refund.",
                 ),
@@ -200,12 +205,13 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.PRIVACY,
         title = "Privacy Policy",
         version = PolicyVersions.PRIVACY,
-        effectiveDate = "November 21, 2026",
+        effectiveDate = "November 26, 2026",
         introduction =
-            "This Privacy Policy explains what information Jaime Sorrow (“Wiccan,” “we,” or “us”) handles when you use " +
-                "the Wiccan Android app and its related services, why it is used, which service providers process it, how " +
-                "long it is kept, and the choices available to you. Wiccan does not sell personal data and does not show " +
-                "advertising.",
+            "This Privacy Policy explains what information Jaime Sorrow (“Wiccan,” “we,” or “us”) handles when " +
+                "you use the Wiccan Android app and its related services, why it is used, which service providers " +
+                "process it, how long it is kept, and the choices available to you. Wiccan does not sell personal " +
+                "data. If you do not have an active subscription, the app shows ads from Google AdMob; subscribers " +
+                "(monthly or yearly, including during a free trial) see no ads.",
         sections = listOf(
             LegalSection(
                 "Who we are",
@@ -247,15 +253,38 @@ object WiccanLegalDocuments {
                         "Firebase Analytics may also collect the Android advertising ID; Wiccan uses it only for analytics " +
                         "measurement, never for advertising, and tells Google that ad storage, ad user data, and ad personalization " +
                         "are denied. You can reset or delete the advertising ID in your device's Google or privacy settings.",
+                    "Ads for non-subscribers (Google AdMob): if you do not have an active subscription, the Grimoire " +
+                        "screen shows one banner ad from Google AdMob. No ads appear in lessons or rituals, on the " +
+                        "subscription screen, in Settings, during account deletion, on legal pages, or during email " +
+                        "verification, and subscribers see no ads. To choose, show, and measure these ads and to prevent ad " +
+                        "fraud, the Google Mobile Ads SDK and Google's consent tool may collect your Android advertising ID, " +
+                        "device and app information (such as device model, operating-system and app versions, language, and " +
+                        "screen size), ad interactions (such as ads shown and tapped), diagnostic and performance " +
+                        "information, your consent choices, and your IP address, from which Google may derive an approximate " +
+                        "location such as country or city. Where the law requires consent, such as in the European Economic " +
+                        "Area, the United Kingdom, and Switzerland, Google's consent message asks for your choices before any " +
+                        "ad is requested; where U.S. state privacy laws apply, it lets you opt out of personalized ads. If " +
+                        "you do not allow personalized ads, Google may still show non-personalized ads, which use the context " +
+                        "of the app and limited data for frequency capping, fraud prevention, and measurement. You can change " +
+                        "your choice at any time with Privacy choices in Settings, where offered, and you can reset or delete " +
+                        "the advertising ID in your device's Google or privacy settings. Wiccan does not send your name, " +
+                        "email address, account ID, or device location to AdMob.",
                     "On your device: the app keeps today's content in a local cache and stores your theme, notification, and " +
                         "analytics choices. The content cache and sign-in data are excluded from Android backups; your theme, " +
                         "notification, and analytics choices may be included in your device's own Android backup. Uninstalling the " +
                         "app removes this data from the device but does not delete your account.",
                     "Support messages: if you email hello@wiccan.app, we receive your email address and whatever your message " +
                         "contains.",
-                    "The app requests only the notification permission, for the optional daily reminder. It does not request " +
-                        "precise location, contacts, photos, camera, microphone, or health permissions. A device time-zone " +
-                        "identifier is not used to infer precise location.",
+                    "The app requests two optional permissions. The notification permission is for the optional daily " +
+                        "reminder and, during a free trial, a reminder before the trial ends. Android's approximate (coarse) " +
+                        "location permission is requested only if you tap the location option on the Home screen, and is used " +
+                        "only on your device to time the planetary hours shown there. Your approximate location is not sent " +
+                        "to Wiccan's servers, not stored in your account, and not passed to Google AdMob or any other " +
+                        "service. The app works without either permission, and you can turn them off at any time in Android's " +
+                        "settings for Wiccan. It does not request precise location, contacts, photos, camera, microphone, or " +
+                        "health permissions. A device time-zone identifier is not used to infer precise location. The app " +
+                        "also declares Android's advertising ID permission, which shows no prompt, so the Google Mobile Ads " +
+                        "SDK can read the advertising ID described above.",
                 ),
             ),
             LegalSection(
@@ -263,8 +292,10 @@ object WiccanLegalDocuments {
                 listOf(
                     "Information is used to authenticate accounts, send account emails (verification, password reset, and " +
                         "email-change confirmation), avoid repeating daily content, show archive history, deliver requested " +
-                        "notifications, verify subscription access, answer support requests, prevent fraud, enforce security, meet " +
-                        "legal or platform obligations, and, only if you opt in, diagnose crashes and understand app performance.",
+                        "notifications, remind you before a free trial ends, verify subscription access, answer support " +
+                        "requests, prevent fraud, enforce security, meet legal or platform obligations, show and measure ads " +
+                        "for users without a subscription, and, only if you opt in, diagnose crashes and understand app " +
+                        "performance.",
                     "Wiccan uses an AI service (Anthropic's Claude) on its servers only to draft lesson text from historical " +
                         "source passages. Lessons are then checked by automated tools and an AI assistant under the owner's " +
                         "authorization before publishing. No account, usage, device, or other personal information is sent to the " +
@@ -275,11 +306,14 @@ object WiccanLegalDocuments {
                 "Legal bases (EEA, UK, Switzerland, and similar laws)",
                 listOf(
                     "Where the GDPR, UK GDPR, Swiss law, or a similar law applies, Wiccan relies on these legal bases: " +
-                        "performance of its contract with you, to create and secure your account, deliver the daily content and " +
-                        "notifications you request, and provide your subscription; legitimate interests, to prevent fraud and abuse " +
-                        "and keep the service secure, balanced against your rights; your consent, for usage analytics and crash " +
-                        "reports, which you can withdraw at any time in Settings; and legal obligations, such as tax and accounting " +
-                        "records and responding to lawful requests.",
+                        "performance of its contract with you, to create and secure your account, deliver the daily content " +
+                        "and notifications you request, and provide your subscription; legitimate interests, to prevent fraud " +
+                        "and abuse, keep the service secure, and show non-personalized ads to users without a subscription " +
+                        "where the law allows, balanced against your rights; your consent, for usage analytics and crash " +
+                        "reports, which you can withdraw at any time in Settings, and for personalized ads and storing or " +
+                        "reading ad information on your device, which you can change at any time with Privacy choices in " +
+                        "Settings, where offered; and legal obligations, such as tax and accounting records and responding to " +
+                        "lawful requests.",
                     "You may object at any time to processing based on legitimate interests by emailing hello@wiccan.app.",
                 ),
             ),
@@ -287,28 +321,35 @@ object WiccanLegalDocuments {
                 "Service providers and disclosure",
                 listOf(
                     "Wiccan does not share personal data with third parties for their own marketing or other independent " +
-                        "purposes. It relies on these service providers, which process data on Wiccan's behalf or, where noted, " +
-                        "under their own terms:",
+                        "purposes, except the ad data Google AdMob handles under its own terms, as described below. It relies " +
+                        "on these service providers, which process data on Wiccan's behalf or, where noted, under their own " +
+                        "terms:",
                     "Google: Firebase Authentication, Cloud Firestore, Cloud Functions, Cloud Messaging, Firebase " +
                         "Installations, Analytics, Crashlytics, App Check, Google Cloud Logging, and Secret Manager, for sign-in, " +
                         "storage, server processing, notifications, optional diagnostics, and security; and the Gmail mailbox that " +
                         "receives hello@wiccan.app support email.",
                     "Google Play: subscription purchases, billing, refunds, and Play Integrity checks, under Google's own terms " +
                         "and privacy policy.",
+                    "Google AdMob: ads shown to users without a subscription, together with Google's consent message, " +
+                        "under Google's own terms and privacy policy. Google acts independently for some of this processing, " +
+                        "as explained at https://policies.google.com/technologies/partner-sites.",
                     "Cloudflare Email Routing: handles mail to hello@wiccan.app.",
                     "Firebase Authentication: sends the verification, password-reset, and change-email messages.",
                     "Information may also be disclosed when required by law, to protect users or the service, or during a " +
-                        "lawful business transfer. Wiccan does not sell personal data or share it for third-party behavioral " +
-                        "advertising.",
+                        "lawful business transfer. Wiccan does not sell personal data for money. If you allow personalized " +
+                        "ads, Google AdMob may use your advertising ID and other ad data to show ads based on your interests; " +
+                        "some U.S. state laws treat this as “sharing” for targeted advertising, and you can opt out with " +
+                        "Privacy choices in Settings, where offered or by deleting your advertising ID.",
                 ),
             ),
             LegalSection(
                 "Retention and deletion",
                 listOf(
                     "Account and service data is kept while your account exists and is needed for the purposes above. " +
-                        "Event-level Firebase Analytics data is kept for no longer than 14 months, Crashlytics crash reports for " +
-                        "about 90 days, and server error logs for about 30 days. Support emails are kept for as long as needed to " +
-                        "handle the request and keep a record of it.",
+                        "Event-level Firebase Analytics data is kept for no longer than 14 months, Crashlytics crash reports " +
+                        "for about 90 days, and server error logs for about 30 days. Support emails are kept for as long as " +
+                        "needed to handle the request and keep a record of it. Ad data collected by Google AdMob is kept by " +
+                        "Google under its own retention policies (https://policies.google.com/technologies/retention).",
                     "Delete Account in Settings first attempts to cancel active Play auto-renewal, then deletes the Firebase " +
                         "account, profile, delivery history, usage reservations, content-availability records, registered devices, " +
                         "verification-email record, and subscription record. If cancellation cannot be confirmed, deletion stops so " +
@@ -352,8 +393,10 @@ object WiccanLegalDocuments {
                         "gave. Residents of California and other U.S. states with privacy laws, Canada, Brazil, Australia, and " +
                         "other countries may have similar rights, including the right to know what is collected and to opt out of " +
                         "its sale, sharing for targeted advertising, or profiling.",
-                    "Wiccan does not sell personal information, share it for cross-context behavioral advertising, or use it " +
-                        "for profiling with legal or similarly significant effects.",
+                    "Wiccan does not sell personal information for money or use it for profiling with legal or similarly " +
+                        "significant effects. Personalized ads from Google AdMob may count as sharing for cross-context " +
+                        "behavioral advertising under some U.S. state laws; you can opt out at any time with Privacy choices " +
+                        "in Settings, where offered or by deleting your device's advertising ID, and subscribers see no ads.",
                     "To make a request, email hello@wiccan.app from the address on your account. We will verify the request " +
                         "against your account and respond within 30 days. If we decline a request, you may appeal by replying to " +
                         "our response. We will not discriminate against you for exercising these rights. If you are in the EEA, UK, " +
@@ -363,8 +406,9 @@ object WiccanLegalDocuments {
             LegalSection(
                 "Your choices and contact",
                 listOf(
-                    "In Settings you can disable daily notifications, turn usage analytics and crash reports on or off, sign " +
-                        "out, and delete your account. Manage your subscription in Google Play.",
+                    "In Settings you can disable daily notifications, turn usage analytics and crash reports on or off, " +
+                        "change your ad privacy choices (where offered), sign out, and delete your account. Manage your " +
+                        "subscription in Google Play; an active subscription removes all ads.",
                     "For access, correction, privacy, or deletion questions, email hello@wiccan.app or use Contact Support in " +
                         "Settings. Wiccan is operated by Jaime Sorrow.",
                 ),

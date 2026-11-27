@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -59,7 +60,9 @@ import com.jaimesorrow.wiccan.ui.navigation.WiccanDeepLinks
 import com.jaimesorrow.wiccan.ui.notification.NotificationSetupEffect
 import com.jaimesorrow.wiccan.ui.paywall.PaywallScreen
 import com.jaimesorrow.wiccan.ui.paywall.SubscriptionSetupEffect
+import com.jaimesorrow.wiccan.ui.paywall.SubscriptionSetupViewModel
 import com.jaimesorrow.wiccan.ui.policy.PolicyAcceptanceScreen
+import com.jaimesorrow.wiccan.ui.settings.AppLanguageManager
 import com.jaimesorrow.wiccan.ui.settings.SettingsScreen
 import com.jaimesorrow.wiccan.ui.theme.ThemeViewModel
 import com.jaimesorrow.wiccan.ui.theme.WiccanTheme
@@ -77,6 +80,10 @@ import dagger.hilt.android.AndroidEntryPoint
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguageManager.localizedContext(newBase))
+    }
+
     private val rootViewModel: RootViewModel by viewModels()
     private val themeViewModel: ThemeViewModel by viewModels()
 
@@ -113,9 +120,12 @@ class MainActivity : ComponentActivity() {
                     is RootState.RequiresSubscription -> state.uid
                     else -> null
                 }
-                if (subscriptionUid != null) {
-                    key(subscriptionUid) { SubscriptionSetupEffect() }
+                val subscriptionSetupViewModel = subscriptionUid?.let { uid ->
+                    key(uid) { hiltViewModel<SubscriptionSetupViewModel>(key = "subscription-setup-$uid") }
                 }
+                if (subscriptionSetupViewModel != null) SubscriptionSetupEffect(subscriptionSetupViewModel)
+                val reconcilingSubscription by subscriptionSetupViewModel?.reconciling
+                    ?.collectAsStateWithLifecycle() ?: remember { mutableStateOf(false) }
 
                 openLegalDocument?.let { documentId ->
                     BackHandler { openLegalDocument = null }
@@ -140,7 +150,9 @@ class MainActivity : ComponentActivity() {
                 ) { state ->
                     when (state) {
                         is RootState.RequiresSubscription -> key(subscriptionUid) {
-                            if (openAccount) {
+                            if (reconcilingSubscription) {
+                                LoadingIndicator(subscriptionCheck = true)
+                            } else if (openAccount) {
                                 SettingsScreen(
                                     accountOnly = true,
                                     onBack = { openAccount = false },
@@ -215,7 +227,7 @@ private fun MainActivity.EdgeToEdgeEffect(colorScheme: ColorScheme = MaterialThe
 }
 
 @Composable
-internal fun LoadingIndicator() {
+internal fun LoadingIndicator(subscriptionCheck: Boolean = false) {
     // Paint the palette background: the window behind is the fixed dark splash
     // colour, which would hide the Light/Ivory logo.
     Box(
@@ -230,6 +242,20 @@ internal fun LoadingIndicator() {
                 modifier = Modifier.semantics { contentDescription = loadingDescription },
                 color = MaterialTheme.colorScheme.primary,
             )
+            if (subscriptionCheck) {
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = stringResource(R.string.subscription_check_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.subscription_check_body),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+            }
         }
     }
 }

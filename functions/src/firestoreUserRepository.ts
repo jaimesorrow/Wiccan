@@ -3,6 +3,7 @@ import { ContentTier } from "./types";
 import {
   PremiumUserRecord,
   PurchaseTokenOwnershipError,
+  SubscriptionProfileState,
   TierSyncSource,
   UserRepositoryPort,
 } from "./userRepositoryPort";
@@ -21,6 +22,7 @@ export class FirestoreUserRepository implements UserRepositoryPort {
     purchaseToken: string,
     source: TierSyncSource = "purchase",
     previousPurchaseToken?: string,
+    subscription?: SubscriptionProfileState,
   ): Promise<ContentTier | null> {
     const userRef = this.db.collection(USERS_COLLECTION).doc(uid);
     const tokenRef = this.db.collection(PURCHASE_TOKENS_COLLECTION).doc(purchaseTokenDocumentId(purchaseToken));
@@ -131,16 +133,28 @@ export class FirestoreUserRepository implements UserRepositoryPort {
         superseded: false,
         updatedAt: FieldValue.serverTimestamp(),
       }, { merge: true });
-      transaction.set(userRef, { tier, purchaseToken, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      transaction.set(userRef, {
+        tier,
+        purchaseToken,
+        ...(subscription ? {
+          subscriptionState: subscription.subscriptionState,
+          productId: subscription.productId,
+        } : {}),
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
       return tier;
     });
   }
 
-  async listPremiumUsers(): Promise<PremiumUserRecord[]> {
-    const snap = await this.db.collection(USERS_COLLECTION).where("tier", "==", "premium").get();
+  async listUsersWithPurchaseTokens(): Promise<PremiumUserRecord[]> {
+    const snap = await this.db.collection(USERS_COLLECTION).where("purchaseToken", "!=", null).get();
     return snap.docs
       .filter((doc) => typeof doc.get("purchaseToken") === "string")
-      .map((doc) => ({ uid: doc.id, purchaseToken: doc.get("purchaseToken") as string }));
+      .map((doc) => ({
+        uid: doc.id,
+        purchaseToken: doc.get("purchaseToken") as string,
+        tier: doc.get("tier") === "premium" ? "premium" : "free",
+      }));
   }
 
   async findUidByPurchaseToken(purchaseToken: string): Promise<string | null> {

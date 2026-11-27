@@ -6,8 +6,8 @@ service cloud.firestore {
     // CURRENT_PRIVACY_VERSION in functions/src/policyVersions.ts and the app's
     // PolicyVersions (scripts/release-preflight.sh checks all three).
     function acceptedCurrentPolicies(user) {
-      return user.data.get('acceptedTermsVersion', 0) == 5
-        && user.data.get('acceptedPrivacyVersion', 0) == 5;
+      return user.data.get('acceptedTermsVersion', 0) == 7
+        && user.data.get('acceptedPrivacyVersion', 0) == 7;
     }
     // Content and Grimoire reads need a verified, active subscriber who has
     // accepted the current policies; the profile itself stays readable so
@@ -57,9 +57,9 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // tier is set only by the verifyPurchase and daily lapse-recheck Cloud
-    // Functions (Admin SDK) — the client's own billing state is never
-    // trusted, so it only ever reads its own doc to sync the UI.
+    // tier and the mirrored subscriptionState/productId are set
+    // only by billing Cloud Functions (Admin SDK). The client reads these
+    // fields to explain a held payment, but can never write billing state.
     match /users/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow write: if false;

@@ -5,6 +5,7 @@ import { NotificationUserRepositoryPort } from "./notificationUserRepositoryPort
 import { FcmSenderPort } from "./fcmSenderPort";
 import { getUserLocalDate, getUserLocalHour } from "./dateUtils";
 import { hasAcceptedCurrentPolicies, PolicyAcceptanceReader } from "./acceptTerms";
+import { SupportedLocale } from "./locale";
 
 /** The local hour every device should get its daily-practice push. */
 const TARGET_LOCAL_HOUR = 9;
@@ -12,10 +13,21 @@ const TARGET_LOCAL_HOUR = 9;
 /** Must match the Android notification channel created in the app. */
 export const DAILY_PRACTICE_CHANNEL_ID = "daily_practice";
 
-export function dailyNotificationCopy(type: ContentType, contentTitle: string): { title: string; body: string } {
+export function dailyNotificationCopy(
+  type: ContentType, contentTitle: string, locale: SupportedLocale = "en",
+): { title: string; body: string } {
+  if (locale === "es") {
+    const kind = type === "spell" ? "hechizo" : type === "potion" ? "poción" : "lección";
+    const feminine = kind !== "hechizo";
+    return { title: `${feminine ? "Una" : "Un"} ${kind} te espera bajo la luna`, body: `La luna ha cambiado, y ${feminine ? "la" : "el"} ${kind} de hoy descansa sobre tu altar: ${contentTitle}` };
+  }
+  if (locale === "pt-BR") {
+    const kind = type === "spell" ? "feitiço" : type === "potion" ? "poção" : "lição";
+    return { title: `${kind === "poção" || kind === "lição" ? "Uma" : "Um"} ${kind} espera sob a lua`, body: `A lua mudou, e ${kind === "poção" || kind === "lição" ? "a" : "o"} ${kind} de hoje repousa em seu altar: ${contentTitle}` };
+  }
   return {
     title: titleForType(type),
-    body: `The moon has turned. ${contentTitle}`,
+    body: `The moon has turned, and today’s ${type} rests upon your altar: ${contentTitle}`,
   };
 }
 
@@ -29,11 +41,11 @@ export interface NotificationSendSummary {
 function titleForType(type: ContentType): string {
   switch (type) {
     case "spell":
-      return "Your spell awaits";
+      return "A spell awaits beneath the moon";
     case "potion":
-      return "Your potion awaits";
+      return "A potion awaits beneath the moon";
     case "lesson":
-      return "Your lesson awaits";
+      return "A lesson awaits beneath the moon";
   }
 }
 
@@ -116,7 +128,7 @@ export async function sendDailyNotifications(
     try {
       const today = getUserLocalDate(device.timeZone, now);
       const selected = await selectTodayContent(device.uid, today, content);
-      const copy = dailyNotificationCopy(selected.type, selected.title);
+      const copy = dailyNotificationCopy(selected.type, selected.title, device.locale);
       const result = await fcm.send(device.token, copy.title, copy.body);
       if (result.delivered) {
         summary.sent++;

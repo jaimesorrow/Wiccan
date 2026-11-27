@@ -49,7 +49,14 @@ export async function verifyPurchaseAndSyncTier(
   let syncedTier: ContentTier;
   try {
     // Ownership must be reserved before acknowledging a purchase on the caller's behalf.
-    const result = await users.setTier(uid, tier, purchaseToken, "purchase", info.linkedPurchaseToken ?? undefined);
+    const result = await users.setTier(
+      uid,
+      tier,
+      purchaseToken,
+      "purchase",
+      info.linkedPurchaseToken ?? undefined,
+      { subscriptionState: info.state, productId },
+    );
     if (result === null) throw new PurchaseVerificationError("The purchase could not be linked to this account.");
     syncedTier = result;
   } catch (error) {
@@ -62,6 +69,7 @@ export async function verifyPurchaseAndSyncTier(
     subscriptionState: info.state,
     expiryTimeMillis: info.expiryTimeMillis,
     autoRenewing: info.autoRenewing,
+    inFreeTrial: info.inFreeTrial === true,
   });
 
   if (tier === "premium" && !info.acknowledged) {

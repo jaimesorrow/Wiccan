@@ -1,3 +1,5 @@
+import { SupportedLocale } from "./locale";
+
 export interface NotificationDeviceRecord {
   uid: string;
   token: string;
@@ -5,6 +7,8 @@ export interface NotificationDeviceRecord {
   timeZone: string | null;
   /** Per-device opt-out of the daily push, independent of unregistering the device entirely. Defaults to true. */
   notificationsEnabled: boolean;
+  /** Locale chosen for this device's account-facing messages. Missing legacy values read as English. */
+  locale: SupportedLocale;
 }
 
 /**
@@ -22,7 +26,7 @@ export interface NotificationUserRepositoryPort {
   clearToken(uid: string, token: string): Promise<void>;
 
   /** `timeZone` is optional so a bare token refresh doesn't have to resend a value the client already sent once. */
-  setToken(uid: string, token: string, timeZone?: string | null): Promise<void>;
+  setToken(uid: string, token: string, timeZone?: string | null, locale?: SupportedLocale): Promise<void>;
 
   /** Updates only the time zone for one already-registered device, independent of its token. */
   setTimeZone(uid: string, token: string, timeZone: string): Promise<void>;

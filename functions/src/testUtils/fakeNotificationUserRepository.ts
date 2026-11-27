@@ -1,8 +1,10 @@
 import { NotificationDeviceRecord, NotificationUserRepositoryPort } from "../notificationUserRepositoryPort";
+import { SupportedLocale } from "../locale";
 
 interface FakeDeviceState {
   timeZone: string | null;
   notificationsEnabled: boolean;
+  locale: SupportedLocale;
 }
 
 export class FakeNotificationUserRepository implements NotificationUserRepositoryPort {
@@ -14,7 +16,7 @@ export class FakeNotificationUserRepository implements NotificationUserRepositor
     const records: NotificationDeviceRecord[] = [];
     for (const [uid, tokens] of this.devices.entries()) {
       for (const [token, state] of tokens.entries()) {
-        records.push({ uid, token, timeZone: state.timeZone, notificationsEnabled: state.notificationsEnabled });
+        records.push({ uid, token, timeZone: state.timeZone, notificationsEnabled: state.notificationsEnabled, locale: state.locale });
       }
     }
     return records;
@@ -25,12 +27,13 @@ export class FakeNotificationUserRepository implements NotificationUserRepositor
     this.devices.get(uid)?.delete(token);
   }
 
-  async setToken(uid: string, token: string, timeZone: string | null = null): Promise<void> {
+  async setToken(uid: string, token: string, timeZone: string | null = null, locale: SupportedLocale = "en"): Promise<void> {
     const tokens = this.devices.get(uid) ?? new Map<string, FakeDeviceState>();
     const existing = tokens.get(token);
     tokens.set(token, {
       timeZone: timeZone ?? existing?.timeZone ?? null,
       notificationsEnabled: existing?.notificationsEnabled ?? true,
+      locale,
     });
     this.devices.set(uid, tokens);
   }
@@ -38,14 +41,14 @@ export class FakeNotificationUserRepository implements NotificationUserRepositor
   async setTimeZone(uid: string, token: string, timeZone: string): Promise<void> {
     const tokens = this.devices.get(uid) ?? new Map<string, FakeDeviceState>();
     const existing = tokens.get(token);
-    tokens.set(token, { timeZone, notificationsEnabled: existing?.notificationsEnabled ?? true });
+    tokens.set(token, { timeZone, notificationsEnabled: existing?.notificationsEnabled ?? true, locale: existing?.locale ?? "en" });
     this.devices.set(uid, tokens);
   }
 
   async setNotificationsEnabled(uid: string, token: string, enabled: boolean): Promise<void> {
     const tokens = this.devices.get(uid) ?? new Map<string, FakeDeviceState>();
     const existing = tokens.get(token);
-    tokens.set(token, { timeZone: existing?.timeZone ?? null, notificationsEnabled: enabled });
+    tokens.set(token, { timeZone: existing?.timeZone ?? null, notificationsEnabled: enabled, locale: existing?.locale ?? "en" });
     this.devices.set(uid, tokens);
   }
 }

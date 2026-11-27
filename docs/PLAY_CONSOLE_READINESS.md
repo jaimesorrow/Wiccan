@@ -46,7 +46,7 @@ These answers reflect the current code. Re-audit if functionality or SDKs change
 
 | Console topic | Wiccan answer | Evidence / release note |
 |---|---|---|
-| Contains ads | **No** | No ads SDK or ad surface is present. |
+| Contains ads | **Yes, once the AdMob change ships** (No for any build without it) | Google Mobile Ads SDK + UMP; one Grimoire banner for non-subscribers only. Data safety, advertising ID and app-ads.txt steps: `docs/ADMOB.md`. |
 | In-app purchases | **Yes — subscriptions** | Google Play Billing; monthly UI today, monthly/yearly product IDs accepted by the backend. |
 | App access restricted | **Yes** | Sign-in, policy acceptance and an active subscription or trial gate the app. Supply reviewer instructions and credentials. |
 | User-generated content | **No** | Users cannot post, message, upload, or share content. |
@@ -56,8 +56,8 @@ These answers reflect the current code. Re-audit if functionality or SDKs change
 | Government app | **No** | No government affiliation or service. |
 | Health app declaration | **Recommended: No health features** | Wiccan is educational/spiritual reflection and disclaims diagnosis/treatment. Confirm that the store listing and every published lesson avoid health/medical claims; otherwise reassess. |
 | Target audience | **Recommended: adults 18+ only** | Conservative fit for occult themes, potions/materials, and safety responsibility. The owner must confirm this selection; do not market to children. |
-| Store category | **Recommended: Lifestyle** | Best fit for spiritual reflection and daily practice; owner may choose Books & Reference only if the listing is framed primarily as historical education. |
-| Approximate location | **Yes — optional, analytics only** | Analytics-derived approximate location is collected only after the user opts in to analytics. Precise location is not collected. No location permission or location API is used. An IANA time-zone string is stored for notification timing and is not used to derive location. |
+| Store category | **Education — owner approved** | The listing leads with historical sources, citations and guided study without claiming accreditation or guaranteed outcomes. Keep the target audience adults 18+ only; do not opt into Families or Teacher Approved. |
+| Approximate location | **Yes — optional, not shared** | The app requests `ACCESS_COARSE_LOCATION` (added in #207) only when the user taps the Home location option; the fix is used on-device only to time Home's planetary hours, is never sent to Wiccan's servers or stored in the account, and is never passed to AdMob or any other SDK. The app works without it. Analytics-derived approximate location is collected only after analytics opt-in. With AdMob (free users), Google derives a general location from the IP address — see the Data safety rows below and `docs/ADMOB.md`. Precise location is not collected or requested. An IANA time-zone string is stored for notification timing and is not used to derive location. |
 | Account creation | **Yes** | Email/password or Google sign-in. |
 | Account deletion | **Yes** | In-app Settings → Delete Account, and the public page at https://wiccan.app/delete-account, which is live. |
 
@@ -114,7 +114,8 @@ Recommended rows for the current build:
 | Crash logs | Yes | No* | **Optional** — Crashlytics runs only after opt-in | Analytics, app functionality |
 | Diagnostics | Yes | No* | **Optional** — Crashlytics diagnostics only after opt-in | Analytics, app functionality |
 | Device or other IDs | Yes | No* | FCM/App Check identifiers are handled by current SDKs | App functionality, security, developer communications |
-| Approximate location | Yes | No* | **Optional** — Analytics-derived; collected only after analytics opt-in | Analytics |
+| Approximate location | Yes | No* | **Optional** — device coarse location (Home planetary hours, on-device only, never sent off the device or to AdMob; app works without it) plus Analytics-derived location after analytics opt-in | App functionality, Analytics |
+| Approximate location (AdMob, IP-derived; only once ads ship) | Yes | Yes (Google AdMob) | Required for ad delivery to free users | Advertising or marketing, Fraud prevention |
 | Precise location | No | No | Not collected | — |
 | Contacts, messages, photos/videos, audio, files | No | No | Not collected | — |
 | Health/fitness data | No | No | Not collected | — |
@@ -132,7 +133,7 @@ Additional form answers:
 - **Independent security review:** Do not claim one unless a qualifying review
   has actually been completed and remains valid.
 - **Data sale:** No.
-- **Behavioral advertising:** No.
+- **Behavioral advertising:** No for builds without AdMob. With AdMob, personalized ads are possible where the user consents (UMP), so update this answer and the Data safety form per `docs/ADMOB.md`.
 
 Explicit Analytics events are `sign_up_completed`, `daily_content_viewed`,
 `paywall_viewed`, `subscription_started`, `subscription_lapsed`, and
@@ -169,7 +170,7 @@ Terms/Privacy changes. The operator is Jaime Sorrow (individual developer, Alask
 
 ## Terms, user responsibilities, and screen placement
 
-Native policy version 5 includes Wiccan-specific terms and disclosures:
+Native policy version 6 includes Wiccan-specific terms and disclosures:
 
 - historical, educational, and spiritual-reflection purpose;
 - an explicit “No promise or guarantee of results” section: no spell, potion,
@@ -197,7 +198,7 @@ Placement is intentionally layered:
 | Paywall | Terms and Privacy sit beside the localized recurring price and renewal/cancellation disclosure. |
 | Settings | Permanent access to Terms, Privacy, Content & Safety, support, subscription management, and account deletion. |
 
-Android and Functions policy constants are both version `5`
+Android and Functions policy constants are both version `6`
 (`PolicyVersions` and `functions/src/policyVersions.ts`); any future material
 change must bump the applicable versions together.
 
@@ -205,29 +206,36 @@ change must bump the applicable versions together.
 
 The paywall must keep all of these visible before purchase:
 
-- localized Google Play price and **per month** billing period;
+- localized Google Play price and the selected monthly or yearly billing period;
 - automatically renews until canceled;
 - Play charges the payment method on confirmation;
 - cancellation through Google Play and normal access through the paid period;
 - Terms and Privacy links;
 - clear premium benefits and a working Restore Purchases action;
-- the required subscription (7-day trial for eligible new subscribers) is
-  disclosed before purchase; there is no free content plan.
+- the required subscription (a free trial for eligible new subscribers:
+  7 days monthly, 14 days yearly, shown at checkout) is disclosed before
+  purchase; there is no free content plan.
 
-The current UI purchases only `wiccan_premium_monthly`. The backend also
-allow-lists `wiccan_premium_yearly`, but do not advertise annual pricing until a
-real annual offer is exposed and its localized price/period are shown in-app.
-Repository planning prices are not authoritative; Play Console localized prices
-are authoritative.
+The current UI supports `wiccan_premium_monthly` and
+`wiccan_premium_yearly`, but must show a plan only when Google Play returns a
+real offer with its localized price and billing period. Repository planning
+prices are not authoritative; Play Console localized prices are authoritative.
 
 ## Permissions and SDK audit
 
 The main manifest requests only:
 
 - `INTERNET` — Firebase, authentication, content, billing verification;
-- `POST_NOTIFICATIONS` — runtime permission for optional daily notifications.
+- `POST_NOTIFICATIONS` — runtime permission for optional daily notifications;
+- `ACCESS_COARSE_LOCATION` — optional runtime permission, requested only from the
+  Home location option, for on-device planetary-hour timing (added in #207). The
+  fix never leaves the device and is not passed to AdMob; the app works without it.
 
-No location, contacts, camera, microphone, storage/media, health, SMS, phone, or
+The AdMob change also merges `ACCESS_NETWORK_STATE`, `AD_ID` and the
+`ACCESS_ADSERVICES_*` (Ad ID, attribution, topics) permissions from
+`play-services-ads`.
+
+No precise location, contacts, camera, microphone, storage/media, health, SMS, phone, or
 accessibility permission is requested. Re-run this audit whenever a dependency,
 manifest, SDK, or data flow changes.
 
@@ -239,16 +247,35 @@ Manager/Google ID, and Google Play Billing.
 
 - [ ] 512×512 PNG app icon and 1024×500 feature graphic (prepared in
   `brand/exports/google-play/`; not yet uploaded).
-- [ ] At least two current phone screenshots and accurate short/full descriptions.
+- [ ] Upload 6–8 current screenshots from a Play-distributed production build:
+  Today steps, historical brief + citation, Grimoire, paywall with real
+  localized Play prices, themes, and the verified widget. Marketing-site
+  screenshots are not production evidence.
+- [ ] Add a 30-second caption-only promo video of the same real flow; no outcome
+  claims or unverified feature footage.
+- [ ] Treat concept/reference images as art direction only. Do not show Flow
+  Mode, My Cabinet, Community Altar, Luna Grimoire, or an expanded concept Home
+  as shipped UI. An unaltered capture of the production Home's existing Cosmic
+  Timing card is allowed only after verification against the uploaded build;
+  the separate reference-design version is not. Decorative motifs must not
+  imply unshipped features.
+- [ ] Keep decorative/editorial photography separate from the required real-app
+  screenshot set; it neither replaces nor counts as a production screenshot.
+- [ ] Set category to Education, keep target audience at adults 18+ only, and do
+  not join Families or Teacher Approved.
+- [ ] Use the history-first short/full descriptions in `PLAY_STORE_LISTING.md`
+  and compare every claim with the uploaded build and published content.
 - [ ] “Contains ads” set to No and “In-app purchases” displayed.
-- [ ] Production signing/App Signing configured (upload keystore + the four
-  `RELEASE_*` repository secrets; none exist yet); version code incremented
-  for every new upload after the first (`versionCode` is currently 1).
+- [ ] Production signing/App Signing configured. The four `RELEASE_*`
+  repository secrets produced a verified signed bundle in
+  [Release bundle run 44897968528](https://github.com/jaimesorrow/Wiccan/actions/runs/44897968528);
+  confirm Play App Signing at the first upload. Increment the version code for every later
+  upload (`versionCode` is currently 4).
 - [ ] Current target API policy rechecked. Repo currently uses `targetSdk = 36`.
 - [ ] Production Firebase, App Check/Play Integrity, Auth certificates, Functions,
   Firestore rules/indexes, content, billing, RTDN, and alerts verified.
 - [ ] Closed/internal-track real-device pass: Google/email auth, policy gate,
-  Today, Grimoire, notifications, monthly purchase, restore, cancel, lapse,
+  Today, Grimoire, notifications, monthly/yearly purchase, restore, cancel, lapse,
   account deletion, and external deletion request.
 - [ ] Store listing claims compared against every published content item.
 - [ ] Rights/source review complete for published ancient-grimoire content.

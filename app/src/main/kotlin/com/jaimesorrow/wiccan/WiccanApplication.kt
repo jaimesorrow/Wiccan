@@ -1,13 +1,16 @@
 package com.jaimesorrow.wiccan
 
 import android.app.Application
+import android.content.Context
 import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.appcheck.AppCheckProviderInstaller
+import com.jaimesorrow.wiccan.notification.ensureBillingRemindersChannel
 import com.jaimesorrow.wiccan.notification.ensureDailyPracticeChannel
+import com.jaimesorrow.wiccan.ui.settings.AppLanguageManager
 import com.jaimesorrow.wiccan.worker.DailyContentWorker
 import com.jaimesorrow.wiccan.worker.WiccanWorkerFactory
 import com.wiccan.app.BuildConfig
@@ -33,12 +36,18 @@ class WiccanApplication : Application(), Configuration.Provider {
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
+    override fun attachBaseContext(base: Context) {
+        AppLanguageManager.migrateLegacyPreference(base)
+        super.attachBaseContext(AppLanguageManager.localizedContext(base))
+    }
+
     override val workManagerConfiguration: Configuration
         get() = wiccanWorkerFactory.workManagerConfiguration
 
     override fun onCreate() {
         super.onCreate()
         ensureDailyPracticeChannel(this)
+        ensureBillingRemindersChannel(this)
         // Must run before any other Firebase call - App Check attaches its
         // token to every subsequent Functions/Firestore request. Which
         // provider this installs is decided per build variant (src/debug

@@ -42,6 +42,9 @@ import { ClaudeDraftGenerator } from "./claudeDraftGenerator";
 import { FirestoreContentAdminRepository } from "./firestoreContentAdminRepository";
 import { loadContentSources } from "./contentSource";
 import { loadSourcePassages } from "./sourcePassages";
+import { sendTrialEndingReminders } from "./trialEndingReminders";
+import { FirestoreTrialReminderRepository } from "./firestoreTrialReminderRepository";
+import { canonicalizeLocale, optionalCanonicalizeLocale } from "./locale";
 
 initializeApp();
 
@@ -108,7 +111,7 @@ export const sendVerificationEmail = onCall(
     });
 
     const verificationLink = await getAuth().generateEmailVerificationLink(user.email);
-    const message = renderVerificationEmail(verificationLink, user.displayName);
+    const message = renderVerificationEmail(verificationLink, user.displayName, canonicalizeLocale(request.data?.locale));
 
     if (process.env.FUNCTIONS_EMULATOR === "true") {
       logger.info("Wiccan verification email preview", {
@@ -336,6 +339,7 @@ export const registerDeviceToken = onCall(CALLABLE_OPTIONS, async (request) => {
   if (requestedTimeZone !== undefined && !timeZone) {
     throw new HttpsError("invalid-argument", "timeZone must be a valid bounded time-zone identifier.");
   }
+  const locale = optionalCanonicalizeLocale(request.data?.locale);
   const enabled = request.data?.enabled;
   const updateChoice = request.data?.updateChoice;
   if ((enabled !== undefined && typeof enabled !== "boolean") ||
@@ -346,7 +350,7 @@ export const registerDeviceToken = onCall(CALLABLE_OPTIONS, async (request) => {
 
   try {
     const users = new FirestoreNotificationUserRepository(getFirestore());
-    await users.setToken(uid, token, timeZone, enabled, updateChoice === true);
+    await users.setToken(uid, token, timeZone, locale, enabled, updateChoice === true);
     return { preferenceSupported: true };
   } catch (err) {
     logger.error("registerDeviceToken failed", { uid, error: (err as Error).message });
@@ -546,6 +550,29 @@ export const sendDailyNotificationsJob = onSchedule("every 1 hours", async () =>
   const profiles = new FirestoreUserProfileRepository(getFirestore());
   const summary = await sendDailyNotifications(users, repo, fcm, profiles);
   logger.info("sendDailyNotifications complete", summary);
+});
+
+/**
+ * Hourly: one "your free trial ends soon" push per free trial, sent within
+ * a day of the trial's end to devices with notifications on, after
+ * re-checking with Google Play that the trial is still active and
+ * auto-renewing (see trialEndingReminders.ts). Honors the
+ * systemConfig/global notificationsEnabled kill switch. Post-launch (v1.1).
+ */
+export const sendTrialEndingRemindersJob = onSchedule("every 1 hours", async () => {
+  const systemConfig = new FirestoreSystemConfigRepository(getFirestore());
+  const config = await systemConfig.getConfig();
+  if (!config.notificationsEnabled) {
+    logger.info("sendTrialEndingReminders skipped: disabled by systemConfig/global", config);
+    return;
+  }
+  const summary = await sendTrialEndingReminders(
+    new FirestoreTrialReminderRepository(getFirestore()),
+    createBillingRepository(),
+    new FirestoreNotificationUserRepository(getFirestore()),
+    new FirebaseFcmSender(getMessaging()),
+  );
+  logger.info("sendTrialEndingReminders complete", summary);
 });
 
 /**
