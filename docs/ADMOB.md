@@ -42,8 +42,11 @@ which always serve test ads and never earn or charge anything:
   GMA Next-Gen SDK, which collects `ACCESS_COARSE_LOCATION` by default since
   1.7.0. If the app ever moves to Next-Gen, set that switch to `false` in
   `MobileAdsStarter` unless the policy discloses ad use of device location.
-  Whether to keep and disclose `ACCESS_COARSE_LOCATION` (added in #207 for Home
-  planetary hours) or remove it is the owner's decision, still open.
+  Wiccan passes no location to ad requests (`AdRequest.Builder().build()` with
+  nothing else; 25.5.0 has no `setLocation`). Jaime chose (Nov 26, 2026) to keep
+  `ACCESS_COARSE_LOCATION` (added in #207) for on-device Home planetary hours and
+  disclose it: privacy policy v7 and `docs/PLAY_CONSOLE_READINESS.md` now say it
+  is optional, on-device only, and never sent to Wiccan's servers or AdMob.
 - **Advertising ID:** the manifest now declares
   `com.google.android.gms.permission.AD_ID` explicitly. Nothing removed it before
   (Firebase Analytics already merged it in), but the app told Google that all ad

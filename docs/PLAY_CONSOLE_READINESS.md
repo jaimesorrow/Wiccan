@@ -57,7 +57,7 @@ These answers reflect the current code. Re-audit if functionality or SDKs change
 | Health app declaration | **Recommended: No health features** | Wiccan is educational/spiritual reflection and disclaims diagnosis/treatment. Confirm that the store listing and every published lesson avoid health/medical claims; otherwise reassess. |
 | Target audience | **Recommended: adults 18+ only** | Conservative fit for occult themes, potions/materials, and safety responsibility. The owner must confirm this selection; do not market to children. |
 | Store category | **Education — owner approved** | The listing leads with historical sources, citations and guided study without claiming accreditation or guaranteed outcomes. Keep the target audience adults 18+ only; do not opt into Families or Teacher Approved. |
-| Approximate location | **Yes — optional, analytics only** | Analytics-derived approximate location is collected only after the user opts in to analytics. Precise location is not collected. No location permission or location API is used. An IANA time-zone string is stored for notification timing and is not used to derive location. |
+| Approximate location | **Yes — optional, not shared** | The app requests `ACCESS_COARSE_LOCATION` (added in #207) only when the user taps the Home location option; the fix is used on-device only to time Home's planetary hours, is never sent to Wiccan's servers or stored in the account, and is never passed to AdMob or any other SDK. The app works without it. Analytics-derived approximate location is collected only after analytics opt-in. With AdMob (free users), Google derives a general location from the IP address — see the Data safety rows below and `docs/ADMOB.md`. Precise location is not collected or requested. An IANA time-zone string is stored for notification timing and is not used to derive location. |
 | Account creation | **Yes** | Email/password or Google sign-in. |
 | Account deletion | **Yes** | In-app Settings → Delete Account, and the public page at https://wiccan.app/delete-account, which is live. |
 
@@ -114,7 +114,8 @@ Recommended rows for the current build:
 | Crash logs | Yes | No* | **Optional** — Crashlytics runs only after opt-in | Analytics, app functionality |
 | Diagnostics | Yes | No* | **Optional** — Crashlytics diagnostics only after opt-in | Analytics, app functionality |
 | Device or other IDs | Yes | No* | FCM/App Check identifiers are handled by current SDKs | App functionality, security, developer communications |
-| Approximate location | Yes | No* | **Optional** — Analytics-derived; collected only after analytics opt-in | Analytics |
+| Approximate location | Yes | No* | **Optional** — device coarse location (Home planetary hours, on-device only, never sent off the device or to AdMob; app works without it) plus Analytics-derived location after analytics opt-in | App functionality, Analytics |
+| Approximate location (AdMob, IP-derived; only once ads ship) | Yes | Yes (Google AdMob) | Required for ad delivery to free users | Advertising or marketing, Fraud prevention |
 | Precise location | No | No | Not collected | — |
 | Contacts, messages, photos/videos, audio, files | No | No | Not collected | — |
 | Health/fitness data | No | No | Not collected | — |
@@ -225,9 +226,16 @@ prices are not authoritative; Play Console localized prices are authoritative.
 The main manifest requests only:
 
 - `INTERNET` — Firebase, authentication, content, billing verification;
-- `POST_NOTIFICATIONS` — runtime permission for optional daily notifications.
+- `POST_NOTIFICATIONS` — runtime permission for optional daily notifications;
+- `ACCESS_COARSE_LOCATION` — optional runtime permission, requested only from the
+  Home location option, for on-device planetary-hour timing (added in #207). The
+  fix never leaves the device and is not passed to AdMob; the app works without it.
 
-No location, contacts, camera, microphone, storage/media, health, SMS, phone, or
+The AdMob change also merges `ACCESS_NETWORK_STATE`, `AD_ID` and the
+`ACCESS_ADSERVICES_*` (Ad ID, attribution, topics) permissions from
+`play-services-ads`.
+
+No precise location, contacts, camera, microphone, storage/media, health, SMS, phone, or
 accessibility permission is requested. Re-run this audit whenever a dependency,
 manifest, SDK, or data flow changes.
 

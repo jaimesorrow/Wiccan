@@ -268,15 +268,19 @@ object WiccanLegalDocuments {
                         "of the app and limited data for frequency capping, fraud prevention, and measurement. You can change " +
                         "your choice at any time with Privacy choices in Settings, where offered, and you can reset or delete " +
                         "the advertising ID in your device's Google or privacy settings. Wiccan does not send your name, " +
-                        "email address, or account ID to AdMob.",
+                        "email address, account ID, or device location to AdMob.",
                     "On your device: the app keeps today's content in a local cache and stores your theme, notification, and " +
                         "analytics choices. The content cache and sign-in data are excluded from Android backups; your theme, " +
                         "notification, and analytics choices may be included in your device's own Android backup. Uninstalling the " +
                         "app removes this data from the device but does not delete your account.",
                     "Support messages: if you email hello@wiccan.app, we receive your email address and whatever your message " +
                         "contains.",
-                    "The app requests only the notification permission, for the optional daily reminder and, during a " +
-                        "free trial, a reminder before the trial ends. You can turn either off in Android's notification " +
+                    "The app requests two optional permissions. The notification permission is for the optional daily " +
+                        "reminder and, during a free trial, a reminder before the trial ends. Android's approximate (coarse) " +
+                        "location permission is requested only if you tap the location option on the Home screen, and is used " +
+                        "only on your device to time the planetary hours shown there. Your approximate location is not sent " +
+                        "to Wiccan's servers, not stored in your account, and not passed to Google AdMob or any other " +
+                        "service. The app works without either permission, and you can turn them off at any time in Android's " +
                         "settings for Wiccan. It does not request precise location, contacts, photos, camera, microphone, or " +
                         "health permissions. A device time-zone identifier is not used to infer precise location. The app " +
                         "also declares Android's advertising ID permission, which shows no prompt, so the Google Mobile Ads " +

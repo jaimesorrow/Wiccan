@@ -176,6 +176,8 @@ private class BannerHolder(
         if (destroyed || loading) return
         loading = true
         try {
+            // No location, keywords or user data: the device's coarse location (Home
+            // planetary hours) is never passed to AdMob. See docs/ADMOB.md.
             view.loadAd(AdRequest.Builder().build())
         } catch (_: RuntimeException) {
             loading = false
