@@ -192,6 +192,13 @@
     <string name="home_alignment">El trabajo que coincide con %2$s y la Luna en %1$s tiene el momento más claro.</string>
     <string name="error_username_taken">Ese nombre ya se ha pronunciado en el círculo. Elige otro.</string>
     <string name="content_logo_description">Wiccan</string>
+    <string name="motif_today_page">la página de hoy</string>
+    <string name="motif_kept_pages">páginas guardadas</string>
+    <string name="motif_lesson_margin">para esta noche</string>
+    <string name="motif_moon_phases">Fases lunares</string>
+    <string name="motif_moon_phases_active">Fases lunares, %1$s activa</string>
+    <string name="lesson_candle_description">Una vela encendida</string>
+    <string name="lesson_quill_description">Una pluma en un tintero</string>
     <string name="grimoire_title">Grimorio</string>
     <string name="grimoire_subtitle">Lo que los días ya te han dado.</string>
     <string name="grimoire_timeline">Cronología</string>

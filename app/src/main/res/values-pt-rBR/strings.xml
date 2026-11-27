@@ -192,6 +192,13 @@
     <string name="home_alignment">O trabalho que combina com %2$s e a Lua em %1$s tem o momento mais claro.</string>
     <string name="error_username_taken">Esse nome já foi pronunciado no círculo. Escolha outro.</string>
     <string name="content_logo_description">Wiccan</string>
+    <string name="motif_today_page">página de hoje</string>
+    <string name="motif_kept_pages">páginas guardadas</string>
+    <string name="motif_lesson_margin">para esta noite</string>
+    <string name="motif_moon_phases">Fases da Lua</string>
+    <string name="motif_moon_phases_active">Fases da Lua, %1$s ativa</string>
+    <string name="lesson_candle_description">Uma vela acesa</string>
+    <string name="lesson_quill_description">Uma pena em um tinteiro</string>
     <string name="grimoire_title">Grimório</string>
     <string name="grimoire_subtitle">O que os dias já lhe deram.</string>
     <string name="grimoire_timeline">Linha do tempo</string>
