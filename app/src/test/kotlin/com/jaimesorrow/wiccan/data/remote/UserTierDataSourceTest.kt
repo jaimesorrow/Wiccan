@@ -72,6 +72,31 @@ class UserTierDataSourceTest {
     }
 
     @Test
+    fun `mirrored product id is read only from a server snapshot`() = runTest {
+        val listener = slot<EventListener<DocumentSnapshot>>()
+        val registration = mockk<ListenerRegistration>(relaxed = true)
+        val firestore = mockk<FirebaseFirestore>()
+        every {
+            firestore.collection("users").document("u").addSnapshotListener(MetadataChanges.INCLUDE, capture(listener))
+        } returns registration
+
+        UserTierDataSource(firestore).observeProductId("u").test {
+            runCurrent()
+            listener.captured.onEvent(productSnapshot("wiccan_premium_monthly", cached = true), null)
+            assertEquals(null, awaitItem())
+            listener.captured.onEvent(productSnapshot("wiccan_premium_monthly", cached = false), null)
+            assertEquals("wiccan_premium_monthly", awaitItem())
+            listener.captured.onEvent(productSnapshot("wiccan_premium_yearly", cached = false), null)
+            assertEquals("wiccan_premium_yearly", awaitItem())
+            listener.captured.onEvent(productSnapshot("  ", cached = false), null)
+            assertEquals(null, awaitItem())
+            listener.captured.onEvent(null, mockk())
+            assertEquals(null, awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun `missing expired and deleting profiles fail closed`() {
         assertFalse(hasSubscriptionAccess("premium", 0, false, nowMillis = 100))
         assertFalse(hasSubscriptionAccess("premium", 100, false, nowMillis = 100))
@@ -92,6 +117,13 @@ class UserTierDataSourceTest {
         val document = mockk<DocumentSnapshot>()
         every { document.metadata } returns mockk { every { isFromCache } returns cached }
         every { document.get("subscriptionState") } returns state
+        return document
+    }
+
+    private fun productSnapshot(productId: String?, cached: Boolean): DocumentSnapshot {
+        val document = mockk<DocumentSnapshot>()
+        every { document.metadata } returns mockk { every { isFromCache } returns cached }
+        every { document.get("productId") } returns productId
         return document
     }
 }

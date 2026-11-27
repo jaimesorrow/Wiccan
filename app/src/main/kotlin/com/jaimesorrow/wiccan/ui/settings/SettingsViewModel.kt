@@ -1,8 +1,10 @@
 package com.jaimesorrow.wiccan.ui.settings
 
+import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
+import com.jaimesorrow.wiccan.billing.canShowYearlySwitch
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.data.local.ThemePreferences
 import com.jaimesorrow.wiccan.domain.model.AuthState
@@ -21,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -75,8 +78,35 @@ class SettingsViewModel @Inject constructor(
                 }
         }
         viewModelScope.launch {
-            subscriptionRepository.observeTier().collect { tier ->
-                _state.update { it.copy(tier = tier) }
+            combine(
+                subscriptionRepository.observeTier(),
+                subscriptionRepository.observeSubscriptionState(),
+                subscriptionRepository.observeProductId(),
+            ) { tier, subscriptionState, productId ->
+                Triple(tier, subscriptionState, productId)
+            }.collectLatest { (tier, subscriptionState, productId) ->
+                val eligible = canShowYearlySwitch(
+                    tier,
+                    subscriptionState,
+                    productId,
+                    switchOfferAvailable = true,
+                )
+                _state.update {
+                    it.copy(tier = tier, yearlySwitchOffer = if (eligible) it.yearlySwitchOffer else null)
+                }
+                if (!eligible) return@collectLatest
+                when (val result = subscriptionRepository.getYearlySwitchOffer()) {
+                    is AppResult.Success -> _state.update { current ->
+                        val stillEligible = canShowYearlySwitch(
+                            current.tier,
+                            subscriptionState,
+                            productId,
+                            switchOfferAvailable = result.data != null,
+                        )
+                        current.copy(yearlySwitchOffer = if (stillEligible) result.data else null)
+                    }
+                    is AppResult.Failure -> _state.update { it.copy(yearlySwitchOffer = null) }
+                }
             }
         }
         viewModelScope.launch {
@@ -257,6 +287,20 @@ class SettingsViewModel @Inject constructor(
                 is AppResult.Success -> _state.update { it.copy(isDeleting = false) }
                 is AppResult.Failure -> {
                     _state.update { it.copy(isDeleting = false) }
+                    effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
+                }
+            }
+        }
+    }
+
+    fun switchToYearly(activity: Activity) {
+        if (state.value.isSwitchBusy || state.value.yearlySwitchOffer == null) return
+        _state.update { it.copy(isSwitchBusy = true) }
+        viewModelScope.launch {
+            when (val result = subscriptionRepository.launchSwitchToYearly(activity)) {
+                is AppResult.Success -> _state.update { it.copy(isSwitchBusy = false) }
+                is AppResult.Failure -> {
+                    _state.update { it.copy(isSwitchBusy = false) }
                     effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
                 }
             }

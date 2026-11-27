@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan.billing
 
+import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.ProductDetails
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import io.mockk.every
@@ -227,6 +228,128 @@ class SubscriptionOfferTest {
     }
 
     @Test
+    fun `a Play single-payment monthly winback is accepted`() {
+        val selected = product(
+            offer("winback-1mo-099", singlePayment(), renewal(), tags = listOf("winback")),
+        ).subscriptionOffer()!!
+        assertTrue(selected.isWinBack)
+        assertEquals("$0.99", selected.winBackFormattedPrice)
+        assertEquals("P1M", selected.winBackBillingPeriod)
+        assertEquals("$5.99", selected.formattedPrice)
+        assertEquals("winback-1mo-099-token", selected.offerToken)
+        assertFalse(selected.hasFreeTrial)
+    }
+
+    @Test
+    fun `a Play single-payment yearly winback uses a one-month intro on the yearly plan`() {
+        val product = product(
+            offer(null, renewal(period = "P1Y", price = "$39.99", micros = 39_990_000)),
+            offer(
+                "winback-1mo-099",
+                singlePayment(),
+                renewal(period = "P1Y", price = "$39.99", micros = 39_990_000),
+                tags = listOf("winback"),
+            ),
+        )
+        every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        val selected = product.subscriptionOffer()!!
+        assertEquals(SubscriptionPlan.YEARLY, selected.plan)
+        assertTrue(selected.isWinBack)
+        assertEquals("$0.99", selected.winBackFormattedPrice)
+        assertEquals("P1M", selected.winBackBillingPeriod)
+        assertEquals("$39.99", selected.formattedPrice)
+        assertFalse(selected.hasFreeTrial)
+    }
+
+    @Test
+    fun `switch-yearly single-payment offer is used for a plan change and hidden from the paywall`() {
+        val product = product(
+            offer(null, renewal(period = "P1Y", price = "$39.99", micros = 39_990_000)),
+            offer("trial", trial(), renewal(period = "P1Y", price = "$39.99", micros = 39_990_000)),
+            offer(
+                "switch-yearly-1mo-099",
+                singlePayment(),
+                renewal(period = "P1Y", price = "$39.99", micros = 39_990_000),
+                tags = listOf("switch-yearly"),
+            ),
+        )
+        every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+
+        val paywall = product.subscriptionOffer()!!
+        assertTrue(paywall.hasFreeTrial)
+        assertFalse(paywall.isWinBack)
+        assertEquals("trial-token", paywall.offerToken)
+
+        val switch = product.yearlySwitchOffer()!!
+        assertEquals("switch-yearly-1mo-099-token", switch.offerToken)
+        assertEquals("$0.99", switch.introFormattedPrice)
+        assertEquals("$39.99", switch.yearlyFormattedPrice)
+    }
+
+    @Test
+    fun `yearly switch falls back to the base plan when the tagged offer is missing or invalid`() {
+        val missing = product(offer(null, renewal(period = "P1Y", price = "$39.99", micros = 39_990_000)))
+        every { missing.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        val fallback = missing.yearlySwitchOffer()!!
+        assertEquals("base-token", fallback.offerToken)
+        assertEquals(null, fallback.introFormattedPrice)
+        assertEquals("$39.99", fallback.yearlyFormattedPrice)
+
+        val invalidTagged = product(
+            offer(null, renewal(period = "P1Y", price = "$39.99", micros = 39_990_000)),
+            offer(
+                "switch-yearly-1mo-099",
+                trial(),
+                renewal(period = "P1Y", price = "$39.99", micros = 39_990_000),
+                tags = listOf("switch-yearly"),
+            ),
+        )
+        every { invalidTagged.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        val afterInvalid = invalidTagged.yearlySwitchOffer()!!
+        assertEquals("base-token", afterInvalid.offerToken)
+        assertEquals(null, afterInvalid.introFormattedPrice)
+    }
+
+    @Test
+    fun `a base plan tagged switch-yearly is not treated as the promo offer`() {
+        val product = product(
+            offer(null, renewal(period = "P1Y", price = "$39.99", micros = 39_990_000), tags = listOf("switch-yearly")),
+        )
+        every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        val switch = product.yearlySwitchOffer()!!
+        assertEquals("base-token", switch.offerToken)
+        assertEquals(null, switch.introFormattedPrice)
+    }
+
+    @Test
+    fun `checkout cannot replace a displayed switch offer with different yearly terms`() {
+        val displayed = product(
+            offer(
+                "switch-yearly-1mo-099",
+                singlePayment(),
+                renewal(period = "P1Y", price = "$39.99", micros = 39_990_000),
+                tags = listOf("switch-yearly"),
+            ),
+        )
+        every { displayed.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        val offer = displayed.yearlySwitchOffer()!!
+        val nowBaseOnly = product(offer(null, renewal(period = "P1Y", price = "$39.99", micros = 39_990_000)))
+        every { nowBaseOnly.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        assertTrue(runCatching { nowBaseOnly.requireUnchangedSwitchOffer(offer) }.exceptionOrNull() is PlayBillingException)
+    }
+
+    @Test
+    fun `monthly to yearly replacement uses time proration`() {
+        // Billing Library 9 validates tokens with TextUtils, which is only
+        // reliable under Robolectric or on a device. The mode itself is the
+        // part this test can pin down here.
+        assertEquals(
+            BillingFlowParams.SubscriptionUpdateParams.ReplacementMode.WITH_TIME_PRORATION,
+            YEARLY_SWITCH_REPLACEMENT_MODE,
+        )
+    }
+
+    @Test
     fun `Firebase account obfuscation matches server SHA256 lowercase hex convention`() {
         assertEquals(
             "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
@@ -275,6 +398,21 @@ class SubscriptionOfferTest {
         every { billingPeriod } returns period
         every { priceAmountMicros } returns 0L
         every { billingCycleCount } returns if (nonRecurring) 0 else 1
+    }
+
+    private fun singlePayment(
+        period: String = "P1M",
+        currency: String = "USD",
+        price: String = "$0.99",
+        micros: Long = 990_000,
+        cycles: Int = 0,
+    ): ProductDetails.PricingPhase = mockk {
+        every { recurrenceMode } returns ProductDetails.RecurrenceMode.NON_RECURRING
+        every { billingPeriod } returns period
+        every { priceCurrencyCode } returns currency
+        every { formattedPrice } returns price
+        every { priceAmountMicros } returns micros
+        every { billingCycleCount } returns cycles
     }
 
     private fun discounted(

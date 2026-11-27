@@ -20,6 +20,8 @@ data class PaywallUiState(
     val subscriptionOnHold: Boolean = false,
     val monthlyWinBackPrice: String? = null,
     val yearlyWinBackPrice: String? = null,
+    /** Play intro period for a yearly win-back offer, e.g. `P1M` or `P1Y`. */
+    val yearlyWinBackBillingPeriod: String? = null,
 ) {
     val hasYearlyPlan: Boolean get() = price != null && yearlyPrice != null
 

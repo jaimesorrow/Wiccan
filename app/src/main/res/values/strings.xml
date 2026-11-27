@@ -133,6 +133,7 @@
     <string name="paywall_winback_offer">Return for %1$s for the first billing period, then the regular Google Play price.</string>
     <string name="paywall_selected_monthly_winback">Monthly: %1$s for the first month, then %2$s/month</string>
     <string name="paywall_selected_yearly_winback">Yearly: %1$s for the first year, then %2$s/year</string>
+    <string name="paywall_selected_yearly_winback_month">Yearly: %1$s for the first month, then %2$s/year</string>
     <!-- Billing reminder notification channel. Plain. -->
     <string name="notification_channel_billing_name">Trial and billing reminders</string>
     <string name="notification_channel_billing_description">A reminder before a free trial ends and the paid subscription starts.</string>
@@ -261,6 +262,9 @@
     <string name="settings_sign_out">Sign out</string>
     <string name="settings_manage_subscription">Manage Subscription</string>
     <string name="settings_manage_subscription_unavailable">Open Google Play to manage your subscription.</string>
+    <string name="settings_switch_to_yearly">Switch to yearly</string>
+    <string name="settings_switch_to_yearly_base">Switch to %1$s/year. Google credits any remaining time on your monthly plan. This switch does not include a free trial.</string>
+    <string name="settings_switch_to_yearly_intro">%1$s for the first month, then %2$s/year. Google credits any remaining time on your monthly plan. This switch does not include a free trial.</string>
     <string name="settings_notifications">Daily practice reminder</string>
     <string name="settings_notifications_hint">A soft bell when the day\'s working is laid upon the altar.</string>
     <string name="settings_palette">Palette</string>

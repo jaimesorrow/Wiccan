@@ -309,6 +309,8 @@ private fun SelectedPlanTerms(state: PaywallUiState) {
     val winBackPrice = if (yearly) state.yearlyWinBackPrice else state.monthlyWinBackPrice
     Text(
         when {
+            yearly && winBackPrice != null && state.yearlyWinBackBillingPeriod == "P1M" ->
+                stringResource(R.string.paywall_selected_yearly_winback_month, winBackPrice, price)
             yearly && winBackPrice != null -> stringResource(R.string.paywall_selected_yearly_winback, winBackPrice, price)
             winBackPrice != null -> stringResource(R.string.paywall_selected_monthly_winback, winBackPrice, price)
             yearly && state.selectedHasFreeTrial -> stringResource(R.string.paywall_selected_yearly_trial, price)

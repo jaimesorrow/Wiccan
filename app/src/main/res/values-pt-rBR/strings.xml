@@ -123,6 +123,7 @@
     <string name="paywall_winback_offer">Volte por %1$s no primeiro período de cobrança; depois vale o preço habitual do Google Play.</string>
     <string name="paywall_selected_monthly_winback">Mensal: %1$s no primeiro mês, depois %2$s/mês</string>
     <string name="paywall_selected_yearly_winback">Anual: %1$s no primeiro ano, depois %2$s/ano</string>
+    <string name="paywall_selected_yearly_winback_month">Anual: %1$s no primeiro mês, depois %2$s/ano</string>
     <string name="notification_channel_billing_name">Lembretes de avaliação e cobrança</string>
     <string name="notification_channel_billing_description">Um lembrete antes de um período de avaliação gratuito terminar e a assinatura paga começar.</string>
     <string name="today_spell">Feitiço de hoje</string>
@@ -242,6 +243,9 @@
     <string name="settings_sign_out">Sair</string>
     <string name="settings_manage_subscription">Gerenciar assinatura</string>
     <string name="settings_manage_subscription_unavailable">Abra o Google Play para gerenciar sua assinatura.</string>
+    <string name="settings_switch_to_yearly">Mudar para o plano anual</string>
+    <string name="settings_switch_to_yearly_base">Mude para %1$s/ano. O Google credita o tempo restante do seu plano mensal. Esta mudança não inclui um período de avaliação gratuito.</string>
+    <string name="settings_switch_to_yearly_intro">%1$s no primeiro mês, depois %2$s/ano. O Google credita o tempo restante do seu plano mensal. Esta mudança não inclui um período de avaliação gratuito.</string>
     <string name="settings_notifications">Lembrete de prática diária</string>
     <string name="settings_notifications_hint">Um sino suave quando o trabalho do dia é colocado sobre o altar.</string>
     <string name="settings_palette">Paleta</string>

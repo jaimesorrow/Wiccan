@@ -159,6 +159,7 @@ class PaywallViewModel @Inject constructor(
                 yearlySavingsPercent = yearly?.let { offer -> yearlySavingsPercent(offer, monthly) },
                 monthlyWinBackPrice = monthly.winBackFormattedPrice,
                 yearlyWinBackPrice = yearly?.winBackFormattedPrice,
+                yearlyWinBackBillingPeriod = yearly?.winBackBillingPeriod,
                 selectedPlan = when {
                     yearly == null -> SubscriptionPlan.MONTHLY
                     userPickedPlan -> it.selectedPlan

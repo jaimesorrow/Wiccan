@@ -223,6 +223,15 @@ fun SettingsScreen(
                 Text(stringResource(R.string.settings_manage_subscription))
             }
 
+            state.yearlySwitchOffer?.let { offer ->
+                Spacer(modifier = Modifier.height(12.dp))
+                SwitchToYearlyRow(
+                    offer = offer,
+                    enabled = !state.isSwitchBusy && !state.isAccountBusy,
+                    onClick = { context.findActivity()?.let(viewModel::switchToYearly) },
+                )
+            }
+
             if (!accountOnly) {
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(

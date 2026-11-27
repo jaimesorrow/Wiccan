@@ -34,6 +34,20 @@ class UserTierDataSource @Inject constructor(
         awaitClose { registration.remove() }
     }
 
+    /** Informational only; a missing or cached product ID is treated as unknown. */
+    fun observeProductId(userId: String): Flow<String?> = callbackFlow {
+        val registration = firestore.collection(USERS_COLLECTION)
+            .document(userId)
+            .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, error ->
+                if (error != null || snapshot?.metadata?.isFromCache != false) {
+                    trySend(null)
+                } else {
+                    trySend((snapshot.get(PRODUCT_ID_FIELD) as? String)?.takeIf { it.isNotBlank() })
+                }
+            }
+        awaitClose { registration.remove() }
+    }
+
     fun observeTier(userId: String): Flow<ContentTier> = callbackFlow {
         var expiryJob: Job? = null
         val verificationTimeout = launch {
@@ -81,6 +95,7 @@ class UserTierDataSource @Inject constructor(
         const val USERS_COLLECTION = "users"
         const val TIER_FIELD = "tier"
         const val SUBSCRIPTION_STATE_FIELD = "subscriptionState"
+        const val PRODUCT_ID_FIELD = "productId"
     }
 }
 

@@ -123,6 +123,7 @@
     <string name="paywall_winback_offer">Vuelve por %1$s durante el primer período de facturación; después se aplica el precio habitual de Google Play.</string>
     <string name="paywall_selected_monthly_winback">Mensual: %1$s el primer mes, luego %2$s/mes</string>
     <string name="paywall_selected_yearly_winback">Anual: %1$s el primer año, luego %2$s/año</string>
+    <string name="paywall_selected_yearly_winback_month">Anual: %1$s el primer mes, luego %2$s/año</string>
     <string name="notification_channel_billing_name">Recordatorios de prueba y facturación</string>
     <string name="notification_channel_billing_description">Un recordatorio antes de que termine una prueba gratuita y comience la suscripción de pago.</string>
     <string name="today_spell">Hechizo de hoy</string>
@@ -242,6 +243,9 @@
     <string name="settings_sign_out">Cerrar sesión</string>
     <string name="settings_manage_subscription">Gestionar suscripción</string>
     <string name="settings_manage_subscription_unavailable">Abre Google Play para gestionar tu suscripción.</string>
+    <string name="settings_switch_to_yearly">Cambiar al plan anual</string>
+    <string name="settings_switch_to_yearly_base">Cambia a %1$s/año. Google acredita el tiempo restante de tu plan mensual. Este cambio no incluye una prueba gratis.</string>
+    <string name="settings_switch_to_yearly_intro">%1$s el primer mes, luego %2$s/año. Google acredita el tiempo restante de tu plan mensual. Este cambio no incluye una prueba gratis.</string>
     <string name="settings_notifications">Recordatorio de práctica diaria</string>
     <string name="settings_notifications_hint">Una campana suave cuando el trabajo del día se coloca sobre el altar.</string>
     <string name="settings_palette">Paleta</string>
