@@ -53,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.data.location.lastKnownCoordinate
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.sky.CelestialCalculator
+import com.jaimesorrow.wiccan.sky.GeoCoordinate
 import com.jaimesorrow.wiccan.sky.ClassicalPlanet
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
@@ -71,13 +72,35 @@ private val Ink = WiccanPaletteColors.Grimoire.Text
 private val Muted = WiccanPaletteColors.Grimoire.Muted
 
 @Composable
+internal fun SpellbookHomeWithTideViewModel(
+    content: Content?,
+    lessonLocked: Boolean,
+    onOpenToday: () -> Unit,
+    onOpenPaywall: () -> Unit,
+    onOpenGrimoire: () -> Unit,
+) {
+    val tideViewModel: HomeTideViewModel = hiltViewModel()
+    val tideState by tideViewModel.state.collectAsStateWithLifecycle()
+    SpellbookHome(
+        content = content,
+        lessonLocked = lessonLocked,
+        onOpenToday = onOpenToday,
+        onOpenPaywall = onOpenPaywall,
+        onOpenGrimoire = onOpenGrimoire,
+        tideState = tideState,
+        onTideLoad = tideViewModel::load,
+    )
+}
+
+@Composable
 internal fun SpellbookHome(
     content: Content?,
     lessonLocked: Boolean,
     onOpenToday: () -> Unit,
     onOpenPaywall: () -> Unit,
     onOpenGrimoire: () -> Unit,
-    tideViewModel: HomeTideViewModel = hiltViewModel(),
+    tideState: TideUiState,
+    onTideLoad: (GeoCoordinate?) -> Unit = {},
 ) {
     MidnightGrimoireTheme {
         val context = LocalContext.current
@@ -92,8 +115,7 @@ internal fun SpellbookHome(
         val sabbat = remember(today) { CelestialCalculator.sabbatFor(today) }
         val hour = remember(coordinate) { CelestialCalculator.planetaryHour(now, zone, coordinate) }
         val voidOfCourse = remember(today) { CelestialCalculator.voidOfCourse(now) }
-        val tideState by tideViewModel.state.collectAsStateWithLifecycle()
-        LaunchedEffect(coordinate) { tideViewModel.load(coordinate) }
+        LaunchedEffect(coordinate) { onTideLoad(coordinate) }
         Box(modifier = Modifier.fillMaxSize().background(WiccanPaletteColors.Grimoire.Background)) {
             GrimoireLineArt(Modifier.fillMaxSize())
             Column(

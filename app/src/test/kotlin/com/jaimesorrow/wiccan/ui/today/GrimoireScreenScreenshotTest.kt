@@ -143,6 +143,7 @@ class GrimoireScreenScreenshotTest {
             effects = emptyFlow(),
             onEvent = {},
             onOpenToday = {},
+            homeTideState = TideUiState.NeedsLocation,
         )
     }
 

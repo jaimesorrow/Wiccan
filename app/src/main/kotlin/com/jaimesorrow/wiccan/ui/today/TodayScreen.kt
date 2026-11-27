@@ -96,6 +96,7 @@ internal fun TodayScreenContent(
     onOpenToday: (() -> Unit)? = null,
     onOpenPaywall: () -> Unit = {},
     onBack: (() -> Unit)? = null,
+    homeTideState: TideUiState? = null,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
@@ -138,13 +139,24 @@ internal fun TodayScreenContent(
                 }
                 Box(modifier = Modifier.weight(1f).fillMaxWidth().wiccanPageWash()) {
                     when {
-                        onOpenToday != null -> SpellbookHome(
-                            content = if (state.lessonLocked) null else state.content,
-                            lessonLocked = state.lessonLocked,
-                            onOpenToday = onOpenToday,
-                            onOpenPaywall = onOpenPaywall,
-                            onOpenGrimoire = onOpenGrimoire,
-                        )
+                        onOpenToday != null -> if (homeTideState != null) {
+                            SpellbookHome(
+                                content = if (state.lessonLocked) null else state.content,
+                                lessonLocked = state.lessonLocked,
+                                onOpenToday = onOpenToday,
+                                onOpenPaywall = onOpenPaywall,
+                                onOpenGrimoire = onOpenGrimoire,
+                                tideState = homeTideState,
+                            )
+                        } else {
+                            SpellbookHomeWithTideViewModel(
+                                content = if (state.lessonLocked) null else state.content,
+                                lessonLocked = state.lessonLocked,
+                                onOpenToday = onOpenToday,
+                                onOpenPaywall = onOpenPaywall,
+                                onOpenGrimoire = onOpenGrimoire,
+                            )
+                        }
                         // A retry from the exhausted or error panel keeps that panel on
                         // screen (and its scroll position) instead of swapping in the skeleton.
                         state.isLoading && state.content == null && !state.poolExhausted && !state.loadFailed ->
