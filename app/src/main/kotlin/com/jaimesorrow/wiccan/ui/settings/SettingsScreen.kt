@@ -76,7 +76,7 @@ fun SettingsScreen(
     val resources = LocalResources.current
     val loadingDescription = stringResource(R.string.loading_description)
     val subscriptionUnavailable = stringResource(R.string.settings_manage_subscription_unavailable)
-    val contactUnavailable = stringResource(R.string.settings_contact_unavailable, PolicyUrls.SUPPORT_EMAIL)
+    val contactUnavailable = stringResource(R.string.settings_contact_unavailable, PolicyUrls.CUSTOMER_SERVICE_EMAIL)
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -397,7 +397,7 @@ internal fun ThemeModePicker(
 }
 
 private fun supportEmailIntent(): Intent =
-    Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${PolicyUrls.SUPPORT_EMAIL}"))
+    Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${PolicyUrls.CUSTOMER_SERVICE_EMAIL}"))
 
 private fun appVersionName(context: Context): String = try {
     context.packageManager.getPackageInfo(context.packageName, 0).versionName

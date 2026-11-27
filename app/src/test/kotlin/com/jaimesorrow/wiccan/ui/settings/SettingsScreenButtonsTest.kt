@@ -115,7 +115,7 @@ class SettingsScreenButtonsTest {
         click("Contact Support")
         val intent = lastStartedIntent()
         assertEquals(Intent.ACTION_SENDTO, intent.action)
-        assertEquals("mailto:${PolicyUrls.SUPPORT_EMAIL}", intent.data.toString())
+        assertEquals("mailto:${PolicyUrls.CUSTOMER_SERVICE_EMAIL}", intent.data.toString())
     }
 
     @Test

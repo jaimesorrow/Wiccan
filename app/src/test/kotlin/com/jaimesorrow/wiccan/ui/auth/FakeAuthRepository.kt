@@ -22,6 +22,7 @@ class FakeAuthRepository : AuthRepository {
     var passwordResetResult: AppResult<Unit> = AppResult.Success(Unit)
     var deleteAccountResult: AppResult<Unit> = AppResult.Success(Unit)
     var acceptTermsResult: AppResult<Unit> = AppResult.Success(Unit)
+    var verificationDeliveryFailurePending: Boolean = false
 
     var lastSignInEmail: String? = null
     var lastSignInPassword: String? = null
@@ -66,6 +67,9 @@ class FakeAuthRepository : AuthRepository {
         lastCompletedUsername = username
         return createAccountResult
     }
+
+    override fun consumeVerificationDeliveryFailure(): Boolean =
+        verificationDeliveryFailurePending.also { verificationDeliveryFailurePending = false }
 
     override suspend fun sendPasswordReset(email: String): AppResult<Unit> {
         lastPasswordResetEmail = email

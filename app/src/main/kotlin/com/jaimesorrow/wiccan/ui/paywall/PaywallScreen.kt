@@ -2,6 +2,7 @@ package com.jaimesorrow.wiccan.ui.paywall
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -20,7 +21,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -148,11 +148,20 @@ internal fun PaywallContent(
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(8.dp))
-            OutlinedButton(
-                onClick = { onEvent(PaywallUiEvent.RestorePurchasesClicked) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isRestoring,
-            ) { Text(stringResource(R.string.paywall_restore)) }
+            Text(
+                stringResource(R.string.paywall_restore),
+                modifier = Modifier.clickable(enabled = !state.isRestoring) {
+                    onEvent(PaywallUiEvent.RestorePurchasesClicked)
+                }.padding(12.dp),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                stringResource(R.string.support_contact_message),
+                style = MaterialTheme.typography.labelSmall,
+                textAlign = TextAlign.Center,
+            )
             if (state.isRestoring) {
                 CircularProgressIndicator(modifier = Modifier.semantics { contentDescription = loadingDescription })
             }
