@@ -71,10 +71,7 @@ object AppLanguageManager {
     }
 
     fun select(activity: Activity, language: AppLanguage) {
-        preferences(activity).edit()
-            .putString(KEY_LANGUAGE_TAG, language.languageTag)
-            .putBoolean(KEY_MIGRATED_TO_LOCALE_MANAGER, true)
-            .apply()
+        val editor = preferences(activity).edit().putString(KEY_LANGUAGE_TAG, language.languageTag)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             activity.getSystemService(LocaleManager::class.java).applicationLocales =
                 if (language == AppLanguage.SYSTEM) {
@@ -82,9 +79,13 @@ object AppLanguageManager {
                 } else {
                     LocaleList.forLanguageTags(language.languageTag)
                 }
+            // Only mark migrated after the platform copy exists, so a choice made
+            // on Android 12 or earlier can still be copied after an OS upgrade.
+            editor.putBoolean(KEY_MIGRATED_TO_LOCALE_MANAGER, true)
         } else {
             activity.recreate()
         }
+        editor.apply()
     }
 
     fun localizedContext(base: Context): Context {
