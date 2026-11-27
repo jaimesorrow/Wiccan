@@ -17,10 +17,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -112,6 +114,10 @@ internal fun ArchiveScreenContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 24.dp),
                 )
+                EtymologyIntro(
+                    expanded = state.isEtymologyExpanded,
+                    onToggle = { onEvent(ArchiveUiEvent.EtymologyToggled) },
+                )
                 val loadingDescription = stringResource(R.string.grimoire_loading)
                 when {
                     state.isLoading -> Box(
@@ -135,25 +141,34 @@ internal fun ArchiveScreenContent(
                     }
                     else -> Box(Modifier.fillMaxSize()) {
                         Column(Modifier.fillMaxSize()) {
+                            GrimoireSearch(
+                                query = state.searchQuery,
+                                onQueryChanged = { onEvent(ArchiveUiEvent.SearchQueryChanged(it)) },
+                                onClear = { onEvent(ArchiveUiEvent.SearchCleared) },
+                            )
                             ArchiveTabRow(
                                 selectedTab = state.selectedTab,
                                 onTabSelected = { onEvent(ArchiveUiEvent.TabSelected(it)) },
                             )
-                            when (state.selectedTab) {
-                                ArchiveTab.TIMELINE -> if (state.entries.isEmpty()) {
-                                    EmptyArchive()
-                                } else {
-                                    TimelineList(
-                                        entries = state.entries,
+                            if (state.entries.isNotEmpty() && state.visibleEntries.isEmpty()) {
+                                EmptySearchResults()
+                            } else {
+                                when (state.selectedTab) {
+                                    ArchiveTab.TIMELINE -> if (state.entries.isEmpty()) {
+                                        EmptyArchive()
+                                    } else {
+                                        TimelineList(
+                                            entries = state.visibleEntries,
+                                            onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                        )
+                                    }
+                                    ArchiveTab.LIBRARY -> LibraryList(
+                                        entries = state.visibleEntries,
+                                        collapsedCategories = state.collapsedCategories,
                                         onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                        onCategoryToggled = { onEvent(ArchiveUiEvent.CategoryToggled(it)) },
                                     )
                                 }
-                                ArchiveTab.LIBRARY -> LibraryList(
-                                    entries = state.entries,
-                                    collapsedCategories = state.collapsedCategories,
-                                    onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
-                                    onCategoryToggled = { onEvent(ArchiveUiEvent.CategoryToggled(it)) },
-                                )
                             }
                         }
                     }
@@ -161,6 +176,62 @@ internal fun ArchiveScreenContent(
             }
         }
     }
+}
+
+@Composable
+private fun EtymologyIntro(expanded: Boolean, onToggle: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 4.dp),
+    ) {
+        TextButton(
+            onClick = onToggle,
+            modifier = Modifier.testTag("grimoire-etymology-toggle"),
+        ) {
+            Text(
+                text = stringResource(
+                    if (expanded) R.string.grimoire_etymology_hide else R.string.grimoire_etymology_show,
+                ),
+            )
+        }
+        if (expanded) {
+            Text(
+                text = stringResource(R.string.grimoire_etymology_body),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.testTag("grimoire-etymology-body"),
+            )
+        }
+    }
+}
+
+@Composable
+private fun GrimoireSearch(
+    query: String,
+    onQueryChanged: (String) -> Unit,
+    onClear: () -> Unit,
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChanged,
+        singleLine = true,
+        label = { Text(stringResource(R.string.grimoire_search_label)) },
+        placeholder = { Text(stringResource(R.string.grimoire_search_hint)) },
+        trailingIcon = if (query.isBlank()) {
+            null
+        } else {
+            {
+                TextButton(onClick = onClear) {
+                    Text(stringResource(R.string.grimoire_search_clear))
+                }
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .testTag("grimoire-search"),
+    )
 }
 
 @Composable
@@ -328,6 +399,20 @@ private fun EmptyArchive() {
     Box(modifier = Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
         Text(
             text = stringResource(R.string.grimoire_empty),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun EmptySearchResults() {
+    Box(
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = stringResource(R.string.grimoire_search_empty),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

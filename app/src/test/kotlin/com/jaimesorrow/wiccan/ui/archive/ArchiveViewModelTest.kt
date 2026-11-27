@@ -88,4 +88,39 @@ class ArchiveViewModelTest {
         assertEquals(AppError.Network, viewModel.state.value.error)
         assertEquals(false, viewModel.state.value.isLoading)
     }
+
+    @Test
+    fun `search filters title category type and tradition and clear restores entries`() = runTest(dispatcher) {
+        val herbalEntry = entry.copy(
+            contentId = "content-2",
+            title = "Lavender Threshold",
+            type = ContentType.LESSON,
+            tradition = "Contemporary Wicca",
+            category = ContentCategory.HERBAL_RITUALS,
+        )
+        repository.emitHistory(listOf(entry, herbalEntry))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.onEvent(ArchiveUiEvent.SearchQueryChanged("lavender"))
+        assertEquals(listOf(herbalEntry), viewModel.state.value.visibleEntries)
+        viewModel.onEvent(ArchiveUiEvent.SearchQueryChanged("herbal rituals"))
+        assertEquals(listOf(herbalEntry), viewModel.state.value.visibleEntries)
+        viewModel.onEvent(ArchiveUiEvent.SearchQueryChanged("spell"))
+        assertEquals(listOf(entry), viewModel.state.value.visibleEntries)
+        viewModel.onEvent(ArchiveUiEvent.SearchQueryChanged("contemporary"))
+        assertEquals(listOf(herbalEntry), viewModel.state.value.visibleEntries)
+
+        viewModel.onEvent(ArchiveUiEvent.SearchCleared)
+        assertEquals(listOf(entry, herbalEntry), viewModel.state.value.visibleEntries)
+        assertEquals("", viewModel.state.value.searchQuery)
+    }
+
+    @Test
+    fun `etymology disclosure toggles without changing archive state`() {
+        assertEquals(false, viewModel.state.value.isEtymologyExpanded)
+        viewModel.onEvent(ArchiveUiEvent.EtymologyToggled)
+        assertEquals(true, viewModel.state.value.isEtymologyExpanded)
+        viewModel.onEvent(ArchiveUiEvent.EtymologyToggled)
+        assertEquals(false, viewModel.state.value.isEtymologyExpanded)
+    }
 }

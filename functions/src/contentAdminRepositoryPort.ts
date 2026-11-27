@@ -13,6 +13,12 @@ export interface NewDraftContent extends GeneratedDraftFields {
   rightsNotes?: string | null;
   /** Editor assigned; carry the existing group when revising or rewording a lesson. */
   similarityGroupId?: string;
+  /** HTTPS hero artwork, reviewed by the operator before publication. */
+  illustrationUrl?: string;
+  /** Stable identifier for artwork bundled in the Android app. */
+  illustrationKey?: string;
+  /** Explicit editorial confirmation that a bundled illustration is approved for this content. */
+  illustrationKeyReviewed?: boolean;
 }
 
 export interface StoredContent extends NewDraftContent {

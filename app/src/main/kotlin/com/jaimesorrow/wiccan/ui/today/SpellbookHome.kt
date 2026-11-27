@@ -26,6 +26,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.data.location.lastKnownCoordinate
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.sky.CelestialCalculator
@@ -58,6 +61,8 @@ import com.wiccan.app.R
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.time.format.TextStyle
 
 private val CardShape = RoundedCornerShape(6.dp)
@@ -72,6 +77,7 @@ internal fun SpellbookHome(
     onOpenToday: () -> Unit,
     onOpenPaywall: () -> Unit,
     onOpenGrimoire: () -> Unit,
+    tideViewModel: HomeTideViewModel = hiltViewModel(),
 ) {
     MidnightGrimoireTheme {
         val context = LocalContext.current
@@ -86,6 +92,8 @@ internal fun SpellbookHome(
         val sabbat = remember(today) { CelestialCalculator.sabbatFor(today) }
         val hour = remember(coordinate) { CelestialCalculator.planetaryHour(now, zone, coordinate) }
         val voidOfCourse = remember(today) { CelestialCalculator.voidOfCourse(now) }
+        val tideState by tideViewModel.state.collectAsStateWithLifecycle()
+        LaunchedEffect(coordinate) { tideViewModel.load(coordinate) }
         Box(modifier = Modifier.fillMaxSize().background(WiccanPaletteColors.Grimoire.Background)) {
             GrimoireLineArt(Modifier.fillMaxSize())
             Column(
@@ -110,6 +118,7 @@ internal fun SpellbookHome(
                     moon = moon,
                     hour = hour,
                     voidOfCourse = voidOfCourse,
+                    tideState = tideState,
                     hasLocation = coordinate != null,
                     onRequestLocation = { locationPermission.launch(Manifest.permission.ACCESS_COARSE_LOCATION) },
                 )
@@ -126,6 +135,7 @@ internal fun SpellbookHome(
 
 @Composable
 private fun WelcomeCard(moon: com.jaimesorrow.wiccan.sky.MoonObservation, today: LocalDate) {
+    val locale = LocalLocale.current.platformLocale
     GrimoireCard {
         Text(
             text = stringResource(R.string.home_welcome),
@@ -145,9 +155,14 @@ private fun WelcomeCard(moon: com.jaimesorrow.wiccan.sky.MoonObservation, today:
         )
         Text(text = moon.timingGuidance, color = Ink, style = MaterialTheme.typography.bodyMedium)
         Text(
-            text = today.toString(),
+            text = today.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(locale)),
             color = WiccanPaletteColors.Grimoire.Gold,
             style = MaterialTheme.typography.labelSmall,
+        )
+        Text(
+            text = stringResource(R.string.home_today_significance, moon.name, moon.zodiacSign),
+            color = Muted,
+            style = MaterialTheme.typography.bodySmall,
         )
     }
 }
@@ -188,6 +203,10 @@ private fun LessonCard(content: Content?, locked: Boolean, onOpen: () -> Unit) {
 
 @Composable
 private fun WheelCard(today: LocalDate, sabbat: com.jaimesorrow.wiccan.sky.SabbatObservance) {
+    val locale = LocalLocale.current.platformLocale
+    val formattedSabbatDate = sabbat.date.format(
+        DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale),
+    )
     GrimoireCard {
         Text(
             text = stringResource(R.string.home_wheel_title),
@@ -207,7 +226,11 @@ private fun WheelCard(today: LocalDate, sabbat: com.jaimesorrow.wiccan.sky.Sabba
             style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Serif),
         )
         Text(
-            text = sabbat.date.toString(),
+            text = if (sabbat.observedToday) {
+                stringResource(R.string.home_sabbat_today, formattedSabbatDate)
+            } else {
+                stringResource(R.string.home_between_sabbats, sabbat.name, formattedSabbatDate)
+            },
             color = WiccanPaletteColors.Grimoire.Gold,
             style = MaterialTheme.typography.labelSmall,
         )
@@ -220,6 +243,7 @@ private fun CosmicCard(
     moon: com.jaimesorrow.wiccan.sky.MoonObservation,
     hour: com.jaimesorrow.wiccan.sky.PlanetaryHour?,
     voidOfCourse: com.jaimesorrow.wiccan.sky.VoidOfCourse,
+    tideState: TideUiState,
     hasLocation: Boolean,
     onRequestLocation: () -> Unit,
 ) {
@@ -280,11 +304,7 @@ private fun CosmicCard(
                 style = MaterialTheme.typography.bodySmall,
             )
             MoonLightChart(moon.illumination)
-            Text(
-                text = stringResource(R.string.home_tides_unavailable),
-                color = Muted,
-                style = MaterialTheme.typography.bodySmall,
-            )
+            TideStatus(tideState)
         }
         DarkTile {
             Text(
@@ -312,6 +332,60 @@ private fun CosmicCard(
                 text = stringResource(R.string.home_alignment, moon.zodiacSign, moon.name),
                 color = Muted,
                 style = MaterialTheme.typography.bodySmall,
+            )
+        }
+    }
+}
+
+@Composable
+private fun TideStatus(state: TideUiState) {
+    val locale = LocalLocale.current.platformLocale
+    when (state) {
+        TideUiState.NeedsLocation -> Text(
+            text = stringResource(R.string.home_tides_need_location),
+            color = Muted,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        TideUiState.Loading -> Text(
+            text = stringResource(R.string.home_tides_loading),
+            color = Muted,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        TideUiState.Unavailable -> Text(
+            text = stringResource(R.string.home_tides_unavailable),
+            color = Muted,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        is TideUiState.Available -> {
+            Text(
+                text = stringResource(R.string.home_tides_station, state.tide.station.name),
+                color = Ink,
+                style = MaterialTheme.typography.labelMedium,
+            )
+            state.tide.predictions.take(4).forEach { prediction ->
+                val time = prediction.time.format(
+                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(locale),
+                )
+                Text(
+                    text = stringResource(
+                        if (prediction.high) R.string.home_tide_high else R.string.home_tide_low,
+                        time,
+                        prediction.heightMeters,
+                    ),
+                    color = Muted,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            Text(
+                text = stringResource(
+                    if (state.tide.fromCache) {
+                        R.string.home_tides_attribution_cached
+                    } else {
+                        R.string.home_tides_attribution
+                    },
+                ),
+                color = Muted,
+                style = MaterialTheme.typography.labelSmall,
             )
         }
     }

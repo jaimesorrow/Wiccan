@@ -17,6 +17,8 @@ const BASE_DRAFT: NewDraftContent = {
   tier: "free",
   tradition: "European folk magic",
   sourceId: "source-a",
+  illustrationKey: "grimoire",
+  illustrationKeyReviewed: true,
 };
 
 const ANCIENT_LESSON_SOURCE: ContentSource = {
@@ -105,6 +107,37 @@ describe("approveDraft", () => {
 
     await expect(approveDraft(contentId, repo)).rejects.toThrow("updatedAt is missing");
     expect(await repo.getStatus(contentId)).toBe("draft");
+  });
+
+  it("refuses to publish content without reviewed artwork", async () => {
+    const repo = new FakeContentAdminRepository();
+    const contentId = await repo.createDraft({ ...BASE_DRAFT, illustrationKey: undefined, illustrationKeyReviewed: undefined });
+
+    await expect(approveDraft(contentId, repo)).rejects.toThrow("publication requires an HTTPS illustrationUrl");
+    expect(await repo.getStatus(contentId)).toBe("draft");
+  });
+
+  it("accepts a canonical HTTPS illustration URL", async () => {
+    const repo = new FakeContentAdminRepository();
+    const contentId = await repo.createDraft({
+      ...BASE_DRAFT,
+      illustrationKey: undefined,
+      illustrationKeyReviewed: undefined,
+      illustrationUrl: "https://images.wiccan.app/lessons/example.webp",
+    });
+
+    await approveDraft(contentId, repo);
+    expect(await repo.getStatus(contentId)).toBe("published");
+  });
+
+  it("refuses an unreviewed or unknown bundled illustration", async () => {
+    const unreviewed = new FakeContentAdminRepository();
+    const unreviewedId = await unreviewed.createDraft({ ...BASE_DRAFT, illustrationKeyReviewed: false });
+    await expect(approveDraft(unreviewedId, unreviewed)).rejects.toThrow("illustrationKeyReviewed=true");
+
+    const unknown = new FakeContentAdminRepository();
+    const unknownId = await unknown.createDraft({ ...BASE_DRAFT, illustrationKey: "invented-asset" });
+    await expect(approveDraft(unknownId, unknown)).rejects.toThrow("not an approved bundled asset identifier");
   });
 
   it.each(["ritual", "RITUAL", "", "unknown"])("refuses to publish an unsupported type %p", async (type) => {

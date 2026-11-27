@@ -9,6 +9,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.ContentType
 import com.jaimesorrow.wiccan.domain.model.HistoryEntry
@@ -74,5 +75,42 @@ class GrimoireScreenTest {
         composeRule.onNodeWithText("Protection (1)").assertIsDisplayed()
         composeRule.onNodeWithText(entry.title).assertIsDisplayed().performClick()
         assertEquals(ArchiveUiEvent.EntryClicked("old-lesson"), event)
+    }
+
+    @Test
+    fun `name history expands and search reports no matching entries`() {
+        val entry = HistoryEntry(
+            contentId = "entry-1",
+            title = "Candle of Clear Intent",
+            type = ContentType.SPELL,
+            tradition = "European folk magic",
+            category = ContentCategory.CANDLE_SPELLS,
+            deliveredDate = "2026-11-27",
+        )
+        var state by mutableStateOf(ArchiveUiState(isLoading = false, entries = listOf(entry)))
+        composeRule.setContent {
+            MaterialTheme {
+                ArchiveScreenContent(
+                    state = state,
+                    onEvent = { event ->
+                        state = when (event) {
+                            ArchiveUiEvent.EtymologyToggled -> state.copy(
+                                isEtymologyExpanded = !state.isEtymologyExpanded,
+                            )
+                            is ArchiveUiEvent.SearchQueryChanged -> state.copy(searchQuery = event.query)
+                            ArchiveUiEvent.SearchCleared -> state.copy(searchQuery = "")
+                            else -> state
+                        }
+                    },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("About the name").performClick()
+        composeRule.onNodeWithTag("grimoire-etymology-body").assertIsDisplayed()
+        composeRule.onNodeWithTag("grimoire-search").performTextInput("missing")
+        composeRule.onNodeWithText("No entries match your search.").assertIsDisplayed()
+        composeRule.onNodeWithText("Clear").assertIsDisplayed().performClick()
+        composeRule.onNodeWithText(entry.title).assertIsDisplayed()
     }
 }
