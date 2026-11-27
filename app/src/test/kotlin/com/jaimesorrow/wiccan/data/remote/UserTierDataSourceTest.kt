@@ -10,7 +10,6 @@ import com.google.firebase.firestore.MetadataChanges
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionState
 import com.jaimesorrow.wiccan.domain.model.VerifiedTier
-import io.mockk.any
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
