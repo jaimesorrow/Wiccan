@@ -113,8 +113,9 @@ object WiccanLegalDocuments {
                 listOf(
                     "Wiccan requires a Google Play subscription after sign-in and onboarding. There is no free content " +
                         "plan. Wiccan Premium comes in two plans: a monthly plan with a US base price of \$5.99 per month, " +
-                        "and a yearly plan with a US base price of \$39.99 per year. Eligible new subscribers receive a 7-day " +
-                        "free trial, followed by the automatically renewing plan they chose. The purchase screen and Google " +
+                        "and a yearly plan with a US base price of \$39.99 per year. Eligible new subscribers receive a free " +
+                        "trial at the length shown at checkout (7 days on the monthly plan, 14 days on the yearly plan), " +
+                        "followed by the automatically renewing plan they chose. The purchase screen and Google " +
                         "Play show your actual eligibility, localized price, billing period, and terms before you confirm.",
                     "Monthly plan: after any free trial, Google Play charges the monthly price once a month until you " +
                         "cancel. Yearly plan: after any free trial, Google Play charges the yearly price once a year until " +
