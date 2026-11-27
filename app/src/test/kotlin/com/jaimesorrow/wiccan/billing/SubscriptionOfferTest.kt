@@ -111,6 +111,17 @@ class SubscriptionOfferTest {
     }
 
     @Test
+    fun `tagged winback discount is accepted and untagged discounts fail closed`() {
+        val discount = discounted()
+        val tagged = product(offer("returning", discount, renewal(), tags = listOf("winback"))).subscriptionOffer()!!
+        assertTrue(tagged.isWinBack)
+        assertEquals("$2.99", tagged.winBackFormattedPrice)
+
+        assertNull(product(offer("returning", discount, renewal())).subscriptionOffer())
+        assertNull(product(offer("returning", discount, renewal(), tags = listOf("other"))).subscriptionOffer())
+    }
+
+    @Test
     fun `Firebase account obfuscation matches server SHA256 lowercase hex convention`() {
         assertEquals(
             "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
@@ -123,11 +134,16 @@ class SubscriptionOfferTest {
         every { subscriptionOfferDetails } returns offers.toList()
     }
 
-    private fun offer(id: String?, vararg phaseList: ProductDetails.PricingPhase): ProductDetails.SubscriptionOfferDetails {
+    private fun offer(
+        id: String?,
+        vararg phaseList: ProductDetails.PricingPhase,
+        tags: List<String> = emptyList(),
+    ): ProductDetails.SubscriptionOfferDetails {
         val phases = mockk<ProductDetails.PricingPhases> { every { pricingPhaseList } returns phaseList.toList() }
         return mockk {
             every { offerId } returns id
             every { offerToken } returns "${id ?: "base"}-token"
+            every { offerTags } returns tags
             every { pricingPhases } returns phases
         }
     }
@@ -154,5 +170,14 @@ class SubscriptionOfferTest {
         every { billingPeriod } returns period
         every { priceAmountMicros } returns 0L
         every { billingCycleCount } returns if (nonRecurring) 0 else 1
+    }
+
+    private fun discounted(): ProductDetails.PricingPhase = mockk {
+        every { recurrenceMode } returns ProductDetails.RecurrenceMode.FINITE_RECURRING
+        every { billingPeriod } returns "P1M"
+        every { priceCurrencyCode } returns "USD"
+        every { formattedPrice } returns "$2.99"
+        every { priceAmountMicros } returns 2_990_000L
+        every { billingCycleCount } returns 1
     }
 }

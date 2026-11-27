@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan.ui.paywall
 
+import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.jaimesorrow.wiccan.core.result.AppResult
@@ -15,6 +16,13 @@ class SubscriptionSetupViewModel @Inject constructor(
 ) : ViewModel() {
     private val _reconciling = MutableStateFlow(true)
     val reconciling = _reconciling.asStateFlow()
+
+    suspend fun showTransactionalMessage(activity: Activity) {
+        if (subscriptionRepository.showTransactionalMessage(activity) is AppResult.Failure) {
+            Log.w("SubscriptionSetup", "Play transactional message unavailable")
+        }
+    }
+
     suspend fun refreshPurchases() {
         _reconciling.value = true
         try {

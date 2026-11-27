@@ -1,5 +1,7 @@
 package com.jaimesorrow.wiccan.ui.paywall
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -94,6 +96,9 @@ fun PaywallScreen(
             onPrivacyClick = onPrivacyClick,
             onEvent = viewModel::onEvent,
             onSubscribe = { context.findActivity()?.let(viewModel::subscribe) },
+            onManageSubscription = {
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_SUBSCRIPTIONS_URL)))
+            },
         )
     }
 }
@@ -113,6 +118,7 @@ internal fun PaywallContent(
     onPrivacyClick: () -> Unit,
     onEvent: (PaywallUiEvent) -> Unit,
     onSubscribe: () -> Unit,
+    onManageSubscription: () -> Unit = {},
 ) {
     val loadingDescription = stringResource(R.string.loading_description)
     Column(modifier = Modifier.fillMaxSize().padding(insets)) {
@@ -133,6 +139,21 @@ internal fun PaywallContent(
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(16.dp))
+            if (state.subscriptionOnHold) {
+                OutlinedCard(modifier = Modifier.fillMaxWidth().testTag("payment-on-hold")) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            stringResource(R.string.paywall_payment_failed_title),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Text(stringResource(R.string.paywall_payment_failed_body))
+                        TextButton(onClick = onManageSubscription) {
+                            Text(stringResource(R.string.paywall_update_payment))
+                        }
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+            }
             if (state.hasYearlyPlan) {
                 PlanChoice(state = state, onSelect = { onEvent(PaywallUiEvent.PlanSelected(it)) })
                 Spacer(Modifier.height(12.dp))
@@ -147,6 +168,20 @@ internal fun PaywallContent(
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center,
             )
+            val winBackPrice = if (state.selectedPlan == SubscriptionPlan.YEARLY) {
+                state.yearlyWinBackPrice
+            } else {
+                state.monthlyWinBackPrice
+            }
+            if (winBackPrice != null) {
+                Text(
+                    stringResource(R.string.paywall_winback_offer, winBackPrice),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.testTag("winback-offer"),
+                )
+            }
             Spacer(Modifier.height(8.dp))
             Text(
                 stringResource(R.string.paywall_restore),
@@ -245,6 +280,9 @@ internal fun PaywallContent(
         }
     }
 }
+
+private const val PLAY_SUBSCRIPTIONS_URL =
+    "https://play.google.com/store/account/subscriptions?package=com.jaimesorrow.wiccan"
 
 /**
  * The seasonal benefit is shown only once moon-phase and sabbat content is

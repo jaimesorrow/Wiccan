@@ -6,6 +6,7 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.InAppMessageParams
 import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
@@ -158,6 +159,15 @@ class WiccanBillingClient @Inject constructor(
         return result.purchasesList
     }
 
+    /** Lets Play show its transactional grace/hold payment-recovery message. */
+    suspend fun showTransactionalMessage(activity: Activity): BillingResult {
+        ensureConnected()
+        val params = InAppMessageParams.newBuilder()
+            .addInAppMessageCategoryToShow(InAppMessageParams.InAppMessageCategoryId.TRANSACTIONAL)
+            .build()
+        return client.showInAppMessages(activity, params) { }
+    }
+
     private fun BillingResult.requireOk(operation: String) {
         if (responseCode != BillingClient.BillingResponseCode.OK) {
             throw PlayBillingException(
@@ -209,7 +219,18 @@ internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
                         (trial.recurrenceMode == ProductDetails.RecurrenceMode.NON_RECURRING && trial.billingCycleCount == 0)
                     )
         }
-        if (!hasTrial && (phases.size != 1 || offer.offerId != null)) return@mapNotNull null
+        val isWinBack = offer.offerTags.contains(WIN_BACK_TAG) && offer.offerId != null &&
+            phases.size == 2 && phases.first().let { intro ->
+                intro.priceAmountMicros in 1L until renewal.priceAmountMicros &&
+                    intro.priceCurrencyCode == renewal.priceCurrencyCode &&
+                    intro.billingPeriod == expectedPeriod &&
+                    intro.recurrenceMode == ProductDetails.RecurrenceMode.FINITE_RECURRING &&
+                    intro.billingCycleCount == 1
+            }
+        if (!hasTrial && !isWinBack && (phases.size != 1 || offer.offerId != null || offer.offerTags.isNotEmpty())) {
+            return@mapNotNull null
+        }
+        if (phases.size > 1 && !hasTrial && !isWinBack) return@mapNotNull null
         SubscriptionOffer(
             formattedPrice = renewal.formattedPrice,
             hasFreeTrial = hasTrial,
@@ -217,9 +238,13 @@ internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
             plan = plan,
             priceAmountMicros = renewal.priceAmountMicros,
             priceCurrencyCode = renewal.priceCurrencyCode,
+            isWinBack = isWinBack,
+            winBackFormattedPrice = phases.firstOrNull()?.formattedPrice.takeIf { isWinBack },
         )
-    }.sortedByDescending { it.hasFreeTrial }.firstOrNull()
+    }.sortedWith(compareByDescending<SubscriptionOffer> { it.hasFreeTrial }.thenByDescending { it.isWinBack }).firstOrNull()
 }
+
+private const val WIN_BACK_TAG = "winback"
 
 /** Require the fresh Play terms to match the offer the user saw. */
 internal fun ProductDetails.requireUnchangedOffer(expected: SubscriptionOffer) {

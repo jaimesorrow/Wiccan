@@ -7,6 +7,7 @@ import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
+import com.jaimesorrow.wiccan.domain.model.SubscriptionState
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -267,5 +268,19 @@ class PaywallViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(before, viewModel.state.value)
+    }
+
+    @Test
+    fun `server on-hold state enables payment recovery copy`() = runTest(dispatcher) {
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        repository.emitSubscriptionState(SubscriptionState.ON_HOLD)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertTrue(viewModel.state.value.subscriptionOnHold)
+
+        repository.emitSubscriptionState(SubscriptionState.ACTIVE)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertFalse(viewModel.state.value.subscriptionOnHold)
     }
 }

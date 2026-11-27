@@ -5,6 +5,7 @@ import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
+import com.jaimesorrow.wiccan.domain.model.SubscriptionState
 import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class FakeSubscriptionRepository : SubscriptionRepository {
 
     private val tierFlow = MutableStateFlow(ContentTier.FREE)
+    private val stateFlow = MutableStateFlow(SubscriptionState.UNKNOWN)
     var launchCalls: MutableList<Activity> = mutableListOf()
     var launchedPlans: MutableList<SubscriptionPlan> = mutableListOf()
 
@@ -36,6 +38,8 @@ class FakeSubscriptionRepository : SubscriptionRepository {
     }
 
     override fun observeTier(): Flow<ContentTier> = tierFlow
+    override fun observeSubscriptionState(): Flow<SubscriptionState> = stateFlow
+    override suspend fun showTransactionalMessage(activity: Activity): AppResult<Unit> = AppResult.Success(Unit)
 
     override suspend fun getOffer(): AppResult<SubscriptionOffer> {
         priceCallCount++
@@ -60,5 +64,9 @@ class FakeSubscriptionRepository : SubscriptionRepository {
 
     fun emitTier(tier: ContentTier) {
         tierFlow.value = tier
+    }
+
+    fun emitSubscriptionState(state: SubscriptionState) {
+        stateFlow.value = state
     }
 }
