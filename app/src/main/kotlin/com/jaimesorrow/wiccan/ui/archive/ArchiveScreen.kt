@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -113,8 +114,10 @@ internal fun ArchiveScreenContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 24.dp),
                 )
+                val archiveMoon = remember { CelestialCalculator.moon(Instant.now()) }
                 GrimoireMoonPhases(
-                    active = CelestialCalculator.moon(Instant.now()).trackIndex,
+                    active = archiveMoon.trackIndex,
+                    activePhaseName = archiveMoon.name,
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
                 )
                 GrimoireInkLabel(

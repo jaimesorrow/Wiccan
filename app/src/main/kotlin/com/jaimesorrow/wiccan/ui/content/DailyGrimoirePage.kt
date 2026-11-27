@@ -34,8 +34,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -52,8 +50,7 @@ import com.jaimesorrow.wiccan.ui.theme.WiccanHandwritingFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.wiccan.app.R
 import java.time.Instant
-
-private val Quill = FontFamily(Font(R.font.italianno_regular))
+import java.util.Locale
 private val Ink = WiccanPaletteColors.Parchment.Ink
 private val Midnight = WiccanPaletteColors.Grimoire.Background
 private val PageShape = RoundedCornerShape(6.dp)
@@ -74,7 +71,7 @@ internal fun DailyGrimoirePage(
     onOpenGrimoire: (() -> Unit)? = null,
     fillViewport: Boolean = true,
 ) {
-    val moonIndex = remember { CelestialCalculator.moon(Instant.now()).trackIndex }
+    val moon = remember { CelestialCalculator.moon(Instant.now()) }
     val pageModifier =
         if (fillViewport) {
             modifier.fillMaxSize()
@@ -108,7 +105,7 @@ internal fun DailyGrimoirePage(
                 .padding(horizontal = 12.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            GrimoireMoonPhases(active = moonIndex)
+            GrimoireMoonPhases(active = moon.trackIndex, activePhaseName = moon.name)
             Text(
                 text = stringResource(R.string.motif_lesson_margin),
                 color = WiccanPaletteColors.Grimoire.Text,
@@ -293,9 +290,9 @@ private fun LessonTitleHeader(title: String, candleReserveEnd: Dp) {
                 .padding(end = candleReserveEnd, top = 8.dp, bottom = 4.dp)
                 .semantics { heading() },
             style = MaterialTheme.typography.displaySmall.copy(
-                fontFamily = Quill,
+                fontFamily = WiccanDisplayFont,
                 fontSize = 40.sp,
-                lineHeight = 44.sp,
+                lineHeight = 50.sp,
             ),
         )
     }
@@ -304,7 +301,7 @@ private fun LessonTitleHeader(title: String, candleReserveEnd: Dp) {
 @Composable
 private fun SectionTitle(text: String) {
     Text(
-        text = text.uppercase(),
+        text = text.uppercase(Locale.ROOT),
         color = Ink,
         modifier = Modifier.semantics { heading() },
         style = MaterialTheme.typography.labelMedium.copy(

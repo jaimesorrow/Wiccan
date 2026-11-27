@@ -186,6 +186,7 @@
     <string name="motif_kept_pages">kept pages</string>
     <string name="motif_lesson_margin">for this evening</string>
     <string name="motif_moon_phases">Moon phases</string>
+    <string name="motif_moon_phases_active">Moon phases, %1$s active</string>
     <string name="lesson_candle_description">A lit candle</string>
     <string name="lesson_quill_description">A quill in an ink pot</string>
     <string name="home_welcome">WELCOME, SEEKER</string>

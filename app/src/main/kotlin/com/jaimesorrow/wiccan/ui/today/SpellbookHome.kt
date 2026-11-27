@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -126,7 +127,10 @@ internal fun SpellbookHome(
                 PlateAccents()
                 Text(
                     text = stringResource(R.string.today_open_grimoire),
-                    modifier = Modifier.clickable(onClick = onOpenGrimoire).padding(vertical = 6.dp),
+                    modifier = Modifier
+                        .defaultMinSize(minHeight = 48.dp)
+                        .clickable(onClick = onOpenGrimoire)
+                        .padding(horizontal = 8.dp, vertical = 12.dp),
                     color = WiccanPaletteColors.Grimoire.Gold,
                     style = MaterialTheme.typography.labelLarge,
                 )
@@ -143,7 +147,7 @@ private fun WelcomeCard(moon: com.jaimesorrow.wiccan.sky.MoonObservation, today:
             color = WiccanPaletteColors.Grimoire.Gold,
             style = MaterialTheme.typography.labelMedium.copy(fontFamily = WiccanDisplayFont),
         )
-        GrimoireMoonPhases(active = moon.trackIndex)
+        GrimoireMoonPhases(active = moon.trackIndex, activePhaseName = moon.name)
         Text(
             text = moon.name,
             color = Ink,
@@ -268,7 +272,10 @@ private fun CosmicCard(
                 if (!hasLocation) {
                     Text(
                         text = stringResource(R.string.home_use_location),
-                        modifier = Modifier.clickable(onClick = onRequestLocation),
+                        modifier = Modifier
+                            .defaultMinSize(minHeight = 48.dp)
+                            .clickable(onClick = onRequestLocation)
+                            .padding(horizontal = 4.dp, vertical = 12.dp),
                         color = WiccanPaletteColors.Grimoire.Bronze,
                         style = MaterialTheme.typography.labelMedium,
                     )
@@ -358,6 +365,7 @@ private fun DarkTile(content: @Composable () -> Unit) {
 private fun GrimoireAction(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
+            .defaultMinSize(minHeight = 48.dp)
             .clip(RoundedCornerShape(6.dp))
             .background(
                 Brush.horizontalGradient(
@@ -365,7 +373,7 @@ private fun GrimoireAction(text: String, onClick: () -> Unit, modifier: Modifier
                 ),
             )
             .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(

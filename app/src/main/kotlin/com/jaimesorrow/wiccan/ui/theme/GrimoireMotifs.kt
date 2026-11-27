@@ -128,8 +128,16 @@ fun GrimoireInkLabel(text: String, modifier: Modifier = Modifier) {
  * [com.jaimesorrow.wiccan.sky.MoonObservation.trackIndex].
  */
 @Composable
-fun GrimoireMoonPhases(active: Int, modifier: Modifier = Modifier) {
-    val description = stringResource(R.string.motif_moon_phases)
+fun GrimoireMoonPhases(
+    active: Int,
+    modifier: Modifier = Modifier,
+    activePhaseName: String? = null,
+) {
+    val description = if (activePhaseName.isNullOrBlank()) {
+        stringResource(R.string.motif_moon_phases)
+    } else {
+        stringResource(R.string.motif_moon_phases_active, activePhaseName)
+    }
     val lit = WiccanPaletteColors.Grimoire.Gold
     val shadow = WiccanPaletteColors.Grimoire.Background
     Canvas(

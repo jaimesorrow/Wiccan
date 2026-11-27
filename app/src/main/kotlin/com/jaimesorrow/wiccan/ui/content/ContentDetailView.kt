@@ -38,6 +38,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -49,6 +51,7 @@ import com.jaimesorrow.wiccan.ui.archive.displayName
 import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
+import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.jaimesorrow.wiccan.ui.today.components.ContentTypePill
 import com.jaimesorrow.wiccan.ui.today.components.MaterialsCard
 import com.jaimesorrow.wiccan.ui.today.components.SafetyNote
@@ -370,10 +373,15 @@ internal fun CandleOrnament(modifier: Modifier = Modifier) {
 }
 
 @Composable
-internal fun QuillAndInkpotOrnament(modifier: Modifier = Modifier) {
-    Canvas(modifier) {
-        val ink = DailyInk
-        val brass = DailyGold
+internal fun QuillAndInkpotOrnament(
+    modifier: Modifier = Modifier,
+    contentDescription: String = stringResource(R.string.lesson_quill_description),
+) {
+    val ink = WiccanPaletteColors.Parchment.Ink
+    val brass = WiccanPaletteColors.Grimoire.Gold
+    Canvas(
+        modifier.semantics { this.contentDescription = contentDescription },
+    ) {
         val shaft = Stroke(width = 2.2.dp.toPx(), cap = StrokeCap.Round)
         drawOval(
             brass,
