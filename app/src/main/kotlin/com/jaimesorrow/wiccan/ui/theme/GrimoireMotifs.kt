@@ -1,13 +1,22 @@
 package com.jaimesorrow.wiccan.ui.theme
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -26,6 +35,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wiccan.app.R
@@ -295,4 +305,87 @@ fun GrimoireBannerSlot(modifier: Modifier = Modifier) {
         thickness = 1.dp,
         color = WiccanPaletteColors.Grimoire.Border,
     )
+}
+
+/** Line-art glyphs for the Home section tile row — lesson, wheel, cosmic timing. */
+enum class GrimoireHomeSectionGlyph {
+    LESSON,
+    WHEEL,
+    COSMIC,
+}
+
+@Composable
+fun GrimoireHomeSectionGlyphIcon(
+    kind: GrimoireHomeSectionGlyph,
+    modifier: Modifier = Modifier,
+) {
+    val gold = WiccanPaletteColors.Grimoire.Border
+    Canvas(modifier.size(36.dp)) {
+        val center = Offset(size.width / 2f, size.height / 2f)
+        val stroke = Stroke(width = 1.1.dp.toPx(), cap = StrokeCap.Round)
+        when (kind) {
+            GrimoireHomeSectionGlyph.LESSON -> {
+                val radius = 13.dp.toPx()
+                drawCircle(gold, radius, center, style = stroke)
+                clipPath(Path().apply { addOval(Rect(center, radius)) }) {
+                    drawCircle(gold.copy(alpha = 0.25f), radius, Offset(center.x + radius * 0.55f, center.y))
+                }
+            }
+            GrimoireHomeSectionGlyph.WHEEL -> {
+                val radius = 12.dp.toPx()
+                drawCircle(gold, radius, center, style = stroke)
+                repeat(8) { spoke ->
+                    val angle = spoke * (Math.PI / 4)
+                    val end = Offset(
+                        center.x + (radius * kotlin.math.cos(angle)).toFloat(),
+                        center.y + (radius * kotlin.math.sin(angle)).toFloat(),
+                    )
+                    drawLine(gold, center, end, strokeWidth = 1.dp.toPx())
+                }
+            }
+            GrimoireHomeSectionGlyph.COSMIC -> {
+                val arm = 12.dp.toPx()
+                val star = Path().apply {
+                    moveTo(center.x, center.y - arm)
+                    lineTo(center.x + arm * 0.28f, center.y - arm * 0.28f)
+                    lineTo(center.x + arm, center.y)
+                    lineTo(center.x + arm * 0.28f, center.y + arm * 0.28f)
+                    lineTo(center.x, center.y + arm)
+                    lineTo(center.x - arm * 0.28f, center.y + arm * 0.28f)
+                    lineTo(center.x - arm, center.y)
+                    lineTo(center.x - arm * 0.28f, center.y - arm * 0.28f)
+                    close()
+                }
+                drawPath(star, gold, style = stroke)
+            }
+        }
+    }
+}
+
+@Composable
+fun GrimoireHomeSectionTile(
+    label: String,
+    glyph: GrimoireHomeSectionGlyph,
+    modifier: Modifier = Modifier,
+) {
+    val tileShape = RoundedCornerShape(6.dp)
+    Column(
+        modifier = modifier
+            .clip(tileShape)
+            .background(WiccanPaletteColors.Grimoire.CardFill)
+            .border(1.dp, WiccanPaletteColors.Grimoire.Border, tileShape)
+            .grimoireCornerFlourishes(arm = 8.dp)
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        GrimoireHomeSectionGlyphIcon(glyph)
+        Text(
+            text = label,
+            color = WiccanPaletteColors.Grimoire.Gold,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            style = MaterialTheme.typography.labelSmall.copy(fontFamily = WiccanDisplayFont),
+        )
+    }
 }

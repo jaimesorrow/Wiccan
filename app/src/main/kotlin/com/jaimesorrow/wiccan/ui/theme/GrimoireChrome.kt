@@ -80,6 +80,48 @@ fun grimoireSwitchColors() = SwitchDefaults.colors(
 )
 
 @Composable
+fun GrimoireOutlineButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    Box(
+        modifier = modifier
+            .clip(CardShape)
+            .border(1.dp, WiccanPaletteColors.Grimoire.Border, CardShape)
+            .grimoireCornerFlourishes(arm = 10.dp)
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            color = WiccanPaletteColors.Grimoire.Gold,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleSmall.copy(fontFamily = WiccanDisplayFont),
+        )
+    }
+}
+
+@Composable
+fun GrimoireTextLink(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    Text(
+        text = text,
+        color = WiccanPaletteColors.Grimoire.Gold,
+        modifier = modifier
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 4.dp, vertical = 8.dp),
+        style = MaterialTheme.typography.labelLarge,
+    )
+}
+
+@Composable
 fun GrimoireButton(
     text: String,
     onClick: () -> Unit,

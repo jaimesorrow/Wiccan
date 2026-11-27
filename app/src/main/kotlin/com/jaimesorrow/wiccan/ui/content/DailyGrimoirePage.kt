@@ -165,7 +165,13 @@ private fun LessonLeaf(
         top = 18.dp,
         bottom = 24.dp,
     )
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier.border(
+            width = 1.dp,
+            color = WiccanPaletteColors.Grimoire.Border.copy(alpha = 0.62f),
+            shape = PageShape,
+        ),
+    ) {
         Image(
             painter = painterResource(R.drawable.grimoire_parchment),
             contentDescription = null,

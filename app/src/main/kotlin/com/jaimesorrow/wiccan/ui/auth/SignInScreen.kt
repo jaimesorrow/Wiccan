@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
+import com.jaimesorrow.wiccan.sky.CelestialCalculator
 import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
@@ -59,13 +60,15 @@ import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.theme.GrimoireButton
 import com.jaimesorrow.wiccan.ui.theme.GrimoireFloralBackdrop
+import com.jaimesorrow.wiccan.ui.theme.GrimoireMoonPhases
 import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
+import com.jaimesorrow.wiccan.ui.theme.GrimoireOutlineButton
+import com.jaimesorrow.wiccan.ui.theme.GrimoireTextLink
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.jaimesorrow.wiccan.ui.theme.grimoireCornerFlourishes
 import com.jaimesorrow.wiccan.ui.theme.grimoireFieldColors
-import com.jaimesorrow.wiccan.ui.today.components.HairlineDivider
 import com.wiccan.app.R
 
 /** Independent sign-in, account creation and password recovery views in a shared themed host. */
@@ -129,6 +132,12 @@ internal fun SignInScreenContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     WiccanFullLogo(modifier = Modifier.testTag("auth-logo"), width = 180.dp)
+                    val signInMoon = remember { CelestialCalculator.moon(java.time.Instant.now()) }
+                    GrimoireMoonPhases(
+                        active = signInMoon.trackIndex,
+                        activePhaseName = signInMoon.name,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
                     GrimoireOrnamentalDivider(modifier = Modifier.padding(vertical = 4.dp))
                     Text(
                         text = if (state.mode == SignInMode.FORGOT_PASSWORD) {
@@ -185,14 +194,20 @@ internal fun SignInScreenContent(
                         style = MaterialTheme.typography.labelSmall,
                         color = scheme.onSurfaceVariant,
                     )
-                    Row {
-                        TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.TERMS) }) {
-                            Text(stringResource(R.string.auth_terms))
-                        }
-                        TextButton(onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) }) {
-                            Text(stringResource(R.string.auth_privacy))
-                        }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        GrimoireTextLink(
+                            text = stringResource(R.string.auth_terms),
+                            onClick = { onOpenLegalDocument(LegalDocumentId.TERMS) },
+                        )
+                        GrimoireTextLink(
+                            text = stringResource(R.string.auth_privacy),
+                            onClick = { onOpenLegalDocument(LegalDocumentId.PRIVACY) },
+                        )
                     }
+                    WiccanBotanicalAccent(
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
+                        width = 132.dp,
+                    )
                     Text(
                         text = stringResource(R.string.auth_quiet_quote),
                         style = MaterialTheme.typography.bodyMedium,
@@ -224,11 +239,14 @@ private fun AuthFields(
     )
     Spacer(modifier = Modifier.height(16.dp))
     if (state.isGoogleSignInAvailable) {
-        Button(onClick = onGoogleSignInClick, modifier = Modifier.fillMaxWidth(), enabled = !state.isLoading) {
-            Text(stringResource(R.string.auth_continue_google))
-        }
+        GrimoireOutlineButton(
+            text = stringResource(R.string.auth_continue_google),
+            onClick = onGoogleSignInClick,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !state.isLoading,
+        )
         Spacer(modifier = Modifier.height(16.dp))
-        HairlineDivider(modifier = Modifier.fillMaxWidth())
+        GrimoireOrnamentalDivider(modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(16.dp))
     }
     EmailField(state, onEvent)
@@ -267,13 +285,17 @@ private fun AuthFields(
         modifier = Modifier.fillMaxWidth(),
         enabled = !state.isLoading,
     )
-    TextButton(onClick = { onEvent(SignInUiEvent.ToggleMode) }) {
-        Text(stringResource(if (creating) R.string.auth_have_account else R.string.auth_need_account))
-    }
+    GrimoireTextLink(
+        text = stringResource(if (creating) R.string.auth_have_account else R.string.auth_need_account),
+        onClick = { onEvent(SignInUiEvent.ToggleMode) },
+        enabled = !state.isLoading,
+    )
     if (!creating) {
-        TextButton(onClick = { onEvent(SignInUiEvent.ForgotPasswordClicked) }) {
-            Text(stringResource(R.string.auth_forgot_password))
-        }
+        GrimoireTextLink(
+            text = stringResource(R.string.auth_forgot_password),
+            onClick = { onEvent(SignInUiEvent.ForgotPasswordClicked) },
+            enabled = !state.isLoading,
+        )
     }
 }
 
@@ -283,15 +305,12 @@ private fun RecoveryFields(state: SignInUiState, onEvent: (SignInUiEvent) -> Uni
     Spacer(modifier = Modifier.height(18.dp))
     EmailField(state, onEvent)
     Spacer(modifier = Modifier.height(16.dp))
-    Button(
+    GrimoireOutlineButton(
+        text = stringResource(if (state.passwordResetSent) R.string.auth_resend_reset else R.string.auth_send_reset),
         onClick = { onEvent(SignInUiEvent.SubmitPasswordReset) },
         modifier = Modifier.fillMaxWidth(),
         enabled = !state.isLoading,
-    ) {
-        Text(
-            stringResource(if (state.passwordResetSent) R.string.auth_resend_reset else R.string.auth_send_reset),
-        )
-    }
+    )
     if (state.passwordResetSent) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -299,9 +318,11 @@ private fun RecoveryFields(state: SignInUiState, onEvent: (SignInUiEvent) -> Uni
             style = MaterialTheme.typography.bodySmall,
         )
     }
-    TextButton(onClick = { onEvent(SignInUiEvent.BackToSignIn) }) {
-        Text(stringResource(R.string.auth_back_to_sign_in))
-    }
+    GrimoireTextLink(
+        text = stringResource(R.string.auth_back_to_sign_in),
+        onClick = { onEvent(SignInUiEvent.BackToSignIn) },
+        enabled = !state.isLoading,
+    )
 }
 
 @Composable

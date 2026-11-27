@@ -52,14 +52,17 @@ import com.jaimesorrow.wiccan.core.config.PolicyUrls
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
 import com.jaimesorrow.wiccan.notification.manageSubscriptionIntent
+import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
+import com.jaimesorrow.wiccan.ui.theme.GrimoireOutlineButton
 import com.jaimesorrow.wiccan.ui.theme.GrimoireSectionHeader
 import com.jaimesorrow.wiccan.ui.theme.GrimoireSettingsHeaderAccent
 import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.jaimesorrow.wiccan.ui.theme.description
 import com.jaimesorrow.wiccan.ui.theme.displayName
+import com.jaimesorrow.wiccan.ui.theme.grimoireCard
 import com.jaimesorrow.wiccan.ui.theme.grimoireFieldColors
 import com.jaimesorrow.wiccan.ui.theme.grimoireSwitchColors
 import com.wiccan.app.R
@@ -163,70 +166,80 @@ fun SettingsScreen(
                 )
                 GrimoireOrnamentalDivider(modifier = Modifier.padding(vertical = 10.dp))
                 GrimoireSectionHeader(title = stringResource(R.string.settings_account_heading))
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.settings_email, state.accountEmail),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                OutlinedTextField(
-                    value = state.firstName,
-                    onValueChange = { viewModel.onEvent(SettingsUiEvent.FirstNameChanged(it)) },
-                    label = { Text(stringResource(R.string.onboarding_first_name)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    colors = grimoireFieldColors(),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = state.lastName,
-                    onValueChange = { viewModel.onEvent(SettingsUiEvent.LastNameChanged(it)) },
-                    label = { Text(stringResource(R.string.onboarding_last_name)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    colors = grimoireFieldColors(),
-                )
-                OutlinedButton(
-                    onClick = { viewModel.onEvent(SettingsUiEvent.SaveNameClicked) },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isAccountBusy,
-                ) { Text(stringResource(R.string.settings_save_name)) }
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = state.newEmail,
-                    onValueChange = { viewModel.onEvent(SettingsUiEvent.NewEmailChanged(it)) },
-                    label = { Text(stringResource(R.string.settings_new_email)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    colors = grimoireFieldColors(),
-                )
-                OutlinedButton(
-                    onClick = { viewModel.onEvent(SettingsUiEvent.ChangeEmailClicked) },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isAccountBusy,
-                ) { Text(stringResource(R.string.settings_verify_email)) }
-                OutlinedButton(
-                    onClick = { viewModel.onEvent(SettingsUiEvent.ResetPasswordClicked) },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isAccountBusy,
-                ) { Text(stringResource(R.string.settings_reset_password)) }
-                if (state.isAccountBusy) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.semantics { contentDescription = loadingDescription },
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .grimoireCard()
+                        .padding(16.dp),
+                ) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.settings_email, state.accountEmail),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = state.firstName,
+                        onValueChange = { viewModel.onEvent(SettingsUiEvent.FirstNameChanged(it)) },
+                        label = { Text(stringResource(R.string.onboarding_first_name)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = grimoireFieldColors(),
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = state.lastName,
+                        onValueChange = { viewModel.onEvent(SettingsUiEvent.LastNameChanged(it)) },
+                        label = { Text(stringResource(R.string.onboarding_last_name)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = grimoireFieldColors(),
+                    )
+                    GrimoireOutlineButton(
+                        text = stringResource(R.string.settings_save_name),
+                        onClick = { viewModel.onEvent(SettingsUiEvent.SaveNameClicked) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isAccountBusy,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = state.newEmail,
+                        onValueChange = { viewModel.onEvent(SettingsUiEvent.NewEmailChanged(it)) },
+                        label = { Text(stringResource(R.string.settings_new_email)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = grimoireFieldColors(),
+                    )
+                    GrimoireOutlineButton(
+                        text = stringResource(R.string.settings_verify_email),
+                        onClick = { viewModel.onEvent(SettingsUiEvent.ChangeEmailClicked) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isAccountBusy,
+                    )
+                    GrimoireOutlineButton(
+                        text = stringResource(R.string.settings_reset_password),
+                        onClick = { viewModel.onEvent(SettingsUiEvent.ResetPasswordClicked) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isAccountBusy,
+                    )
+                    if (state.isAccountBusy) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.semantics { contentDescription = loadingDescription },
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedButton(
+                GrimoireOutlineButton(
+                    text = stringResource(R.string.settings_sign_out),
                     onClick = { viewModel.onEvent(SettingsUiEvent.SignOutClicked) },
                     modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(stringResource(R.string.settings_sign_out))
-                }
+                )
 
                 Spacer(modifier = Modifier.height(12.dp))
-                OutlinedButton(
+                GrimoireOutlineButton(
+                    text = stringResource(R.string.settings_manage_subscription),
                     onClick = {
                         openExternal(
                             manageSubscriptionIntent(),
@@ -234,9 +247,7 @@ fun SettingsScreen(
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(stringResource(R.string.settings_manage_subscription))
-                }
+                )
 
                 if (!accountOnly) {
                     Spacer(modifier = Modifier.height(24.dp))
@@ -335,6 +346,12 @@ fun SettingsScreen(
                     )
                 }
 
+                WiccanBotanicalAccent(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(vertical = 16.dp),
+                    width = 120.dp,
+                )
                 Spacer(modifier = Modifier.weight(1f))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                     TextButton(onClick = onTermsClick) {
