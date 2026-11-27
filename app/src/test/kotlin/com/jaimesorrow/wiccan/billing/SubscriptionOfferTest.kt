@@ -165,6 +165,68 @@ class SubscriptionOfferTest {
     }
 
     @Test
+    fun `invalid winback phases fail closed and do not hide the regular plan`() {
+        fun invalid(discount: ProductDetails.PricingPhase, tags: List<String> = listOf("winback")) =
+            product(offer("returning", discount, renewal(), tags = tags)).subscriptionOffer()
+
+        assertNull(invalid(discounted(micros = 5_990_000)))
+        assertNull(invalid(discounted(period = "P7D")))
+        assertNull(invalid(discounted(cycles = 2)))
+        assertNull(invalid(discounted(price = "$0.00", micros = 0)))
+        assertNull(invalid(discounted(currency = "GBP")))
+        assertNull(product(offer("returning", discounted(), discounted(), renewal(), tags = listOf("winback"))).subscriptionOffer())
+        assertNull(invalid(discounted(), tags = listOf("Winback")))
+
+        val fallback = product(
+            offer(null, renewal()),
+            offer("returning", discounted(period = "P7D"), renewal(), tags = listOf("winback")),
+        ).subscriptionOffer()!!
+        assertFalse(fallback.isWinBack)
+        assertEquals("base-token", fallback.offerToken)
+        assertEquals(null, fallback.winBackFormattedPrice)
+    }
+
+    @Test
+    fun `a valid winback offer is preferred over the regular plan but not over a trial`() {
+        val winbackAndBase = product(
+            offer(null, renewal()),
+            offer("returning", discounted(), renewal(), tags = listOf("promo", "winback")),
+        ).subscriptionOffer()!!
+        assertTrue(winbackAndBase.isWinBack)
+        assertEquals("$2.99", winbackAndBase.winBackFormattedPrice)
+        assertEquals("$5.99", winbackAndBase.formattedPrice)
+        assertEquals("returning-token", winbackAndBase.offerToken)
+        assertFalse(winbackAndBase.hasFreeTrial)
+
+        val trialWins = product(
+            offer("returning", discounted(), renewal(), tags = listOf("winback")),
+            offer("trial", trial(), renewal()),
+        ).subscriptionOffer()!!
+        assertTrue(trialWins.hasFreeTrial)
+        assertFalse(trialWins.isWinBack)
+        assertEquals("trial-token", trialWins.offerToken)
+        assertEquals(null, trialWins.winBackFormattedPrice)
+    }
+
+    @Test
+    fun `a tagged yearly winback discount is accepted`() {
+        val product = product(
+            offer(
+                "returning",
+                discounted(period = "P1Y", price = "$19.99", micros = 19_990_000),
+                renewal(period = "P1Y", price = "$39.99", micros = 39_990_000),
+                tags = listOf("winback"),
+            ),
+        )
+        every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        val selected = product.subscriptionOffer()!!
+        assertEquals(SubscriptionPlan.YEARLY, selected.plan)
+        assertTrue(selected.isWinBack)
+        assertEquals("$19.99", selected.winBackFormattedPrice)
+        assertEquals("$39.99", selected.formattedPrice)
+    }
+
+    @Test
     fun `Firebase account obfuscation matches server SHA256 lowercase hex convention`() {
         assertEquals(
             "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
@@ -215,12 +277,18 @@ class SubscriptionOfferTest {
         every { billingCycleCount } returns if (nonRecurring) 0 else 1
     }
 
-    private fun discounted(): ProductDetails.PricingPhase = mockk {
+    private fun discounted(
+        period: String = "P1M",
+        currency: String = "USD",
+        price: String = "$2.99",
+        micros: Long = 2_990_000,
+        cycles: Int = 1,
+    ): ProductDetails.PricingPhase = mockk {
         every { recurrenceMode } returns ProductDetails.RecurrenceMode.FINITE_RECURRING
-        every { billingPeriod } returns "P1M"
-        every { priceCurrencyCode } returns "USD"
-        every { formattedPrice } returns "$2.99"
-        every { priceAmountMicros } returns 2_990_000L
-        every { billingCycleCount } returns 1
+        every { billingPeriod } returns period
+        every { priceCurrencyCode } returns currency
+        every { formattedPrice } returns price
+        every { priceAmountMicros } returns micros
+        every { billingCycleCount } returns cycles
     }
 }

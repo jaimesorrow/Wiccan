@@ -18,6 +18,7 @@ import com.jaimesorrow.wiccan.data.remote.UserTierDataSource
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
+import com.jaimesorrow.wiccan.domain.model.SubscriptionState
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -67,6 +68,46 @@ class SubscriptionRepositoryImplTest {
         every { userTier.observeTier("other-user") } returns flowOf(ContentTier.PREMIUM, ContentTier.FREE, ContentTier.FREE)
         repository.observeTier().toList()
         verify(exactly = 1) { analytics.logSubscriptionLapsed() }
+    }
+
+    @Test
+    fun `signed-out subscription state is unknown and a signed-in profile is forwarded`() = runTest {
+        every { currentUser.currentUserId } returns null
+        assertEquals(listOf(SubscriptionState.UNKNOWN), repository.observeSubscriptionState().toList())
+
+        every { currentUser.currentUserId } returns "uid-123"
+        every { userTier.observeSubscriptionState("uid-123") } returns flowOf(
+            SubscriptionState.IN_GRACE_PERIOD,
+            SubscriptionState.ON_HOLD,
+        )
+        assertEquals(
+            listOf(SubscriptionState.IN_GRACE_PERIOD, SubscriptionState.ON_HOLD),
+            repository.observeSubscriptionState().toList(),
+        )
+    }
+
+    @Test
+    fun `Play transactional recovery message reports success and Play errors`() = runTest {
+        val activity = mockk<Activity>()
+        val ok = mockk<BillingResult>()
+        every { ok.responseCode } returns BillingClient.BillingResponseCode.OK
+        coEvery { billingClient.showTransactionalMessage(activity) } returns ok
+        assertEquals(AppResult.Success(Unit), repository.showTransactionalMessage(activity))
+
+        val failed = mockk<BillingResult>()
+        every { failed.responseCode } returns BillingClient.BillingResponseCode.ERROR
+        every { failed.debugMessage } returns "unavailable"
+        coEvery { billingClient.showTransactionalMessage(activity) } returns failed
+        assertEquals(
+            AppResult.Failure(AppError.PurchaseVerificationFailed("unavailable")),
+            repository.showTransactionalMessage(activity),
+        )
+    }
+
+    @Test(expected = CancellationException::class)
+    fun `Play transactional recovery message preserves coroutine cancellation`() = runTest {
+        coEvery { billingClient.showTransactionalMessage(any()) } throws CancellationException("backgrounded")
+        repository.showTransactionalMessage(mockk())
     }
 
     @Test
