@@ -44,14 +44,14 @@ import com.jaimesorrow.wiccan.domain.usecase.DeleteAccountUseCase
 import com.jaimesorrow.wiccan.ui.archive.ArchiveScreenContent
 import com.jaimesorrow.wiccan.ui.archive.ArchiveTab
 import com.jaimesorrow.wiccan.ui.archive.ArchiveUiState
-import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
-import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
 import com.jaimesorrow.wiccan.ui.auth.FakeAuthRepository
 import com.jaimesorrow.wiccan.ui.auth.OnboardingScreen
 import com.jaimesorrow.wiccan.ui.auth.OnboardingViewModel
 import com.jaimesorrow.wiccan.ui.auth.SignInMode
 import com.jaimesorrow.wiccan.ui.auth.SignInScreenContent
 import com.jaimesorrow.wiccan.ui.auth.SignInUiState
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
 import com.jaimesorrow.wiccan.ui.content.ContentDetailView
 import com.jaimesorrow.wiccan.ui.content.DailyGrimoirePage
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
