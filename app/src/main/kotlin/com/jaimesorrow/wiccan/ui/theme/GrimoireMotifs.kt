@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wiccan.app.R
@@ -46,7 +47,6 @@ import com.wiccan.app.R
 /**
  * Spell-map ornaments for the Midnight Grimoire theme: a dashed ink path,
  * a circled Caveat label, a moon-phase row, and a candlelight wash.
- * Crystal and petal bitmaps live in drawable-nodpi and are placed by the screens.
  */
 
 private fun inkDash(width: Float) = Stroke(
@@ -402,6 +402,7 @@ fun GrimoireHomeSectionTile(
             color = WiccanPaletteColors.Grimoire.Gold,
             textAlign = TextAlign.Center,
             maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             softWrap = true,
             style = MaterialTheme.typography.labelSmall.copy(
                 fontFamily = WiccanDisplayFont,

@@ -154,15 +154,15 @@ internal object WiccanPaletteColors {
     }
 
     /**
-     * Midnight Grimoire, shifted toward the spell-map ad: plum cards, thin gold rules,
-     * and cream ink. Gold and text both clear WCAG AA on the plum surfaces.
+     * Midnight Grimoire: near-black shell and cards, thin antique-gold rules,
+     * and cream ink. Text, muted, and gold accents clear WCAG AA on card surfaces.
      */
     object Grimoire {
-        val Background = Color(0xFF110E16)
-        val Raised = Color(0xFF1A1424)
-        val CardFill = Color(0xFF241833)
-        val Border = Color(0xFFC6A15A)
-        val Gold = Color(0xFFE4C77A)
+        val Background = Color(0xFF0E0E0C)
+        val Raised = Color(0xFF141210)
+        val CardFill = Color(0xFF181512)
+        val Border = Color(0xFF9D7C3F)
+        val Gold = Color(0xFFB89047)
         val Bronze = Color(0xFF5C4314)
         val Text = Color(0xFFF4EDE3)
         val Muted = Color(0xFFD2C4B0)

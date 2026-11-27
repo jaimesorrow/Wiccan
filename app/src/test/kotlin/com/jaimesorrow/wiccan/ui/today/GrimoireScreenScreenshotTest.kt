@@ -244,10 +244,10 @@ class GrimoireScreenScreenshotTest {
             }
         }
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("What did the dark make visible?").performScrollTo()
+        composeRule.onNodeWithTag("lesson_steps_parchment").performScrollTo()
         composeRule.waitForIdle()
         composeRule.onRoot().captureRoboImage(
-            filePath = "build/outputs/roborazzi/wiccan-lesson-font-130.png",
+            filePath = "build/outputs/roborazzi/wiccan-lesson-font-130-parchment.png",
         )
     }
 

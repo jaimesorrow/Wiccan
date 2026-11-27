@@ -1,8 +1,6 @@
 package com.jaimesorrow.wiccan.ui.content
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,43 +21,30 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jaimesorrow.wiccan.domain.model.Content
-import com.jaimesorrow.wiccan.domain.model.ContentCategory
-import com.jaimesorrow.wiccan.domain.model.ContentType
 import com.jaimesorrow.wiccan.ui.archive.displayName
 import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
-import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
 import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
-import com.jaimesorrow.wiccan.ui.brand.lessonLineArt
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.jaimesorrow.wiccan.ui.today.components.ContentTypePill
 import com.jaimesorrow.wiccan.ui.today.components.MaterialsCard
 import com.jaimesorrow.wiccan.ui.today.components.SafetyNote
 import com.wiccan.app.R
-
-private val DailyParchment = listOf(Color(0xFFE4C891), Color(0xFFF1DEC0), Color(0xFFD8B77F))
-private val DailyInk = Color(0xFF2F2418)
-private val DailyGold = Color(0xFF9D7C3F)
 
 /**
  * The full display for one piece of content — header (type pill,
@@ -72,68 +56,19 @@ private val DailyGold = Color(0xFF9D7C3F)
 fun ContentDetailView(
     content: Content,
     modifier: Modifier = Modifier,
-    isDailyLesson: Boolean = false,
     onOpenGrimoire: (() -> Unit)? = null,
 ) {
     val colors = MaterialTheme.colorScheme
-    val ink = if (isDailyLesson) DailyInk else colors.onBackground
-    val secondaryInk = if (isDailyLesson) DailyInk.copy(alpha = 0.76f) else colors.onSurfaceVariant
-    val pageShape = RoundedCornerShape(18.dp)
-    val pageModifier = if (isDailyLesson) {
-        Modifier
-            .padding(horizontal = 12.dp, vertical = 16.dp)
-            .background(Brush.verticalGradient(DailyParchment), pageShape)
-            .border(1.dp, DailyGold, pageShape)
-            .padding(4.dp)
-            .border(1.dp, DailyGold.copy(alpha = 0.45f), RoundedCornerShape(14.dp))
-    } else {
-        Modifier.wiccanPageWash()
-    }
+    val ink = colors.onBackground
+    val secondaryInk = colors.onSurfaceVariant
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .then(pageModifier)
+            .wiccanPageWash()
             .padding(PaddingValues(horizontal = 24.dp, vertical = 32.dp)),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        if (isDailyLesson) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top,
-            ) {
-                Text(
-                    text = "✦  ☾  ✦",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = DailyGold,
-                )
-                CandleOrnament(Modifier.size(width = 72.dp, height = 84.dp))
-            }
-            Text(
-                stringResource(
-                    when (content.type) {
-                        ContentType.SPELL -> R.string.today_spell
-                        ContentType.POTION -> R.string.today_potion
-                        ContentType.LESSON, ContentType.UNKNOWN -> R.string.today_lesson
-                    },
-                ),
-                style = MaterialTheme.typography.headlineSmall.copy(fontFamily = FontFamily.Serif),
-                color = ink,
-            )
-            Text(
-                stringResource(R.string.today_subtitle),
-                style = MaterialTheme.typography.bodyLarge,
-                color = secondaryInk,
-            )
-            Text(
-                stringResource(R.string.content_lessons_english_notice),
-                style = MaterialTheme.typography.labelMedium,
-                color = secondaryInk,
-                modifier = Modifier.testTag("lessons-language-notice"),
-            )
-        }
-        // Compact brand emblem, centered above the header row.
         Box(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center,
@@ -159,16 +94,11 @@ fun ContentDetailView(
             text = content.title,
             style = MaterialTheme.typography.displayLarge.copy(
                 fontFamily = FontFamily.Serif,
-                fontStyle = if (isDailyLesson) FontStyle.Italic else FontStyle.Normal,
+                fontStyle = FontStyle.Normal,
             ),
             color = ink,
-            textAlign = if (isDailyLesson) TextAlign.Center else TextAlign.Start,
             modifier = Modifier.fillMaxWidth(),
         )
-
-        if (isDailyLesson) {
-            DailyLessonHero(content)
-        }
 
         Text(
             text = content.category.displayName(),
@@ -181,7 +111,7 @@ fun ContentDetailView(
         }
 
         content.sourceTradition?.takeIf { it.isNotBlank() }?.let {
-            LessonSection(stringResource(R.string.content_source_tradition), it, ink, isDailyLesson)
+            LessonSection(stringResource(R.string.content_source_tradition), it, ink)
         }
 
         if (content.intro.isNotBlank()) {
@@ -197,7 +127,7 @@ fun ContentDetailView(
         }
 
         content.application?.takeIf { it.isNotBlank() }?.let {
-            LessonSection(stringResource(R.string.content_application), it, ink, isDailyLesson)
+            LessonSection(stringResource(R.string.content_application), it, ink)
         }
         val displayedTools = content.tools.ifEmpty { content.materials.orEmpty() }
         if (displayedTools.isNotEmpty()) {
@@ -208,28 +138,26 @@ fun ContentDetailView(
             title = stringResource(R.string.content_method),
             text = content.body,
             color = ink,
-            parchment = isDailyLesson,
         )
         content.incantation?.takeIf { it.isNotBlank() }?.let {
             IncantationCard(text = it)
         }
         content.incantationOmissionReason?.takeIf { it.isNotBlank() }?.let {
-            LessonSection(stringResource(R.string.content_incantation_note), it, ink, isDailyLesson)
+            LessonSection(stringResource(R.string.content_incantation_note), it, ink)
         }
         content.timing?.takeIf { it.isNotBlank() }?.let {
-            LessonSection(stringResource(R.string.content_timing), it, ink, isDailyLesson)
+            LessonSection(stringResource(R.string.content_timing), it, ink)
         }
         content.correspondences.takeIf { it.isNotEmpty() }?.let {
             LessonSection(
                 stringResource(R.string.content_correspondences),
                 it.joinToString(separator = "\n") { item -> "• $item" },
                 ink,
-                isDailyLesson,
             )
         }
         content.reflection?.takeIf { it.isNotBlank() }?.let { ReflectionSection(text = it, color = ink) }
         content.practice?.takeIf { it.isNotBlank() }?.let {
-            LessonSection(stringResource(R.string.content_practice), it, ink, isDailyLesson)
+            LessonSection(stringResource(R.string.content_practice), it, ink)
         }
 
         content.safetyNote?.takeIf { it.isNotBlank() }?.let { note ->
@@ -249,18 +177,17 @@ fun ContentDetailView(
                 stringResource(R.string.content_adaptation),
                 it.joinToString(separator = "\n") { item -> "• $item" },
                 ink,
-                isDailyLesson,
             )
         }
 
         content.sourceCitation?.takeIf { it.isNotBlank() }?.let {
-            LessonSection(stringResource(R.string.content_source), it, ink, isDailyLesson)
+            LessonSection(stringResource(R.string.content_source), it, ink)
         }
         content.sourceUrl?.takeIf { it.isNotBlank() }?.let {
             Text(it, style = MaterialTheme.typography.bodySmall, color = secondaryInk)
         }
         content.rightsNotes?.takeIf { it.isNotBlank() }?.let {
-            LessonSection(stringResource(R.string.content_rights), it, ink, isDailyLesson)
+            LessonSection(stringResource(R.string.content_rights), it, ink)
         }
         content.citation?.let { citation ->
             val details = listOfNotNull(
@@ -280,25 +207,17 @@ fun ContentDetailView(
                     stringResource(R.string.content_verified_source),
                     details.joinToString("\n"),
                     ink,
-                    isDailyLesson,
                 )
             }
         }
 
-        if (isDailyLesson) {
+        onOpenGrimoire?.let { action ->
             Text(
                 stringResource(R.string.content_saved),
                 style = MaterialTheme.typography.bodyMedium,
                 color = secondaryInk,
             )
-            onOpenGrimoire?.let { action ->
-                TextButton(onClick = action) { Text(stringResource(R.string.today_open_grimoire)) }
-            }
-        }
-        if (isDailyLesson) {
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                QuillAndInkpotOrnament(Modifier.size(width = 112.dp, height = 88.dp))
-            }
+            TextButton(onClick = action) { Text(stringResource(R.string.today_open_grimoire)) }
         }
         Spacer(modifier = Modifier.height(16.dp))
     }
@@ -309,46 +228,15 @@ private fun LessonSection(
     title: String,
     text: String,
     color: Color? = null,
-    parchment: Boolean = false,
 ) {
     val ink = color ?: MaterialTheme.colorScheme.onBackground
-    val family = if (parchment) FontFamily.Serif else FontFamily.Default
     Text(title, style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Serif), color = ink)
-    Text(text, style = MaterialTheme.typography.bodyLarge.copy(fontFamily = family), color = ink)
-}
-
-@Composable
-private fun DailyLessonHero(content: Content) {
-    val shape = RoundedCornerShape(12.dp)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(224.dp)
-            .clip(shape)
-            .border(1.dp, DailyGold.copy(alpha = 0.72f), shape),
-    ) {
-        WiccanLineArt(
-            kind = content.lessonLineArt(),
-            contentDescription = stringResource(R.string.content_lesson_image_description, content.title),
-            modifier = Modifier.fillMaxSize(),
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        0f to Color.Transparent,
-                        0.7f to Color.Transparent,
-                        1f to DailyParchment[1],
-                    ),
-                ),
-        )
-    }
+    Text(text, style = MaterialTheme.typography.bodyLarge, color = ink)
 }
 
 @Composable
 internal fun CandleOrnament(modifier: Modifier = Modifier) {
-    WiccanLineArt(
+    com.jaimesorrow.wiccan.ui.brand.WiccanLineArt(
         kind = WiccanLineArtKind.Candle,
         contentDescription = stringResource(R.string.lesson_candle_description),
         modifier = modifier,

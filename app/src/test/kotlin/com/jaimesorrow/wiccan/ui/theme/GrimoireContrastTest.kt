@@ -7,7 +7,7 @@ import org.junit.Test
 
 class GrimoireContrastTest {
     @Test
-    fun `plum cards, gold, and parchment ink clear WCAG AA`() {
+    fun `near-black cards, gold, and parchment ink clear WCAG AA`() {
         val grimoire = WiccanPaletteColors.Grimoire
         val parchment = WiccanPaletteColors.Parchment
         assertTrue(contrast(grimoire.Text, grimoire.Background) >= 4.5)

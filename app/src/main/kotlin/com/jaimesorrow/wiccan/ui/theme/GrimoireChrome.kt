@@ -211,7 +211,7 @@ fun Modifier.grimoireCard(): Modifier = this
     .border(1.dp, WiccanPaletteColors.Grimoire.Border, CardShape)
     .grimoireCornerFlourishes()
 
-/** Thin gold corner brackets for navy/plum cards and sign-in panels. */
+/** Thin gold corner brackets for near-black cards and sign-in panels. */
 fun Modifier.grimoireCornerFlourishes(
     color: androidx.compose.ui.graphics.Color = WiccanPaletteColors.Grimoire.Gold.copy(alpha = 0.82f),
     arm: androidx.compose.ui.unit.Dp = 14.dp,
