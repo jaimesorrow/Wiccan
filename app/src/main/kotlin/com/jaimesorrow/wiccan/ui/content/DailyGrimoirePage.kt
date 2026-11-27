@@ -2,7 +2,6 @@ package com.jaimesorrow.wiccan.ui.content
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,16 +22,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.paint
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -42,28 +36,27 @@ import androidx.compose.ui.unit.sp
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.sky.CelestialCalculator
 import com.jaimesorrow.wiccan.ui.theme.GrimoireCandleGlow
+import com.jaimesorrow.wiccan.ui.theme.GrimoireFloralBackdrop
 import com.jaimesorrow.wiccan.ui.theme.GrimoireMoonPhases
 import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
-import com.jaimesorrow.wiccan.ui.theme.GrimoireParchmentMarginInk
+import com.jaimesorrow.wiccan.ui.theme.GrimoireSettingsHeaderAccent
 import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
-import com.jaimesorrow.wiccan.ui.theme.WiccanEditorialFont
+import com.jaimesorrow.wiccan.ui.theme.WiccanGrimoireStepsFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanHandwritingFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.wiccan.app.R
 import java.time.Instant
 import java.util.Locale
+
 private val Ink = WiccanPaletteColors.Parchment.Ink
 private val Midnight = WiccanPaletteColors.Grimoire.Background
-private val PageShape = RoundedCornerShape(6.dp)
+private val Gold = WiccanPaletteColors.Grimoire.Gold
+private val ShellText = WiccanPaletteColors.Grimoire.Text
+private val ShellMuted = WiccanPaletteColors.Grimoire.Muted
 
 /**
- * Today's page, laid out like an open grimoire leaf: calligraphy title,
- * italic editorial prose, a candle at the top right and a quill at the bottom left.
- * Safety, source, and rights stay in the plain body face.
- *
- * When [fillViewport] is true (default), the parchment leaf grows to consume the
- * space below the moon row so short lessons do not leave a void on the wood
- * background. Long copy scrolls inside the leaf instead of the outer column.
+ * Today's lesson: dark grimoire shell (titles, materials, safety) with the numbered
+ * step-by-step directions on a tattered parchment inset in IM Fell DW Pica.
  */
 @Composable
 internal fun DailyGrimoirePage(
@@ -73,199 +66,155 @@ internal fun DailyGrimoirePage(
     fillViewport: Boolean = true,
 ) {
     val moon = remember { CelestialCalculator.moon(Instant.now()) }
+    val scrollState = rememberScrollState()
     val pageModifier =
         if (fillViewport) {
             modifier.fillMaxSize()
         } else {
             modifier.fillMaxWidth().wrapContentHeight()
         }
-    val woodPainter = painterResource(R.drawable.grimoire_wood)
-    Box(pageModifier) {
-        if (fillViewport) {
-            Image(
-                painter = woodPainter,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.matchParentSize(),
-            )
-            Box(Modifier.matchParentSize().background(Midnight.copy(alpha = 0.42f)))
-        }
+    Box(
+        pageModifier.background(Midnight),
+    ) {
+        GrimoireFloralBackdrop(Modifier.fillMaxSize())
+        GrimoireSettingsHeaderAccent(
+            Modifier
+                .align(Alignment.TopEnd)
+                .size(width = 160.dp, height = 88.dp),
+        )
         Column(
             modifier = Modifier
+                .fillMaxWidth()
                 .then(
                     if (fillViewport) {
-                        Modifier.matchParentSize()
-                    } else {
                         Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .paint(woodPainter, contentScale = ContentScale.Crop)
-                            .background(Midnight.copy(alpha = 0.42f))
+                            .fillMaxSize()
+                            .verticalScroll(scrollState)
+                    } else {
+                        Modifier.wrapContentHeight()
                     },
                 )
-                .padding(horizontal = 12.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             GrimoireMoonPhases(active = moon.trackIndex, activePhaseName = moon.name)
             Text(
                 text = stringResource(R.string.motif_lesson_margin),
-                color = WiccanPaletteColors.Grimoire.Text,
+                color = ShellMuted,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontFamily = WiccanHandwritingFont,
                     fontSize = 18.sp,
                     lineHeight = 22.sp,
                 ),
             )
-            if (fillViewport) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f, fill = true)
-                        .fillMaxWidth(),
-                ) {
-                    LessonLeaf(
-                        content = content,
-                        onOpenGrimoire = onOpenGrimoire,
-                        modifier = Modifier.fillMaxSize(),
-                        scrollInsideLeaf = true,
-                    )
-                }
-            } else {
-                LessonLeaf(
-                    content = content,
-                    onOpenGrimoire = onOpenGrimoire,
-                    modifier = Modifier.fillMaxWidth(),
-                    scrollInsideLeaf = false,
-                )
-            }
+            LessonShellContent(
+                content = content,
+                onOpenGrimoire = onOpenGrimoire,
+            )
         }
     }
 }
 
 @Composable
-private fun LessonLeaf(
+private fun LessonShellContent(
     content: Content,
-    modifier: Modifier = Modifier,
     onOpenGrimoire: (() -> Unit)?,
-    scrollInsideLeaf: Boolean,
 ) {
-    val prose = MaterialTheme.typography.bodyLarge.copy(
-        fontFamily = WiccanEditorialFont,
-        fontStyle = FontStyle.Italic,
-        fontSize = 18.sp,
-        lineHeight = 26.sp,
+    val fontScale = LocalDensity.current.fontScale
+    val candleReserveEnd = 96.dp * fontScale
+    val body = MaterialTheme.typography.bodyLarge.copy(color = ShellText, lineHeight = 26.sp)
+    val stepStyle = MaterialTheme.typography.bodyLarge.copy(
+        fontFamily = WiccanGrimoireStepsFont,
+        fontSize = 19.sp,
+        lineHeight = 28.sp,
         color = Ink,
     )
-    val scrollState = rememberScrollState()
-    val fontScale = LocalDensity.current.fontScale
-    val horizontalInset = 18.dp
-    val candleReserveEnd = 96.dp * fontScale
-    val pageMargins = Modifier.padding(
-        start = horizontalInset,
-        end = horizontalInset,
-        top = 18.dp,
-        bottom = 24.dp,
-    )
-    Box(
-        modifier = modifier.border(
-            width = 1.dp,
-            color = WiccanPaletteColors.Grimoire.Border.copy(alpha = 0.62f),
-            shape = PageShape,
-        ),
+    val tools = content.tools.ifEmpty { content.materials.orEmpty() }
+    var step = 1
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Image(
-            painter = painterResource(R.drawable.grimoire_parchment),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.matchParentSize().clip(PageShape),
+        LessonTitleHeader(title = content.title, candleReserveEnd = candleReserveEnd)
+        Text(
+            text = stringResource(R.string.today_lesson),
+            color = Gold,
+            style = MaterialTheme.typography.titleMedium.copy(fontFamily = WiccanDisplayFont),
         )
-        Box(
-            Modifier
-                .matchParentSize()
-                .clip(PageShape)
-                .background(WiccanPaletteColors.Parchment.Background.copy(alpha = 0.72f))
-                .border(1.dp, WiccanPaletteColors.Parchment.Border, PageShape),
+        Text(
+            text = stringResource(R.string.today_subtitle),
+            color = ShellMuted,
+            style = body,
         )
-        GrimoireParchmentMarginInk(Modifier.matchParentSize().clip(PageShape))
-        Column(
-            modifier = Modifier
-                .then(
-                    if (scrollInsideLeaf) {
-                        Modifier
-                            .matchParentSize()
-                            .verticalScroll(scrollState)
-                    } else {
-                        Modifier.fillMaxWidth()
-                    },
-                )
-                .then(pageMargins),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            LessonTitleHeader(
-                title = content.title,
-                candleReserveEnd = candleReserveEnd,
-            )
-            Text(
-                text = stringResource(R.string.today_lesson),
-                color = Ink,
-                style = prose.copy(fontSize = 20.sp, lineHeight = 26.sp),
-            )
-            Text(
-                text = stringResource(R.string.today_subtitle),
-                color = Ink,
-                style = prose,
-            )
-            val tools = content.tools.ifEmpty { content.materials.orEmpty() }
-            var step = 1
-            if (tools.isNotEmpty()) {
-                GrimoireOrnamentalDivider(inkOnParchment = true)
-                SectionTitle(stringResource(R.string.content_materials))
-                tools.forEach { item ->
-                    Text("☐  $item", color = Ink, style = prose)
-                }
-                GrimoireOrnamentalDivider(inkOnParchment = true)
+        if (tools.isNotEmpty()) {
+            GrimoireOrnamentalDivider()
+            ShellSectionTitle(stringResource(R.string.content_materials))
+            tools.forEach { item ->
+                Text("☐  $item", color = ShellText, style = body)
             }
-            if (content.intro.isNotBlank()) {
-                Text(content.intro, color = Ink, style = prose)
-            }
-            LessonRomanSection(step = step++, label = stringResource(R.string.content_method), body = content.body, prose = prose)
-            content.reflection?.takeIf { it.isNotBlank() }?.let {
-                LessonRomanSection(
-                    step = step++,
-                    label = stringResource(R.string.content_reflection),
-                    body = it,
-                    prose = prose,
-                )
-            }
-            content.practice?.takeIf { it.isNotBlank() }?.let {
-                LessonRomanSection(
-                    step = step,
-                    label = stringResource(R.string.content_practice),
-                    body = it,
-                    prose = prose,
-                )
-            }
-            LessonClosingBlock(
-                safetyNote = content.safetyNote,
-                onOpenGrimoire = onOpenGrimoire,
-            )
-            content.sourceCitation?.takeIf { it.isNotBlank() }?.let {
-                LessonMutedCopy(title = stringResource(R.string.content_source), body = it)
-            }
-            content.rightsNotes?.takeIf { it.isNotBlank() }?.let {
-                Text(
-                    it,
-                    color = Ink.copy(alpha = 0.78f),
-                    style = lessonMutedTextStyle(MaterialTheme.typography.bodySmall),
-                )
-            }
-            QuillAndInkpotOrnament(
-                Modifier
-                    .padding(top = 16.dp)
-                    .size(width = 116.dp, height = 84.dp)
-                    .testTag("lesson_quill_ornament"),
-            )
-            Spacer(Modifier.height(28.dp))
         }
+        if (content.intro.isNotBlank()) {
+            GrimoireOrnamentalDivider()
+            Text(content.intro, color = ShellText, style = body)
+        }
+        val hasSteps = content.body.isNotBlank() ||
+            !content.reflection.isNullOrBlank() ||
+            !content.practice.isNullOrBlank()
+        if (hasSteps) {
+            GrimoireOrnamentalDivider(modifier = Modifier.padding(top = 4.dp))
+            LessonTatteredParchment(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("lesson_steps_parchment"),
+                seed = content.id.hashCode(),
+            ) {
+                if (content.body.isNotBlank()) {
+                    LessonRomanSection(
+                        step = step++,
+                        label = stringResource(R.string.content_method),
+                        body = content.body,
+                        stepStyle = stepStyle,
+                    )
+                }
+                content.reflection?.takeIf { it.isNotBlank() }?.let {
+                    LessonRomanSection(
+                        step = step++,
+                        label = stringResource(R.string.content_reflection),
+                        body = it,
+                        stepStyle = stepStyle,
+                    )
+                }
+                content.practice?.takeIf { it.isNotBlank() }?.let {
+                    LessonRomanSection(
+                        step = step,
+                        label = stringResource(R.string.content_practice),
+                        body = it,
+                        stepStyle = stepStyle,
+                    )
+                }
+            }
+        }
+        LessonClosingBlock(
+            safetyNote = content.safetyNote,
+            onOpenGrimoire = onOpenGrimoire,
+        )
+        content.sourceCitation?.takeIf { it.isNotBlank() }?.let {
+            ShellMutedCopy(title = stringResource(R.string.content_source), body = it)
+        }
+        content.rightsNotes?.takeIf { it.isNotBlank() }?.let {
+            Text(
+                it,
+                color = ShellMuted,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        QuillAndInkpotOrnament(
+            Modifier
+                .padding(top = 8.dp)
+                .size(width = 116.dp, height = 84.dp)
+                .testTag("lesson_quill_ornament"),
+        )
+        Spacer(Modifier.height(24.dp))
     }
 }
 
@@ -295,7 +244,7 @@ private fun LessonTitleHeader(title: String, candleReserveEnd: Dp) {
         )
         Text(
             text = title,
-            color = Ink,
+            color = Gold,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
@@ -303,29 +252,52 @@ private fun LessonTitleHeader(title: String, candleReserveEnd: Dp) {
                 .semantics { heading() },
             style = MaterialTheme.typography.displaySmall.copy(
                 fontFamily = WiccanDisplayFont,
-                fontSize = 40.sp,
-                lineHeight = 50.sp,
+                fontSize = 36.sp,
+                lineHeight = 44.sp,
             ),
         )
     }
 }
 
 @Composable
-private fun LessonRomanSection(step: Int, label: String, body: String, prose: androidx.compose.ui.text.TextStyle) {
-    GrimoireOrnamentalDivider(inkOnParchment = true)
-    SectionTitle("${roman(step)}. $label")
-    Text(body, color = Ink, style = prose)
+private fun LessonRomanSection(
+    step: Int,
+    label: String,
+    body: String,
+    stepStyle: androidx.compose.ui.text.TextStyle,
+) {
+    GrimoireOrnamentalDivider(inkOnParchment = true, modifier = Modifier.padding(vertical = 4.dp))
+    ParchmentSectionTitle("${roman(step)}. $label")
+    Text(
+        body,
+        color = Ink,
+        style = stepStyle,
+        modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+    )
 }
 
 @Composable
-private fun SectionTitle(text: String) {
+private fun ShellSectionTitle(text: String) {
+    Text(
+        text = text.uppercase(Locale.ROOT),
+        color = Gold,
+        modifier = Modifier.semantics { heading() },
+        style = MaterialTheme.typography.labelMedium.copy(
+            fontFamily = WiccanDisplayFont,
+            letterSpacing = 1.2.sp,
+        ),
+    )
+}
+
+@Composable
+private fun ParchmentSectionTitle(text: String) {
     Text(
         text = text.uppercase(Locale.ROOT),
         color = Ink,
         modifier = Modifier.semantics { heading() },
         style = MaterialTheme.typography.labelMedium.copy(
             fontFamily = WiccanDisplayFont,
-            letterSpacing = 1.4.sp,
+            letterSpacing = 1.2.sp,
         ),
     )
 }
@@ -333,59 +305,53 @@ private fun SectionTitle(text: String) {
 @Composable
 private fun LessonClosingBlock(safetyNote: String?, onOpenGrimoire: (() -> Unit)?) {
     if (safetyNote.isNullOrBlank() && onOpenGrimoire == null) return
-    GrimoireOrnamentalDivider(inkOnParchment = true, modifier = Modifier.padding(top = 6.dp))
+    GrimoireOrnamentalDivider(modifier = Modifier.padding(top = 8.dp))
     safetyNote?.takeIf { it.isNotBlank() }?.let { note ->
-        LessonMutedCopy(title = stringResource(R.string.content_safety_heading), body = note)
+        Text(
+            text = stringResource(R.string.content_safety_heading),
+            color = ShellText,
+            modifier = Modifier.semantics { heading() },
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+        )
+        Text(
+            text = note,
+            color = ShellText,
+            modifier = Modifier.padding(top = 4.dp),
+            style = MaterialTheme.typography.bodyLarge,
+        )
     }
     Text(
         stringResource(R.string.content_saved),
-        color = Ink,
-        style = lessonFooterTextStyle(MaterialTheme.typography.bodyLarge),
-        modifier = Modifier.padding(top = 10.dp).semantics { heading() },
+        color = ShellText,
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = Modifier.padding(top = 12.dp).semantics { heading() },
     )
     onOpenGrimoire?.let { action ->
         TextButton(onClick = action) {
             Text(
                 stringResource(R.string.today_open_grimoire),
-                color = Ink,
-                style = lessonFooterTextStyle(MaterialTheme.typography.bodyLarge),
+                color = Gold,
+                style = MaterialTheme.typography.bodyLarge,
             )
         }
     }
 }
 
 @Composable
-private fun LessonMutedCopy(title: String, body: String) {
+private fun ShellMutedCopy(title: String, body: String) {
     Text(
         text = title,
-        color = Ink,
+        color = ShellMuted,
         modifier = Modifier.semantics { heading() },
-        style = lessonFooterTextStyle(MaterialTheme.typography.bodyLarge).copy(
-            fontFamily = WiccanDisplayFont,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 0.8.sp,
-        ),
+        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
     )
     Text(
         text = body,
-        color = Ink,
+        color = ShellMuted,
         modifier = Modifier.padding(top = 4.dp),
-        style = lessonFooterTextStyle(MaterialTheme.typography.bodyLarge),
+        style = MaterialTheme.typography.bodySmall,
     )
 }
-
-@Composable
-private fun lessonFooterTextStyle(base: androidx.compose.ui.text.TextStyle) = base.copy(
-    fontFamily = WiccanEditorialFont,
-    fontWeight = FontWeight.Normal,
-    fontStyle = FontStyle.Normal,
-    lineHeight = 26.sp,
-)
-
-private fun lessonMutedTextStyle(base: androidx.compose.ui.text.TextStyle) = base.copy(
-    fontFamily = WiccanEditorialFont,
-    lineHeight = 20.sp,
-)
 
 private fun roman(value: Int): String {
     val numerals = listOf("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X")
