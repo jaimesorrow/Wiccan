@@ -185,6 +185,19 @@ class GrimoireScreenScreenshotTest {
     }
 
     @Test
+    fun `capture daily lesson middle`() {
+        composeRule.setContent {
+            MidnightGrimoireTheme {
+                DailyGrimoirePage(content = sampleLesson())
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("lesson_steps_parchment").performScrollTo()
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/wiccan-lesson-middle.png")
+    }
+
+    @Test
     fun `capture daily lesson bottom`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
