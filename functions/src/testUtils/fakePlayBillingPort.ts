@@ -16,6 +16,7 @@ export class FakePlayBillingPort implements PlayBillingPort {
       acknowledged?: boolean;
       obfuscatedExternalAccountId?: string | null;
       linkedPurchaseToken?: string | null;
+      inFreeTrial?: boolean;
     } = {},
   ): void {
     this.responses.set(token, {
@@ -26,6 +27,7 @@ export class FakePlayBillingPort implements PlayBillingPort {
       acknowledged: options.acknowledged ?? false,
       obfuscatedExternalAccountId: options.obfuscatedExternalAccountId ?? null,
       linkedPurchaseToken: options.linkedPurchaseToken ?? null,
+      inFreeTrial: options.inFreeTrial ?? false,
     });
   }
 

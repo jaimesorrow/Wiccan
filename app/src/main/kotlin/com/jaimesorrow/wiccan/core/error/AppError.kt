@@ -13,6 +13,9 @@ sealed class AppError {
     object SubscriptionRequired : AppError()
     object GoogleSignInUnavailable : AppError()
 
+    /** The account exists, but its email-verification message could not be sent. */
+    object VerificationEmailDeliveryFailed : AppError()
+
     /** The user dismissed a system flow (e.g. the account picker); screens show nothing. */
     object Cancelled : AppError()
     data class PurchaseVerificationFailed(val reason: String? = null) : AppError()

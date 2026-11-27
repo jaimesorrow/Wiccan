@@ -47,6 +47,14 @@ interface AuthRepository {
 
     suspend fun createAccountWithEmail(email: String, password: String, username: String): AppResult<Unit>
 
+    /**
+     * Consumes a verification-delivery failure recorded for the currently
+     * signed-in account. This bridges account creation to the root-owned
+     * verification gate, which replaces the sign-up screen as soon as Firebase
+     * reports the new authenticated user.
+     */
+    fun consumeVerificationDeliveryFailure(): Boolean
+
     suspend fun sendPasswordReset(email: String): AppResult<Unit>
     suspend fun sendEmailVerification(): AppResult<Unit>
     suspend fun refreshEmailVerification(): AppResult<Unit>
