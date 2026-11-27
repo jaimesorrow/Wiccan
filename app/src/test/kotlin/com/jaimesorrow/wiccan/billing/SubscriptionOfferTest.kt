@@ -122,6 +122,49 @@ class SubscriptionOfferTest {
     }
 
     @Test
+    fun `a tagged base plan is still offered as the regular plan`() {
+        val selected = product(offer(null, renewal(), tags = listOf("console"))).subscriptionOffer()!!
+        assertFalse(selected.isWinBack)
+        assertFalse(selected.hasFreeTrial)
+        assertNull(selected.winBackFormattedPrice)
+        assertEquals("base-token", selected.offerToken)
+        assertEquals("$5.99", selected.formattedPrice)
+    }
+
+    @Test
+    fun `winback is selected from its own tags even when the base plan is tagged`() {
+        val selected = product(
+            offer(null, renewal(), tags = listOf("console")),
+            offer("returning", discounted(), renewal(), tags = listOf("winback")),
+        ).subscriptionOffer()!!
+        assertTrue(selected.isWinBack)
+        assertEquals("$2.99", selected.winBackFormattedPrice)
+        assertEquals("returning-token", selected.offerToken)
+        assertEquals("$5.99", selected.formattedPrice)
+    }
+
+    @Test
+    fun `a base plan tagged winback is never treated as a winback offer`() {
+        val selected = product(offer(null, renewal(), tags = listOf("winback"))).subscriptionOffer()!!
+        assertFalse(selected.isWinBack)
+        assertNull(selected.winBackFormattedPrice)
+        assertEquals("base-token", selected.offerToken)
+    }
+
+    @Test
+    fun `a seven-day trial is preferred over a winback offer`() {
+        val selected = product(
+            offer(null, renewal(), tags = listOf("console")),
+            offer("trial", trial(), renewal()),
+            offer("returning", discounted(), renewal(), tags = listOf("winback")),
+        ).subscriptionOffer()!!
+        assertTrue(selected.hasFreeTrial)
+        assertFalse(selected.isWinBack)
+        assertNull(selected.winBackFormattedPrice)
+        assertEquals("trial-token", selected.offerToken)
+    }
+
+    @Test
     fun `invalid winback phases fail closed and do not hide the regular plan`() {
         fun invalid(discount: ProductDetails.PricingPhase, tags: List<String> = listOf("winback")) =
             product(offer("returning", discount, renewal(), tags = tags)).subscriptionOffer()
