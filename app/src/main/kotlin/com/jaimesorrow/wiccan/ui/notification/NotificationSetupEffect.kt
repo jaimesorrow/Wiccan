@@ -18,8 +18,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.jaimesorrow.wiccan.R
 import com.wiccan.app.BuildConfig
+import com.wiccan.app.R
 
 /**
  * Requests the Android 13+ POST_NOTIFICATIONS runtime permission (a no-op
