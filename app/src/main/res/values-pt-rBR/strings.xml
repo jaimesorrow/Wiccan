@@ -173,8 +173,8 @@
     <string name="home_lesson_waiting">A página do dia ainda está sendo escrita com tinta.</string>
     <string name="home_lesson_open_hint">A página reservada para você está pronta para ser aberta.</string>
     <string name="home_locked_lesson_title">A lição de hoje está bloqueada</string>
-    <string name="home_locked_lesson_body">Um período de avaliação gratuito de 7 dias abre a lição diária. Quem está no período de avaliação ou assina entra direto.</string>
-    <string name="home_unlock_lesson">Desbloquear com um período de avaliação de 7 dias</string>
+    <string name="home_locked_lesson_body">Um período de avaliação gratuito abre a lição diária. Quem está no período de avaliação ou assina entra direto.</string>
+    <string name="home_unlock_lesson">Desbloquear com um período de avaliação gratuito</string>
     <string name="home_wheel_title">Roda do Ano</string>
     <string name="home_wheel_image">Altar da Roda do Ano</string>
     <string name="home_next_sabbat">Próximo: %1$s</string>

@@ -173,8 +173,8 @@
     <string name="home_lesson_waiting">La página del día aún se está escribiendo con tinta.</string>
     <string name="home_lesson_open_hint">La página reservada para ti está lista para abrirse.</string>
     <string name="home_locked_lesson_title">La lección de hoy está bloqueada</string>
-    <string name="home_locked_lesson_body">Una prueba gratuita de 7 días abre la lección diaria. Quienes están en prueba o suscritos entran directamente.</string>
-    <string name="home_unlock_lesson">Desbloquear con una prueba de 7 días</string>
+    <string name="home_locked_lesson_body">Una prueba gratuita abre la lección diaria. Quienes están en prueba o suscritos entran directamente.</string>
+    <string name="home_unlock_lesson">Desbloquear con una prueba gratuita</string>
     <string name="home_wheel_title">Rueda del Año</string>
     <string name="home_wheel_image">Altar de la Rueda del Año</string>
     <string name="home_next_sabbat">Siguiente: %1$s</string>
