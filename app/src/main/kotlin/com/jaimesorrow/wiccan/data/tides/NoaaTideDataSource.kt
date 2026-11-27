@@ -19,7 +19,7 @@ class NoaaTideDataSource @Inject constructor() : TideDataSource {
     override suspend fun predictionsJson(stationId: String, date: String): String = get(
         "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter" +
             "?product=predictions&application=Wiccan&begin_date=$date&range=48" +
-            "&datum=MLLW&station=$stationId&time_zone=lst_ldt&units=metric&interval=hilo&format=json",
+            "&datum=MLLW&station=$stationId&time_zone=gmt&units=metric&interval=hilo&format=json",
     )
 
     private suspend fun get(url: String): String = withContext(Dispatchers.IO) {

@@ -17,6 +17,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -50,6 +54,7 @@ import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
+import com.jaimesorrow.wiccan.ui.theme.grimoireFieldColors
 import com.wiccan.app.R
 
 /**
@@ -139,35 +144,44 @@ internal fun ArchiveScreenContent(
                             )
                         }
                     }
-                    else -> Box(Modifier.fillMaxSize()) {
-                        Column(Modifier.fillMaxSize()) {
-                            GrimoireSearch(
-                                query = state.searchQuery,
-                                onQueryChanged = { onEvent(ArchiveUiEvent.SearchQueryChanged(it)) },
-                                onClear = { onEvent(ArchiveUiEvent.SearchCleared) },
-                            )
-                            ArchiveTabRow(
-                                selectedTab = state.selectedTab,
-                                onTabSelected = { onEvent(ArchiveUiEvent.TabSelected(it)) },
-                            )
-                            if (state.entries.isNotEmpty() && state.visibleEntries.isEmpty()) {
-                                EmptySearchResults()
-                            } else {
-                                when (state.selectedTab) {
-                                    ArchiveTab.TIMELINE -> if (state.entries.isEmpty()) {
-                                        EmptyArchive()
-                                    } else {
-                                        TimelineList(
-                                            entries = state.visibleEntries,
+                    else -> {
+                        val resources = LocalResources.current
+                        val visibleEntries = state.visibleEntries(
+                            localizedCategory = { category ->
+                                resources.getString(category.labelResId())
+                            },
+                            localizedType = { type -> resources.getString(type.labelResId()) },
+                        )
+                        Box(Modifier.fillMaxSize()) {
+                            Column(Modifier.fillMaxSize()) {
+                                GrimoireSearch(
+                                    query = state.searchQuery,
+                                    onQueryChanged = { onEvent(ArchiveUiEvent.SearchQueryChanged(it)) },
+                                    onClear = { onEvent(ArchiveUiEvent.SearchCleared) },
+                                )
+                                ArchiveTabRow(
+                                    selectedTab = state.selectedTab,
+                                    onTabSelected = { onEvent(ArchiveUiEvent.TabSelected(it)) },
+                                )
+                                if (state.entries.isNotEmpty() && visibleEntries.isEmpty()) {
+                                    EmptySearchResults()
+                                } else {
+                                    when (state.selectedTab) {
+                                        ArchiveTab.TIMELINE -> if (state.entries.isEmpty()) {
+                                            EmptyArchive()
+                                        } else {
+                                            TimelineList(
+                                                entries = visibleEntries,
+                                                onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                            )
+                                        }
+                                        ArchiveTab.LIBRARY -> LibraryList(
+                                            entries = visibleEntries,
+                                            collapsedCategories = state.collapsedCategories,
                                             onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                            onCategoryToggled = { onEvent(ArchiveUiEvent.CategoryToggled(it)) },
                                         )
                                     }
-                                    ArchiveTab.LIBRARY -> LibraryList(
-                                        entries = state.visibleEntries,
-                                        collapsedCategories = state.collapsedCategories,
-                                        onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
-                                        onCategoryToggled = { onEvent(ArchiveUiEvent.CategoryToggled(it)) },
-                                    )
                                 }
                             }
                         }
@@ -218,12 +232,19 @@ private fun GrimoireSearch(
         singleLine = true,
         label = { Text(stringResource(R.string.grimoire_search_label)) },
         placeholder = { Text(stringResource(R.string.grimoire_search_hint)) },
+        colors = grimoireFieldColors(),
         trailingIcon = if (query.isBlank()) {
             null
         } else {
             {
-                TextButton(onClick = onClear) {
-                    Text(stringResource(R.string.grimoire_search_clear))
+                IconButton(
+                    onClick = onClear,
+                    modifier = Modifier.size(48.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Clear,
+                        contentDescription = stringResource(R.string.grimoire_search_clear),
+                    )
                 }
             }
         },
@@ -365,34 +386,7 @@ private fun CategoryHeader(
 
 /** Human-readable label for a [ContentCategory], for the Grimoire grouping headers. */
 @Composable
-internal fun ContentCategory.displayName(): String = stringResource(
-    when (this) {
-        ContentCategory.CANDLE_SPELLS -> R.string.category_candle_spells
-        ContentCategory.HERBAL_RITUALS -> R.string.category_herbal_rituals
-        ContentCategory.CORD_KNOT_WORK -> R.string.category_cord_knot
-        ContentCategory.LUNAR_PRACTICES -> R.string.category_lunar
-        ContentCategory.CHARMS_TALISMANS -> R.string.category_charms
-        ContentCategory.CANDLE_MAGIC -> R.string.category_candle_magic
-        ContentCategory.HERBS_BOTANICALS -> R.string.category_herbs
-        ContentCategory.POTIONS_INFUSIONS -> R.string.category_potions
-        ContentCategory.CRYSTALS_STONES -> R.string.category_crystals
-        ContentCategory.CORD_KNOT_MAGIC -> R.string.category_cord_magic
-        ContentCategory.MOON_MAGIC_TIMING -> R.string.category_moon_magic
-        ContentCategory.ELEMENTAL_MAGIC -> R.string.category_elemental_magic
-        ContentCategory.ALTARS_SACRED_SPACE -> R.string.category_altars
-        ContentCategory.DIVINATION -> R.string.category_divination
-        ContentCategory.ELEMENTAL_PRACTICES -> R.string.category_elemental_practices
-        ContentCategory.PROTECTION_CLEANSING_WARDING -> R.string.category_protection_cleansing
-        ContentCategory.PROTECTION -> R.string.category_protection
-        ContentCategory.LOVE_AND_RELATIONSHIPS -> R.string.category_love
-        ContentCategory.PROSPERITY_AND_ABUNDANCE -> R.string.category_prosperity
-        ContentCategory.HEALING_AND_WELLNESS -> R.string.category_healing
-        ContentCategory.DIVINATION_AND_CLARITY -> R.string.category_divination_clarity
-        ContentCategory.BANISHING_AND_RELEASE -> R.string.category_banishing
-        ContentCategory.HOME_AND_HEARTH -> R.string.category_home
-        ContentCategory.MOON_AND_SEASONAL -> R.string.category_moon_seasonal
-    },
-)
+internal fun ContentCategory.displayName(): String = stringResource(labelResId())
 
 @Composable
 private fun EmptyArchive() {

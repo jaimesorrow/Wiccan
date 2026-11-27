@@ -51,7 +51,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.data.location.lastKnownCoordinate
+import com.jaimesorrow.wiccan.domain.model.CoastalTide
 import com.jaimesorrow.wiccan.domain.model.Content
+import com.jaimesorrow.wiccan.domain.model.TideHeightUnit
 import com.jaimesorrow.wiccan.sky.CelestialCalculator
 import com.jaimesorrow.wiccan.sky.ClassicalPlanet
 import com.jaimesorrow.wiccan.sky.GeoCoordinate
@@ -304,7 +306,7 @@ private fun CosmicCard(
                     Text(
                         text = stringResource(R.string.home_use_location),
                         modifier = Modifier.clickable(onClick = onRequestLocation),
-                        color = WiccanPaletteColors.Grimoire.Bronze,
+                        color = Muted,
                         style = MaterialTheme.typography.labelMedium,
                     )
                 }
@@ -384,15 +386,21 @@ private fun TideStatus(state: TideUiState) {
                 color = Ink,
                 style = MaterialTheme.typography.labelMedium,
             )
+            Text(
+                text = stringResource(R.string.home_tides_disclaimer),
+                color = Muted,
+                style = MaterialTheme.typography.bodySmall,
+            )
             state.tide.predictions.take(4).forEach { prediction ->
                 val time = prediction.time.format(
                     DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(locale),
                 )
+                val heightLabel = tideHeightLabel(state.tide, prediction.heightMeters)
                 Text(
                     text = stringResource(
                         if (prediction.high) R.string.home_tide_high else R.string.home_tide_low,
                         time,
-                        prediction.heightMeters,
+                        heightLabel,
                     ),
                     color = Muted,
                     style = MaterialTheme.typography.bodySmall,
@@ -577,3 +585,17 @@ private fun GrimoireLineArt(modifier: Modifier) {
 }
 
 private fun percent(illumination: Double): Int = (illumination * 100.0).toInt().coerceIn(0, 100)
+
+@Composable
+private fun tideHeightLabel(tide: CoastalTide, height: Double): String = when (tide.heightUnit) {
+    TideHeightUnit.METERS -> stringResource(
+        R.string.home_tide_height_m,
+        height,
+        tide.datumLabel,
+    )
+    TideHeightUnit.FEET -> stringResource(
+        R.string.home_tide_height_ft,
+        height,
+        tide.datumLabel,
+    )
+}

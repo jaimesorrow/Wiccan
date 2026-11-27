@@ -192,8 +192,11 @@
     <string name="home_tides_need_location">Comparte una ubicación aproximada arriba para encontrar la estación de mareas costeras de EE. UU. más cercana.</string>
     <string name="home_tides_loading">Buscando la estación de mareas costeras más cercana…</string>
     <string name="home_tides_station">Estación NOAA más cercana: %1$s</string>
-    <string name="home_tide_high">Pleamar · %1$s · %2$.2f m</string>
-    <string name="home_tide_low">Bajamar · %1$s · %2$.2f m</string>
+    <string name="home_tides_disclaimer">No usar para navegación ni decisiones de seguridad.</string>
+    <string name="home_tide_height_m">%1$.2f m sobre %2$s</string>
+    <string name="home_tide_height_ft">%1$.2f pies sobre %2$s</string>
+    <string name="home_tide_high">Pleamar · %1$s · %2$s</string>
+    <string name="home_tide_low">Bajamar · %1$s · %2$s</string>
     <string name="home_tides_attribution">Predicciones: NOAA CO-OPS · La ubicación permanece en este dispositivo</string>
     <string name="home_tides_attribution_cached">Predicciones guardadas de NOAA CO-OPS · La ubicación permanece en este dispositivo</string>
     <string name="home_voc_title">LUNA SIN CURSO</string>

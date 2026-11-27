@@ -192,8 +192,11 @@
     <string name="home_tides_need_location">Compartilhe uma localização aproximada acima para encontrar a estação de maré costeira dos EUA mais próxima.</string>
     <string name="home_tides_loading">Procurando a estação de maré costeira mais próxima…</string>
     <string name="home_tides_station">Estação NOAA mais próxima: %1$s</string>
-    <string name="home_tide_high">Maré alta · %1$s · %2$.2f m</string>
-    <string name="home_tide_low">Maré baixa · %1$s · %2$.2f m</string>
+    <string name="home_tides_disclaimer">Não use para navegação ou decisões de segurança.</string>
+    <string name="home_tide_height_m">%1$.2f m acima de %2$s</string>
+    <string name="home_tide_height_ft">%1$.2f pés acima de %2$s</string>
+    <string name="home_tide_high">Maré alta · %1$s · %2$s</string>
+    <string name="home_tide_low">Maré baixa · %1$s · %2$s</string>
     <string name="home_tides_attribution">Previsões: NOAA CO-OPS · A localização permanece neste dispositivo</string>
     <string name="home_tides_attribution_cached">Previsões salvas da NOAA CO-OPS · A localização permanece neste dispositivo</string>
     <string name="home_voc_title">LUA SEM CURSO</string>

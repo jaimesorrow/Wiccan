@@ -2,6 +2,7 @@ package com.jaimesorrow.wiccan.ui.archive
 
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
+import com.jaimesorrow.wiccan.domain.model.ContentType
 import com.jaimesorrow.wiccan.domain.model.HistoryEntry
 import java.util.Locale
 
@@ -22,19 +23,28 @@ data class ArchiveUiState(
     val collapsedCategories: Set<ContentCategory> = emptySet(),
 )
 
-internal val ArchiveUiState.visibleEntries: List<HistoryEntry>
-    get() {
-        val query = searchQuery.trim().lowercase(Locale.ROOT)
-        if (query.isEmpty()) return entries
-        return entries.filter { entry ->
-            listOf(
-                entry.title,
-                entry.tradition,
-                entry.type.name.replace('_', ' '),
-                entry.category.name.replace('_', ' '),
-            ).any { it.lowercase(Locale.ROOT).contains(query) }
-        }
+internal fun List<HistoryEntry>.filteredByGrimoireSearch(
+    rawQuery: String,
+    localizedCategory: (ContentCategory) -> String,
+    localizedType: (ContentType) -> String,
+): List<HistoryEntry> {
+    val query = rawQuery.trim().lowercase(Locale.ROOT)
+    if (query.isEmpty()) return this
+    return filter { entry ->
+        listOf(
+            entry.title,
+            entry.tradition,
+            localizedType(entry.type),
+            localizedCategory(entry.category),
+        ).any { it.lowercase(Locale.ROOT).contains(query) }
     }
+}
+
+internal fun ArchiveUiState.visibleEntries(
+    localizedCategory: (ContentCategory) -> String,
+    localizedType: (ContentType) -> String,
+): List<HistoryEntry> =
+    entries.filteredByGrimoireSearch(searchQuery, localizedCategory, localizedType)
 
 sealed class ArchiveUiEvent {
     data class EntryClicked(val contentId: String) : ArchiveUiEvent()

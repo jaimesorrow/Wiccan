@@ -12,6 +12,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -46,7 +47,10 @@ class TideRepositoryImpl @Inject constructor(
             fromCache = true
             cached ?: throw error
         }
-        val parsedPredictions = NoaaTideParser.predictions(raw, ZoneId.systemDefault())
+        val deviceZone = ZoneId.systemDefault()
+        val parsedPredictions = NoaaTideParser.predictions(raw, ZoneOffset.UTC).map { prediction ->
+            prediction.copy(time = prediction.time.withZoneSameInstant(deviceZone))
+        }
         val predictions = parsedPredictions.filter { it.time.toInstant() >= clock.instant() }
             .ifEmpty { parsedPredictions }
         check(predictions.isNotEmpty()) { "NOAA returned no tide predictions" }

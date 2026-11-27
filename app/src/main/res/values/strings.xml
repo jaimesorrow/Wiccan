@@ -207,8 +207,11 @@
     <string name="home_tides_need_location">Share a rough location above to find the nearest U.S. coastal tide station.</string>
     <string name="home_tides_loading">Finding the nearest coastal tide station…</string>
     <string name="home_tides_station">Nearest NOAA station: %1$s</string>
-    <string name="home_tide_high">High · %1$s · %2$.2f m</string>
-    <string name="home_tide_low">Low · %1$s · %2$.2f m</string>
+    <string name="home_tides_disclaimer">Not for navigation or safety use.</string>
+    <string name="home_tide_height_m">%1$.2f m above %2$s</string>
+    <string name="home_tide_height_ft">%1$.2f ft above %2$s</string>
+    <string name="home_tide_high">High · %1$s · %2$s</string>
+    <string name="home_tide_low">Low · %1$s · %2$s</string>
     <string name="home_tides_attribution">Predictions: NOAA CO-OPS · Location stays on this device</string>
     <string name="home_tides_attribution_cached">Saved NOAA CO-OPS predictions · Location stays on this device</string>
     <string name="home_voc_title">VOID OF COURSE</string>
