@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import { Firestore, FieldValue } from "firebase-admin/firestore";
 import { NotificationDeviceRecord, NotificationUserRepositoryPort } from "./notificationUserRepositoryPort";
 import { assertAccountWriteAllowed } from "./accountWriteGuard";
+import { canonicalizeLocale, SupportedLocale } from "./locale";
 
 const USERS_COLLECTION = "users";
 const DEVICES_SUBCOLLECTION = "devices";
@@ -31,6 +32,7 @@ export class FirestoreNotificationUserRepository implements NotificationUserRepo
         // Devices registered before this field existed default to enabled,
         // matching the behavior every device already had.
         notificationsEnabled: doc.get("notificationsEnabled") !== false,
+        locale: canonicalizeLocale(doc.get("locale")),
       }))
       .filter((device) => device.uid !== "");
   }
@@ -40,7 +42,7 @@ export class FirestoreNotificationUserRepository implements NotificationUserRepo
   }
 
   async setToken(
-    uid: string, token: string, timeZone?: string | null, enabled?: boolean, updateChoice = false,
+    uid: string, token: string, timeZone?: string | null, locale?: SupportedLocale, enabled?: boolean, updateChoice = false,
   ): Promise<void> {
     const ref = this.deviceDoc(uid, token);
     await this.db.runTransaction(async (transaction) => {
@@ -54,6 +56,7 @@ export class FirestoreNotificationUserRepository implements NotificationUserRepo
         updatedAt: FieldValue.serverTimestamp(),
       };
       if (timeZone) data.timeZone = timeZone;
+      if (locale) data.locale = locale;
       // Preserve first registration metadata and the saved notification choice.
       if (!existing.exists || !existing.get("createdAt")) {
         data.createdAt = FieldValue.serverTimestamp();
