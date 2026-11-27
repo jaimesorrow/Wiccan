@@ -240,10 +240,16 @@ internal fun PaywallContent(
                 SelectedPlanTerms(state)
             } else {
                 val price = state.price
+                val winBackPrice = state.monthlyWinBackPrice
                 Text(
                     when {
                         price == null -> stringResource(R.string.paywall_price_unavailable)
                         state.hasFreeTrial -> stringResource(R.string.paywall_trial_free)
+                        winBackPrice != null -> stringResource(
+                            R.string.paywall_selected_monthly_winback,
+                            winBackPrice,
+                            price,
+                        )
                         else -> stringResource(R.string.paywall_price_month, price)
                     },
                     style = MaterialTheme.typography.headlineSmall,
@@ -253,6 +259,7 @@ internal fun PaywallContent(
                     when {
                         price == null -> stringResource(R.string.paywall_price_connect)
                         state.hasFreeTrial -> stringResource(R.string.paywall_price_then, price)
+                        winBackPrice != null -> stringResource(R.string.paywall_selected_renews)
                         else -> stringResource(R.string.paywall_price_no_trial, price)
                     },
                     style = MaterialTheme.typography.bodySmall,
@@ -299,8 +306,11 @@ internal const val SEASONAL_RITES_LIVE = false
 private fun SelectedPlanTerms(state: PaywallUiState) {
     val yearly = state.selectedPlan == SubscriptionPlan.YEARLY
     val price = state.selectedPrice.orEmpty()
+    val winBackPrice = if (yearly) state.yearlyWinBackPrice else state.monthlyWinBackPrice
     Text(
         when {
+            yearly && winBackPrice != null -> stringResource(R.string.paywall_selected_yearly_winback, winBackPrice, price)
+            winBackPrice != null -> stringResource(R.string.paywall_selected_monthly_winback, winBackPrice, price)
             yearly && state.selectedHasFreeTrial -> stringResource(R.string.paywall_selected_yearly_trial, price)
             yearly -> stringResource(R.string.paywall_selected_yearly, price)
             state.selectedHasFreeTrial -> stringResource(R.string.paywall_selected_monthly_trial, price)
@@ -312,6 +322,7 @@ private fun SelectedPlanTerms(state: PaywallUiState) {
     )
     Text(
         when {
+            winBackPrice != null -> stringResource(R.string.paywall_selected_renews)
             yearly && state.selectedHasFreeTrial -> stringResource(R.string.paywall_selected_renews)
             yearly -> stringResource(R.string.paywall_price_no_trial_year, price)
             state.selectedHasFreeTrial -> stringResource(R.string.paywall_selected_renews)

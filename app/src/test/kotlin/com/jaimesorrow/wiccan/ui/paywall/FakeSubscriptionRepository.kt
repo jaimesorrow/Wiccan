@@ -24,6 +24,7 @@ class FakeSubscriptionRepository : SubscriptionRepository {
     var launchResult: AppResult<Unit> = AppResult.Success(Unit)
     var priceResult: AppResult<String> = AppResult.Success("$5.99")
     var hasFreeTrial: Boolean = true
+    var monthlyWinBackPrice: String? = null
     var priceCallCount: Int = 0
 
     /** When set, getOffer() suspends until it completes, to observe the screen mid-refresh. */
@@ -46,7 +47,16 @@ class FakeSubscriptionRepository : SubscriptionRepository {
         offerGate?.await()
         return when (val result = priceResult) {
             is AppResult.Success -> AppResult.Success(
-                SubscriptionOffer(result.data, hasFreeTrial, "offer-token", SubscriptionPlan.MONTHLY, 5_990_000L, "USD"),
+                SubscriptionOffer(
+                    result.data,
+                    hasFreeTrial,
+                    "offer-token",
+                    SubscriptionPlan.MONTHLY,
+                    5_990_000L,
+                    "USD",
+                    isWinBack = monthlyWinBackPrice != null,
+                    winBackFormattedPrice = monthlyWinBackPrice,
+                ),
             )
             is AppResult.Failure -> result
         }

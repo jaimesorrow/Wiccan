@@ -7,6 +7,7 @@ import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.InAppMessageParams
+import com.android.billingclient.api.InAppMessageResult
 import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
@@ -52,6 +53,8 @@ class WiccanBillingClient @Inject constructor(
     // Keep it queued until server verification runs instead of dropping it.
     private val purchaseUpdateChannel = Channel<List<Purchase>>(Channel.UNLIMITED)
     val purchaseUpdates: Flow<List<Purchase>> = purchaseUpdateChannel.receiveAsFlow()
+    private val recoveryUpdateChannel = Channel<Unit>(Channel.UNLIMITED)
+    val recoveryUpdates: Flow<Unit> = recoveryUpdateChannel.receiveAsFlow()
 
     private val connectionMutex = Mutex()
 
@@ -165,7 +168,11 @@ class WiccanBillingClient @Inject constructor(
         val params = InAppMessageParams.newBuilder()
             .addInAppMessageCategoryToShow(InAppMessageParams.InAppMessageCategoryId.TRANSACTIONAL)
             .build()
-        return client.showInAppMessages(activity, params) { }
+        return client.showInAppMessages(activity, params) { result ->
+            if (result.responseCode == InAppMessageResult.InAppMessageResponseCode.SUBSCRIPTION_STATUS_UPDATED) {
+                recoveryUpdateChannel.trySend(Unit)
+            }
+        }
     }
 
     private fun BillingResult.requireOk(operation: String) {

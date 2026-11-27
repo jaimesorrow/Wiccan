@@ -109,6 +109,22 @@ class PaywallViewModelTest {
     }
 
     @Test
+    fun `failed reload clears a stale winback promotion`() = runTest(dispatcher) {
+        repository.hasFreeTrial = false
+        repository.monthlyWinBackPrice = "$2.99"
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals("$2.99", viewModel.state.value.monthlyWinBackPrice)
+
+        repository.priceResult = AppResult.Failure(AppError.Network)
+        viewModel.onEvent(PaywallUiEvent.RetryPriceClicked)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(null, viewModel.state.value.monthlyWinBackPrice)
+        assertEquals(null, viewModel.state.value.yearlyWinBackPrice)
+    }
+
+    @Test
     fun `subscribe delegates to the repository's launchPurchaseFlow`() = runTest(dispatcher) {
         val viewModel = PaywallViewModel(repository, analyticsLogger)
         val activity = mockk<Activity>()

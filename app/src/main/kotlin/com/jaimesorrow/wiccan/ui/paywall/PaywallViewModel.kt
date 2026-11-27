@@ -129,6 +129,8 @@ class PaywallViewModel @Inject constructor(
                 yearlyHasFreeTrial = false,
                 yearlyMonthlyEquivalent = null,
                 yearlySavingsPercent = null,
+                monthlyWinBackPrice = null,
+                yearlyWinBackPrice = null,
             )
         }
         viewModelScope.launch {

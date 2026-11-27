@@ -59,6 +59,17 @@ class SubscriptionRepositoryImpl @Inject constructor(
                 }
             }
         }
+        scope.launch {
+            billingClient.recoveryUpdates.collect {
+                reconcileOwnedSubscriptions()
+            }
+        }
+    }
+
+    private suspend fun reconcileOwnedSubscriptions() {
+        runCatching { billingClient.queryOwnedSubscriptions() }
+            .getOrDefault(emptyList())
+            .forEach { handlePurchase(it) }
     }
 
     override suspend fun launchPurchaseFlow(activity: Activity, plan: SubscriptionPlan): AppResult<Unit> {
