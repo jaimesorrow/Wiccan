@@ -5,12 +5,12 @@
     android:viewportHeight="24">
     <path
         android:pathData="M12,12 m-9,0 a9,9 0 1,1 18,0 a9,9 0 1,1 -18,0"
-        android:strokeColor="#FFC6A15A"
+        android:strokeColor="@color/grimoire_gold"
         android:strokeWidth="1.2"
         android:fillColor="#00000000" />
     <path
         android:pathData="M12,4 L14,9 L19.5,9 L15.2,12.5 L17,18 L12,15 L7,18 L8.8,12.5 L4.5,9 L10,9 Z"
-        android:strokeColor="#FFC6A15A"
+        android:strokeColor="@color/grimoire_gold"
         android:strokeLineJoin="round"
         android:strokeWidth="1.1"
         android:fillColor="#00000000" />

@@ -5,13 +5,13 @@
     android:viewportHeight="24">
     <path
         android:pathData="M16,5 C12,5 9,8.5 9,12.5 C9,16.5 12,19 16,19 C13.5,17 12,14.5 12,12 C12,9.5 13.5,7 16,5 Z"
-        android:strokeColor="#FFC6A15A"
+        android:strokeColor="@color/grimoire_gold"
         android:strokeLineJoin="round"
         android:strokeWidth="1.2"
         android:fillColor="#00000000" />
     <path
         android:pathData="M18,6 L19,4 M20,8 L22,7"
-        android:strokeColor="#FFC6A15A"
+        android:strokeColor="@color/grimoire_gold"
         android:strokeLineCap="round"
         android:strokeWidth="0.8" />
 </vector>

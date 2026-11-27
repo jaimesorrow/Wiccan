@@ -5,19 +5,19 @@
     android:viewportHeight="24">
     <path
         android:pathData="M12,3 L16,10 L12,21 L8,10 Z"
-        android:strokeColor="#FFC6A15A"
+        android:strokeColor="@color/grimoire_gold"
         android:strokeLineJoin="round"
         android:strokeWidth="1.2"
         android:fillColor="#00000000" />
     <path
         android:pathData="M5,9 L8,14 L5,19 L2,14 Z"
-        android:strokeColor="#FFC6A15A"
+        android:strokeColor="@color/grimoire_gold"
         android:strokeLineJoin="round"
         android:strokeWidth="1"
         android:fillColor="#00000000" />
     <path
         android:pathData="M19,9 L22,14 L19,19 L16,14 Z"
-        android:strokeColor="#FFC6A15A"
+        android:strokeColor="@color/grimoire_gold"
         android:strokeLineJoin="round"
         android:strokeWidth="1"
         android:fillColor="#00000000" />

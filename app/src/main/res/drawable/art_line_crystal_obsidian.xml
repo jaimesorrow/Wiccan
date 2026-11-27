@@ -5,14 +5,14 @@
     android:viewportHeight="24">
     <path
         android:pathData="M8,4 L16,6 L20,12 L14,21 L6,18 L4,10 Z"
-        android:strokeColor="#FFC6A15A"
+        android:strokeColor="@color/grimoire_gold"
         android:strokeLineJoin="round"
         android:strokeWidth="1.2"
-        android:fillColor="#FFC6A15A"
+        android:fillColor="@color/grimoire_gold"
         android:fillAlpha="0.15" />
     <path
         android:pathData="M8,4 L16,6 L20,12 L14,21 L6,18 L4,10 Z"
-        android:strokeColor="#FFC6A15A"
+        android:strokeColor="@color/grimoire_gold"
         android:strokeLineJoin="round"
         android:strokeWidth="1.2"
         android:fillColor="#00000000" />

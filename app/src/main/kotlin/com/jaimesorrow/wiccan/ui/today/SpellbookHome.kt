@@ -350,7 +350,7 @@ private fun CosmicCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = stringResource(R.string.home_planetary_hour_label),
-                    color = WiccanPaletteColors.Grimoire.Bronze,
+                    color = Muted,
                     style = MaterialTheme.typography.labelSmall,
                 )
                 Text(
@@ -369,7 +369,7 @@ private fun CosmicCard(
                             .defaultMinSize(minHeight = 48.dp)
                             .clickable(onClick = onRequestLocation)
                             .padding(horizontal = 4.dp, vertical = 12.dp),
-                        color = WiccanPaletteColors.Grimoire.Bronze,
+                        color = WiccanPaletteColors.Grimoire.Gold,
                         style = MaterialTheme.typography.labelMedium,
                     )
                 }
