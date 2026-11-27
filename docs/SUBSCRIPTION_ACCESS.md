@@ -1,12 +1,14 @@
 # Subscription-only access
 
-Wiccan has one subscription. New eligible Google Play subscribers get seven
-days free, then pay $5.99 per month at the US base price. Google Play supplies
+Wiccan has two subscription plans: monthly and yearly. Eligible new Google Play
+subscribers get a free trial at the length shown at checkout (7 days on the
+monthly plan, 14 days on the yearly plan), then pay the plan they chose
+($5.99 per month or $39.99 per year at the US base price). Google Play supplies
 localized prices and determines trial eligibility. A trial is an active
 subscription, with the same access as a paid period; it is not a separate free plan.
 
 Navigation: sign up / log in → email verification → first/last name and unique username → current Terms/Privacy
-acceptance → the app shell. The daily lesson stays locked until a verified trial, subscription, or closed-test grant is active. Tapping the locked lesson opens the subscription screen and its 7-day trial offer.
+acceptance → the app shell. The daily lesson stays locked until a verified trial, subscription, or closed-test grant is active. Tapping the locked lesson opens the subscription screen, where the trial length for the chosen plan is shown.
 Email-password accounts are sent a Firebase verification email after registration; the verification
 screen supports re-sending and explicit rechecking. Google sign-in uses Firebase verified provider credentials.
 User names are stored server-side via the App Check-protected completeOnboardingProfile callable.
@@ -49,25 +51,25 @@ as a coordinated rollout after testing.
 ## Google Play configuration required before release
 
 Open [Play Console](https://play.google.com/console/) → select Wiccan →
-Monetize with Play → Products → Subscriptions → `wiccan_premium_monthly`.
+Monetize with Play → Products → Subscriptions.
 
-1. Configure/activate the monthly auto-renewing base plan, with a US base price
-   of $5.99. Use a customer-facing name such as "Wiccan subscription", keeping
-   the existing product ID. Set intended countries and review localized prices/taxes.
-2. Add/activate a Google Play eligibility-controlled offer for new subscribers:
-   one free phase lasting seven days, followed directly by the monthly base plan.
-   The client accepts `P7D` or `P1W`, zero cost, one finite cycle (or a single
-   nonrecurring trial phase), then `P1M` infinite renewal.
-   It rejects other introductory phases and a USD renewal price other than $5.99.
-3. Make the product and offer available to the app's test/release track. Keep the
-   existing product IDs; do not rename them or create a second free plan. Legacy
-   yearly purchases remain restorable but are not offered for new checkout.
+1. Monthly product `wiccan_premium_monthly`: auto-renewing base plan, US base
+   price $5.99. New-subscriber offer: one free phase lasting seven days
+   (`P7D` or `P1W`), then the monthly base plan.
+2. Yearly product `wiccan_premium_yearly`: auto-renewing base plan, US base
+   price $39.99. New-subscriber offer: one free phase lasting fourteen days
+   (`P14D` or `P2W`), then the yearly base plan.
+3. The client shows and sells the price Play returns (not a pinned USD amount).
+   Trial eligibility, localized price, billing period, and trial length are
+   shown at checkout. Make both products and their offers available to the
+   app's test/release track. Keep the existing product IDs; do not rename them
+   or create a second free plan.
 4. Verify the Play API service-account permissions, RTDN topic, acknowledgement,
    license testers and package name (`com.jaimesorrow.wiccan`) using the existing
    [Firebase setup guide](FIREBASE_SETUP.md).
 5. Test a new eligible account and a returning/ineligible account through Play.
    The displayed offer and checkout must agree. Ineligible accounts see the paid
-   monthly offer without a trial promise. A changed offer requires a refresh;
+   offer without a trial promise. A changed offer requires a refresh;
    the client never silently replaces the displayed trial with an immediate charge.
 
 References: [subscription offers](https://developer.android.com/google/play/billing/subscriptions),
