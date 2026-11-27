@@ -86,6 +86,8 @@ class LegalDocumentsTest {
             "does not sell",
             "pseudonymous",
             "Delete Account",
+            "NOAA",
+            "station identifier",
         ).forEach { required -> assertTrue("Missing privacy disclosure: $required", text.contains(required, true)) }
     }
 

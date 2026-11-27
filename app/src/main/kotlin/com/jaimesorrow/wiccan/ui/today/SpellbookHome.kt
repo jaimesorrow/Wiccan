@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,13 +24,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.data.location.lastKnownCoordinate
+import com.jaimesorrow.wiccan.data.location.resolveCoarseCoordinate
 import com.jaimesorrow.wiccan.domain.model.CoastalTide
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.domain.model.TideHeightUnit
@@ -66,6 +71,7 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import kotlinx.coroutines.launch
 import java.time.format.TextStyle
 
 private val CardShape = RoundedCornerShape(6.dp)
@@ -106,10 +112,16 @@ internal fun SpellbookHome(
 ) {
     MidnightGrimoireTheme {
         val context = LocalContext.current
+        val scope = rememberCoroutineScope()
         var coordinate by remember { mutableStateOf(lastKnownCoordinate(context)) }
+        var showLocationRationale by remember { mutableStateOf(false) }
         val locationPermission = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission(),
-        ) { granted -> if (granted) coordinate = lastKnownCoordinate(context) }
+        ) { granted ->
+            if (granted) {
+                scope.launch { coordinate = resolveCoarseCoordinate(context) }
+            }
+        }
         val now = remember { java.time.Instant.now() }
         val zone = remember { ZoneId.systemDefault() }
         val today = LocalDate.now()
@@ -144,8 +156,17 @@ internal fun SpellbookHome(
                     voidOfCourse = voidOfCourse,
                     tideState = tideState,
                     hasLocation = coordinate != null,
-                    onRequestLocation = { locationPermission.launch(Manifest.permission.ACCESS_COARSE_LOCATION) },
+                    onRequestLocation = { showLocationRationale = true },
                 )
+                if (showLocationRationale) {
+                    HomeLocationPermissionRationale(
+                        onContinue = {
+                            showLocationRationale = false
+                            locationPermission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+                        },
+                        onNotNow = { showLocationRationale = false },
+                    )
+                }
                 Text(
                     text = stringResource(R.string.today_open_grimoire),
                     modifier = Modifier.clickable(onClick = onOpenGrimoire).padding(vertical = 6.dp),
@@ -375,6 +396,11 @@ private fun TideStatus(state: TideUiState) {
             color = Muted,
             style = MaterialTheme.typography.bodySmall,
         )
+        TideUiState.NoNearbyStation -> Text(
+            text = stringResource(R.string.home_tides_no_nearby_station),
+            color = Muted,
+            style = MaterialTheme.typography.bodySmall,
+        )
         TideUiState.Unavailable -> Text(
             text = stringResource(R.string.home_tides_unavailable),
             color = Muted,
@@ -567,6 +593,34 @@ private fun PlanetaryDial(active: ClassicalPlanet?) {
             )
         }
     }
+}
+
+@Composable
+internal fun HomeLocationPermissionRationale(
+    onContinue: () -> Unit,
+    onNotNow: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onNotNow,
+        title = { Text(stringResource(R.string.home_location_rationale_title)) },
+        text = { Text(stringResource(R.string.home_location_rationale_body)) },
+        confirmButton = {
+            TextButton(
+                onClick = onContinue,
+                modifier = Modifier.defaultMinSize(minHeight = 48.dp),
+            ) {
+                Text(stringResource(R.string.home_location_rationale_continue))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onNotNow,
+                modifier = Modifier.defaultMinSize(minHeight = 48.dp),
+            ) {
+                Text(stringResource(R.string.home_location_rationale_not_now))
+            }
+        },
+    )
 }
 
 @Composable

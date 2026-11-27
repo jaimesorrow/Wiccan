@@ -2,6 +2,8 @@ package com.jaimesorrow.wiccan.data.tides
 
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,11 +18,14 @@ class NoaaTideDataSource @Inject constructor() : TideDataSource {
         "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations.json?type=tidepredictions",
     )
 
-    override suspend fun predictionsJson(stationId: String, date: String): String = get(
-        "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter" +
-            "?product=predictions&application=Wiccan&begin_date=$date&range=48" +
-            "&datum=MLLW&station=$stationId&time_zone=gmt&units=metric&interval=hilo&format=json",
-    )
+    override suspend fun predictionsJson(stationId: String, date: String): String {
+        val encodedStation = URLEncoder.encode(stationId, StandardCharsets.UTF_8)
+        return get(
+            "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter" +
+                "?product=predictions&application=Wiccan&begin_date=$date&range=48" +
+                "&datum=MLLW&station=$encodedStation&time_zone=gmt&units=metric&interval=hilo&format=json",
+        )
+    }
 
     private suspend fun get(url: String): String = withContext(Dispatchers.IO) {
         val connection = (URL(url).openConnection() as HttpURLConnection).apply {

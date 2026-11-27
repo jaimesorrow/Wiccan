@@ -2,6 +2,7 @@ package com.jaimesorrow.wiccan.ui.today
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jaimesorrow.wiccan.data.repository.NoNearbyTideStationException
 import com.jaimesorrow.wiccan.domain.model.CoastalTide
 import com.jaimesorrow.wiccan.domain.repository.TideRepository
 import com.jaimesorrow.wiccan.sky.GeoCoordinate
@@ -18,6 +19,7 @@ sealed interface TideUiState {
     data object NeedsLocation : TideUiState
     data object Loading : TideUiState
     data class Available(val tide: CoastalTide) : TideUiState
+    data object NoNearbyStation : TideUiState
     data object Unavailable : TideUiState
 }
 
@@ -44,7 +46,13 @@ class HomeTideViewModel @Inject constructor(
             mutableState.value = repository.tidesNear(coordinate, LocalDate.now())
                 .fold(
                     onSuccess = { TideUiState.Available(it) },
-                    onFailure = { TideUiState.Unavailable },
+                    onFailure = { error ->
+                        if (error is NoNearbyTideStationException) {
+                            TideUiState.NoNearbyStation
+                        } else {
+                            TideUiState.Unavailable
+                        }
+                    },
                 )
         }
     }

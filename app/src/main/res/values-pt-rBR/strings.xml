@@ -197,8 +197,13 @@
     <string name="home_tide_height_ft">%1$.2f pés acima de %2$s</string>
     <string name="home_tide_high">Maré alta · %1$s · %2$s</string>
     <string name="home_tide_low">Maré baixa · %1$s · %2$s</string>
-    <string name="home_tides_attribution">Previsões: NOAA CO-OPS · A localização permanece neste dispositivo</string>
-    <string name="home_tides_attribution_cached">Previsões salvas da NOAA CO-OPS · A localização permanece neste dispositivo</string>
+    <string name="home_tides_attribution">Previsões: NOAA CO-OPS · Envia apenas o ID da estação e a data à NOAA</string>
+    <string name="home_tides_attribution_cached">Previsões salvas da NOAA CO-OPS · Apenas ID da estação e data</string>
+    <string name="home_tides_no_nearby_station">Não há estação de maré costeira dos EUA perto o suficiente daqui.</string>
+    <string name="home_location_rationale_title">Localização aproximada opcional</string>
+    <string name="home_location_rationale_body">Se você continuar, o Android pode pedir localização aproximada. O Wiccan usa isso só neste dispositivo para as horas planetárias e a estação NOAA mais próxima. Apenas o ID da estação e a data são enviados à NOAA por HTTPS. Nada é salvo na sua conta. Você pode usar o app por completo se tocar Agora não.</string>
+    <string name="home_location_rationale_continue">Continuar</string>
+    <string name="home_location_rationale_not_now">Agora não</string>
     <string name="home_voc_title">LUA SEM CURSO</string>
     <string name="home_voc_active">Sem curso até a Lua entrar em %1$s. Prefira a reflexão a começar um trabalho novo.</string>
     <string name="home_voc_clear">A Lua em %1$s ainda forma um aspecto clássico antes de mudar de signo.</string>
