@@ -17,6 +17,9 @@ data class PaywallUiState(
     /** Whole-percent saving against twelve monthly payments, e.g. 44. */
     val yearlySavingsPercent: Int? = null,
     val selectedPlan: SubscriptionPlan = SubscriptionPlan.MONTHLY,
+    val subscriptionOnHold: Boolean = false,
+    val monthlyWinBackPrice: String? = null,
+    val yearlyWinBackPrice: String? = null,
 ) {
     val hasYearlyPlan: Boolean get() = price != null && yearlyPrice != null
 

@@ -19,7 +19,12 @@ describe("verifyPurchaseAndSyncTier", () => {
     const tier = await verifyPurchaseAndSyncTier(UID, TOKEN, PRODUCT_ID, billing, users, subscriptions);
 
     expect(tier).toBe("premium");
-    expect(users.users.get(UID)).toEqual({ tier: "premium", purchaseToken: TOKEN });
+    expect(users.users.get(UID)).toMatchObject({
+      tier: "premium",
+      purchaseToken: TOKEN,
+      subscriptionState: "active",
+      productId: PRODUCT_ID,
+    });
     expect(billing.acknowledgedTokens).toEqual([{ purchaseToken: TOKEN, productId: PRODUCT_ID }]);
     expect(subscriptions.records.get(UID)).toEqual({
       productId: PRODUCT_ID,
@@ -108,7 +113,11 @@ describe("verifyPurchaseAndSyncTier", () => {
       const tier = await verifyPurchaseAndSyncTier(UID, TOKEN, PRODUCT_ID, billing, users, subscriptions);
 
       expect(tier).toBe("free");
-      expect(users.users.get(UID)?.tier).toBe("free");
+      expect(users.users.get(UID)).toMatchObject({
+        tier: "free",
+        subscriptionState: state,
+        productId: PRODUCT_ID,
+      });
       expect(billing.acknowledgedTokens).toEqual([]);
     },
   );

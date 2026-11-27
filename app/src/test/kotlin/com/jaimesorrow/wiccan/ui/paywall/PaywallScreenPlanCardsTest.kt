@@ -80,6 +80,18 @@ class PaywallScreenPlanCardsTest {
     }
 
     @Test
+    fun `winback checkout names the promotional period and renewal price`() {
+        val repository = FakeSubscriptionRepository().apply {
+            hasFreeTrial = false
+            monthlyWinBackPrice = "$2.99"
+        }
+        launch(repository)
+
+        composeRule.onNodeWithText("Monthly: $2.99 for the first month, then $5.99/month").assertIsDisplayed()
+        composeRule.onNodeWithText("Auto-renews until canceled. Cancel anytime in Google Play.").assertIsDisplayed()
+    }
+
+    @Test
     fun `a resume refresh keeps the plans and the scroll position`() {
         val repository = FakeSubscriptionRepository().apply { this.yearlyOffer = yearly }
         val viewModel = launch(repository)
