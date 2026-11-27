@@ -198,8 +198,11 @@ private fun planForProduct(productId: String): SubscriptionPlan? = when (product
 
 /**
  * Only the configured plan shape for this product (monthly P1M or yearly
- * P1Y, auto-renewing), optionally preceded by a seven-day free trial.
- * Any other shape fails closed.
+ * P1Y, auto-renewing), optionally preceded by a seven-day free trial or a
+ * discounted intro whose own offer tags include `winback`. Base-plan tags
+ * are ignored for selection: a tagged base plan stays a regular plan, and
+ * a base plan is never treated as a win-back offer even if it carries that
+ * tag. Any other shape fails closed.
  *
  * The price is not pinned: the paywall shows and sells whatever price Play
  * returns, so a Play Console price change never hides a plan. The US base
@@ -226,6 +229,9 @@ internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
                         (trial.recurrenceMode == ProductDetails.RecurrenceMode.NON_RECURRING && trial.billingCycleCount == 0)
                     )
         }
+        // Win-back is identified only by this offer's own tags and offerId.
+        // Play also puts base-plan tags in offerTags when offerId is null, so
+        // a tagged base plan must still be accepted as the regular plan.
         val isWinBack = offer.offerId != null && offer.offerTags.contains(WIN_BACK_TAG) &&
             phases.size == 2 && phases.first().let { intro ->
                 intro.priceAmountMicros in 1L until renewal.priceAmountMicros &&
@@ -234,10 +240,9 @@ internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
                     intro.recurrenceMode == ProductDetails.RecurrenceMode.FINITE_RECURRING &&
                     intro.billingCycleCount == 1
             }
-        if (!hasTrial && !isWinBack && (phases.size != 1 || offer.offerId != null || offer.offerTags.isNotEmpty())) {
+        if (!hasTrial && !isWinBack && (phases.size != 1 || offer.offerId != null)) {
             return@mapNotNull null
         }
-        if (phases.size > 1 && !hasTrial && !isWinBack) return@mapNotNull null
         SubscriptionOffer(
             formattedPrice = renewal.formattedPrice,
             hasFreeTrial = hasTrial,
