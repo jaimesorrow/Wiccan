@@ -38,7 +38,7 @@ class LegalDocumentsTest {
         val yearly = TermsBasePrices.usdText(SubscriptionPlan.YEARLY)
         assertTrue(text.contains("monthly plan with a US base price of $monthly per month"))
         assertTrue(text.contains("yearly plan with a US base price of $yearly per year"))
-        assertTrue(text.contains("7-day free trial"))
+        assertTrue(text.contains("free trial at the length shown at checkout (7 days on the monthly plan, 14 days on the yearly plan)"))
         assertTrue(text.contains("Google Play charges the yearly price once a year until you cancel"))
         assertTrue(text.contains("cancel either plan at any time through Google Play"))
         val privacy = WiccanLegalDocuments.privacy.auditText()

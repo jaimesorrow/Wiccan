@@ -189,8 +189,8 @@
     <string name="home_lesson_waiting">The day\'s page is still being inked.</string>
     <string name="home_lesson_open_hint">The page set aside for you is ready to open.</string>
     <string name="home_locked_lesson_title">Today\'s lesson is locked</string>
-    <string name="home_locked_lesson_body">A 7-day free trial opens the daily lesson. Trial and subscribed readers continue straight in.</string>
-    <string name="home_unlock_lesson">Unlock with a 7-day trial</string>
+    <string name="home_locked_lesson_body">A free trial opens the daily lesson. Trial and subscribed readers continue straight in.</string>
+    <string name="home_unlock_lesson">Unlock with a free trial</string>
     <string name="home_wheel_title">Wheel of the Year</string>
     <string name="home_wheel_image">Wheel of the Year altar</string>
     <string name="home_next_sabbat">Next: %1$s</string>

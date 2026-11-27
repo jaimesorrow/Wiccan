@@ -211,8 +211,9 @@ The paywall must keep all of these visible before purchase:
 - cancellation through Google Play and normal access through the paid period;
 - Terms and Privacy links;
 - clear premium benefits and a working Restore Purchases action;
-- the required subscription (7-day trial for eligible new subscribers) is
-  disclosed before purchase; there is no free content plan.
+- the required subscription (a free trial for eligible new subscribers:
+  7 days monthly, 14 days yearly, shown at checkout) is disclosed before
+  purchase; there is no free content plan.
 
 The current UI supports `wiccan_premium_monthly` and
 `wiccan_premium_yearly`, but must show a plan only when Google Play returns a
