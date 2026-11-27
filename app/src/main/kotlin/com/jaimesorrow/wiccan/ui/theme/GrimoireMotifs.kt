@@ -103,8 +103,8 @@ fun GrimoireOrnamentalDivider(modifier: Modifier = Modifier, inkOnParchment: Boo
 /** Faint botanical ink and star-chart dots along a parchment leaf's margins. */
 @Composable
 fun GrimoireParchmentMarginInk(modifier: Modifier = Modifier) {
-    val ink = WiccanPaletteColors.Parchment.Ink.copy(alpha = 0.14f)
-    val chart = WiccanPaletteColors.Grimoire.Gold.copy(alpha = 0.12f)
+    val ink = WiccanPaletteColors.Parchment.Ink.copy(alpha = 0.32f)
+    val chart = WiccanPaletteColors.Parchment.Border.copy(alpha = 0.38f)
     Canvas(modifier) {
         val stroke = Stroke(width = 1.dp.toPx(), cap = StrokeCap.Round)
         val leftVine = Path().apply {
@@ -137,6 +137,34 @@ fun GrimoireParchmentMarginInk(modifier: Modifier = Modifier) {
             chartLine,
             chart,
             style = Stroke(0.8.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(3.dp.toPx(), 4.dp.toPx()), 0f))
+        )
+    }
+}
+
+/** Top-right candle glow only — for screens whose titles must stay unobstructed. */
+@Composable
+fun GrimoireSettingsHeaderAccent(modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(
+                    WiccanPaletteColors.Grimoire.Gold.copy(alpha = 0.14f),
+                    Color.Transparent,
+                ),
+                center = Offset(size.width * 0.92f, size.height * 0.55f),
+                radius = size.minDimension * 0.85f,
+            ),
+            radius = size.minDimension * 0.85f,
+            center = Offset(size.width * 0.92f, size.height * 0.55f),
+        )
+        val vine = Path().apply {
+            moveTo(size.width * 0.55f, size.height * 0.08f)
+            quadraticTo(size.width * 0.78f, size.height * 0.22f, size.width * 0.98f, size.height * 0.12f)
+        }
+        drawPath(
+            vine,
+            WiccanPaletteColors.Grimoire.Border.copy(alpha = 0.28f),
+            style = inkDash(1.dp.toPx()),
         )
     }
 }

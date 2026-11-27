@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -54,7 +55,7 @@ import com.jaimesorrow.wiccan.notification.manageSubscriptionIntent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
 import com.jaimesorrow.wiccan.ui.theme.GrimoireSectionHeader
-import com.jaimesorrow.wiccan.ui.theme.GrimoireSpellMapWash
+import com.jaimesorrow.wiccan.ui.theme.GrimoireSettingsHeaderAccent
 import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.jaimesorrow.wiccan.ui.theme.description
@@ -130,7 +131,11 @@ fun SettingsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { insets ->
         Box(modifier = Modifier.padding(insets).fillMaxSize()) {
-            GrimoireSpellMapWash(Modifier.matchParentSize())
+            GrimoireSettingsHeaderAccent(
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .size(width = 160.dp, height = 88.dp),
+            )
             Column(
                 modifier = Modifier
                     .fillMaxSize()

@@ -172,7 +172,6 @@ private fun LessonLeaf(
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize().clip(PageShape),
         )
-        GrimoireParchmentMarginInk(Modifier.matchParentSize().clip(PageShape))
         Box(
             Modifier
                 .matchParentSize()
@@ -180,6 +179,7 @@ private fun LessonLeaf(
                 .background(WiccanPaletteColors.Parchment.Background.copy(alpha = 0.72f))
                 .border(1.dp, WiccanPaletteColors.Parchment.Border, PageShape),
         )
+        GrimoireParchmentMarginInk(Modifier.matchParentSize().clip(PageShape))
         Column(
             modifier = Modifier
                 .then(
@@ -248,7 +248,7 @@ private fun LessonLeaf(
             content.rightsNotes?.takeIf { it.isNotBlank() }?.let {
                 Text(
                     it,
-                    color = mutedLessonInk(),
+                    color = Ink.copy(alpha = 0.78f),
                     style = lessonMutedTextStyle(MaterialTheme.typography.bodySmall),
                 )
             }
@@ -315,7 +315,7 @@ private fun LessonRomanSection(step: Int, label: String, body: String, prose: an
 private fun SectionTitle(text: String) {
     Text(
         text = text.uppercase(Locale.ROOT),
-        color = WiccanPaletteColors.Grimoire.Gold,
+        color = Ink,
         modifier = Modifier.semantics { heading() },
         style = MaterialTheme.typography.labelMedium.copy(
             fontFamily = WiccanDisplayFont,
@@ -333,16 +333,16 @@ private fun LessonClosingBlock(safetyNote: String?, onOpenGrimoire: (() -> Unit)
     }
     Text(
         stringResource(R.string.content_saved),
-        color = mutedLessonInk(),
-        style = lessonMutedTextStyle(MaterialTheme.typography.bodyMedium),
-        modifier = Modifier.padding(top = 8.dp).semantics { heading() },
+        color = Ink,
+        style = lessonFooterTextStyle(MaterialTheme.typography.bodyLarge),
+        modifier = Modifier.padding(top = 10.dp).semantics { heading() },
     )
     onOpenGrimoire?.let { action ->
         TextButton(onClick = action) {
             Text(
                 stringResource(R.string.today_open_grimoire),
-                color = mutedLessonInk(),
-                style = lessonMutedTextStyle(MaterialTheme.typography.bodyMedium),
+                color = Ink,
+                style = lessonFooterTextStyle(MaterialTheme.typography.bodyLarge),
             )
         }
     }
@@ -352,27 +352,33 @@ private fun LessonClosingBlock(safetyNote: String?, onOpenGrimoire: (() -> Unit)
 private fun LessonMutedCopy(title: String, body: String) {
     Text(
         text = title,
-        color = mutedLessonInk(),
+        color = Ink,
         modifier = Modifier.semantics { heading() },
-        style = lessonMutedTextStyle(MaterialTheme.typography.bodyMedium),
+        style = lessonFooterTextStyle(MaterialTheme.typography.bodyLarge).copy(
+            fontFamily = WiccanDisplayFont,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.8.sp,
+        ),
     )
     Text(
         text = body,
-        color = mutedLessonInk(),
-        modifier = Modifier.padding(top = 2.dp),
-        style = lessonMutedTextStyle(MaterialTheme.typography.bodyMedium),
+        color = Ink,
+        modifier = Modifier.padding(top = 4.dp),
+        style = lessonFooterTextStyle(MaterialTheme.typography.bodyLarge),
     )
 }
 
 @Composable
-private fun mutedLessonInk() = Ink.copy(alpha = 0.78f)
-
-@Composable
-private fun lessonMutedTextStyle(base: androidx.compose.ui.text.TextStyle) = base.copy(
+private fun lessonFooterTextStyle(base: androidx.compose.ui.text.TextStyle) = base.copy(
     fontFamily = WiccanEditorialFont,
     fontWeight = FontWeight.Normal,
     fontStyle = FontStyle.Normal,
-    lineHeight = 24.sp,
+    lineHeight = 26.sp,
+)
+
+private fun lessonMutedTextStyle(base: androidx.compose.ui.text.TextStyle) = base.copy(
+    fontFamily = WiccanEditorialFont,
+    lineHeight = 20.sp,
 )
 
 private fun roman(value: Int): String {
