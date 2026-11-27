@@ -51,6 +51,6 @@ internal fun monthlyPurchaseBelongsToAccount(
     serverPurchaseToken: String?,
 ): Boolean {
     val accountId = purchase.accountIdentifiers?.obfuscatedAccountId
-    if (accountId != null) return accountId == expectedAccountId
+    if (!accountId.isNullOrBlank()) return accountId == expectedAccountId
     return !serverPurchaseToken.isNullOrBlank() && purchase.purchaseToken == serverPurchaseToken
 }

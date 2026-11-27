@@ -72,6 +72,7 @@ class FakeSubscriptionRepository : SubscriptionRepository {
                     "USD",
                     isWinBack = monthlyWinBackPrice != null,
                     winBackFormattedPrice = monthlyWinBackPrice,
+                    freeTrialDays = if (hasFreeTrial) 7 else null,
                 ),
             )
             is AppResult.Failure -> result

@@ -227,7 +227,7 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 SwitchToYearlyRow(
                     offer = offer,
-                    enabled = !state.isSwitchBusy && !state.isAccountBusy,
+                    enabled = !state.isSwitchBusy && !state.isAccountBusy && !state.isDeleting,
                     onClick = { context.findActivity()?.let(viewModel::switchToYearly) },
                 )
             }

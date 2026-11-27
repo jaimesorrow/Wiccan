@@ -298,7 +298,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun switchToYearly(activity: Activity) {
-        if (state.value.isSwitchBusy || state.value.yearlySwitchOffer == null) return
+        if (state.value.isSwitchBusy || state.value.isDeleting || state.value.yearlySwitchOffer == null) return
         _state.update { it.copy(isSwitchBusy = true) }
         viewModelScope.launch {
             when (val result = subscriptionRepository.launchSwitchToYearly(activity)) {

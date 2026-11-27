@@ -162,8 +162,16 @@ internal fun PaywallContent(
                 when {
                     !state.selectedHasFreeTrial -> stringResource(R.string.paywall_paid_disclosure)
                     state.hasYearlyPlan && state.selectedPlan == SubscriptionPlan.YEARLY ->
-                        stringResource(R.string.paywall_trial_disclosure_year, state.yearlyPrice.orEmpty())
-                    else -> stringResource(R.string.paywall_trial_disclosure, state.price.orEmpty())
+                        stringResource(
+                            R.string.paywall_trial_disclosure_year,
+                            state.selectedFreeTrialDays ?: 0,
+                            state.yearlyPrice.orEmpty(),
+                        )
+                    else -> stringResource(
+                        R.string.paywall_trial_disclosure,
+                        state.selectedFreeTrialDays ?: 0,
+                        state.price.orEmpty(),
+                    )
                 },
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center,
@@ -244,7 +252,7 @@ internal fun PaywallContent(
                 Text(
                     when {
                         price == null -> stringResource(R.string.paywall_price_unavailable)
-                        state.hasFreeTrial -> stringResource(R.string.paywall_trial_free)
+                        state.hasFreeTrial -> stringResource(R.string.paywall_trial_free, state.freeTrialDays ?: 0)
                         winBackPrice != null -> stringResource(
                             R.string.paywall_selected_monthly_winback,
                             winBackPrice,
@@ -278,9 +286,11 @@ internal fun PaywallContent(
                 enabled = !state.isLoadingPrice && state.price != null,
             ) {
                 Text(
-                    stringResource(
-                        if (state.selectedHasFreeTrial) R.string.paywall_start_trial else R.string.paywall_continue_subscription,
-                    ),
+                    if (state.selectedHasFreeTrial) {
+                        stringResource(R.string.paywall_start_trial, state.selectedFreeTrialDays ?: 0)
+                    } else {
+                        stringResource(R.string.paywall_continue_subscription)
+                    },
                     textAlign = TextAlign.Center,
                 )
             }
@@ -299,7 +309,7 @@ internal const val SEASONAL_RITES_LIVE = false
 
 /**
  * Plain terms for the plan the checkout button will buy, always naming the
- * plan: e.g. "Yearly: 7 days free, then $39.99/year" and "Auto-renews until
+ * plan: e.g. "Yearly: 14 days free, then $39.99/year" and "Auto-renews until
  * canceled." Prices are Play's formatted prices.
  */
 @Composable
@@ -313,9 +323,17 @@ private fun SelectedPlanTerms(state: PaywallUiState) {
                 stringResource(R.string.paywall_selected_yearly_winback_month, winBackPrice, price)
             yearly && winBackPrice != null -> stringResource(R.string.paywall_selected_yearly_winback, winBackPrice, price)
             winBackPrice != null -> stringResource(R.string.paywall_selected_monthly_winback, winBackPrice, price)
-            yearly && state.selectedHasFreeTrial -> stringResource(R.string.paywall_selected_yearly_trial, price)
+            yearly && state.selectedHasFreeTrial -> stringResource(
+                R.string.paywall_selected_yearly_trial,
+                state.selectedFreeTrialDays ?: 0,
+                price,
+            )
             yearly -> stringResource(R.string.paywall_selected_yearly, price)
-            state.selectedHasFreeTrial -> stringResource(R.string.paywall_selected_monthly_trial, price)
+            state.selectedHasFreeTrial -> stringResource(
+                R.string.paywall_selected_monthly_trial,
+                state.selectedFreeTrialDays ?: 0,
+                price,
+            )
             else -> stringResource(R.string.paywall_selected_monthly, price)
         },
         style = MaterialTheme.typography.titleMedium,
@@ -354,7 +372,11 @@ private fun PlanChoice(state: PaywallUiState, onSelect: (SubscriptionPlan) -> Un
             details = listOfNotNull(
                 state.yearlyMonthlyEquivalent?.let { stringResource(R.string.paywall_plan_yearly_equivalent, it) },
                 state.yearlySavingsPercent?.let { stringResource(R.string.paywall_plan_yearly_savings, it) },
-                if (state.yearlyHasFreeTrial) stringResource(R.string.paywall_plan_trial_badge) else null,
+                if (state.yearlyHasFreeTrial) {
+                    stringResource(R.string.paywall_plan_trial_badge, state.yearlyFreeTrialDays ?: 0)
+                } else {
+                    null
+                },
             ).joinToString(" · ").takeIf { it.isNotEmpty() },
             selected = state.selectedPlan == SubscriptionPlan.YEARLY,
             onClick = { onSelect(SubscriptionPlan.YEARLY) },
@@ -366,7 +388,11 @@ private fun PlanChoice(state: PaywallUiState, onSelect: (SubscriptionPlan) -> Un
             price = stringResource(R.string.paywall_plan_monthly_price, state.price.orEmpty()),
             details = listOfNotNull(
                 stringResource(R.string.paywall_plan_monthly_detail),
-                if (state.hasFreeTrial) stringResource(R.string.paywall_plan_trial_badge) else null,
+                if (state.hasFreeTrial) {
+                    stringResource(R.string.paywall_plan_trial_badge, state.freeTrialDays ?: 0)
+                } else {
+                    null
+                },
             ).joinToString(" · "),
             selected = state.selectedPlan == SubscriptionPlan.MONTHLY,
             onClick = { onSelect(SubscriptionPlan.MONTHLY) },

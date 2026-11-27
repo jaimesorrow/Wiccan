@@ -18,6 +18,8 @@ data class SubscriptionOffer(
     val winBackFormattedPrice: String? = null,
     /** Play billing period of the win-back intro phase, e.g. `P1M` or `P1Y`. */
     val winBackBillingPeriod: String? = null,
+    /** Length of a validated free-trial phase, in days (7 or 14). */
+    val freeTrialDays: Int? = null,
 )
 
 /** Yearly plan change offer shown only when switching from an active monthly subscription. */

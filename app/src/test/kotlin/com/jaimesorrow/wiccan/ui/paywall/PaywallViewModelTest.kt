@@ -183,7 +183,7 @@ class PaywallViewModelTest {
         assertFalse(viewModel.state.value.isRestoring)
     }
 
-    private val yearly = SubscriptionOffer("$39.99", true, "yearly-token", SubscriptionPlan.YEARLY, 39_990_000L, "USD")
+    private val yearly = SubscriptionOffer("$39.99", true, "yearly-token", SubscriptionPlan.YEARLY, 39_990_000L, "USD", freeTrialDays = 14)
 
     @Test
     fun `without a yearly plan in Play the paywall stays monthly-only and buys monthly`() = runTest(dispatcher) {
@@ -207,6 +207,9 @@ class PaywallViewModelTest {
         assertTrue(state.hasYearlyPlan)
         assertEquals(SubscriptionPlan.YEARLY, state.selectedPlan)
         assertEquals("$39.99", state.yearlyPrice)
+        assertEquals(7, state.freeTrialDays)
+        assertEquals(14, state.yearlyFreeTrialDays)
+        assertEquals(14, state.selectedFreeTrialDays)
         assertEquals(44, state.yearlySavingsPercent)
         assertTrue(state.selectedHasFreeTrial)
 

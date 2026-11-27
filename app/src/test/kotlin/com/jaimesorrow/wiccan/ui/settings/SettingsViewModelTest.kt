@@ -371,4 +371,25 @@ class SettingsViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
         assertEquals(YearlySwitchOffer("switch-token", "$39.99", "$0.99"), viewModel.state.value.yearlySwitchOffer)
     }
+
+    @Test
+    fun `switch to yearly is ignored while the account is being deleted`() = runTest(dispatcher) {
+        val activity = mockk<Activity>()
+        subscriptionRepository.yearlySwitchOffer = YearlySwitchOffer("switch-token", "$39.99", "$0.99")
+        subscriptionRepository.emitTier(ContentTier.PREMIUM)
+        subscriptionRepository.emitSubscriptionState(SubscriptionState.ACTIVE)
+        subscriptionRepository.emitProductId(PREMIUM_MONTHLY_PRODUCT_ID)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SettingsUiEvent.DeleteAccountClicked)
+        viewModel.onEvent(SettingsUiEvent.ConfirmDeleteAccount)
+        assertTrue(viewModel.state.value.isDeleting)
+
+        viewModel.switchToYearly(activity)
+        assertEquals(0, subscriptionRepository.switchLaunchCallCount)
+
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(0, subscriptionRepository.switchLaunchCallCount)
+        assertFalse(viewModel.state.value.isDeleting)
+    }
 }

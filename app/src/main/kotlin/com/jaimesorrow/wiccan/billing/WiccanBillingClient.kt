@@ -234,8 +234,9 @@ private fun planForProduct(productId: String): SubscriptionPlan? = when (product
 
 /**
  * Only the configured plan shape for this product (monthly P1M or yearly
- * P1Y, auto-renewing), optionally preceded by a seven-day free trial or a
- * discounted intro whose own offer tags include `winback`. Base-plan tags
+ * P1Y, auto-renewing), optionally preceded by a seven- or fourteen-day
+ * free trial or a discounted intro whose own offer tags include `winback`.
+ * Base-plan tags
  * are ignored for selection: a tagged base plan stays a regular plan, and
  * a base plan is never treated as a win-back offer even if it carries that
  * tag. Any other shape fails closed.
@@ -258,13 +259,20 @@ internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
         ) {
             return@mapNotNull null
         }
-        val hasTrial = phases.size == 2 && phases.first().let { trial ->
-            trial.priceAmountMicros == 0L && trial.billingPeriod in setOf("P7D", "P1W") &&
+        val trialDays = phases.firstOrNull()?.let { trial ->
+            if (phases.size == 2 &&
+                trial.priceAmountMicros == 0L &&
                 (
                     (trial.recurrenceMode == ProductDetails.RecurrenceMode.FINITE_RECURRING && trial.billingCycleCount == 1) ||
                         (trial.recurrenceMode == ProductDetails.RecurrenceMode.NON_RECURRING && trial.billingCycleCount == 0)
                     )
+            ) {
+                freeTrialDays(trial.billingPeriod)
+            } else {
+                null
+            }
         }
+        val hasTrial = trialDays != null
         // Win-back is identified only by this offer's own tags and offerId.
         // Play also puts base-plan tags in offerTags when offerId is null, so
         // a tagged base plan must still be accepted as the regular plan.
@@ -283,12 +291,20 @@ internal fun ProductDetails.subscriptionOffer(): SubscriptionOffer? {
             isWinBack = isWinBack,
             winBackFormattedPrice = if (isWinBack) phases.first().formattedPrice else null,
             winBackBillingPeriod = if (isWinBack) phases.first().billingPeriod else null,
+            freeTrialDays = trialDays,
         )
     }.sortedWith(compareByDescending<SubscriptionOffer> { it.hasFreeTrial }.thenByDescending { it.isWinBack }).firstOrNull()
 }
 
 private const val WIN_BACK_TAG = "winback"
 private const val SWITCH_YEARLY_TAG = "switch-yearly"
+
+/** Play billing periods accepted as a free trial: 7 days (P7D/P1W) or 14 days (P14D/P2W). */
+internal fun freeTrialDays(billingPeriod: String): Int? = when (billingPeriod) {
+    "P7D", "P1W" -> 7
+    "P14D", "P2W" -> 14
+    else -> null
+}
 
 /**
  * Google Play "Single payment" intro phases (the live $0.99 first-month
@@ -350,7 +366,9 @@ private fun ProductDetails.SubscriptionOfferDetails.toYearlySwitchOffer(): Yearl
     }
     val intro = when {
         phases.size == 1 && offerId == null -> null
-        phases.size == 2 && isDiscountedIntro(phases.first(), renewal, "P1Y") -> phases.first()
+        phases.size == 2 &&
+            isDiscountedIntro(phases.first(), renewal, "P1Y") &&
+            phases.first().billingPeriod == "P1M" -> phases.first()
         else -> return null
     }
     return YearlySwitchOffer(
@@ -368,7 +386,8 @@ private fun ProductDetails.SubscriptionOfferDetails.toYearlySwitchOffer(): Yearl
  * plan is cheaper per month than the monthly plan, so Play would reject
  * that mode. [BillingFlowParams.SubscriptionUpdateParams.ReplacementMode.WITH_TIME_PRORATION]
  * applies the yearly plan immediately and credits unused monthly time by
- * moving the next billing date forward, which is the wording shown in Settings.
+ * moving the next billing date forward. Settings does not describe that
+ * credit; Google Play confirms the charge before payment.
  */
 internal const val YEARLY_SWITCH_REPLACEMENT_MODE =
     BillingFlowParams.SubscriptionUpdateParams.ReplacementMode.WITH_TIME_PRORATION

@@ -138,6 +138,26 @@ class YearlySwitchTest {
         )
     }
 
+    @Test
+    fun `a blank obfuscated account id is treated as unbound and may match the server token`() {
+        val expected = obfuscatedAccountId("uid-123")
+        assertEquals(
+            "server-token",
+            monthlySwitchPurchaseToken(
+                listOf(purchase("server-token", accountId = "")),
+                expectedAccountId = expected,
+                serverPurchaseToken = "server-token",
+            ),
+        )
+        assertNull(
+            monthlySwitchPurchaseToken(
+                listOf(purchase("other-token", accountId = "")),
+                expectedAccountId = expected,
+                serverPurchaseToken = "server-token",
+            ),
+        )
+    }
+
     private fun purchase(token: String, accountId: String? = null): Purchase = mockk {
         every { purchaseState } returns Purchase.PurchaseState.PURCHASED
         every { products } returns listOf(PREMIUM_MONTHLY_PRODUCT_ID)

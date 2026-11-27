@@ -20,6 +20,7 @@ class SubscriptionOfferTest {
         )
         val selected = product.subscriptionOffer()!!
         assertTrue(selected.hasFreeTrial)
+        assertEquals(7, selected.freeTrialDays)
         assertEquals("$5.99", selected.formattedPrice)
         assertEquals("trial-token", selected.offerToken)
     }
@@ -33,8 +34,8 @@ class SubscriptionOfferTest {
 
     @Test
     fun `a one-week Play billing period is the same seven-day trial`() {
-        assertTrue(product(offer("trial", trial(period = "P1W"), renewal())).subscriptionOffer()!!.hasFreeTrial)
-        assertTrue(product(offer("trial", trial(nonRecurring = true), renewal())).subscriptionOffer()!!.hasFreeTrial)
+        assertEquals(7, product(offer("trial", trial(period = "P1W"), renewal())).subscriptionOffer()!!.freeTrialDays)
+        assertEquals(7, product(offer("trial", trial(nonRecurring = true), renewal())).subscriptionOffer()!!.freeTrialDays)
     }
 
     @Test(expected = PlayBillingException::class)
@@ -76,9 +77,38 @@ class SubscriptionOfferTest {
         val selected = product.subscriptionOffer()!!
         assertEquals(SubscriptionPlan.YEARLY, selected.plan)
         assertTrue(selected.hasFreeTrial)
+        assertEquals(7, selected.freeTrialDays)
         assertEquals("$39.99", selected.formattedPrice)
         assertEquals(39_990_000L, selected.priceAmountMicros)
         assertEquals("USD", selected.priceCurrencyCode)
+    }
+
+    @Test
+    fun `yearly plan accepts a fourteen-day free trial from Play`() {
+        val product = product(
+            offer(null, renewal(period = "P1Y", price = "$39.99", micros = 39_990_000)),
+            offer("free-trial-14d", trial(period = "P14D"), renewal(period = "P1Y", price = "$39.99", micros = 39_990_000)),
+        )
+        every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        val selected = product.subscriptionOffer()!!
+        assertEquals(SubscriptionPlan.YEARLY, selected.plan)
+        assertTrue(selected.hasFreeTrial)
+        assertEquals(14, selected.freeTrialDays)
+        assertEquals("free-trial-14d-token", selected.offerToken)
+        assertEquals("$39.99", selected.formattedPrice)
+    }
+
+    @Test
+    fun `a two-week Play billing period is the same fourteen-day yearly trial`() {
+        val product = product(
+            offer(
+                "free-trial-14d",
+                trial(period = "P2W", nonRecurring = true),
+                renewal(period = "P1Y", price = "$39.99", micros = 39_990_000),
+            ),
+        )
+        every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        assertEquals(14, product.subscriptionOffer()!!.freeTrialDays)
     }
 
     @Test
@@ -314,6 +344,23 @@ class SubscriptionOfferTest {
     fun `a base plan tagged switch-yearly is not treated as the promo offer`() {
         val product = product(
             offer(null, renewal(period = "P1Y", price = "$39.99", micros = 39_990_000), tags = listOf("switch-yearly")),
+        )
+        every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
+        val switch = product.yearlySwitchOffer()!!
+        assertEquals("base-token", switch.offerToken)
+        assertEquals(null, switch.introFormattedPrice)
+    }
+
+    @Test
+    fun `a tagged switch offer with a first-year intro is not selected`() {
+        val product = product(
+            offer(null, renewal(period = "P1Y", price = "$39.99", micros = 39_990_000)),
+            offer(
+                "switch-yearly-year",
+                discounted(period = "P1Y", price = "$19.99", micros = 19_990_000),
+                renewal(period = "P1Y", price = "$39.99", micros = 39_990_000),
+                tags = listOf("switch-yearly"),
+            ),
         )
         every { product.productId } returns PREMIUM_YEARLY_PRODUCT_ID
         val switch = product.yearlySwitchOffer()!!
