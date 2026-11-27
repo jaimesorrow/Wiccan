@@ -262,7 +262,7 @@ private fun LessonLeaf(
                     .size(width = 116.dp, height = 84.dp)
                     .semantics { contentDescription = quillDescription },
             )
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(28.dp))
         }
         Box(
             modifier = Modifier
