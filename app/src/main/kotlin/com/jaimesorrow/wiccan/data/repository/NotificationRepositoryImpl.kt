@@ -8,6 +8,7 @@ import com.jaimesorrow.wiccan.data.local.NotificationPreferences
 import com.jaimesorrow.wiccan.data.remote.FcmTokenProvider
 import com.jaimesorrow.wiccan.data.remote.NotificationFunctionsDataSource
 import com.jaimesorrow.wiccan.domain.repository.NotificationRepository
+import com.jaimesorrow.wiccan.ui.settings.AppLocaleProvider
 import java.time.ZoneId
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -26,6 +27,7 @@ class NotificationRepositoryImpl @Inject constructor(
     private val tokenProvider: FcmTokenProvider,
     private val preferences: NotificationPreferences,
     private val auth: FirebaseAuth,
+    private val appLocaleProvider: AppLocaleProvider,
 ) : NotificationRepository {
 
     private val writes = Mutex()
@@ -49,7 +51,13 @@ class NotificationRepositoryImpl @Inject constructor(
 
     private suspend fun register(token: String, uid: String) {
         val enabled = preferences.savedChoice(uid)
-        functionsDataSource.registerToken(token, ZoneId.systemDefault().id, uid, enabled)
+        functionsDataSource.registerToken(
+            token,
+            ZoneId.systemDefault().id,
+            uid,
+            enabled,
+            appLocaleProvider.languageTag(),
+        )
     }
 
     override suspend fun unregisterToken(): AppResult<Unit> = writeForAccount { uid ->
@@ -58,7 +66,14 @@ class NotificationRepositoryImpl @Inject constructor(
 
     override suspend fun setNotificationsEnabled(enabled: Boolean): AppResult<Unit> = writeForAccount { uid ->
         val token = tokenProvider.getToken()
-        functionsDataSource.registerToken(token, ZoneId.systemDefault().id, uid, enabled, updateChoice = true)
+        functionsDataSource.registerToken(
+            token,
+            ZoneId.systemDefault().id,
+            uid,
+            enabled,
+            appLocaleProvider.languageTag(),
+            updateChoice = true,
+        )
         preferences.setNotificationsEnabled(uid, enabled)
     }
 

@@ -123,6 +123,7 @@ class SettingsViewModel @Inject constructor(
             is SettingsUiEvent.NotificationsToggled -> toggleNotifications(event.enabled)
             is SettingsUiEvent.ShareAnalyticsToggled -> toggleShareAnalytics(event.share)
             is SettingsUiEvent.ThemeModeSelected -> selectThemeMode(event.mode)
+            SettingsUiEvent.LanguageChanged -> refreshRegisteredLocale()
         }
     }
 
@@ -221,6 +222,12 @@ class SettingsViewModel @Inject constructor(
                 )
                 is AppResult.Failure -> effectChannel.send(SettingsUiEffect.ShowSnackbar(result.error))
             }
+        }
+    }
+
+    private fun refreshRegisteredLocale() {
+        viewModelScope.launch {
+            notificationRepository.refreshAndRegisterToken()
         }
     }
 

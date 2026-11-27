@@ -85,6 +85,11 @@ describe("handleRtdnNotification", () => {
     await users.setTier("user-1", "premium", TOKEN);
     const subscriptions = new FakeSubscriptionRecordRepository();
     expect((await handleRtdnNotification(TOKEN, billing, users, subscriptions))?.tier).toBe("premium");
+    expect(users.users.get("user-1")).toMatchObject({
+      tier: "premium",
+      subscriptionState: "in_grace_period",
+      productId: "wiccan_premium_yearly",
+    });
 
     billing.respondWith(TOKEN, "on_hold", ["wiccan_premium_yearly"]);
     expect((await handleRtdnNotification(TOKEN, billing, users, subscriptions))?.tier).toBe("free");

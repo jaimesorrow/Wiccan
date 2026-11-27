@@ -34,6 +34,7 @@ sealed class SettingsUiEvent {
     data class NotificationsToggled(val enabled: Boolean) : SettingsUiEvent()
     data class ShareAnalyticsToggled(val share: Boolean) : SettingsUiEvent()
     data class ThemeModeSelected(val mode: WiccanThemeMode) : SettingsUiEvent()
+    data object LanguageChanged : SettingsUiEvent()
 }
 
 sealed class SettingsUiEffect {

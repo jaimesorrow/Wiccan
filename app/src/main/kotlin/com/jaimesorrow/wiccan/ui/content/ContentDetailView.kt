@@ -125,6 +125,12 @@ fun ContentDetailView(
                 style = MaterialTheme.typography.bodyLarge,
                 color = secondaryInk,
             )
+            Text(
+                stringResource(R.string.content_lessons_english_notice),
+                style = MaterialTheme.typography.labelMedium,
+                color = secondaryInk,
+                modifier = Modifier.testTag("lessons-language-notice"),
+            )
         }
         // Compact brand emblem, centered above the header row.
         Box(
