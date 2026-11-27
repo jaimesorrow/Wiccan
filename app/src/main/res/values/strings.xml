@@ -354,4 +354,8 @@
     <string name="notification_channel_daily_description">A note when the day\'s spell, potion, or lesson is ready.</string>
     <string name="notification_daily_default_title">Today\'s practice awaits</string>
     <string name="notification_billing_default_title">Wiccan subscription reminder</string>
+    <string name="notification_permission_title">Let the grimoire call to you each dawn</string>
+    <string name="notification_permission_body">Allow notifications for the optional daily practice and trial-ending reminder. You can turn them off anytime in Settings.</string>
+    <string name="notification_permission_continue">Continue</string>
+    <string name="notification_permission_not_now">Not now</string>
 </resources>
