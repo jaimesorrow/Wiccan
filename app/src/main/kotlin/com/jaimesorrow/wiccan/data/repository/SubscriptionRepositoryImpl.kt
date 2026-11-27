@@ -7,10 +7,13 @@ import com.android.billingclient.api.Purchase
 import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.billing.PREMIUM_MONTHLY_PRODUCT_ID
 import com.jaimesorrow.wiccan.billing.PREMIUM_PRODUCT_IDS
+import com.jaimesorrow.wiccan.billing.PREMIUM_YEARLY_PRODUCT_ID
 import com.jaimesorrow.wiccan.billing.WiccanBillingClient
+import com.jaimesorrow.wiccan.billing.monthlySwitchPurchaseToken
 import com.jaimesorrow.wiccan.billing.obfuscatedAccountId
 import com.jaimesorrow.wiccan.billing.productId
 import com.jaimesorrow.wiccan.billing.subscriptionOffer
+import com.jaimesorrow.wiccan.billing.yearlySwitchOffer
 import com.jaimesorrow.wiccan.core.auth.CurrentUserProvider
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.error.toAppError
@@ -21,6 +24,7 @@ import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import com.jaimesorrow.wiccan.domain.model.SubscriptionState
+import com.jaimesorrow.wiccan.domain.model.YearlySwitchOffer
 import com.jaimesorrow.wiccan.domain.repository.SubscriptionRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -48,6 +52,10 @@ class SubscriptionRepositoryImpl @Inject constructor(
 
     /** Offer last shown per plan, bound to the account it was loaded for. */
     private val selectedOffers = java.util.concurrent.ConcurrentHashMap<SubscriptionPlan, Pair<String, SubscriptionOffer>>()
+
+    /** Switch-to-yearly offer last shown, bound to the account it was loaded for. */
+    @Volatile
+    private var selectedSwitchOffer: Pair<String, YearlySwitchOffer>? = null
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -129,6 +137,13 @@ class SubscriptionRepositoryImpl @Inject constructor(
         return userTierDataSource.observeSubscriptionState(userId)
     }
 
+    override fun observeProductId(): Flow<String?> {
+        val userId = currentUserProvider.currentUserId ?: return flowOf(null)
+        return userTierDataSource.observeProductId(userId)
+    }
+
+    override fun observePurchaseFlowDismissed(): Flow<Unit> = billingClient.purchaseFlowDismissed
+
     override suspend fun showTransactionalMessage(activity: Activity): AppResult<Unit> = try {
         val result = billingClient.showTransactionalMessage(activity)
         if (result.responseCode == BillingClient.BillingResponseCode.OK) {
@@ -175,6 +190,60 @@ class SubscriptionRepositoryImpl @Inject constructor(
         throw t
     } catch (t: Throwable) {
         AppResult.Failure(t.toAppError())
+    }
+
+    override suspend fun getYearlySwitchOffer(): AppResult<YearlySwitchOffer?> = try {
+        selectedSwitchOffer = null
+        val userId = currentUserProvider.currentUserId ?: error("Sign in to load the subscription offer.")
+        val offer = try {
+            billingClient.queryProductDetails(PREMIUM_YEARLY_PRODUCT_ID).yearlySwitchOffer()
+        } catch (t: CancellationException) {
+            throw t
+        } catch (t: Throwable) {
+            Log.w(TAG, "Yearly switch offer unavailable", t)
+            null
+        }
+        if (currentUserProvider.currentUserId != userId) error("The signed-in account changed. Refresh the offer.")
+        if (offer != null) selectedSwitchOffer = userId to offer
+        AppResult.Success(offer)
+    } catch (t: CancellationException) {
+        throw t
+    } catch (t: Throwable) {
+        AppResult.Failure(t.toAppError())
+    }
+
+    override suspend fun launchSwitchToYearly(activity: Activity): AppResult<Unit> {
+        val userId = currentUserProvider.currentUserId ?: return AppResult.Failure(AppError.Unauthorized)
+        return try {
+            val offer = selectedSwitchOffer?.takeIf { it.first == userId }?.second
+                ?: return AppResult.Failure(
+                    AppError.PurchaseVerificationFailed("Refresh the subscription offer before switching plans."),
+                )
+            val serverPurchaseToken = userTierDataSource.currentPurchaseToken(userId)
+            val oldPurchaseToken = monthlySwitchPurchaseToken(
+                billingClient.queryOwnedSubscriptions(),
+                obfuscatedAccountId(userId),
+                serverPurchaseToken,
+            ) ?: return AppResult.Failure(
+                AppError.PurchaseVerificationFailed(
+                    "Your monthly subscription could not be found. Open Google Play to manage it, or try again.",
+                ),
+            )
+            val result = billingClient.launchPlanChangeFlow(activity, userId, offer, oldPurchaseToken)
+            if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                AppResult.Success(Unit)
+            } else {
+                AppResult.Failure(
+                    AppError.PurchaseVerificationFailed(
+                        result.debugMessage.ifBlank { "Google Play could not start the plan change." },
+                    ),
+                )
+            }
+        } catch (t: CancellationException) {
+            throw t
+        } catch (t: Throwable) {
+            AppResult.Failure(t.toAppError())
+        }
     }
 
     override suspend fun restorePurchases(): AppResult<Unit> {

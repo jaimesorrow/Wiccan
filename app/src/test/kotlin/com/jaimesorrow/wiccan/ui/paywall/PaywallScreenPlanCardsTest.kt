@@ -43,6 +43,7 @@ class PaywallScreenPlanCardsTest {
         SubscriptionPlan.YEARLY,
         39_990_000L,
         "USD",
+        freeTrialDays = 14,
     )
 
     @Test
@@ -78,6 +79,24 @@ class PaywallScreenPlanCardsTest {
         composeRule.onNodeWithText("Yearly").assertDoesNotExist()
         composeRule.onNodeWithText("7 days free").assertIsDisplayed()
         composeRule.onNodeWithText("Then $5.99 per month. Auto-renews until canceled.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `trial wording uses the offer period for each plan`() {
+        launch(yearlyOffer = yearly)
+
+        composeRule.onNodeWithText("Yearly: 14 days free, then $39.99/year").assertIsDisplayed()
+        composeRule.onNodeWithText("Start My 14-Day Free Trial").assertIsDisplayed()
+        composeRule.onNodeWithText(
+            "No charge during the 14-day trial. Google Play charges $39.99 yearly after the trial unless canceled before it ends. Cancel anytime through Google Play.",
+        ).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("14-day free trial", substring = true).performScrollTo().assertIsDisplayed()
+
+        composeRule.onNodeWithTag("paywall-plan-monthly").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("Monthly: 7 days free, then $5.99/month").assertIsDisplayed()
+        composeRule.onNodeWithText("Start My 7-Day Free Trial").assertIsDisplayed()
+        composeRule.onNodeWithText("7-day free trial", substring = true).performScrollTo().assertIsDisplayed()
     }
 
     @Test

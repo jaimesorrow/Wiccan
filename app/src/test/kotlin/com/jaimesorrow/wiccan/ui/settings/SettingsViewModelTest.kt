@@ -1,15 +1,20 @@
 package com.jaimesorrow.wiccan.ui.settings
 
+import android.app.Activity
 import app.cash.turbine.test
 import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
+import com.jaimesorrow.wiccan.billing.PREMIUM_MONTHLY_PRODUCT_ID
+import com.jaimesorrow.wiccan.billing.PREMIUM_YEARLY_PRODUCT_ID
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.data.local.ThemePreferences
 import com.jaimesorrow.wiccan.domain.model.AuthState
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.ProfileName
+import com.jaimesorrow.wiccan.domain.model.SubscriptionState
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
+import com.jaimesorrow.wiccan.domain.model.YearlySwitchOffer
 import com.jaimesorrow.wiccan.domain.repository.NotificationRepository
 import com.jaimesorrow.wiccan.domain.usecase.DeleteAccountUseCase
 import com.jaimesorrow.wiccan.ui.auth.FakeAuthRepository
@@ -30,6 +35,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -312,5 +318,78 @@ class SettingsViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
 
         coVerify { notificationRepository.refreshAndRegisterToken() }
+    }
+
+    @Test
+    fun `switch to yearly is shown only to an active monthly subscriber with a Play offer`() = runTest(dispatcher) {
+        val offer = YearlySwitchOffer("switch-token", "$39.99", "$0.99", 39_990_000L, "USD")
+        subscriptionRepository.yearlySwitchOffer = offer
+        dispatcher.scheduler.advanceUntilIdle()
+        assertNull(viewModel.state.value.yearlySwitchOffer)
+
+        subscriptionRepository.emitTier(ContentTier.PREMIUM)
+        subscriptionRepository.emitSubscriptionState(SubscriptionState.ACTIVE)
+        subscriptionRepository.emitProductId(PREMIUM_MONTHLY_PRODUCT_ID)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(offer, viewModel.state.value.yearlySwitchOffer)
+
+        subscriptionRepository.emitSubscriptionState(SubscriptionState.IN_GRACE_PERIOD)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertNull(viewModel.state.value.yearlySwitchOffer)
+
+        subscriptionRepository.emitSubscriptionState(SubscriptionState.ON_HOLD)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertNull(viewModel.state.value.yearlySwitchOffer)
+
+        subscriptionRepository.emitSubscriptionState(SubscriptionState.ACTIVE)
+        subscriptionRepository.emitProductId(PREMIUM_YEARLY_PRODUCT_ID)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertNull(viewModel.state.value.yearlySwitchOffer)
+    }
+
+    @Test
+    fun `switch to yearly launches Play replacement for an eligible subscriber`() = runTest(dispatcher) {
+        val activity = mockk<Activity>()
+        subscriptionRepository.yearlySwitchOffer = YearlySwitchOffer("switch-token", "$39.99", "$0.99")
+        subscriptionRepository.emitTier(ContentTier.PREMIUM)
+        subscriptionRepository.emitSubscriptionState(SubscriptionState.ACTIVE)
+        subscriptionRepository.emitProductId(PREMIUM_MONTHLY_PRODUCT_ID)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.switchToYearly(activity)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(1, subscriptionRepository.switchLaunchCallCount)
+        assertEquals(listOf(activity), subscriptionRepository.launchCalls)
+        assertFalse(viewModel.state.value.isSwitchBusy)
+        assertNull(viewModel.state.value.yearlySwitchOffer)
+
+        viewModel.switchToYearly(activity)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(1, subscriptionRepository.switchLaunchCallCount)
+
+        subscriptionRepository.emitPurchaseFlowDismissed()
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(YearlySwitchOffer("switch-token", "$39.99", "$0.99"), viewModel.state.value.yearlySwitchOffer)
+    }
+
+    @Test
+    fun `switch to yearly is ignored while the account is being deleted`() = runTest(dispatcher) {
+        val activity = mockk<Activity>()
+        subscriptionRepository.yearlySwitchOffer = YearlySwitchOffer("switch-token", "$39.99", "$0.99")
+        subscriptionRepository.emitTier(ContentTier.PREMIUM)
+        subscriptionRepository.emitSubscriptionState(SubscriptionState.ACTIVE)
+        subscriptionRepository.emitProductId(PREMIUM_MONTHLY_PRODUCT_ID)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.onEvent(SettingsUiEvent.DeleteAccountClicked)
+        viewModel.onEvent(SettingsUiEvent.ConfirmDeleteAccount)
+        assertTrue(viewModel.state.value.isDeleting)
+
+        viewModel.switchToYearly(activity)
+        assertEquals(0, subscriptionRepository.switchLaunchCallCount)
+
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(0, subscriptionRepository.switchLaunchCallCount)
+        assertFalse(viewModel.state.value.isDeleting)
     }
 }

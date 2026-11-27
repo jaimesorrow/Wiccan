@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
+import com.jaimesorrow.wiccan.domain.model.YearlySwitchOffer
 
 data class SettingsUiState(
     val isDeleting: Boolean = false,
@@ -18,6 +19,8 @@ data class SettingsUiState(
     val isNotificationBusy: Boolean = false,
     val shareAnalytics: Boolean = false,
     val themeMode: WiccanThemeMode = WiccanThemeMode.DEFAULT,
+    val yearlySwitchOffer: YearlySwitchOffer? = null,
+    val isSwitchBusy: Boolean = false,
 )
 
 sealed class SettingsUiEvent {

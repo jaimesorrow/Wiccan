@@ -253,4 +253,31 @@ describe("verifyPurchaseAndSyncTier", () => {
       .rejects.toThrow("replaced by a newer subscription");
     expect(users.users.get(UID)?.purchaseToken).toBe(TOKEN);
   });
+
+  it("supersedes a monthly subscription when verifying a linked yearly replacement", async () => {
+    const billing = new FakePlayBillingPort();
+    const users = new FakeUserRepository([UID]);
+    await users.setTier(UID, "premium", "monthly-token", "purchase", undefined, {
+      subscriptionState: "active",
+      productId: PRODUCT_ID,
+    });
+    billing.respondWith(TOKEN, "active", [YEARLY_PRODUCT_ID], { linkedPurchaseToken: "monthly-token" });
+    const subscriptions = new FakeSubscriptionRecordRepository();
+
+    expect(await verifyPurchaseAndSyncTier(UID, TOKEN, YEARLY_PRODUCT_ID, billing, users, subscriptions)).toBe("premium");
+    expect(users.users.get(UID)).toMatchObject({
+      tier: "premium",
+      purchaseToken: TOKEN,
+      subscriptionState: "active",
+      productId: YEARLY_PRODUCT_ID,
+    });
+    expect(users.supersededTokens.has("monthly-token")).toBe(true);
+    expect(subscriptions.records.get(UID)?.productId).toBe(YEARLY_PRODUCT_ID);
+
+    billing.respondWith("monthly-token", "canceled", [PRODUCT_ID], { expiryTimeMillis: Date.now() + 86400000 });
+    await expect(verifyPurchaseAndSyncTier(UID, "monthly-token", PRODUCT_ID, billing, users, subscriptions))
+      .rejects.toThrow("replaced by a newer subscription");
+    expect(users.users.get(UID)?.purchaseToken).toBe(TOKEN);
+    expect(users.users.get(UID)?.productId).toBe(YEARLY_PRODUCT_ID);
+  });
 });
