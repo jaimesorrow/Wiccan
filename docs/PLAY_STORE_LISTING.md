@@ -19,19 +19,20 @@ against the build uploaded to Play before submission.
 
 ### Short description
 
-> Explore cited witchcraft history through daily lessons and guided practice.
+> Explore cited witchcraft history through daily entries and guided practice.
 
 ### Full description
 
-> Explore the history of witchcraft through guided daily lessons grounded in
+> Explore the history of witchcraft through guided daily entries grounded in
 > ancient texts, public-domain grimoires, folklore, and documented historical
-> sources. Every lesson includes a historical brief, a citation, and a source
-> link, with clear distinctions between historical belief, modern symbolism,
-> and personal reflection.
+> sources, with citations and source links where available and clear
+> distinctions between historical belief, modern symbolism, and personal
+> reflection.
 >
-> Receive one selected lesson each day, follow its step-by-step optional
-> practice, and revisit delivered lessons in your Grimoire. Lessons may include
-> materials, reflection prompts, and safety notes where extra care is needed.
+> Receive one selected lesson, spell, or potion entry each day, follow its
+> optional guided practice, and revisit delivered entries in your Grimoire.
+> Entries may include materials, reflection prompts, and safety notes where
+> extra care is needed.
 >
 > Make the experience your own with seasonal and selectable themes. Optional
 > daily reminders help you return to your practice without turning it into an
@@ -104,13 +105,14 @@ current Home/moon-and-Wheel view, daily lesson reader and its materials,
 historical brief/citation/source, Grimoire, real-price subscription choice,
 theme selection, account/onboarding where useful, and the verified widget.
 
-Do not show or name **Cosmic Timing**, **Flow Mode**, **My Cabinet**,
-**Community Altar**, **Luna Grimoire**, or an expanded concept Home as app
-features. Reference images containing those concepts cannot be used as product
-screenshots. Their palette, texture, typography, decorative borders, celestial
-symbols and photographic mood may inform non-functional backgrounds or
-framing only when the final graphic cannot reasonably imply that the concept
-exists in the app.
+Do not show or name the unshipped reference designs for **Flow Mode**, **My
+Cabinet**, **Community Altar**, **Luna Grimoire**, or an expanded concept Home
+as app features. The production Home's existing **Cosmic Timing** card may
+appear only in an unaltered capture verified against the uploaded build; the
+separate reference-design version remains prohibited. Reference-image palette,
+texture, typography, decorative borders, celestial symbols and photographic
+mood may inform non-functional backgrounds or framing only when the final
+graphic cannot reasonably imply that an unshipped concept exists in the app.
 
 The Luna Grimoire sign-in/Home/Lesson View triptych is likewise composition and
 palette inspiration only. Do not reuse its name, screen layout, navigation,

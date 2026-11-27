@@ -244,10 +244,12 @@ Manager/Google ID, and Google Play Billing.
   screenshots are not production evidence.
 - [ ] Add a 30-second caption-only promo video of the same real flow; no outcome
   claims or unverified feature footage.
-- [ ] Treat concept/reference images as art direction only. Do not show Cosmic
-  Timing, Flow Mode, My Cabinet, Community Altar, Luna Grimoire, or an expanded
-  concept Home as shipped UI. Decorative palette, type, texture, celestial and
-  botanical motifs are acceptable only when they do not imply those features.
+- [ ] Treat concept/reference images as art direction only. Do not show Flow
+  Mode, My Cabinet, Community Altar, Luna Grimoire, or an expanded concept Home
+  as shipped UI. An unaltered capture of the production Home's existing Cosmic
+  Timing card is allowed only after verification against the uploaded build;
+  the separate reference-design version is not. Decorative motifs must not
+  imply unshipped features.
 - [ ] Keep decorative/editorial photography separate from the required real-app
   screenshot set; it neither replaces nor counts as a production screenshot.
 - [ ] Set category to Education, keep target audience at adults 18+ only, and do
@@ -256,8 +258,9 @@ Manager/Google ID, and Google Play Billing.
   and compare every claim with the uploaded build and published content.
 - [ ] “Contains ads” set to No and “In-app purchases” displayed.
 - [ ] Production signing/App Signing configured. The four `RELEASE_*`
-  repository secrets have produced a verified signed bundle; confirm Play App
-  Signing at the first upload. Increment the version code for every later
+  repository secrets produced a verified signed bundle in
+  [Release bundle run 44897968528](https://github.com/jaimesorrow/Wiccan/actions/runs/44897968528);
+  confirm Play App Signing at the first upload. Increment the version code for every later
   upload (`versionCode` is currently 4).
 - [ ] Current target API policy rechecked. Repo currently uses `targetSdk = 36`.
 - [ ] Production Firebase, App Check/Play Integrity, Auth certificates, Functions,
