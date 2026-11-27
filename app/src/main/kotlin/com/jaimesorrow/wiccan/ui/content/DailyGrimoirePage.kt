@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -57,26 +59,49 @@ private val PageShape = RoundedCornerShape(6.dp)
  * Today's page, laid out like an open grimoire leaf: calligraphy title,
  * italic editorial prose, a candle at the top right and a quill at the bottom left.
  * Safety, source, and rights stay in the plain body face.
+ *
+ * When [fillViewport] is true (default), the parchment leaf grows to consume the
+ * space below the moon row so short lessons do not leave a void on the wood
+ * background. Long copy scrolls inside the leaf instead of the outer column.
  */
 @Composable
 internal fun DailyGrimoirePage(
     content: Content,
     modifier: Modifier = Modifier,
     onOpenGrimoire: (() -> Unit)? = null,
+    fillViewport: Boolean = true,
 ) {
     val moonIndex = remember { CelestialCalculator.moon(Instant.now()).trackIndex }
-    Box(modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(R.drawable.grimoire_wood),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize(),
-        )
-        Box(Modifier.fillMaxSize().background(Midnight.copy(alpha = 0.42f)))
+    val pageModifier =
+        if (fillViewport) {
+            modifier.fillMaxSize()
+        } else {
+            modifier.fillMaxWidth().wrapContentHeight()
+        }
+    val woodPainter = painterResource(R.drawable.grimoire_wood)
+    Box(pageModifier) {
+        if (fillViewport) {
+            Image(
+                painter = woodPainter,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize(),
+            )
+            Box(Modifier.matchParentSize().background(Midnight.copy(alpha = 0.42f)))
+        }
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .then(
+                    if (fillViewport) {
+                        Modifier.matchParentSize()
+                    } else {
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .paint(woodPainter, contentScale = ContentScale.Crop)
+                            .background(Midnight.copy(alpha = 0.42f))
+                    },
+                )
                 .padding(horizontal = 12.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -90,13 +115,38 @@ internal fun DailyGrimoirePage(
                     lineHeight = 22.sp,
                 ),
             )
-            LessonLeaf(content = content, onOpenGrimoire = onOpenGrimoire)
+            if (fillViewport) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f, fill = true)
+                        .fillMaxWidth(),
+                ) {
+                    LessonLeaf(
+                        content = content,
+                        onOpenGrimoire = onOpenGrimoire,
+                        modifier = Modifier.fillMaxSize(),
+                        scrollInsideLeaf = true,
+                    )
+                }
+            } else {
+                LessonLeaf(
+                    content = content,
+                    onOpenGrimoire = onOpenGrimoire,
+                    modifier = Modifier.fillMaxWidth(),
+                    scrollInsideLeaf = false,
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun LessonLeaf(content: Content, onOpenGrimoire: (() -> Unit)?) {
+private fun LessonLeaf(
+    content: Content,
+    modifier: Modifier = Modifier,
+    onOpenGrimoire: (() -> Unit)?,
+    scrollInsideLeaf: Boolean,
+) {
     val prose = MaterialTheme.typography.bodyLarge.copy(
         fontFamily = WiccanEditorialFont,
         fontStyle = FontStyle.Italic,
@@ -104,7 +154,8 @@ private fun LessonLeaf(content: Content, onOpenGrimoire: (() -> Unit)?) {
         lineHeight = 26.sp,
         color = Ink,
     )
-    Box(modifier = Modifier.fillMaxWidth()) {
+    val scrollState = rememberScrollState()
+    Box(modifier = modifier) {
         Image(
             painter = painterResource(R.drawable.grimoire_parchment),
             contentDescription = null,
@@ -120,7 +171,15 @@ private fun LessonLeaf(content: Content, onOpenGrimoire: (() -> Unit)?) {
         )
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .then(
+                    if (scrollInsideLeaf) {
+                        Modifier
+                            .matchParentSize()
+                            .verticalScroll(scrollState)
+                    } else {
+                        Modifier.fillMaxWidth()
+                    },
+                )
                 .padding(start = 18.dp, end = 18.dp, top = 18.dp, bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {

@@ -9,8 +9,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -169,9 +171,28 @@ class GrimoireScreenScreenshotTest {
     }
 
     @Test
-    @Config(sdk = [34], qualifiers = "w360dp-h2600dp-xhdpi", application = android.app.Application::class)
     fun `capture daily lesson`() = capture("wiccan-lesson") {
-        DailyGrimoirePage(content = sampleLesson())
+        MidnightGrimoireTheme {
+            DailyGrimoirePage(content = sampleLesson())
+        }
+    }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "w360dp-h2400dp-xhdpi", application = android.app.Application::class)
+    fun `capture daily lesson full content`() {
+        composeRule.setContent {
+            MidnightGrimoireTheme {
+                DailyGrimoirePage(
+                    content = sampleLongLesson(),
+                    fillViewport = false,
+                    modifier = Modifier.testTag("grimoire_daily_lesson"),
+                )
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("grimoire_daily_lesson").captureRoboImage(
+            filePath = "build/outputs/roborazzi/wiccan-lesson-full.png",
+        )
     }
 
     @Test
@@ -259,6 +280,15 @@ class GrimoireScreenScreenshotTest {
             mockk(relaxed = true),
             consent,
         )
+    }
+
+    private fun sampleLongLesson(): Content {
+        val body = buildString {
+            repeat(22) {
+                appendLine("Breathe with the flame and name one honest intention you can tend this month.")
+            }
+        }
+        return sampleLesson().copy(body = body)
     }
 
     private fun sampleLesson() = Content(
