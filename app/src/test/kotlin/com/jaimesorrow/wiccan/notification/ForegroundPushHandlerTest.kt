@@ -66,4 +66,45 @@ class ForegroundPushHandlerTest {
         assertFalse(handler.handle(content))
         verify(exactly = 0) { poster.post(any()) }
     }
+
+    private val billing = ForegroundNotificationContent(
+        title = "Your free trial ends soon",
+        body = "Ends Jan 7",
+        channelId = BILLING_REMINDERS_CHANNEL_ID,
+        type = BILLING_REMINDER_TYPE,
+        accountUid = "uid-a",
+    )
+
+    @Test
+    fun `a trial reminder posts even with the daily reminder off`() = runTest {
+        reminderOn.value = false
+
+        assertTrue(handler.handle(billing))
+        verify(exactly = 1) { poster.post(billing) }
+    }
+
+    @Test
+    fun `a trial reminder does not wait on the daily choice at all`() = runTest {
+        every { repository.notificationsEnabled } returns emptyFlow()
+
+        assertTrue(handler.handle(billing))
+        verify(exactly = 0) { repository.notificationsEnabled }
+    }
+
+    @Test
+    fun `a trial reminder is never posted after sign-out`() = runTest {
+        uid = null
+
+        assertFalse(handler.handle(billing))
+        verify(exactly = 0) { poster.post(any()) }
+    }
+
+    @Test
+    fun `a push addressed to another account is dropped`() = runTest {
+        uid = "uid-b"
+
+        assertFalse(handler.handle(billing))
+        assertFalse(handler.handle(content.copy(accountUid = "uid-a")))
+        verify(exactly = 0) { poster.post(any()) }
+    }
 }

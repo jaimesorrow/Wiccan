@@ -62,6 +62,7 @@ export async function verifyPurchaseAndSyncTier(
     subscriptionState: info.state,
     expiryTimeMillis: info.expiryTimeMillis,
     autoRenewing: info.autoRenewing,
+    inFreeTrial: info.inFreeTrial === true,
   });
 
   if (tier === "premium" && !info.acknowledged) {
