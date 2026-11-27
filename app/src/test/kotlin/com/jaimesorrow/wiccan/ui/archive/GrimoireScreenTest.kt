@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -110,7 +111,7 @@ class GrimoireScreenTest {
         composeRule.onNodeWithTag("grimoire-etymology-body").assertIsDisplayed()
         composeRule.onNodeWithTag("grimoire-search").performTextInput("missing")
         composeRule.onNodeWithText("No entries match your search.").assertIsDisplayed()
-        composeRule.onNodeWithText("Clear").assertIsDisplayed().performClick()
+        composeRule.onNodeWithContentDescription("Clear").assertIsDisplayed().performClick()
         composeRule.onNodeWithText(entry.title).assertIsDisplayed()
     }
 }
