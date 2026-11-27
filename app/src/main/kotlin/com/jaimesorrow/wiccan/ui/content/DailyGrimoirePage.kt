@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -155,6 +156,10 @@ private fun LessonLeaf(
         color = Ink,
     )
     val scrollState = rememberScrollState()
+    val fontScale = LocalDensity.current.fontScale
+    val topCandleBand = 104.dp * fontScale
+    val endCandleInset = 116.dp * fontScale
+    val startTextInset = 18.dp
     Box(modifier = modifier) {
         Image(
             painter = painterResource(R.drawable.grimoire_parchment),
@@ -180,17 +185,21 @@ private fun LessonLeaf(
                         Modifier.fillMaxWidth()
                     },
                 )
-                .padding(start = 18.dp, end = 18.dp, top = 18.dp, bottom = 28.dp),
+                .padding(
+                    start = startTextInset,
+                    end = endCandleInset,
+                    top = 18.dp,
+                    bottom = 24.dp,
+                ),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(topCandleBand))
             Text(
                 text = content.title,
                 color = Ink,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 48.dp)
                     .semantics { heading() },
                 style = MaterialTheme.typography.displaySmall.copy(
                     fontFamily = Quill,
@@ -246,13 +255,20 @@ private fun LessonLeaf(
                     Text(stringResource(R.string.today_open_grimoire), color = Ink)
                 }
             }
-            Spacer(Modifier.height(56.dp))
+            val quillDescription = stringResource(R.string.lesson_quill_description)
+            QuillAndInkpotOrnament(
+                Modifier
+                    .padding(top = 16.dp)
+                    .size(width = 116.dp, height = 84.dp)
+                    .semantics { contentDescription = quillDescription },
+            )
+            Spacer(Modifier.height(12.dp))
         }
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 4.dp, end = 4.dp)
-                .size(120.dp),
+                .padding(top = 6.dp, end = 10.dp)
+                .size(104.dp),
         ) {
             GrimoireCandleGlow(Modifier.fillMaxSize())
         }
@@ -262,17 +278,9 @@ private fun LessonLeaf(
             contentDescription = candleDescription,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 2.dp)
-                .size(width = 96.dp, height = 104.dp)
-                .offset(x = 6.dp, y = (-4).dp),
-        )
-        val quillDescription = stringResource(R.string.lesson_quill_description)
-        QuillAndInkpotOrnament(
-            Modifier
-                .align(Alignment.BottomStart)
-                .padding(start = 4.dp, bottom = 2.dp)
-                .size(width = 116.dp, height = 84.dp)
-                .semantics { contentDescription = quillDescription },
+                .padding(top = 8.dp, end = 10.dp)
+                .size(width = 88.dp, height = 96.dp)
+                .offset(x = 0.dp, y = 0.dp),
         )
     }
 }
@@ -292,13 +300,18 @@ private fun SectionTitle(text: String) {
 
 @Composable
 private fun PlainSection(title: String, body: String) {
+    val plain = MaterialTheme.typography
     Text(
         text = title,
         color = Ink,
         modifier = Modifier.semantics { heading() },
-        style = MaterialTheme.typography.labelLarge,
+        style = plain.labelLarge,
     )
-    Text(text = body, color = Ink, style = MaterialTheme.typography.bodyMedium)
+    Text(
+        text = body,
+        color = Ink,
+        style = plain.bodyMedium,
+    )
 }
 
 private fun roman(value: Int): String {

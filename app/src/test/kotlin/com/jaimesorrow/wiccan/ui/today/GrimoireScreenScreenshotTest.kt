@@ -8,7 +8,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -17,6 +19,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.jaimesorrow.wiccan.AccountStatusError
@@ -171,10 +174,34 @@ class GrimoireScreenScreenshotTest {
     }
 
     @Test
-    fun `capture daily lesson`() = capture("wiccan-lesson") {
-        MidnightGrimoireTheme {
-            DailyGrimoirePage(content = sampleLesson())
+    fun `capture daily lesson`() {
+        composeRule.setContent {
+            MidnightGrimoireTheme {
+                DailyGrimoirePage(content = sampleLesson())
+            }
         }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("Safety note").performScrollTo()
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/wiccan-lesson.png")
+    }
+
+    @Test
+    fun `capture daily lesson at 130 percent text`() {
+        composeRule.setContent {
+            val density = LocalDensity.current.density
+            CompositionLocalProvider(LocalDensity provides Density(density, fontScale = 1.3f)) {
+                MidnightGrimoireTheme {
+                    DailyGrimoirePage(content = sampleLesson())
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("Safety note").performScrollTo()
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(
+            filePath = "build/outputs/roborazzi/wiccan-lesson-font-130.png",
+        )
     }
 
     @Test
