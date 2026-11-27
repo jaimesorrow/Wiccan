@@ -19,6 +19,7 @@ import com.jaimesorrow.wiccan.domain.model.PolicyVersions
 import com.jaimesorrow.wiccan.domain.model.ProfileName
 import com.jaimesorrow.wiccan.domain.model.UsernameRules
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
+import com.jaimesorrow.wiccan.ui.settings.AppLocaleProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
@@ -39,6 +40,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val googleCredentialDataSource: GoogleCredentialDataSource,
     private val accountFunctionsDataSource: AccountFunctionsDataSource,
+    private val appLocaleProvider: AppLocaleProvider,
     private val analyticsLogger: AnalyticsLogger,
 ) : AuthRepository {
     private val verificationRefresh = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -151,7 +153,7 @@ class AuthRepositoryImpl @Inject constructor(
             // and the caller receives the delivery failure rather than a silent
             // dead end.
             try {
-                accountFunctionsDataSource.sendVerificationEmail()
+                accountFunctionsDataSource.sendVerificationEmail(appLocaleProvider.languageTag())
             } catch (t: Throwable) {
                 if (t is CancellationException) throw t
                 // The Firebase account is intentionally kept signed in so the
@@ -183,7 +185,7 @@ class AuthRepositoryImpl @Inject constructor(
         if (user == null) {
             AppResult.Failure(AppError.Unauthorized)
         } else {
-            if (!user.isEmailVerified) accountFunctionsDataSource.sendVerificationEmail()
+            if (!user.isEmailVerified) accountFunctionsDataSource.sendVerificationEmail(appLocaleProvider.languageTag())
             AppResult.Success(Unit)
         }
     } catch (t: Throwable) {

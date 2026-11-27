@@ -44,6 +44,7 @@ import { loadContentSources } from "./contentSource";
 import { loadSourcePassages } from "./sourcePassages";
 import { sendTrialEndingReminders } from "./trialEndingReminders";
 import { FirestoreTrialReminderRepository } from "./firestoreTrialReminderRepository";
+import { canonicalizeLocale, optionalCanonicalizeLocale } from "./locale";
 
 initializeApp();
 
@@ -110,7 +111,7 @@ export const sendVerificationEmail = onCall(
     });
 
     const verificationLink = await getAuth().generateEmailVerificationLink(user.email);
-    const message = renderVerificationEmail(verificationLink, user.displayName);
+    const message = renderVerificationEmail(verificationLink, user.displayName, canonicalizeLocale(request.data?.locale));
 
     if (process.env.FUNCTIONS_EMULATOR === "true") {
       logger.info("Wiccan verification email preview", {
@@ -338,6 +339,7 @@ export const registerDeviceToken = onCall(CALLABLE_OPTIONS, async (request) => {
   if (requestedTimeZone !== undefined && !timeZone) {
     throw new HttpsError("invalid-argument", "timeZone must be a valid bounded time-zone identifier.");
   }
+  const locale = optionalCanonicalizeLocale(request.data?.locale);
   const enabled = request.data?.enabled;
   const updateChoice = request.data?.updateChoice;
   if ((enabled !== undefined && typeof enabled !== "boolean") ||
@@ -348,7 +350,7 @@ export const registerDeviceToken = onCall(CALLABLE_OPTIONS, async (request) => {
 
   try {
     const users = new FirestoreNotificationUserRepository(getFirestore());
-    await users.setToken(uid, token, timeZone, enabled, updateChoice === true);
+    await users.setToken(uid, token, timeZone, locale, enabled, updateChoice === true);
     return { preferenceSupported: true };
   } catch (err) {
     logger.error("registerDeviceToken failed", { uid, error: (err as Error).message });

@@ -265,6 +265,12 @@
     <string name="settings_notifications_hint">A soft bell when the day\'s working is laid upon the altar.</string>
     <string name="settings_palette">Palette</string>
     <string name="settings_palette_hint">Midnight Grimoire holds these pages. A choice you save is remembered.</string>
+    <string name="settings_language">App language</string>
+    <string name="settings_language_hint">Choose the language for navigation and controls. Lessons remain in English.</string>
+    <string name="settings_language_system">Use device language</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_portuguese_brazil">Português (Brasil)</string>
+    <string name="settings_language_english">English</string>
     <string name="settings_section_spiritual">SPIRITUAL PREFERENCES</string>
     <string name="settings_section_grimoire">GRIMOIRE VIEW</string>
     <string name="settings_section_data">MY DATA &amp; ACCOUNT</string>
@@ -324,6 +330,7 @@
     <string name="nav_grimoire">Grimoire</string>
     <string name="nav_settings">Settings</string>
     <string name="content_lesson_image_description">Illustration for %1$s</string>
+    <string name="content_lessons_english_notice">Lesson text is currently available in English.</string>
 
     <!-- Errors -->
     <string name="error_network">The spell faltered. Check your connection and try again.</string>

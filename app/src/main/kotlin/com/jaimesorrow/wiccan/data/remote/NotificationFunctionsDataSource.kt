@@ -12,6 +12,7 @@ class NotificationFunctionsDataSource @Inject constructor(
         timeZone: String,
         uid: String,
         enabled: Boolean?,
+        locale: String,
         updateChoice: Boolean = false,
     ) {
         val result = functions.getHttpsCallable(REGISTER_FUNCTION_NAME)
@@ -20,6 +21,7 @@ class NotificationFunctionsDataSource @Inject constructor(
                     put("token", token)
                     put("timeZone", timeZone)
                     put("expectedUid", uid)
+                    put("locale", locale)
                     enabled?.let { put("enabled", it) }
                     if (updateChoice) put("updateChoice", true)
                 },
