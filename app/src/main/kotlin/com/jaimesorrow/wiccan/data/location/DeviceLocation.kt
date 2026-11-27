@@ -24,6 +24,7 @@ fun hasCoarseLocationPermission(context: Context): Boolean {
 }
 
 /** Last coarse fix, or null when permission or a provider fix is unavailable. */
+@SuppressLint("MissingPermission")
 fun lastKnownCoordinate(context: Context): GeoCoordinate? {
     if (!hasCoarseLocationPermission(context)) return null
     val manager = context.getSystemService(LocationManager::class.java) ?: return null
