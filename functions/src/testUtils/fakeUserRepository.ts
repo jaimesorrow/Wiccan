@@ -58,13 +58,13 @@ export class FakeUserRepository implements UserRepositoryPort {
     return tier;
   }
 
-  async listUsersWithPurchaseTokens(): Promise<PremiumUserRecord[]> {
+  async listPremiumUsers(): Promise<PremiumUserRecord[]> {
     return [...this.users.entries()]
-      .filter((entry): entry is [string, { tier: ContentTier; purchaseToken: string }] => {
+      .filter((entry): entry is [string, { tier: "premium"; purchaseToken: string }] => {
         const [, record] = entry;
-        return typeof record.purchaseToken === "string";
+        return record.tier === "premium" && typeof record.purchaseToken === "string";
       })
-      .map(([uid, record]) => ({ uid, purchaseToken: record.purchaseToken, tier: record.tier }));
+      .map(([uid, record]) => ({ uid, purchaseToken: record.purchaseToken }));
   }
 
   async findUidByPurchaseToken(purchaseToken: string): Promise<string | null> {

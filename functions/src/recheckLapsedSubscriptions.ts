@@ -14,10 +14,9 @@ export interface RecheckSummary {
  * Subscriptions can lapse (cancellation past its paid-through expiry, a
  * failed renewal charge moving to on_hold/expired) without any app-side
  * event ever firing, so this periodically re-verifies every user
- * with a stored Play token. This also restores a user whose subscription
- * recovered from on_hold while their account was marked free. Still-entitled
- * users (including canceled-but-not-yet-expired) remain premium. One invalid
- * token/API failure is logged and counted
+ * currently marked premium and downgrades any that are no longer
+ * entitled. Still-entitled users (including canceled-but-not-yet-expired)
+ * remain premium. One invalid token/API failure is logged and counted
  * without preventing the remaining users from being reconciled.
  */
 export async function recheckLapsedSubscriptions(
@@ -25,11 +24,11 @@ export async function recheckLapsedSubscriptions(
   users: UserRepositoryPort,
   subscriptions: SubscriptionRecordPort,
 ): Promise<RecheckSummary> {
-  const usersWithPurchaseTokens = await users.listUsersWithPurchaseTokens();
+  const premiumUsers = await users.listPremiumUsers();
   let downgraded = 0;
   let failed = 0;
 
-  for (const user of usersWithPurchaseTokens) {
+  for (const user of premiumUsers) {
     try {
       const info = await billing.getSubscriptionState(user.purchaseToken);
       const tier = tierForSubscription(info);
@@ -43,7 +42,7 @@ export async function recheckLapsedSubscriptions(
         autoRenewing: info.autoRenewing,
         inFreeTrial: info.inFreeTrial === true,
       });
-      if (user.tier === "premium" && syncedTier === "free") downgraded++;
+      if (syncedTier === "free") downgraded++;
       const premiumProduct = info.productIds.find((id) => PREMIUM_PRODUCT_IDS.has(id));
       if (syncedTier === "premium" && !info.acknowledged && premiumProduct) {
         await billing.acknowledgePurchaseIfNeeded(user.purchaseToken, premiumProduct);
@@ -54,5 +53,5 @@ export async function recheckLapsedSubscriptions(
     }
   }
 
-  return { checked: usersWithPurchaseTokens.length, downgraded, failed };
+  return { checked: premiumUsers.length, downgraded, failed };
 }

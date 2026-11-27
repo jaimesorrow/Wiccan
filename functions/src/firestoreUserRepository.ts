@@ -136,15 +136,11 @@ export class FirestoreUserRepository implements UserRepositoryPort {
     });
   }
 
-  async listUsersWithPurchaseTokens(): Promise<PremiumUserRecord[]> {
-    const snap = await this.db.collection(USERS_COLLECTION).where("purchaseToken", "!=", null).get();
+  async listPremiumUsers(): Promise<PremiumUserRecord[]> {
+    const snap = await this.db.collection(USERS_COLLECTION).where("tier", "==", "premium").get();
     return snap.docs
       .filter((doc) => typeof doc.get("purchaseToken") === "string")
-      .map((doc) => ({
-        uid: doc.id,
-        purchaseToken: doc.get("purchaseToken") as string,
-        tier: doc.get("tier") === "premium" ? "premium" : "free",
-      }));
+      .map((doc) => ({ uid: doc.id, purchaseToken: doc.get("purchaseToken") as string }));
   }
 
   async findUidByPurchaseToken(purchaseToken: string): Promise<string | null> {

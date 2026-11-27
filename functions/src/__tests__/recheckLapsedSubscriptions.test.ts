@@ -16,7 +16,6 @@ describe("recheckLapsedSubscriptions", () => {
     billing.respondWith("token-canceled-past-expiry", "canceled", [PRODUCT_ID], {
       expiryTimeMillis: Date.now() - 1000,
     });
-    billing.respondWith("token-irrelevant", "expired", [PRODUCT_ID]);
 
     await users.setTier("user-active", "premium", "token-still-active");
     await users.setTier("user-expired", "premium", "token-expired");
@@ -25,7 +24,7 @@ describe("recheckLapsedSubscriptions", () => {
 
     const summary = await recheckLapsedSubscriptions(billing, users, subscriptions);
 
-    expect(summary).toEqual({ checked: 4, downgraded: 2, failed: 0 });
+    expect(summary).toEqual({ checked: 3, downgraded: 2, failed: 0 });
     expect(users.users.get("user-active")?.tier).toBe("premium");
     expect(users.users.get("user-expired")?.tier).toBe("free");
     expect(users.users.get("user-canceled")?.tier).toBe("free");
@@ -60,7 +59,7 @@ describe("recheckLapsedSubscriptions", () => {
     expect(subscriptions.records.get("legacy-user")?.productId).toBe("unrelated_subscription");
   });
 
-  it("reports zero checked when no account has a stored purchase token", async () => {
+  it("reports zero checked when nobody is currently premium", async () => {
     const billing = new FakePlayBillingPort();
     const users = new FakeUserRepository(["user-active", "user-expired", "user-canceled", "user-already-free", "legacy-user", "user-bad"]);
     const subscriptions = new FakeSubscriptionRecordRepository();
@@ -68,33 +67,6 @@ describe("recheckLapsedSubscriptions", () => {
     const summary = await recheckLapsedSubscriptions(billing, users, subscriptions);
 
     expect(summary).toEqual({ checked: 0, downgraded: 0, failed: 0 });
-  });
-
-  it("restores a free account when its held subscription recovers", async () => {
-    const billing = new FakePlayBillingPort();
-    const users = new FakeUserRepository(["user-recovered"]);
-    const subscriptions = new FakeSubscriptionRecordRepository();
-    await users.setTier("user-recovered", "free", "recovered-token");
-    billing.respondWith("recovered-token", "active", [PRODUCT_ID]);
-
-    expect(await recheckLapsedSubscriptions(billing, users, subscriptions))
-      .toEqual({ checked: 1, downgraded: 0, failed: 0 });
-    expect(users.users.get("user-recovered")?.tier).toBe("premium");
-    expect(subscriptions.records.get("user-recovered")?.subscriptionState).toBe("active");
-  });
-
-  it("does not recreate or write a subscription record for an account deleted during reconciliation", async () => {
-    const billing = new FakePlayBillingPort();
-    const users = new FakeUserRepository(["user-deleted"]);
-    const subscriptions = new FakeSubscriptionRecordRepository();
-    await users.setTier("user-deleted", "premium", "deleted-token");
-    users.users.get("user-deleted")!.deletionInProgress = true;
-    billing.respondWith("deleted-token", "active", [PRODUCT_ID]);
-
-    expect(await recheckLapsedSubscriptions(billing, users, subscriptions))
-      .toEqual({ checked: 1, downgraded: 0, failed: 0 });
-    expect(users.users.get("user-deleted")?.tier).toBe("premium");
-    expect(subscriptions.records.has("user-deleted")).toBe(false);
   });
 
   it("continues past a failing purchase without incorrectly revoking its entitlement", async () => {

@@ -3,7 +3,6 @@ import { ContentTier } from "./types";
 export interface PremiumUserRecord {
   uid: string;
   purchaseToken: string;
-  tier: ContentTier;
 }
 
 export class PurchaseTokenOwnershipError extends Error {}
@@ -31,12 +30,8 @@ export interface UserRepositoryPort {
     previousPurchaseToken?: string,
   ): Promise<ContentTier | null>;
 
-  /**
-   * Every account with a stored Play purchase token. Re-checking these records
-   * lets a subscription recover from an on-hold state even if its recovery
-   * notification was missed while the account was marked free.
-   */
-  listUsersWithPurchaseTokens(): Promise<PremiumUserRecord[]>;
+  /** Every user currently marked premium, with the token needed to re-verify them. */
+  listPremiumUsers(): Promise<PremiumUserRecord[]>;
 
   /**
    * Finds the uid whose stored purchase token matches, for RTDN handling -
