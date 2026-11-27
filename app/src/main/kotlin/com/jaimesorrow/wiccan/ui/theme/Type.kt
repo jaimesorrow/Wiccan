@@ -56,6 +56,14 @@ internal val WiccanHandwritingFont = FontFamily(
 )
 
 /**
+ * IM Fell DW Pica, OFL (assets/fonts/OFL-IMFellDWPica.txt). Calligraphic grimoire voice for
+ * numbered lesson steps on the tattered parchment panel only.
+ */
+internal val WiccanGrimoireStepsFont = FontFamily(
+    Font(R.font.im_fell_dw_pica_regular, weight = FontWeight.Normal),
+)
+
+/**
  * Manrope: a highly readable modern geometric sans used for everything a
  * person actually reads at length or interacts with - body copy, settings,
  * navigation, forms, and buttons. Downloaded fonts load asynchronously and

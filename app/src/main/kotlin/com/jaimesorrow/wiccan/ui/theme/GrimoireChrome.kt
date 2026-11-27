@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
@@ -78,6 +79,74 @@ fun grimoireSwitchColors() = SwitchDefaults.colors(
     uncheckedThumbColor = WiccanPaletteColors.Grimoire.Gold,
 )
 
+/** Gold-outlined action for billing, verification, and other plain Manrope copy. */
+@Composable
+fun GrimoirePlainOutlineButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    Box(
+        modifier = modifier
+            .clip(CardShape)
+            .border(1.dp, WiccanPaletteColors.Grimoire.Border, CardShape)
+            .grimoireCornerFlourishes(arm = 10.dp)
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            color = WiccanPaletteColors.Grimoire.Text,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleSmall,
+        )
+    }
+}
+
+@Composable
+fun GrimoireOutlineButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    Box(
+        modifier = modifier
+            .clip(CardShape)
+            .border(1.dp, WiccanPaletteColors.Grimoire.Border, CardShape)
+            .grimoireCornerFlourishes(arm = 10.dp)
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            color = WiccanPaletteColors.Grimoire.Gold,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleSmall.copy(fontFamily = WiccanDisplayFont),
+        )
+    }
+}
+
+@Composable
+fun GrimoireTextLink(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    Text(
+        text = text,
+        color = WiccanPaletteColors.Grimoire.Gold,
+        modifier = modifier
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 4.dp, vertical = 8.dp),
+        style = MaterialTheme.typography.labelLarge,
+    )
+}
+
 @Composable
 fun GrimoireButton(
     text: String,
@@ -136,6 +205,27 @@ fun Modifier.grimoireCard(): Modifier = this
     .clip(CardShape)
     .background(WiccanPaletteColors.Grimoire.CardFill)
     .border(1.dp, WiccanPaletteColors.Grimoire.Border, CardShape)
+    .grimoireCornerFlourishes()
+
+/** Thin gold corner brackets for navy/plum cards and sign-in panels. */
+fun Modifier.grimoireCornerFlourishes(
+    color: androidx.compose.ui.graphics.Color = WiccanPaletteColors.Grimoire.Gold.copy(alpha = 0.82f),
+    arm: androidx.compose.ui.unit.Dp = 14.dp,
+): Modifier = drawBehind {
+    val length = arm.toPx()
+    val inset = 3.dp.toPx()
+    val stroke = 1.dp.toPx()
+    val w = size.width
+    val h = size.height
+    drawLine(color, Offset(inset, inset), Offset(inset + length, inset), stroke)
+    drawLine(color, Offset(inset, inset), Offset(inset, inset + length), stroke)
+    drawLine(color, Offset(w - inset, inset), Offset(w - inset - length, inset), stroke)
+    drawLine(color, Offset(w - inset, inset), Offset(w - inset, inset + length), stroke)
+    drawLine(color, Offset(inset, h - inset), Offset(inset + length, h - inset), stroke)
+    drawLine(color, Offset(inset, h - inset), Offset(inset, h - inset - length), stroke)
+    drawLine(color, Offset(w - inset, h - inset), Offset(w - inset - length, h - inset), stroke)
+    drawLine(color, Offset(w - inset, h - inset), Offset(w - inset, h - inset - length), stroke)
+}
 
 @Composable
 fun GrimoireStage(content: @Composable () -> Unit) {

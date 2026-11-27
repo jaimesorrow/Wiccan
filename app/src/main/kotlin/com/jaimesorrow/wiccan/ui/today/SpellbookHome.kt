@@ -53,13 +53,18 @@ import com.jaimesorrow.wiccan.sky.ClassicalPlanet
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.theme.GrimoireCandleGlow
 import com.jaimesorrow.wiccan.ui.theme.GrimoireDashedConnector
+import com.jaimesorrow.wiccan.ui.theme.GrimoireFloralBackdrop
+import com.jaimesorrow.wiccan.ui.theme.GrimoireHomeSectionGlyph
+import com.jaimesorrow.wiccan.ui.theme.GrimoireHomeSectionTile
 import com.jaimesorrow.wiccan.ui.theme.GrimoireInkLabel
 import com.jaimesorrow.wiccan.ui.theme.GrimoireMoonPhases
-import com.jaimesorrow.wiccan.ui.theme.GrimoireSpellMapWash
+import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
+import com.jaimesorrow.wiccan.ui.theme.GrimoireSettingsHeaderAccent
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanEditorialFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
+import com.jaimesorrow.wiccan.ui.theme.grimoireCornerFlourishes
 import com.wiccan.app.R
 import java.time.LocalDate
 import java.time.YearMonth
@@ -93,10 +98,12 @@ internal fun SpellbookHome(
         val hour = remember(coordinate) { CelestialCalculator.planetaryHour(now, zone, coordinate) }
         val voidOfCourse = remember(today) { CelestialCalculator.voidOfCourse(now) }
         Box(modifier = Modifier.fillMaxSize().background(WiccanPaletteColors.Grimoire.Background)) {
-            GrimoireSpellMapWash(Modifier.fillMaxSize())
-            Box(Modifier.align(Alignment.TopEnd).size(220.dp)) {
-                GrimoireCandleGlow(Modifier.fillMaxSize())
-            }
+            GrimoireFloralBackdrop(Modifier.fillMaxSize())
+            GrimoireSettingsHeaderAccent(
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .size(width = 180.dp, height = 96.dp),
+            )
             Column(
                 modifier = Modifier
                     .widthIn(max = 520.dp)
@@ -110,6 +117,8 @@ internal fun SpellbookHome(
                 WiccanFullLogo(width = 148.dp)
                 GrimoireInkLabel(stringResource(R.string.motif_today_page))
                 WelcomeCard(moon = moon, today = today)
+                HomeSectionTileRow()
+                GrimoireOrnamentalDivider(modifier = Modifier.padding(horizontal = 8.dp))
                 GrimoireDashedConnector(Modifier.fillMaxWidth().height(28.dp))
                 LessonCard(
                     content = content,
@@ -135,6 +144,42 @@ internal fun SpellbookHome(
                     style = MaterialTheme.typography.labelLarge,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun HomeSectionTileRow() {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            GrimoireHomeSectionTile(
+                label = stringResource(R.string.home_today_lesson),
+                glyph = GrimoireHomeSectionGlyph.LESSON,
+                modifier = Modifier.weight(1f),
+            )
+            GrimoireHomeSectionTile(
+                label = stringResource(R.string.home_wheel_title),
+                glyph = GrimoireHomeSectionGlyph.WHEEL,
+                modifier = Modifier.weight(1f),
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            GrimoireHomeSectionTile(
+                label = stringResource(R.string.nav_grimoire),
+                glyph = GrimoireHomeSectionGlyph.GRIMOIRE,
+                modifier = Modifier.weight(1f),
+            )
+            GrimoireHomeSectionTile(
+                label = stringResource(R.string.nav_settings),
+                glyph = GrimoireHomeSectionGlyph.SETTINGS,
+                modifier = Modifier.weight(1f),
+            )
         }
     }
 }
@@ -343,6 +388,7 @@ private fun GrimoireCard(content: @Composable () -> Unit) {
             .clip(CardShape)
             .background(WiccanPaletteColors.Grimoire.CardFill)
             .border(1.dp, Gold, CardShape)
+            .grimoireCornerFlourishes()
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) { content() }
@@ -356,6 +402,7 @@ private fun DarkTile(content: @Composable () -> Unit) {
             .clip(RoundedCornerShape(4.dp))
             .background(WiccanPaletteColors.Grimoire.Background)
             .border(1.dp, Gold, RoundedCornerShape(4.dp))
+            .grimoireCornerFlourishes(arm = 10.dp)
             .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(3.dp),
     ) { content() }

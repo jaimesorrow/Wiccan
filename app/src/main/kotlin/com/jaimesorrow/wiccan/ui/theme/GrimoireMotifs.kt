@@ -1,13 +1,22 @@
 package com.jaimesorrow.wiccan.ui.theme
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -26,6 +35,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wiccan.app.R
@@ -66,6 +76,106 @@ fun GrimoireDashedConnector(modifier: Modifier = Modifier) {
             quadraticTo(size.width * 0.4f, size.height * 0.05f, size.width * 0.92f, size.height * 0.55f)
         }
         drawPath(path, gold.copy(alpha = 0.85f), style = inkDash(1.4.dp.toPx()))
+    }
+}
+
+/** Thin ornamental rule with a central flourish, between lesson sections or footers. */
+@Composable
+fun GrimoireOrnamentalDivider(modifier: Modifier = Modifier, inkOnParchment: Boolean = false) {
+    val gold = WiccanPaletteColors.Grimoire.Gold
+    val ink = WiccanPaletteColors.Parchment.Ink
+    val lineColor = if (inkOnParchment) ink.copy(alpha = 0.42f) else gold.copy(alpha = 0.72f)
+    val markColor = if (inkOnParchment) ink.copy(alpha = 0.55f) else WiccanPaletteColors.Grimoire.Border
+    Canvas(
+        modifier
+            .fillMaxWidth()
+            .height(16.dp),
+    ) {
+        val y = size.height / 2f
+        val mid = size.width / 2f
+        val gap = 14.dp.toPx()
+        val stroke = 1.dp.toPx()
+        drawLine(lineColor, Offset(0f, y), Offset(mid - gap, y), strokeWidth = stroke)
+        drawLine(lineColor, Offset(mid + gap, y), Offset(size.width, y), strokeWidth = stroke)
+        val arm = 4.5.dp.toPx()
+        val diamond = Path().apply {
+            moveTo(mid, y - arm)
+            lineTo(mid + arm, y)
+            lineTo(mid, y + arm)
+            lineTo(mid - arm, y)
+            close()
+        }
+        drawPath(diamond, markColor, style = Stroke(width = stroke))
+        drawCircle(markColor, 1.4.dp.toPx(), Offset(mid, y))
+    }
+}
+
+/** Faint botanical ink and star-chart dots along a parchment leaf's margins. */
+@Composable
+fun GrimoireParchmentMarginInk(modifier: Modifier = Modifier) {
+    val ink = WiccanPaletteColors.Parchment.Ink.copy(alpha = 0.32f)
+    val chart = WiccanPaletteColors.Parchment.Border.copy(alpha = 0.38f)
+    Canvas(modifier) {
+        val stroke = Stroke(width = 1.dp.toPx(), cap = StrokeCap.Round)
+        val leftVine = Path().apply {
+            moveTo(10.dp.toPx(), size.height * 0.12f)
+            quadraticTo(18.dp.toPx(), size.height * 0.28f, 11.dp.toPx(), size.height * 0.46f)
+            quadraticTo(8.dp.toPx(), size.height * 0.62f, 14.dp.toPx(), size.height * 0.82f)
+        }
+        drawPath(leftVine, ink, style = stroke)
+        val rightVine = Path().apply {
+            moveTo(size.width - 12.dp.toPx(), size.height * 0.18f)
+            quadraticTo(size.width - 20.dp.toPx(), size.height * 0.34f, size.width - 13.dp.toPx(), size.height * 0.58f)
+        }
+        drawPath(rightVine, ink, style = stroke)
+        val stars = listOf(
+            Offset(size.width - 22.dp.toPx(), size.height * 0.24f),
+            Offset(size.width - 14.dp.toPx(), size.height * 0.31f),
+            Offset(size.width - 28.dp.toPx(), size.height * 0.36f),
+            Offset(size.width - 18.dp.toPx(), size.height * 0.44f),
+            Offset(size.width - 26.dp.toPx(), size.height * 0.52f),
+        )
+        stars.forEach { drawCircle(chart, 1.3.dp.toPx(), it) }
+        val chartLine = Path().apply {
+            moveTo(stars[0].x, stars[0].y)
+            lineTo(stars[1].x, stars[1].y)
+            lineTo(stars[2].x, stars[2].y)
+            lineTo(stars[3].x, stars[3].y)
+            lineTo(stars[4].x, stars[4].y)
+        }
+        drawPath(
+            chartLine,
+            chart,
+            style = Stroke(0.8.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(3.dp.toPx(), 4.dp.toPx()), 0f))
+        )
+    }
+}
+
+/** Top-right candle glow only — for screens whose titles must stay unobstructed. */
+@Composable
+fun GrimoireSettingsHeaderAccent(modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(
+                    WiccanPaletteColors.Grimoire.Gold.copy(alpha = 0.14f),
+                    Color.Transparent,
+                ),
+                center = Offset(size.width * 0.92f, size.height * 0.55f),
+                radius = size.minDimension * 0.85f,
+            ),
+            radius = size.minDimension * 0.85f,
+            center = Offset(size.width * 0.92f, size.height * 0.55f),
+        )
+        val vine = Path().apply {
+            moveTo(size.width * 0.55f, size.height * 0.08f)
+            quadraticTo(size.width * 0.78f, size.height * 0.22f, size.width * 0.98f, size.height * 0.12f)
+        }
+        drawPath(
+            vine,
+            WiccanPaletteColors.Grimoire.Border.copy(alpha = 0.28f),
+            style = inkDash(1.dp.toPx()),
+        )
     }
 }
 
@@ -195,4 +305,93 @@ fun GrimoireBannerSlot(modifier: Modifier = Modifier) {
         thickness = 1.dp,
         color = WiccanPaletteColors.Grimoire.Border,
     )
+}
+
+/** Line-art glyphs for the Home section tile row — lesson, wheel, cosmic timing. */
+enum class GrimoireHomeSectionGlyph {
+    LESSON,
+    WHEEL,
+    GRIMOIRE,
+    SETTINGS,
+}
+
+@Composable
+fun GrimoireHomeSectionGlyphIcon(
+    kind: GrimoireHomeSectionGlyph,
+    modifier: Modifier = Modifier,
+) {
+    val gold = WiccanPaletteColors.Grimoire.Border
+    Canvas(modifier.size(36.dp)) {
+        val center = Offset(size.width / 2f, size.height / 2f)
+        val stroke = Stroke(width = 1.1.dp.toPx(), cap = StrokeCap.Round)
+        when (kind) {
+            GrimoireHomeSectionGlyph.LESSON -> {
+                val radius = 13.dp.toPx()
+                drawCircle(gold, radius, center, style = stroke)
+                clipPath(Path().apply { addOval(Rect(center, radius)) }) {
+                    drawCircle(gold.copy(alpha = 0.25f), radius, Offset(center.x + radius * 0.55f, center.y))
+                }
+            }
+            GrimoireHomeSectionGlyph.WHEEL -> {
+                val radius = 12.dp.toPx()
+                drawCircle(gold, radius, center, style = stroke)
+                repeat(8) { spoke ->
+                    val angle = spoke * (Math.PI / 4)
+                    val end = Offset(
+                        center.x + (radius * kotlin.math.cos(angle)).toFloat(),
+                        center.y + (radius * kotlin.math.sin(angle)).toFloat(),
+                    )
+                    drawLine(gold, center, end, strokeWidth = 1.dp.toPx())
+                }
+            }
+            GrimoireHomeSectionGlyph.GRIMOIRE -> {
+                val w = 16.dp.toPx()
+                val h = 20.dp.toPx()
+                val left = center.x - w / 2f
+                val top = center.y - h / 2f
+                drawRect(gold, topLeft = Offset(left, top), size = Size(w, h), style = stroke)
+                drawLine(gold, Offset(left + w * 0.5f, top), Offset(left + w * 0.5f, top + h), 1.dp.toPx())
+            }
+            GrimoireHomeSectionGlyph.SETTINGS -> {
+                val r = 11.dp.toPx()
+                drawCircle(gold, r, center, style = stroke)
+                repeat(6) { spoke ->
+                    val angle = spoke * (Math.PI / 3)
+                    val end = Offset(
+                        center.x + (r * 0.85f * kotlin.math.cos(angle)).toFloat(),
+                        center.y + (r * 0.85f * kotlin.math.sin(angle)).toFloat(),
+                    )
+                    drawCircle(gold, 1.6.dp.toPx(), end)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun GrimoireHomeSectionTile(
+    label: String,
+    glyph: GrimoireHomeSectionGlyph,
+    modifier: Modifier = Modifier,
+) {
+    val tileShape = RoundedCornerShape(6.dp)
+    Column(
+        modifier = modifier
+            .clip(tileShape)
+            .background(WiccanPaletteColors.Grimoire.CardFill)
+            .border(1.dp, WiccanPaletteColors.Grimoire.Border, tileShape)
+            .grimoireCornerFlourishes(arm = 8.dp)
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        GrimoireHomeSectionGlyphIcon(glyph)
+        Text(
+            text = label,
+            color = WiccanPaletteColors.Grimoire.Gold,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            style = MaterialTheme.typography.labelSmall.copy(fontFamily = WiccanDisplayFont),
+        )
+    }
 }
