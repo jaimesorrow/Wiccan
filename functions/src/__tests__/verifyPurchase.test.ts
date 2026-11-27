@@ -87,6 +87,11 @@ describe("verifyPurchaseAndSyncTier", () => {
     const tier = await verifyPurchaseAndSyncTier(UID, TOKEN, PRODUCT_ID, billing, users, subscriptions);
 
     expect(tier).toBe("premium");
+    expect(users.users.get(UID)).toMatchObject({
+      tier: "premium",
+      subscriptionState: "in_grace_period",
+      productId: PRODUCT_ID,
+    });
   });
 
   it("grants premium for a canceled subscription that hasn't reached its expiry, without acknowledging again", async () => {

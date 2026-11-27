@@ -38,9 +38,15 @@ class FakeSubscriptionRepository : SubscriptionRepository {
         return launchResult
     }
 
+    var transactionalMessageResult: AppResult<Unit> = AppResult.Success(Unit)
+    var transactionalMessageCalls: MutableList<Activity> = mutableListOf()
+
     override fun observeTier(): Flow<ContentTier> = tierFlow
     override fun observeSubscriptionState(): Flow<SubscriptionState> = stateFlow
-    override suspend fun showTransactionalMessage(activity: Activity): AppResult<Unit> = AppResult.Success(Unit)
+    override suspend fun showTransactionalMessage(activity: Activity): AppResult<Unit> {
+        transactionalMessageCalls += activity
+        return transactionalMessageResult
+    }
 
     override suspend fun getOffer(): AppResult<SubscriptionOffer> {
         priceCallCount++
