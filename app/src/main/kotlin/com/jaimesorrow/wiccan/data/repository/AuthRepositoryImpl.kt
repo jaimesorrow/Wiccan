@@ -20,6 +20,7 @@ import com.jaimesorrow.wiccan.domain.model.ProfileName
 import com.jaimesorrow.wiccan.domain.model.UsernameRules
 import com.jaimesorrow.wiccan.domain.repository.AuthRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.awaitClose
@@ -41,6 +42,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val analyticsLogger: AnalyticsLogger,
 ) : AuthRepository {
     private val verificationRefresh = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    private val verificationDeliveryFailureUid = AtomicReference<String?>(null)
 
     override fun observeAuthState(): Flow<AuthState> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { auth ->
@@ -142,6 +144,8 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun createAccountWithEmail(email: String, password: String, username: String): AppResult<Unit> {
         return try {
             firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+            analyticsLogger.logSignUpCompleted()
+            accountFunctionsDataSource.reserveUsername(username)
             // A new account must never pretend that its verification message was
             // sent. The verification gate remains closed until the link is used,
             // and the caller receives the delivery failure rather than a silent
@@ -153,14 +157,18 @@ class AuthRepositoryImpl @Inject constructor(
                 // The Firebase account is intentionally kept signed in so the
                 // verification screen can offer a retry. Root gating still keeps
                 // all app content sealed for this unverified account.
+                verificationDeliveryFailureUid.set(firebaseAuth.currentUser?.uid)
                 return AppResult.Failure(AppError.VerificationEmailDeliveryFailed)
             }
-            analyticsLogger.logSignUpCompleted()
-            accountFunctionsDataSource.reserveUsername(username)
             AppResult.Success(Unit)
         } catch (t: Throwable) {
             AppResult.Failure(t.toAppError())
         }
+    }
+
+    override fun consumeVerificationDeliveryFailure(): Boolean {
+        val uid = firebaseAuth.currentUser?.uid ?: return false
+        return verificationDeliveryFailureUid.compareAndSet(uid, null)
     }
 
     override suspend fun sendPasswordReset(email: String): AppResult<Unit> = try {
