@@ -62,8 +62,8 @@ import com.jaimesorrow.wiccan.ui.paywall.PaywallScreen
 import com.jaimesorrow.wiccan.ui.paywall.SubscriptionSetupEffect
 import com.jaimesorrow.wiccan.ui.paywall.SubscriptionSetupViewModel
 import com.jaimesorrow.wiccan.ui.policy.PolicyAcceptanceScreen
-import com.jaimesorrow.wiccan.ui.settings.SettingsScreen
 import com.jaimesorrow.wiccan.ui.settings.AppLanguageManager
+import com.jaimesorrow.wiccan.ui.settings.SettingsScreen
 import com.jaimesorrow.wiccan.ui.theme.ThemeViewModel
 import com.jaimesorrow.wiccan.ui.theme.WiccanTheme
 import com.wiccan.app.R

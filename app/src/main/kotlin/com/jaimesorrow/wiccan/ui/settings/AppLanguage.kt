@@ -45,8 +45,11 @@ object AppLanguageManager {
         preferences(activity).edit().putString(KEY_LANGUAGE_TAG, language.languageTag).apply()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             activity.getSystemService(LocaleManager::class.java).applicationLocales =
-                if (language == AppLanguage.SYSTEM) LocaleList.getEmptyLocaleList()
-                else LocaleList.forLanguageTags(language.languageTag)
+                if (language == AppLanguage.SYSTEM) {
+                    LocaleList.getEmptyLocaleList()
+                } else {
+                    LocaleList.forLanguageTags(language.languageTag)
+                }
         } else {
             activity.recreate()
         }
