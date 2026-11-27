@@ -6,6 +6,26 @@ const UID = "user-123";
 const TODAY = "2026-09-09";
 
 describe("selectTodayContent", () => {
+  it("prefers an unseen matching seasonal item on a sabbat", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "ordinary" }),
+      makeContent({ id: "samhain", seasonalWindow: { kind: "sabbat", id: "samhain" } }),
+    ];
+
+    expect((await selectTodayContent(UID, "2026-10-31", repo)).id).toBe("samhain");
+  });
+
+  it("prefers a matching moon item but falls back when the match was delivered", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "ordinary" }),
+      makeContent({ id: "full-moon", seasonalWindow: { kind: "moon", phase: "full" } }),
+    ];
+    repo.history = [{ userId: UID, contentId: "full-moon", deliveredDate: "2026-03-02", title: "Full", type: "spell", tradition: "European folk magic", category: "MoonAndSeasonal" }];
+
+    expect((await selectTodayContent(UID, "2026-03-03", repo)).id).toBe("ordinary");
+  });
   it("selects a published, in-tier candidate on the first call of the day and records it", async () => {
     const repo = new FakeContentRepository();
     repo.content = [

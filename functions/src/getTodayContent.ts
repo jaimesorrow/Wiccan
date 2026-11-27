@@ -2,6 +2,7 @@ import { Content } from "./types";
 import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort, SubscriptionRequiredError } from "./contentRepositoryPort";
 import { isLessonGenerationSource, loadContentSources } from "./contentSource";
 import { contentSimilarityKey, isEligibleForDailyDelivery } from "./contentEligibility";
+import { matchesSeasonalWindow, seasonalWindowFor } from "./seasonalCalendar";
 
 const DEFAULT_ANCIENT_LESSON_SOURCE_IDS = new Set(
   loadContentSources()
@@ -89,8 +90,16 @@ export async function selectTodayContent(
     return !deliveredSet.has(content.id) && (!group || !deliveredGroups.has(group));
   });
 
+  const seasonalWindow = seasonalWindowFor(today);
+  const seasonalCandidates = candidates.filter((content) =>
+    matchesSeasonalWindow(content.seasonalWindow, seasonalWindow),
+  );
+
   while (candidates.length > 0) {
-    const candidate = pickRandom(candidates);
+    const stillAvailableSeasonal = seasonalCandidates.filter((content) =>
+      candidates.some((candidate) => candidate.id === content.id),
+    );
+    const candidate = pickRandom(stillAvailableSeasonal.length > 0 ? stillAvailableSeasonal : candidates);
     let assignedId: string;
     try {
       assignedId = await repo.assignDailyContent(uid, today, candidate, ancientLessonSourceIds);

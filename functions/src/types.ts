@@ -7,6 +7,15 @@ export type ContentType = (typeof CONTENT_TYPES)[number];
 export type ContentTier = "free" | "premium";
 export type ContentStatus = "draft" | "published";
 
+export const SABBAT_IDS = [
+  "imbolc", "ostara", "beltane", "litha", "lughnasadh", "mabon", "samhain", "yule",
+] as const;
+export type SabbatId = (typeof SABBAT_IDS)[number];
+export type MoonPhaseId = "new" | "waxing" | "full" | "waning";
+export type SeasonalWindow =
+  | { kind: "sabbat"; id: SabbatId }
+  | { kind: "moon"; phase: MoonPhaseId };
+
 /**
  * True only for a supported `content.type`. Values such as "ritual" belong in
  * the v2 `lessonType` field, not `type`, and are rejected here.
@@ -65,6 +74,8 @@ export interface Content extends PracticalLessonFields {
   similarityGroupId?: string;
   /** Optional https URL or storage path for this lesson's hero. Not part of selection. */
   illustrationUrl?: string;
+  /** Optional calendar window used only to prefer this item on a matching day. */
+  seasonalWindow?: SeasonalWindow;
 }
 
 /**

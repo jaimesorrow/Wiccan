@@ -21,6 +21,13 @@ body, reflection, practice, materials (string[]), safetyNote, tags, status
 (draft|published), sourceId, sourceCitation, sourceUrl, rightsReviewRequired,
 similarityGroupId`, plus optional additive fields from `PracticalLessonFields`.
 
+An editor may also add one optional `seasonalWindow`. It is either
+`{ kind: "sabbat", id: "imbolc"|"ostara"|"beltane"|"litha"|"lughnasadh"|"mabon"|"samhain"|"yule" }`
+or `{ kind: "moon", phase: "new"|"waxing"|"full"|"waning" }`. The field
+only gives a matching unseen item priority on that calendar day; it never
+bypasses publication, subscription, provenance, safety, rights, duplicate,
+or no-repeat gates. Missing or malformed windows receive normal selection.
+
 ## Canonical lesson (v2)
 
 ```text

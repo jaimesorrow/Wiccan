@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -41,11 +42,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
+import com.jaimesorrow.wiccan.sky.CelestialCalculator
 import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.wiccan.app.R
 import java.net.HttpURLConnection
 import java.net.URL
+import java.time.LocalDate
+import java.time.MonthDay
+import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -53,6 +58,24 @@ private val Quill = FontFamily(Font(R.font.italianno_regular))
 private val Ink = WiccanPaletteColors.Parchment.Ink
 private val Midnight = WiccanPaletteColors.Grimoire.Background
 private val Sepia = androidx.compose.ui.text.TextStyle(fontFamily = FontFamily.Serif, color = Ink)
+private val Betelgeuse = Color(0xFFE36F47)
+
+internal fun seasonalChipText(date: LocalDate, zoneId: ZoneId = ZoneId.systemDefault()): String? {
+    val sabbat = mapOf(
+        MonthDay.of(2, 1) to "Imbolc",
+        MonthDay.of(3, 20) to "Ostara",
+        MonthDay.of(5, 1) to "Beltane",
+        MonthDay.of(6, 21) to "Litha",
+        MonthDay.of(8, 1) to "Lughnasadh",
+        MonthDay.of(9, 22) to "Mabon",
+        MonthDay.of(10, 31) to "Samhain",
+        MonthDay.of(12, 21) to "Yule",
+    )[MonthDay.from(date)]
+    if (sabbat != null) return sabbat
+    val instant = date.atTime(12, 0).atZone(zoneId).toInstant()
+    val moon = CelestialCalculator.moon(instant)
+    return moon.name.takeIf { it == "New Moon" || it == "Full Moon" }
+}
 
 @Composable
 internal fun DailyGrimoirePage(
@@ -73,6 +96,17 @@ internal fun DailyGrimoirePage(
                 .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            seasonalChipText(LocalDate.now())?.let { event ->
+                Text(
+                    text = if (event.endsWith("Moon")) stringResource(R.string.today_seasonal_moon, event) else event,
+                    color = WiccanPaletteColors.Grimoire.OnGold,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .background(Betelgeuse, RoundedCornerShape(50))
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
             CandleOrnament(Modifier.size(width = 36.dp, height = 52.dp).align(Alignment.Start))
             Text(
                 text = content.title,

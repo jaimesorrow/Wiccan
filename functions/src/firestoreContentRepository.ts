@@ -1,5 +1,5 @@
 import { Firestore, Timestamp } from "firebase-admin/firestore";
-import { Content, ContentCategory, ContentTier, isContentCategory } from "./types";
+import { Content, ContentCategory, ContentTier, isContentCategory, SABBAT_IDS, SabbatId } from "./types";
 import { practicalContentHash } from "./practicalLesson";
 import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort, SubscriptionRequiredError } from "./contentRepositoryPort";
 import { contentSimilarityKey, isEligibleForDailyDelivery, rememberStoredContentHash, sharesContentSimilarity, similarityReservationId } from "./contentEligibility";
@@ -74,10 +74,25 @@ export function contentFromStoredDocument(id: string, data: FirebaseFirestore.Do
     sourcePassageId: typeof data.sourcePassageId === "string" ? data.sourcePassageId : undefined,
     illustrationUrl: typeof data.illustrationUrl === "string" && data.illustrationUrl.trim()
       ? data.illustrationUrl.trim() : undefined,
+    seasonalWindow: parseSeasonalWindow(data.seasonalWindow),
     practicalReview: data.practicalReview,
   };
   rememberStoredContentHash(content, practicalContentHash(data));
   return content;
+}
+
+function parseSeasonalWindow(value: unknown): Content["seasonalWindow"] {
+  if (!value || typeof value !== "object") return undefined;
+  const window = value as Record<string, unknown>;
+  if (window.kind === "sabbat" && typeof window.id === "string" &&
+      (SABBAT_IDS as readonly string[]).includes(window.id)) {
+    return { kind: "sabbat", id: window.id as SabbatId };
+  }
+  if (window.kind === "moon" &&
+      (window.phase === "new" || window.phase === "waxing" || window.phase === "full" || window.phase === "waning")) {
+    return { kind: "moon", phase: window.phase };
+  }
+  return undefined;
 }
 
 export class FirestoreContentRepository implements ContentRepositoryPort {

@@ -136,6 +136,7 @@
     <string name="today_potion">Today\'s potion</string>
     <string name="today_lesson">Today\'s lesson</string>
     <string name="today_subtitle">The moon has turned. Your next practice awaits.</string>
+    <string name="today_seasonal_moon">Tonight: %1$s</string>
     <string name="today_empty_title">The lessons have all been gathered</string>
     <string name="today_empty_body">Every lesson we hold is already yours. They wait in your Grimoire.</string>
     <string name="today_open_grimoire">Open your Grimoire</string>
