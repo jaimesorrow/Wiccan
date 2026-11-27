@@ -244,13 +244,11 @@ private fun LessonLeaf(
                     Text(stringResource(R.string.today_open_grimoire), color = Ink)
                 }
             }
-            val quillDescription = stringResource(R.string.lesson_quill_description)
             QuillAndInkpotOrnament(
                 Modifier
                     .padding(top = 16.dp)
                     .size(width = 116.dp, height = 84.dp)
-                    .testTag("lesson_quill_ornament")
-                    .semantics { contentDescription = quillDescription },
+                    .testTag("lesson_quill_ornament"),
             )
             Spacer(Modifier.height(28.dp))
         }
