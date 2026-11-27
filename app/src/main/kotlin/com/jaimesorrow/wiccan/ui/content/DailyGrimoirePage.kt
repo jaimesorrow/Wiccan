@@ -29,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -42,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
-import com.jaimesorrow.wiccan.sky.CelestialCalculator
 import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.wiccan.app.R
@@ -50,7 +48,8 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.time.LocalDate
 import java.time.MonthDay
-import java.time.ZoneId
+import java.time.ZoneOffset
+import kotlin.math.abs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -58,9 +57,8 @@ private val Quill = FontFamily(Font(R.font.italianno_regular))
 private val Ink = WiccanPaletteColors.Parchment.Ink
 private val Midnight = WiccanPaletteColors.Grimoire.Background
 private val Sepia = androidx.compose.ui.text.TextStyle(fontFamily = FontFamily.Serif, color = Ink)
-private val Betelgeuse = Color(0xFFE36F47)
 
-internal fun seasonalChipText(date: LocalDate, zoneId: ZoneId = ZoneId.systemDefault()): String? {
+internal fun seasonalChipText(date: LocalDate): String? {
     val sabbat = mapOf(
         MonthDay.of(2, 1) to "Imbolc",
         MonthDay.of(3, 20) to "Ostara",
@@ -72,9 +70,17 @@ internal fun seasonalChipText(date: LocalDate, zoneId: ZoneId = ZoneId.systemDef
         MonthDay.of(12, 21) to "Yule",
     )[MonthDay.from(date)]
     if (sabbat != null) return sabbat
-    val instant = date.atTime(12, 0).atZone(zoneId).toInstant()
-    val moon = CelestialCalculator.moon(instant)
-    return moon.name.takeIf { it == "New Moon" || it == "Full Moon" }
+    // Keep in sync with functions/src/seasonalCalendar.ts: the local date is sampled at UTC noon.
+    val synodicMonthDays = 29.530588853
+    val knownNewMoonMillis = 947182440000L
+    val noonMillis = date.atTime(12, 0).toInstant(ZoneOffset.UTC).toEpochMilli()
+    val cycles = (noonMillis - knownNewMoonMillis) / 86_400_000.0 / synodicMonthDays
+    val age = ((cycles % 1 + 1) % 1) * synodicMonthDays
+    return when {
+        age < 1.5 || age > synodicMonthDays - 1.5 -> "New Moon"
+        abs(age - synodicMonthDays / 2) < 1.5 -> "Full Moon"
+        else -> null
+    }
 }
 
 @Composable
@@ -99,10 +105,10 @@ internal fun DailyGrimoirePage(
             seasonalChipText(LocalDate.now())?.let { event ->
                 Text(
                     text = if (event.endsWith("Moon")) stringResource(R.string.today_seasonal_moon, event) else event,
-                    color = WiccanPaletteColors.Grimoire.OnGold,
+                    color = WiccanPaletteColors.Grimoire.OnSeasonalChip,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .background(Betelgeuse, RoundedCornerShape(50))
+                        .background(WiccanPaletteColors.Grimoire.SeasonalChip, RoundedCornerShape(50))
                         .padding(horizontal = 12.dp, vertical = 6.dp),
                     style = MaterialTheme.typography.labelLarge,
                 )

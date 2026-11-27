@@ -164,6 +164,8 @@ internal object WiccanPaletteColors {
         val Text = Color(0xFFDCD5C9)
         val Muted = Color(0xFFB8A88A)
         val OnGold = Color(0xFF1C1408)
+        val SeasonalChip = Color(0xFFE36F47)
+        val OnSeasonalChip = OnGold
     }
 
     /** Aged parchment reading surface. Kept out of the dark Material scheme on purpose. */
