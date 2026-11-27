@@ -53,8 +53,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.data.location.lastKnownCoordinate
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.sky.CelestialCalculator
-import com.jaimesorrow.wiccan.sky.GeoCoordinate
 import com.jaimesorrow.wiccan.sky.ClassicalPlanet
+import com.jaimesorrow.wiccan.sky.GeoCoordinate
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
