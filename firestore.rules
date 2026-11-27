@@ -57,9 +57,9 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // tier is set only by the verifyPurchase and daily lapse-recheck Cloud
-    // Functions (Admin SDK) — the client's own billing state is never
-    // trusted, so it only ever reads its own doc to sync the UI.
+    // tier and the mirrored subscriptionState/productId are set
+    // only by billing Cloud Functions (Admin SDK). The client reads these
+    // fields to explain a held payment, but can never write billing state.
     match /users/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow write: if false;

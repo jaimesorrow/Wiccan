@@ -1,5 +1,7 @@
 package com.jaimesorrow.wiccan.ui.paywall
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -94,6 +96,9 @@ fun PaywallScreen(
             onPrivacyClick = onPrivacyClick,
             onEvent = viewModel::onEvent,
             onSubscribe = { context.findActivity()?.let(viewModel::subscribe) },
+            onManageSubscription = {
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_SUBSCRIPTIONS_URL)))
+            },
         )
     }
 }
@@ -113,6 +118,7 @@ internal fun PaywallContent(
     onPrivacyClick: () -> Unit,
     onEvent: (PaywallUiEvent) -> Unit,
     onSubscribe: () -> Unit,
+    onManageSubscription: () -> Unit = {},
 ) {
     val loadingDescription = stringResource(R.string.loading_description)
     Column(modifier = Modifier.fillMaxSize().padding(insets)) {
@@ -133,6 +139,21 @@ internal fun PaywallContent(
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(16.dp))
+            if (state.subscriptionOnHold) {
+                OutlinedCard(modifier = Modifier.fillMaxWidth().testTag("payment-on-hold")) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            stringResource(R.string.paywall_payment_failed_title),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Text(stringResource(R.string.paywall_payment_failed_body))
+                        TextButton(onClick = onManageSubscription) {
+                            Text(stringResource(R.string.paywall_update_payment))
+                        }
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+            }
             if (state.hasYearlyPlan) {
                 PlanChoice(state = state, onSelect = { onEvent(PaywallUiEvent.PlanSelected(it)) })
                 Spacer(Modifier.height(12.dp))
@@ -147,6 +168,20 @@ internal fun PaywallContent(
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center,
             )
+            val winBackPrice = if (state.selectedPlan == SubscriptionPlan.YEARLY) {
+                state.yearlyWinBackPrice
+            } else {
+                state.monthlyWinBackPrice
+            }
+            if (winBackPrice != null) {
+                Text(
+                    stringResource(R.string.paywall_winback_offer, winBackPrice),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.testTag("winback-offer"),
+                )
+            }
             Spacer(Modifier.height(8.dp))
             Text(
                 stringResource(R.string.paywall_restore),
@@ -205,10 +240,16 @@ internal fun PaywallContent(
                 SelectedPlanTerms(state)
             } else {
                 val price = state.price
+                val winBackPrice = state.monthlyWinBackPrice
                 Text(
                     when {
                         price == null -> stringResource(R.string.paywall_price_unavailable)
                         state.hasFreeTrial -> stringResource(R.string.paywall_trial_free)
+                        winBackPrice != null -> stringResource(
+                            R.string.paywall_selected_monthly_winback,
+                            winBackPrice,
+                            price,
+                        )
                         else -> stringResource(R.string.paywall_price_month, price)
                     },
                     style = MaterialTheme.typography.headlineSmall,
@@ -218,6 +259,7 @@ internal fun PaywallContent(
                     when {
                         price == null -> stringResource(R.string.paywall_price_connect)
                         state.hasFreeTrial -> stringResource(R.string.paywall_price_then, price)
+                        winBackPrice != null -> stringResource(R.string.paywall_selected_renews)
                         else -> stringResource(R.string.paywall_price_no_trial, price)
                     },
                     style = MaterialTheme.typography.bodySmall,
@@ -246,6 +288,9 @@ internal fun PaywallContent(
     }
 }
 
+private const val PLAY_SUBSCRIPTIONS_URL =
+    "https://play.google.com/store/account/subscriptions?package=com.jaimesorrow.wiccan"
+
 /**
  * The seasonal benefit is shown only once moon-phase and sabbat content is
  * live (v1.1 item 3), so the paywall never promises something the app lacks.
@@ -261,8 +306,11 @@ internal const val SEASONAL_RITES_LIVE = false
 private fun SelectedPlanTerms(state: PaywallUiState) {
     val yearly = state.selectedPlan == SubscriptionPlan.YEARLY
     val price = state.selectedPrice.orEmpty()
+    val winBackPrice = if (yearly) state.yearlyWinBackPrice else state.monthlyWinBackPrice
     Text(
         when {
+            yearly && winBackPrice != null -> stringResource(R.string.paywall_selected_yearly_winback, winBackPrice, price)
+            winBackPrice != null -> stringResource(R.string.paywall_selected_monthly_winback, winBackPrice, price)
             yearly && state.selectedHasFreeTrial -> stringResource(R.string.paywall_selected_yearly_trial, price)
             yearly -> stringResource(R.string.paywall_selected_yearly, price)
             state.selectedHasFreeTrial -> stringResource(R.string.paywall_selected_monthly_trial, price)
@@ -274,6 +322,7 @@ private fun SelectedPlanTerms(state: PaywallUiState) {
     )
     Text(
         when {
+            winBackPrice != null -> stringResource(R.string.paywall_selected_renews)
             yearly && state.selectedHasFreeTrial -> stringResource(R.string.paywall_selected_renews)
             yearly -> stringResource(R.string.paywall_price_no_trial_year, price)
             state.selectedHasFreeTrial -> stringResource(R.string.paywall_selected_renews)

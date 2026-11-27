@@ -88,6 +88,11 @@ describe("handleRtdnNotification", () => {
 
     billing.respondWith(TOKEN, "on_hold", ["wiccan_premium_yearly"]);
     expect((await handleRtdnNotification(TOKEN, billing, users, subscriptions))?.tier).toBe("free");
+    expect(users.users.get("user-1")).toMatchObject({
+      tier: "free",
+      subscriptionState: "on_hold",
+      productId: "wiccan_premium_yearly",
+    });
   });
 
   it("downgrades an active token switched to an unrelated product", async () => {

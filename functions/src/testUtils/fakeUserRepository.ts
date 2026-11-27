@@ -1,8 +1,20 @@
 import { ContentTier } from "../types";
-import { PremiumUserRecord, PurchaseTokenOwnershipError, TierSyncSource, UserRepositoryPort } from "../userRepositoryPort";
+import {
+  PremiumUserRecord,
+  PurchaseTokenOwnershipError,
+  SubscriptionProfileState,
+  TierSyncSource,
+  UserRepositoryPort,
+} from "../userRepositoryPort";
 
 export class FakeUserRepository implements UserRepositoryPort {
-  users = new Map<string, { tier: ContentTier; purchaseToken?: string; deletionInProgress?: boolean }>();
+  users = new Map<string, {
+    tier: ContentTier;
+    purchaseToken?: string;
+    deletionInProgress?: boolean;
+    subscriptionState?: SubscriptionProfileState["subscriptionState"];
+    productId?: string;
+  }>();
   tokenOwners = new Map<string, string>();
   supersededTokens = new Set<string>();
   tokenTiers = new Map<string, ContentTier>();
@@ -17,6 +29,7 @@ export class FakeUserRepository implements UserRepositoryPort {
     purchaseToken: string,
     source: TierSyncSource = "purchase",
     previousPurchaseToken?: string,
+    subscription?: SubscriptionProfileState,
   ): Promise<ContentTier | null> {
     const existing = this.users.get(uid);
     if (!existing || existing.deletionInProgress) {
@@ -54,7 +67,14 @@ export class FakeUserRepository implements UserRepositoryPort {
     if (source !== "refresh" && previousPurchaseToken && previousPurchaseToken !== purchaseToken) {
       this.supersededTokens.add(previousPurchaseToken);
     }
-    this.users.set(uid, { tier, purchaseToken });
+    this.users.set(uid, {
+      tier,
+      purchaseToken,
+      ...(subscription ? {
+        subscriptionState: subscription.subscriptionState,
+        productId: subscription.productId,
+      } : {}),
+    });
     return tier;
   }
 

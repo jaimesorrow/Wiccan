@@ -7,6 +7,7 @@ import com.jaimesorrow.wiccan.core.error.AppError
 import com.jaimesorrow.wiccan.core.result.AppResult
 import com.jaimesorrow.wiccan.domain.model.SubscriptionOffer
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
+import com.jaimesorrow.wiccan.domain.model.SubscriptionState
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -105,6 +106,22 @@ class PaywallViewModelTest {
         assertEquals(2, repository.priceCallCount)
         assertEquals("$4.99/mo", viewModel.state.value.price)
         assertFalse(viewModel.state.value.isLoadingPrice)
+    }
+
+    @Test
+    fun `failed reload clears a stale winback promotion`() = runTest(dispatcher) {
+        repository.hasFreeTrial = false
+        repository.monthlyWinBackPrice = "$2.99"
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals("$2.99", viewModel.state.value.monthlyWinBackPrice)
+
+        repository.priceResult = AppResult.Failure(AppError.Network)
+        viewModel.onEvent(PaywallUiEvent.RetryPriceClicked)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(null, viewModel.state.value.monthlyWinBackPrice)
+        assertEquals(null, viewModel.state.value.yearlyWinBackPrice)
     }
 
     @Test
@@ -267,5 +284,19 @@ class PaywallViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(before, viewModel.state.value)
+    }
+
+    @Test
+    fun `server on-hold state enables payment recovery copy`() = runTest(dispatcher) {
+        val viewModel = PaywallViewModel(repository, analyticsLogger)
+        dispatcher.scheduler.advanceUntilIdle()
+
+        repository.emitSubscriptionState(SubscriptionState.ON_HOLD)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertTrue(viewModel.state.value.subscriptionOnHold)
+
+        repository.emitSubscriptionState(SubscriptionState.ACTIVE)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertFalse(viewModel.state.value.subscriptionOnHold)
     }
 }
