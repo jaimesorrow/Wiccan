@@ -55,11 +55,13 @@ import com.jaimesorrow.wiccan.ui.theme.GrimoireCandleGlow
 import com.jaimesorrow.wiccan.ui.theme.GrimoireDashedConnector
 import com.jaimesorrow.wiccan.ui.theme.GrimoireInkLabel
 import com.jaimesorrow.wiccan.ui.theme.GrimoireMoonPhases
+import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
 import com.jaimesorrow.wiccan.ui.theme.GrimoireSpellMapWash
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanEditorialFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
+import com.jaimesorrow.wiccan.ui.theme.grimoireCornerFlourishes
 import com.wiccan.app.R
 import java.time.LocalDate
 import java.time.YearMonth
@@ -110,6 +112,7 @@ internal fun SpellbookHome(
                 WiccanFullLogo(width = 148.dp)
                 GrimoireInkLabel(stringResource(R.string.motif_today_page))
                 WelcomeCard(moon = moon, today = today)
+                GrimoireOrnamentalDivider(modifier = Modifier.padding(horizontal = 8.dp))
                 GrimoireDashedConnector(Modifier.fillMaxWidth().height(28.dp))
                 LessonCard(
                     content = content,
@@ -343,6 +346,7 @@ private fun GrimoireCard(content: @Composable () -> Unit) {
             .clip(CardShape)
             .background(WiccanPaletteColors.Grimoire.CardFill)
             .border(1.dp, Gold, CardShape)
+            .grimoireCornerFlourishes()
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) { content() }
@@ -356,6 +360,7 @@ private fun DarkTile(content: @Composable () -> Unit) {
             .clip(RoundedCornerShape(4.dp))
             .background(WiccanPaletteColors.Grimoire.Background)
             .border(1.dp, Gold, RoundedCornerShape(4.dp))
+            .grimoireCornerFlourishes(arm = 10.dp)
             .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(3.dp),
     ) { content() }

@@ -31,19 +31,20 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.sky.CelestialCalculator
-import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.theme.GrimoireCandleGlow
 import com.jaimesorrow.wiccan.ui.theme.GrimoireMoonPhases
+import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
+import com.jaimesorrow.wiccan.ui.theme.GrimoireParchmentMarginInk
 import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanEditorialFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanHandwritingFont
@@ -171,6 +172,7 @@ private fun LessonLeaf(
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize().clip(PageShape),
         )
+        GrimoireParchmentMarginInk(Modifier.matchParentSize().clip(PageShape))
         Box(
             Modifier
                 .matchParentSize()
@@ -209,48 +211,52 @@ private fun LessonLeaf(
             val tools = content.tools.ifEmpty { content.materials.orEmpty() }
             var step = 1
             if (tools.isNotEmpty()) {
+                GrimoireOrnamentalDivider(inkOnParchment = true)
                 SectionTitle(stringResource(R.string.content_materials))
                 tools.forEach { item ->
                     Text("☐  $item", color = Ink, style = prose)
                 }
-                WiccanBotanicalAccent(width = 96.dp)
+                GrimoireOrnamentalDivider(inkOnParchment = true)
             }
             if (content.intro.isNotBlank()) {
                 Text(content.intro, color = Ink, style = prose)
             }
-            SectionTitle("${roman(step++)}. ${stringResource(R.string.content_method)}")
-            Text(content.body, color = Ink, style = prose)
-            WiccanBotanicalAccent(width = 96.dp)
+            LessonRomanSection(step = step++, label = stringResource(R.string.content_method), body = content.body, prose = prose)
             content.reflection?.takeIf { it.isNotBlank() }?.let {
-                SectionTitle("${roman(step++)}. ${stringResource(R.string.content_reflection)}")
-                Text(it, color = Ink, style = prose)
+                LessonRomanSection(
+                    step = step++,
+                    label = stringResource(R.string.content_reflection),
+                    body = it,
+                    prose = prose,
+                )
             }
             content.practice?.takeIf { it.isNotBlank() }?.let {
-                SectionTitle("${roman(step)}. ${stringResource(R.string.content_practice)}")
-                Text(it, color = Ink, style = prose)
+                LessonRomanSection(
+                    step = step,
+                    label = stringResource(R.string.content_practice),
+                    body = it,
+                    prose = prose,
+                )
             }
-            content.safetyNote?.takeIf { it.isNotBlank() }?.let {
-                PlainSection(stringResource(R.string.content_safety_heading), it)
-            }
+            LessonClosingBlock(
+                safetyNote = content.safetyNote,
+                onOpenGrimoire = onOpenGrimoire,
+            )
             content.sourceCitation?.takeIf { it.isNotBlank() }?.let {
-                PlainSection(stringResource(R.string.content_source), it)
+                LessonMutedCopy(title = stringResource(R.string.content_source), body = it)
             }
             content.rightsNotes?.takeIf { it.isNotBlank() }?.let {
-                Text(it, color = Ink, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    it,
+                    color = mutedLessonInk(),
+                    style = lessonMutedTextStyle(MaterialTheme.typography.bodySmall),
+                )
             }
-            Text(stringResource(R.string.content_saved), color = Ink, style = MaterialTheme.typography.bodyMedium)
-            onOpenGrimoire?.let { action ->
-                TextButton(onClick = action) {
-                    Text(stringResource(R.string.today_open_grimoire), color = Ink)
-                }
-            }
-            val quillDescription = stringResource(R.string.lesson_quill_description)
             QuillAndInkpotOrnament(
                 Modifier
                     .padding(top = 16.dp)
                     .size(width = 116.dp, height = 84.dp)
-                    .testTag("lesson_quill_ornament")
-                    .semantics { contentDescription = quillDescription },
+                    .testTag("lesson_quill_ornament"),
             )
             Spacer(Modifier.height(28.dp))
         }
@@ -299,33 +305,75 @@ private fun LessonTitleHeader(title: String, candleReserveEnd: Dp) {
 }
 
 @Composable
+private fun LessonRomanSection(step: Int, label: String, body: String, prose: androidx.compose.ui.text.TextStyle) {
+    GrimoireOrnamentalDivider(inkOnParchment = true)
+    SectionTitle("${roman(step)}. $label")
+    Text(body, color = Ink, style = prose)
+}
+
+@Composable
 private fun SectionTitle(text: String) {
     Text(
         text = text.uppercase(Locale.ROOT),
-        color = Ink,
+        color = WiccanPaletteColors.Grimoire.Gold,
         modifier = Modifier.semantics { heading() },
         style = MaterialTheme.typography.labelMedium.copy(
             fontFamily = WiccanDisplayFont,
-            letterSpacing = 1.2.sp,
+            letterSpacing = 1.4.sp,
         ),
     )
 }
 
 @Composable
-private fun PlainSection(title: String, body: String) {
-    val plain = MaterialTheme.typography
+private fun LessonClosingBlock(safetyNote: String?, onOpenGrimoire: (() -> Unit)?) {
+    if (safetyNote.isNullOrBlank() && onOpenGrimoire == null) return
+    GrimoireOrnamentalDivider(inkOnParchment = true, modifier = Modifier.padding(top = 6.dp))
+    safetyNote?.takeIf { it.isNotBlank() }?.let { note ->
+        LessonMutedCopy(title = stringResource(R.string.content_safety_heading), body = note)
+    }
+    Text(
+        stringResource(R.string.content_saved),
+        color = mutedLessonInk(),
+        style = lessonMutedTextStyle(MaterialTheme.typography.bodyMedium),
+        modifier = Modifier.padding(top = 8.dp).semantics { heading() },
+    )
+    onOpenGrimoire?.let { action ->
+        TextButton(onClick = action) {
+            Text(
+                stringResource(R.string.today_open_grimoire),
+                color = mutedLessonInk(),
+                style = lessonMutedTextStyle(MaterialTheme.typography.bodyMedium),
+            )
+        }
+    }
+}
+
+@Composable
+private fun LessonMutedCopy(title: String, body: String) {
     Text(
         text = title,
-        color = Ink,
+        color = mutedLessonInk(),
         modifier = Modifier.semantics { heading() },
-        style = plain.labelLarge,
+        style = lessonMutedTextStyle(MaterialTheme.typography.bodyMedium),
     )
     Text(
         text = body,
-        color = Ink,
-        style = plain.bodyMedium,
+        color = mutedLessonInk(),
+        modifier = Modifier.padding(top = 2.dp),
+        style = lessonMutedTextStyle(MaterialTheme.typography.bodyMedium),
     )
 }
+
+@Composable
+private fun mutedLessonInk() = Ink.copy(alpha = 0.78f)
+
+@Composable
+private fun lessonMutedTextStyle(base: androidx.compose.ui.text.TextStyle) = base.copy(
+    fontFamily = WiccanEditorialFont,
+    fontWeight = FontWeight.Normal,
+    fontStyle = FontStyle.Normal,
+    lineHeight = 24.sp,
+)
 
 private fun roman(value: Int): String {
     val numerals = listOf("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X")

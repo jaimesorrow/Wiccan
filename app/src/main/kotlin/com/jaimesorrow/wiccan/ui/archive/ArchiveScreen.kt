@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -52,7 +53,11 @@ import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.theme.GrimoireBannerSlot
 import com.jaimesorrow.wiccan.ui.theme.GrimoireInkLabel
 import com.jaimesorrow.wiccan.ui.theme.GrimoireMoonPhases
+import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
+import com.jaimesorrow.wiccan.ui.theme.GrimoireSpellMapWash
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
+import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
+import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.wiccan.app.R
 import java.time.Instant
 
@@ -91,105 +96,110 @@ internal fun ArchiveScreenContent(
             modifier = modifier.fillMaxSize(),
             containerColor = MaterialTheme.colorScheme.background,
         ) { insets ->
-            Column(modifier = Modifier.padding(insets).fillMaxSize().wiccanPageWash()) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    WiccanEmblem(
-                        modifier = Modifier.testTag("grimoire-logo"),
-                        size = 44.dp,
-                        contentDescription = stringResource(R.string.grimoire_logo_description),
-                    )
-                }
-                WiccanBotanicalAccent(modifier = Modifier.align(Alignment.CenterHorizontally), width = 116.dp)
-                Text(
-                    text = stringResource(R.string.grimoire_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
-                )
-                Text(
-                    text = stringResource(R.string.grimoire_subtitle),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                )
-                val archiveMoon = remember { CelestialCalculator.moon(Instant.now()) }
-                GrimoireMoonPhases(
-                    active = archiveMoon.trackIndex,
-                    activePhaseName = archiveMoon.name,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
-                )
-                GrimoireInkLabel(
-                    text = stringResource(R.string.motif_kept_pages),
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                )
-                Row(
-                    modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    listOf(
-                        R.drawable.grimoire_crystal_citrine,
-                        R.drawable.grimoire_crystal_clear,
-                        R.drawable.grimoire_crystal_smoky,
-                        R.drawable.grimoire_crystal_obsidian,
-                    ).forEach { art ->
-                        Image(
-                            painter = painterResource(art),
-                            contentDescription = null,
-                            modifier = Modifier.size(32.dp),
+            Box(modifier = Modifier.padding(insets).fillMaxSize().wiccanPageWash()) {
+                GrimoireSpellMapWash(Modifier.matchParentSize())
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        WiccanEmblem(
+                            modifier = Modifier.testTag("grimoire-logo"),
+                            size = 44.dp,
+                            contentDescription = stringResource(R.string.grimoire_logo_description),
                         )
                     }
-                }
-                val loadingDescription = stringResource(R.string.grimoire_loading)
-                Box(Modifier.weight(1f).fillMaxWidth()) {
-                    when {
-                        state.isLoading -> Box(
-                            Modifier.fillMaxSize().semantics { contentDescription = loadingDescription },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    WiccanBotanicalAccent(modifier = Modifier.align(Alignment.CenterHorizontally), width = 116.dp)
+                    Text(
+                        text = stringResource(R.string.grimoire_title),
+                        style = MaterialTheme.typography.headlineMedium.copy(fontFamily = WiccanDisplayFont),
+                        color = WiccanPaletteColors.Grimoire.Gold,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
+                    )
+                    GrimoireOrnamentalDivider(modifier = Modifier.padding(horizontal = 24.dp, vertical = 6.dp))
+                    Text(
+                        text = stringResource(R.string.grimoire_subtitle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                    )
+                    val archiveMoon = remember { CelestialCalculator.moon(Instant.now()) }
+                    GrimoireMoonPhases(
+                        active = archiveMoon.trackIndex,
+                        activePhaseName = archiveMoon.name,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                    )
+                    GrimoireInkLabel(
+                        text = stringResource(R.string.motif_kept_pages),
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    )
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        listOf(
+                            R.drawable.grimoire_crystal_citrine,
+                            R.drawable.grimoire_crystal_clear,
+                            R.drawable.grimoire_crystal_smoky,
+                            R.drawable.grimoire_crystal_obsidian,
+                        ).forEach { art ->
+                            Image(
+                                painter = painterResource(art),
+                                contentDescription = null,
+                                modifier = Modifier.size(32.dp),
+                            )
                         }
-                        state.entries.isEmpty() && state.error != null -> {
-                            val historyError = checkNotNull(state.error)
-                            Box(
-                                Modifier.fillMaxSize().padding(32.dp),
+                    }
+                    val loadingDescription = stringResource(R.string.grimoire_loading)
+                    Box(Modifier.weight(1f).fillMaxWidth()) {
+                        when {
+                            state.isLoading -> Box(
+                                Modifier.fillMaxSize().semantics { contentDescription = loadingDescription },
                                 contentAlignment = Alignment.Center,
                             ) {
-                                Text(
-                                    text = historyError.toUserMessage(LocalResources.current),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                             }
-                        }
-                        else -> Box(Modifier.fillMaxSize()) {
-                            Column(Modifier.fillMaxSize()) {
-                                ArchiveTabRow(
-                                    selectedTab = state.selectedTab,
-                                    onTabSelected = { onEvent(ArchiveUiEvent.TabSelected(it)) },
-                                )
-                                when (state.selectedTab) {
-                                    ArchiveTab.TIMELINE -> if (state.entries.isEmpty()) {
-                                        EmptyArchive()
-                                    } else {
-                                        TimelineList(
+                            state.entries.isEmpty() && state.error != null -> {
+                                val historyError = checkNotNull(state.error)
+                                Box(
+                                    Modifier.fillMaxSize().padding(32.dp),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = historyError.toUserMessage(LocalResources.current),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
+                            else -> Box(Modifier.fillMaxSize()) {
+                                Column(Modifier.fillMaxSize()) {
+                                    ArchiveTabRow(
+                                        selectedTab = state.selectedTab,
+                                        onTabSelected = { onEvent(ArchiveUiEvent.TabSelected(it)) },
+                                    )
+                                    when (state.selectedTab) {
+                                        ArchiveTab.TIMELINE -> if (state.entries.isEmpty()) {
+                                            EmptyArchive()
+                                        } else {
+                                            TimelineList(
+                                                entries = state.entries,
+                                                onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                            )
+                                        }
+                                        ArchiveTab.LIBRARY -> LibraryList(
                                             entries = state.entries,
+                                            collapsedCategories = state.collapsedCategories,
                                             onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                            onCategoryToggled = { onEvent(ArchiveUiEvent.CategoryToggled(it)) },
                                         )
                                     }
-                                    ArchiveTab.LIBRARY -> LibraryList(
-                                        entries = state.entries,
-                                        collapsedCategories = state.collapsedCategories,
-                                        onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
-                                        onCategoryToggled = { onEvent(ArchiveUiEvent.CategoryToggled(it)) },
-                                    )
                                 }
                             }
                         }
                     }
+                    GrimoireBannerSlot()
                 }
-                GrimoireBannerSlot()
             }
         }
     }

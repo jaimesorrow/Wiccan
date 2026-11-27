@@ -59,7 +59,11 @@ import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
 import com.jaimesorrow.wiccan.ui.legal.LegalDocumentId
 import com.jaimesorrow.wiccan.ui.theme.GrimoireButton
 import com.jaimesorrow.wiccan.ui.theme.GrimoireFloralBackdrop
+import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
+import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
+import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
+import com.jaimesorrow.wiccan.ui.theme.grimoireCornerFlourishes
 import com.jaimesorrow.wiccan.ui.theme.grimoireFieldColors
 import com.jaimesorrow.wiccan.ui.today.components.HairlineDivider
 import com.wiccan.app.R
@@ -125,15 +129,15 @@ internal fun SignInScreenContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     WiccanFullLogo(modifier = Modifier.testTag("auth-logo"), width = 180.dp)
-                    WiccanBotanicalAccent(modifier = Modifier.padding(vertical = 5.dp))
+                    GrimoireOrnamentalDivider(modifier = Modifier.padding(vertical = 4.dp))
                     Text(
                         text = if (state.mode == SignInMode.FORGOT_PASSWORD) {
                             stringResource(R.string.auth_forgot_headline)
                         } else {
                             stringResource(R.string.auth_intro_headline)
                         },
-                        style = MaterialTheme.typography.headlineMedium.copy(fontFamily = FontFamily.Serif),
-                        color = scheme.onBackground,
+                        style = MaterialTheme.typography.headlineMedium.copy(fontFamily = WiccanDisplayFont),
+                        color = WiccanPaletteColors.Grimoire.Gold,
                         modifier = Modifier.fillMaxWidth().semantics { heading() },
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -159,10 +163,10 @@ internal fun SignInScreenContent(
                     Spacer(modifier = Modifier.height(28.dp))
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = scheme.surface,
+                        color = WiccanPaletteColors.Grimoire.CardFill,
                         tonalElevation = 0.dp,
-                        border = BorderStroke(1.dp, scheme.outline),
-                        modifier = Modifier.fillMaxWidth(),
+                        border = BorderStroke(1.dp, WiccanPaletteColors.Grimoire.Border),
+                        modifier = Modifier.fillMaxWidth().grimoireCornerFlourishes(),
                     ) {
                         Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                             when (state.mode) {

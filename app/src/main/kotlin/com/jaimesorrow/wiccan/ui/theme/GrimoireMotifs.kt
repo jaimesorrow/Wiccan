@@ -69,6 +69,78 @@ fun GrimoireDashedConnector(modifier: Modifier = Modifier) {
     }
 }
 
+/** Thin ornamental rule with a central flourish, between lesson sections or footers. */
+@Composable
+fun GrimoireOrnamentalDivider(modifier: Modifier = Modifier, inkOnParchment: Boolean = false) {
+    val gold = WiccanPaletteColors.Grimoire.Gold
+    val ink = WiccanPaletteColors.Parchment.Ink
+    val lineColor = if (inkOnParchment) ink.copy(alpha = 0.42f) else gold.copy(alpha = 0.72f)
+    val markColor = if (inkOnParchment) ink.copy(alpha = 0.55f) else WiccanPaletteColors.Grimoire.Border
+    Canvas(
+        modifier
+            .fillMaxWidth()
+            .height(16.dp),
+    ) {
+        val y = size.height / 2f
+        val mid = size.width / 2f
+        val gap = 14.dp.toPx()
+        val stroke = 1.dp.toPx()
+        drawLine(lineColor, Offset(0f, y), Offset(mid - gap, y), strokeWidth = stroke)
+        drawLine(lineColor, Offset(mid + gap, y), Offset(size.width, y), strokeWidth = stroke)
+        val arm = 4.5.dp.toPx()
+        val diamond = Path().apply {
+            moveTo(mid, y - arm)
+            lineTo(mid + arm, y)
+            lineTo(mid, y + arm)
+            lineTo(mid - arm, y)
+            close()
+        }
+        drawPath(diamond, markColor, style = Stroke(width = stroke))
+        drawCircle(markColor, 1.4.dp.toPx(), Offset(mid, y))
+    }
+}
+
+/** Faint botanical ink and star-chart dots along a parchment leaf's margins. */
+@Composable
+fun GrimoireParchmentMarginInk(modifier: Modifier = Modifier) {
+    val ink = WiccanPaletteColors.Parchment.Ink.copy(alpha = 0.14f)
+    val chart = WiccanPaletteColors.Grimoire.Gold.copy(alpha = 0.12f)
+    Canvas(modifier) {
+        val stroke = Stroke(width = 1.dp.toPx(), cap = StrokeCap.Round)
+        val leftVine = Path().apply {
+            moveTo(10.dp.toPx(), size.height * 0.12f)
+            quadraticTo(18.dp.toPx(), size.height * 0.28f, 11.dp.toPx(), size.height * 0.46f)
+            quadraticTo(8.dp.toPx(), size.height * 0.62f, 14.dp.toPx(), size.height * 0.82f)
+        }
+        drawPath(leftVine, ink, style = stroke)
+        val rightVine = Path().apply {
+            moveTo(size.width - 12.dp.toPx(), size.height * 0.18f)
+            quadraticTo(size.width - 20.dp.toPx(), size.height * 0.34f, size.width - 13.dp.toPx(), size.height * 0.58f)
+        }
+        drawPath(rightVine, ink, style = stroke)
+        val stars = listOf(
+            Offset(size.width - 22.dp.toPx(), size.height * 0.24f),
+            Offset(size.width - 14.dp.toPx(), size.height * 0.31f),
+            Offset(size.width - 28.dp.toPx(), size.height * 0.36f),
+            Offset(size.width - 18.dp.toPx(), size.height * 0.44f),
+            Offset(size.width - 26.dp.toPx(), size.height * 0.52f),
+        )
+        stars.forEach { drawCircle(chart, 1.3.dp.toPx(), it) }
+        val chartLine = Path().apply {
+            moveTo(stars[0].x, stars[0].y)
+            lineTo(stars[1].x, stars[1].y)
+            lineTo(stars[2].x, stars[2].y)
+            lineTo(stars[3].x, stars[3].y)
+            lineTo(stars[4].x, stars[4].y)
+        }
+        drawPath(
+            chartLine,
+            chart,
+            style = Stroke(0.8.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(3.dp.toPx(), 4.dp.toPx()), 0f))
+        )
+    }
+}
+
 /** Background vine drawn as a dashed ink path plus a corner glow. */
 @Composable
 fun GrimoireSpellMapWash(modifier: Modifier = Modifier) {
