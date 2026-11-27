@@ -20,6 +20,7 @@ fun AppError.userMessageRes(): Int = when (this) {
     is AppError.NoNewLesson -> R.string.error_no_new_lesson
     is AppError.SubscriptionRequired -> R.string.error_subscription_required
     is AppError.GoogleSignInUnavailable -> R.string.error_google_sign_in
+    is AppError.VerificationEmailDeliveryFailed -> R.string.error_verification_email_delivery
     is AppError.Cancelled -> R.string.error_cancelled
     is AppError.PurchaseVerificationFailed -> R.string.error_purchase_verification
     is AppError.InvalidCredentials -> R.string.error_invalid_credentials

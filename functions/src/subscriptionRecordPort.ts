@@ -6,6 +6,8 @@ export interface SubscriptionRecordInput {
   subscriptionState: PlaySubscriptionState;
   expiryTimeMillis: number | null;
   autoRenewing: boolean;
+  /** Whether the verified purchase is in its free-trial phase; drives the trial-ending reminder. */
+  inFreeTrial?: boolean;
 }
 
 /**

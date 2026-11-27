@@ -15,7 +15,7 @@ export const DAILY_PRACTICE_CHANNEL_ID = "daily_practice";
 export function dailyNotificationCopy(type: ContentType, contentTitle: string): { title: string; body: string } {
   return {
     title: titleForType(type),
-    body: `The moon has turned. ${contentTitle}`,
+    body: `The moon has turned, and today’s ${type} rests upon your altar: ${contentTitle}`,
   };
 }
 
@@ -29,11 +29,11 @@ export interface NotificationSendSummary {
 function titleForType(type: ContentType): string {
   switch (type) {
     case "spell":
-      return "Your spell awaits";
+      return "A spell awaits beneath the moon";
     case "potion":
-      return "Your potion awaits";
+      return "A potion awaits beneath the moon";
     case "lesson":
-      return "Your lesson awaits";
+      return "A lesson awaits beneath the moon";
   }
 }
 
