@@ -2,28 +2,82 @@
 
 Backfill of an original black-and-gold grimoire illustration for every currently published lesson, spell, and potion.
 
-**This folder is staging only.** Nothing here has been uploaded to Firebase Storage or written to production Firestore.
+**Images are fully generated and staged.** Production Firebase Storage upload and Firestore field updates were approved by Jaime (4:32 PM AKST) but have **not** been performed yet: the destination bucket `wiccan-android.firebasestorage.app` does not exist, and the Cloud Storage for Firebase API is not enabled on project `wiccan-android`.
 
 ## Progress
 
-- Published items in production (read-only query, 2026-11-27): **104** (12 lessons, 73 spells, 19 potions). Older backups listed 92; 12 more have been published since 2026-11-21.
-- Images generated this run: **47**
-- Remaining: **57**
+- Published items in production (read-only query, 2026-11-27): **104** (12 lessons, 73 spells, 19 potions).
+- Images generated: **104 / 104**
+- Remaining to generate: **0**
+- Unique SHA-256 hashes: **104 / 104** (no reused or duplicate files)
 - Format: 1024×1024 WebP, one unique image per Firestore document ID
 - Files: `content-staging/images/<id>.webp`
 - Box copy: `/workspace/wiccan-image-backfill/images/<id>.webp`
 - Mapping: `content-staging/mapping.csv` (also `/workspace/wiccan-image-backfill/mapping.csv`)
+- Manifest updated: 2026-11-27 17:10 UTC-09:00
 
-## Schema field (provisional)
+## Schema fields to set on production upload
 
-The brief asked to guess `imagePath`. The live app and PR #231 actually use **`illustrationUrl`** (an HTTPS URL). After a later production upload (not done here), set `illustrationUrl` on the matching `content/{id}` document. `imagePath` is flagged as a provisional guess and is not a live field.
+Per PR #234, update each published `content/<id>` document with **only** these two fields:
+
+- `illustrationUrl`: unique HTTPS URL of `content-images/<id>.webp`
+- `illustrationOriginal`: `true`
+
+Skip any doc that already has `illustrationUrl`. Do not change any other field. Do not touch `systemConfig`. Leave the generator off. No deploy and no merge.
 
 Provisional Storage object path (not uploaded):
 
 `gs://wiccan-android.firebasestorage.app/content-images/<id>.webp`
 
-## Remaining IDs
+## Generated IDs (all 104)
 
+- egypt-heka-005-heka-magic-as-a-god
+- egypt-heka-006-isis-mistress-of-magic
+- egypt-heka-009-naming-the-body-part-by-part
+- egypt-heka-014-spells-for-childbirth
+- egypt-heka-020-thoth-the-god-of-spells
+- egypt-heka-031-back-you-apophis
+- egypt-heka-032-back-you-fish-and-crocodiles
+- egypt-heka-033-conjuration-for-the-head-four-times
+- egypt-heka-035-don-t-fear-bastet
+- egypt-heka-039-isis-isis-come-to-your-horus
+- egypt-heka-041-sun-come-to-your-daughter
+- egypt-heka-042-thoth-s-protection-at-the-bed
+- egypt-heka-043-to-be-said-on-water-or-on-land
+- egypt-heka-045-you-who-are-in-the-hole
+- egypt-heka-046-your-mouth-has-been-shut-by-the-sun
+- egypt-heka-047-barley-bread-kneaded-with-salt
+- egypt-heka-048-garlic-and-beer-for-the-house
+- egypt-heka-071-conjuration-in-the-speech-of-keftiu
+- egypt-heka-111-be-spewed-out-you-poison
+- egypt-heka-114-holding-the-scorpion-s-mouth-shut
+- egypt-heka-117-isis-has-spun-nephthys-has-woven
+- egypt-heka-122-the-clay-scorpion-on-turquoise
+- egypt-heka-123-the-faience-lion-on-red-linen
+- egypt-heka-125-the-tamarisk-falcon-for-snakebite
+- harris-036-drive-away-the-lions-of-meru
+- harris-073-first-spell-of-enchanting-all-that-is-in-the-water
+- harris-082-the-clay-egg-at-the-prow
+- london-leiden-016-the-number-seven-in-egyptian-practice
+- london-leiden-050-oil-recited-over-seven-times-for-fever
+- london-leiden-056-how-to-dismiss-what-you-called
+- london-leiden-058-names-from-everywhere
+- london-leiden-060-tests-and-prognoses
+- london-leiden-061-the-child-medium
+- london-leiden-097-the-divination-oil-of-seven
+- london-leiden-102-from-petition-to-compulsion
+- london-leiden-108-what-the-erotic-spells-actually-demanded
+- london-leiden-129-anise-stalks-with-eggshell
+- london-leiden-130-ape-s-dung-to-send-them-away
+- london-leiden-131-ass-s-dung-with-an-amulet-of-nephthys
+- london-leiden-132-copper-sulphate-fumigation
+- london-leiden-134-crocodile-egg-shell-on-the-flame
+- london-leiden-135-crocus-powder-with-alum
+- london-leiden-136-eye-paint-for-the-bark-of-phre
+- london-leiden-138-garlic-and-rue-for-a-dog-bite
+- london-leiden-142-scorpion-oil-with-a-linen-strip
+- london-leiden-146-the-greek-bean-macerate
+- london-leiden-147-the-sa-wr-and-ilkh-stones
 - london-leiden-149-the-sixteen-thread-band
 - london-leiden-150-the-wax-ape-and-the-oxyrhynchus-fish
 - maqlu-012-saying-it-again-three-and-seven
@@ -81,53 +135,3 @@ Provisional Storage object path (not uploaded):
 - maqlu-143-sulphur-and-amurru-salt
 - maqlu-144-sulphur-with-three-plants
 - maqlu-145-the-aromatic-torch-bundle
-
-## Generated this run
-
-- egypt-heka-005-heka-magic-as-a-god
-- egypt-heka-006-isis-mistress-of-magic
-- egypt-heka-009-naming-the-body-part-by-part
-- egypt-heka-014-spells-for-childbirth
-- egypt-heka-020-thoth-the-god-of-spells
-- egypt-heka-031-back-you-apophis
-- egypt-heka-032-back-you-fish-and-crocodiles
-- egypt-heka-033-conjuration-for-the-head-four-times
-- egypt-heka-035-don-t-fear-bastet
-- egypt-heka-039-isis-isis-come-to-your-horus
-- egypt-heka-041-sun-come-to-your-daughter
-- egypt-heka-042-thoth-s-protection-at-the-bed
-- egypt-heka-043-to-be-said-on-water-or-on-land
-- egypt-heka-045-you-who-are-in-the-hole
-- egypt-heka-046-your-mouth-has-been-shut-by-the-sun
-- egypt-heka-047-barley-bread-kneaded-with-salt
-- egypt-heka-048-garlic-and-beer-for-the-house
-- egypt-heka-071-conjuration-in-the-speech-of-keftiu
-- egypt-heka-111-be-spewed-out-you-poison
-- egypt-heka-114-holding-the-scorpion-s-mouth-shut
-- egypt-heka-117-isis-has-spun-nephthys-has-woven
-- egypt-heka-122-the-clay-scorpion-on-turquoise
-- egypt-heka-123-the-faience-lion-on-red-linen
-- egypt-heka-125-the-tamarisk-falcon-for-snakebite
-- harris-036-drive-away-the-lions-of-meru
-- harris-073-first-spell-of-enchanting-all-that-is-in-the-water
-- harris-082-the-clay-egg-at-the-prow
-- london-leiden-016-the-number-seven-in-egyptian-practice
-- london-leiden-050-oil-recited-over-seven-times-for-fever
-- london-leiden-056-how-to-dismiss-what-you-called
-- london-leiden-058-names-from-everywhere
-- london-leiden-060-tests-and-prognoses
-- london-leiden-061-the-child-medium
-- london-leiden-097-the-divination-oil-of-seven
-- london-leiden-102-from-petition-to-compulsion
-- london-leiden-108-what-the-erotic-spells-actually-demanded
-- london-leiden-129-anise-stalks-with-eggshell
-- london-leiden-130-ape-s-dung-to-send-them-away
-- london-leiden-131-ass-s-dung-with-an-amulet-of-nephthys
-- london-leiden-132-copper-sulphate-fumigation
-- london-leiden-134-crocodile-egg-shell-on-the-flame
-- london-leiden-135-crocus-powder-with-alum
-- london-leiden-136-eye-paint-for-the-bark-of-phre
-- london-leiden-138-garlic-and-rue-for-a-dog-bite
-- london-leiden-142-scorpion-oil-with-a-linen-strip
-- london-leiden-146-the-greek-bean-macerate
-- london-leiden-147-the-sa-wr-and-ilkh-stones
