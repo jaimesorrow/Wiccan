@@ -1,6 +1,5 @@
 package com.jaimesorrow.wiccan.ui.archive
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,6 +14,7 @@ import androidx.compose.ui.test.performTextInput
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.ContentType
 import com.jaimesorrow.wiccan.domain.model.HistoryEntry
+import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -23,7 +23,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34], application = android.app.Application::class)
+@Config(sdk = [34], qualifiers = "w360dp-h2400dp-xhdpi", application = android.app.Application::class)
 class GrimoireScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
@@ -32,7 +32,7 @@ class GrimoireScreenTest {
     fun `empty collection tells the user delivered lessons are in Grimoire`() {
         var selectedTab by mutableStateOf(ArchiveTab.TIMELINE)
         composeRule.setContent {
-            MaterialTheme {
+            MidnightGrimoireTheme {
                 ArchiveScreenContent(
                     ArchiveUiState(isLoading = false, selectedTab = selectedTab),
                     onEvent = { event ->
@@ -47,13 +47,13 @@ class GrimoireScreenTest {
         composeRule.onNodeWithText("Grimoire").assertIsDisplayed()
         composeRule
             .onNodeWithText("Your Grimoire is still quiet. Open Today to receive your first lesson.")
-            .performScrollTo()
             .assertIsDisplayed()
         composeRule.onNodeWithText("What the days have already given you.").assertIsDisplayed()
+        composeRule.onNodeWithTag("grimoire-search").assertIsDisplayed()
         composeRule.onNodeWithText("Categories").assertIsDisplayed()
 
         composeRule.onNodeWithText("Categories").performClick()
-        composeRule.onNodeWithText("Candle Spells (0)").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Candle Spells (0)").assertIsDisplayed()
         assertEquals(16, ContentCategory.libraryCategories.size)
         assertEquals(ContentCategory.PROTECTION_CLEANSING_WARDING, ContentCategory.libraryCategories.last())
     }
@@ -70,14 +70,14 @@ class GrimoireScreenTest {
         )
         var event: ArchiveUiEvent? = null
         composeRule.setContent {
-            MaterialTheme {
+            MidnightGrimoireTheme {
                 ArchiveScreenContent(
                     ArchiveUiState(isLoading = false, entries = listOf(entry), selectedTab = ArchiveTab.LIBRARY),
                     onEvent = { event = it },
                 )
             }
         }
-        composeRule.onNodeWithText("Protection (1)").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Protection (1)").assertIsDisplayed()
         composeRule.onNodeWithText(entry.title).performScrollTo().assertIsDisplayed().performClick()
         assertEquals(ArchiveUiEvent.EntryClicked("old-lesson"), event)
     }
@@ -94,7 +94,7 @@ class GrimoireScreenTest {
         )
         var state by mutableStateOf(ArchiveUiState(isLoading = false, entries = listOf(entry)))
         composeRule.setContent {
-            MaterialTheme {
+            MidnightGrimoireTheme {
                 ArchiveScreenContent(
                     state = state,
                     onEvent = { event ->
@@ -108,8 +108,9 @@ class GrimoireScreenTest {
             }
         }
 
+        composeRule.onNodeWithTag("grimoire-search").performClick()
         composeRule.onNodeWithTag("grimoire-search").performTextInput("missing")
-        composeRule.onNodeWithText("No entries match your search.").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("No entries match your search.").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Clear").assertIsDisplayed().performClick()
         composeRule.onNodeWithText(entry.title).performScrollTo().assertIsDisplayed()
     }
