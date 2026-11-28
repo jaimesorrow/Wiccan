@@ -354,4 +354,3 @@ Hohman, *The Long Lost Friend*, 1850 English (IA `b33030467`, ~6.6 MB) and Mathe
 - Does not touch issue #86.
 - Does not redesign seasonal tags (#224).
 - Does not update the live published count in `docs/CONTENT_PRODUCTION_RUNBOOK.md`; that figure should be revised when Jaime merges and when generation actually runs.
-
