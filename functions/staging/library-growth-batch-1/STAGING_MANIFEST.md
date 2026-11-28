@@ -5,14 +5,14 @@ Draft staging for issue #195 (grow the content library toward 300+). This batch 
 ## Counts
 
 - Previously checked-in verified passages: **11**
-- New visually verified passages in this batch: **72** (50 in the first slice, 22 Mathers 1889 passages in the second slice)
-- Register total after this PR: **83**
+- New visually verified passages in this batch: **101** (50 in the first slice, 22 Mathers 1889 in the second slice, 29 Carmina Gadelica 1900 in the third slice)
+- Register total after this PR: **112**
 - Repo-documented live published inventory (not a live Firestore count): about **104** published items as of `docs/V1_1_PLAN.md` (2026-11-21); the 296-entry `ancientContentSeed.json` remains draft.
-- Images: **72/72 generated** (50 from the first slice, 22 new unique images for the Mathers slice). Unique original 4:3 black-and-gold art (Midnight Blue `#0B132B` / gold `#E8BC61`), 1152×864, saved as JPEG quality 90 to keep the PR reviewable (PNG would have been ~70–90 MB). Files live in `functions/staging/library-growth-batch-1/illustrations/{passageId}.jpg`. These are **not** production `illustrationUrl` values and are not uploaded to Storage in this PR. `sourcePassages.json` has no image field; the filename is the join key. One first-pass lunar image misread “vessel” as a ship and was regenerated as a ritual water-bowl.
+- Images: **101/101 generated** (50 from the first slice, 22 Mathers, 29 new unique images for the Carmina Gadelica slice). Unique original 4:3 black-and-gold art (Midnight Blue `#0B132B` / gold `#E8BC61`), 1152×864, saved as JPEG quality 90 to keep the PR reviewable (PNG would have been ~70–90 MB). Files live in `functions/staging/library-growth-batch-1/illustrations/{passageId}.jpg`. These are **not** production `illustrationUrl` values and are not uploaded to Storage in this PR. `sourcePassages.json` has no image field; the filename is the join key. One first-pass lunar image misread “vessel” as a ship and was regenerated as a ritual water-bowl.
 
 ## Pre-1931 edition rule (Jaime, 4:37 PM AKST, 27 Nov 2026)
 
-Only magical texts first published **before 1931**. A translation or edition counts only if **that edition itself** was published before 1931. Every new record below records `editionDate` and the edition used. All 72 new records, and the 11 already in the register, have `editionDate` in {1889, 1904, 1908, 1912}. Official validation in `findPassageViolations` now requires `editionDate` to be a year before 1931. Nothing published in 1931 or later is quoted.
+Only magical texts first published **before 1931**. A translation or edition counts only if **that edition itself** was published before 1931. Every new record below records `editionDate` and the edition used. All 101 new records, and the 11 already in the register, have `editionDate` in {1889, 1900, 1904, 1908, 1912}. Official validation in `findPassageViolations` now requires `editionDate` to be a year before 1931. Nothing published in 1931 or later is quoted.
 
 ## Sources used in this batch
 
@@ -271,6 +271,73 @@ Authoring script: `factories_batch2.py`. Intermediate JSON: `new_passages_batch2
 
 Reginald Scot, *The Discoverie of Witchcraft*, Nicholson 1886 reprint of the 1584 text (IA `b21720307`, Public Domain Mark; Nicholson d. 1892) was downloaded and its text layer inspected. Charm material in Book XII includes lock-opening, theft, medical, and possession cures, which would be dropped on safety grounds; a possible house-blessing charm (“to drive awaie spirits that haunt anie house”) was **not visually locked from the printed page in this slice** and is therefore not staged. Quality was not traded for a larger count.
 
+
+## One item per source passage (Jaime, 5:46 PM AKST, 27 Nov 2026)
+
+Jaime set a hard cap of one published item per source passage. The 300+ library target therefore needs about 196 unique passages beyond the ~104 published items. This PR does **not** add a `findPassageViolations` near-duplicate check, because the already-checked-in London-Leiden register has overlapping locators (for example col. III 5-9 vs 5-15) and such a check would fail CI. New work avoids quoting the same or nearly the same `inspectedPassage` as an existing or published passage. Near-duplicate smooring/kindling variants and a second loom blessing in Carmina Gadelica vol. I were left out for that reason.
+
+## Carmina Gadelica, Volume I (Carmichael 1900) — third slice
+
+New checked-in source: `carmina-gadelica-carmichael-1900` (`historical-grimoire`, era `medieval`). Title-page: *Carmina Gadelica: Hymns and Incantations…*, orally collected in the Highlands and Islands of Scotland and translated into English by Alexander Carmichael, Volume I, Edinburgh, printed for the author by T. and A. Constable and sold by Norman MacLeod, 25 George IV. Bridge, **1900**. Internet Archive `carminagadelicah10carm`. URL form: `https://archive.org/details/carminagadelicah10carm/page/{printed}/mode/1up` (HTTP 200 confirmed, including `/page/xxix` and `/page/37`).
+
+Dating notes (honest): the wording quoted is Carmichael's 1900 English of orally collected prayers; no single earlier manuscript of these exact English wordings is claimed. Carmichael's introduction (p. xxix) describes a blending of pagan and Christian religion and relates the hymns' music to the old Celtic Church. The verse-forms (loricae; invocations of Christ, Mary, Michael, Bride, and Columba) belong to medieval Gaelic Christian charm tradition. `editionDate` is 1900.
+
+Rights: US publication 1900 (before 1931). Alexander Carmichael died on 6 June 1912; UK/EU life+70 expired at the end of 1982. Some IA records carry a CC BY-NC-SA notice on the *NLS scan images*; this register quotes the public-domain 1900 text only and does not commit scan images.
+
+All 29 passages were visually checked against the printed English page images (not OCR). Opening small capitals, hanging indents, Carmichael's square-bracket glosses, and typographic accidents are recorded in `uncertainties` where they matter. On p. 185 the line is printed `the mount of mis ,` with a damaged or unprinted last letter; the facing Gaelic is `beinn a cheo` (mount of mist). The inspected wording follows the visible English type. On p. 249 the first Columba line is printed `thegraves` (no space) and the refrain `the graves`.
+
+| passage id | pp. | Locator (short) | Suggested #224 `seasonalWindow` | Image |
+| --- | --- | --- | --- | --- |
+| `cg-i-13-prayer-for-protection` | 37 | Prayer for Protection (item 13) | none | `illustrations/cg-i-13-prayer-for-protection.jpg` |
+| `cg-i-15-rock-of-rocks` | 43 | The Rock of Rocks (item 15) | none | `illustrations/cg-i-15-rock-of-rocks.jpg` |
+| `cg-i-16-lightner-of-the-stars` | 45 | The Light'ner of the Stars (item 16) | none | `illustrations/cg-i-16-lightner-of-the-stars.jpg` |
+| `cg-i-18-guardian-angel` | 49 | The Guardian Angel (item 18) | none | `illustrations/cg-i-18-guardian-angel.jpg` |
+| `cg-i-23-the-lustration` | 59 | The Lustration, main poem only (item 23) | none | `illustrations/cg-i-23-the-lustration.jpg` |
+| `cg-i-25-god-guide-me` | 65 | God Guide Me (item 25) | none | `illustrations/cg-i-25-god-guide-me.jpg` |
+| `cg-i-26-sleep-blessing` | 67 | Sleep Blessing (item 26) | none | `illustrations/cg-i-26-sleep-blessing.jpg` |
+| `cg-i-27-come-i-this-day` | 69 | Come I This Day (item 27) | none | `illustrations/cg-i-27-come-i-this-day.jpg` |
+| `cg-i-43-resting-prayer` | 101 | A Resting Prayer (item 43) | none | `illustrations/cg-i-43-resting-prayer.jpg` |
+| `cg-i-45-blessing-of-house` | 105 | Blessing of House (item 45) | none | `illustrations/cg-i-45-blessing-of-house.jpg` |
+| `cg-i-54-the-new-moon` | 123 | The New Moon, two verse blocks (item 54) | `{ kind: "moon", phase: "new" }` | `illustrations/cg-i-54-the-new-moon.jpg` |
+| `cg-i-61-christmas-chant` | 135, 137 | Christmas Chant | none (the text is a Christmas house-chant, not named Yule) | `illustrations/cg-i-61-christmas-chant.jpg` |
+| `cg-i-66-hogmanay-bless-the-dwelling` | 157 | Hogmanay house-blessing stanza only | none | `illustrations/cg-i-66-hogmanay-bless-the-dwelling.jpg` |
+| `cg-i-67-blessing-of-the-new-year` | 159 | The Blessing of the New Year (item 67) | none | `illustrations/cg-i-67-blessing-of-the-new-year.jpg` |
+| `cg-i-73-beltane-blessing` | 183, 185 | The Beltane Blessing (item 73) | `{ kind: "sabbat", id: "beltane" }` | `illustrations/cg-i-73-beltane-blessing.jpg` |
+| `cg-i-74-beltane-blessing-flocks` | 187, 189 | The Beltane Blessing (item 74) | `{ kind: "sabbat", id: "beltane" }` | `illustrations/cg-i-74-beltane-blessing-flocks.jpg` |
+| `cg-i-82-blessing-of-the-kindling` | 233 | Blessing of the Kindling (item 82) | none | `illustrations/cg-i-82-blessing-of-the-kindling.jpg` |
+| `cg-i-86-blessing-of-the-smooring` | 241 | Blessing of the Smooring (item 86) | none | `illustrations/cg-i-86-blessing-of-the-smooring.jpg` |
+| `cg-i-88-consecration-of-the-seed` | 245–247 | Consecration of the Seed, sowing stanzas only (item 88) | none (spring sowing, not named Ostara) | `illustrations/cg-i-88-consecration-of-the-seed.jpg` |
+| `cg-i-88-feast-day-of-michael` | 247 | Michaelmas first-cut rune printed after the sowing stanzas | none (Michaelmas, not Lughnasadh) | `illustrations/cg-i-88-feast-day-of-michael.jpg` |
+| `cg-i-89-reaping-blessing` | 249 | Reaping Blessing (item 89) | none (harvest blessing, not named Lughnasadh) | `illustrations/cg-i-89-reaping-blessing.jpg` |
+| `cg-i-100-herding-blessing` | 277 | Herding Blessing, main English poem only (item 100) | none | `illustrations/cg-i-100-herding-blessing.jpg` |
+| `cg-i-101-herding-blessing-bride` | 279 | Herding Blessing (item 101) | none | `illustrations/cg-i-101-herding-blessing-bride.jpg` |
+| `cg-i-112-loom-blessing` | 309 | Loom Blessing (item 112) | none | `illustrations/cg-i-112-loom-blessing.jpg` |
+| `cg-i-116-prayer-for-travelling` | 321 | Prayer for Travelling (item 116) | none | `illustrations/cg-i-116-prayer-for-travelling.jpg` |
+| `cg-i-117-fishing-blessing` | 323, 325 | Fishing Blessing (item 117) | none | `illustrations/cg-i-117-fishing-blessing.jpg` |
+| `cg-i-119-ocean-blessing` | 333 | Ocean Blessing (item 119); asterisks mark omitted lines, nothing invented to fill the gap | none | `illustrations/cg-i-119-ocean-blessing.jpg` |
+| `cg-i-120-ruler-of-the-elements` | 335 | Ruler of the Elements (item 120) | none | `illustrations/cg-i-120-ruler-of-the-elements.jpg` |
+| `cg-i-121-sea-prayer` | 337, 339 | Sea Prayer, helmsman/crew/all (item 121) | none | `illustrations/cg-i-121-sea-prayer.jpg` |
+
+### Dropped from Carmina Gadelica vol. I (this slice)
+
+- Bathing Prayer (p. 61): written for a child's age, growth, and appetite; dropped under the no-involving-a-child rule.
+- Both Invocations for Justice (pp. 53, 55): courtroom dominance charms ("my word above every person").
+- Prayer for Victory: not taken (hostile or competitive framing).
+- Hogmanay of the Sack and Hogmanay carols that use a bull-hide and go sunwise around babes or children.
+- The maledictions printed on p. 157 after the house-blessing stanza (quoted passage is the blessing only).
+- Death Blessing / soul-departure items; baptism blessing.
+- Hunting blessing.
+- Kindling the Fire and the other two smooring poems (near-duplicate dialogue form of the kindling/smooring pair already taken).
+- A second reaping blessing and the shorter loom blessing at p. 305 (near-theme duplicates).
+- The Quern Blessing opening (Ash Eve / flesh), left because the first English page is fragmentary.
+- The four-line Lustration Variant at the foot of p. 59 (not a separate passage).
+- Volume III (1928) was not used; later-editor rights were not locked.
+
+Modern instructions on included household blessings that mention children tell the generator not to involve a child in performing the rite. Favour or "love in every heart" lines are scoped not to be used as compulsive charms.
+
+### Still queued (PDFs on disk, not visually locked in this slice)
+
+Hohman, *The Long Lost Friend*, 1850 English (IA `b33030467`, ~6.6 MB) and Mathers, *The Book of the Sacred Magic of Abramelin the Mage*, 1898 (IA `dli.ministry.10516`, ~22.5 MB) were downloaded for later verified batches. Agrippa 1651 English exists as a very large IA PDF (~345 MB) and was not fetched this run. Goetia 1904 page-image scan, Budge *Egyptian Magic* 1899 (not a 1971 reprint), Scot 1886, Cockayne, Leland 1892/1899, and Grimm/Stallybrass remain eligible once visually quoted. Carmina vol. II (1900, `carminagadelicah03carm`) was not opened this slice.
 
 ## Open questions for Jaime / Grok Bot
 
