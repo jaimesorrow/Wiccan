@@ -17,9 +17,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -66,6 +71,7 @@ import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.jaimesorrow.wiccan.ui.theme.grimoireCornerFlourishes
+import com.jaimesorrow.wiccan.ui.theme.grimoireFieldColors
 import com.wiccan.app.R
 import java.time.LocalDate
 
@@ -184,27 +190,45 @@ internal fun ArchiveScreenContent(
                                     )
                                 }
                             }
-                            else -> Box(Modifier.fillMaxSize()) {
-                                Column(Modifier.fillMaxSize()) {
-                                    ArchiveTabRow(
-                                        selectedTab = state.selectedTab,
-                                        onTabSelected = { onEvent(ArchiveUiEvent.TabSelected(it)) },
-                                    )
-                                    when (state.selectedTab) {
-                                        ArchiveTab.TIMELINE -> if (state.entries.isEmpty()) {
-                                            EmptyArchive()
-                                        } else {
-                                            TimelineList(
-                                                entries = state.entries,
-                                                onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
-                                            )
-                                        }
-                                        ArchiveTab.LIBRARY -> LibraryList(
-                                            entries = state.entries,
-                                            collapsedCategories = state.collapsedCategories,
-                                            onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
-                                            onCategoryToggled = { onEvent(ArchiveUiEvent.CategoryToggled(it)) },
+                            else -> {
+                                val resources = LocalResources.current
+                                val visibleEntries = state.visibleEntries(
+                                    localizedCategory = { category ->
+                                        resources.getString(category.labelResId())
+                                    },
+                                    localizedType = { type -> resources.getString(type.labelResId()) },
+                                )
+                                Box(Modifier.fillMaxSize()) {
+                                    Column(Modifier.fillMaxSize()) {
+                                        GrimoireSearch(
+                                            query = state.searchQuery,
+                                            onQueryChanged = { onEvent(ArchiveUiEvent.SearchQueryChanged(it)) },
+                                            onClear = { onEvent(ArchiveUiEvent.SearchCleared) },
                                         )
+                                        ArchiveTabRow(
+                                            selectedTab = state.selectedTab,
+                                            onTabSelected = { onEvent(ArchiveUiEvent.TabSelected(it)) },
+                                        )
+                                        if (state.entries.isNotEmpty() && visibleEntries.isEmpty()) {
+                                            EmptySearchResults()
+                                        } else {
+                                            when (state.selectedTab) {
+                                                ArchiveTab.TIMELINE -> if (state.entries.isEmpty()) {
+                                                    EmptyArchive()
+                                                } else {
+                                                    TimelineList(
+                                                        entries = visibleEntries,
+                                                        onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                                    )
+                                                }
+                                                ArchiveTab.LIBRARY -> LibraryList(
+                                                    entries = visibleEntries,
+                                                    collapsedCategories = state.collapsedCategories,
+                                                    onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                                    onCategoryToggled = { onEvent(ArchiveUiEvent.CategoryToggled(it)) },
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -215,6 +239,41 @@ internal fun ArchiveScreenContent(
             }
         }
     }
+}
+
+@Composable
+private fun GrimoireSearch(
+    query: String,
+    onQueryChanged: (String) -> Unit,
+    onClear: () -> Unit,
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChanged,
+        singleLine = true,
+        label = { Text(stringResource(R.string.grimoire_search_label)) },
+        placeholder = { Text(stringResource(R.string.grimoire_search_hint)) },
+        colors = grimoireFieldColors(),
+        trailingIcon = if (query.isBlank()) {
+            null
+        } else {
+            {
+                IconButton(
+                    onClick = onClear,
+                    modifier = Modifier.size(48.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Clear,
+                        contentDescription = stringResource(R.string.grimoire_search_clear),
+                    )
+                }
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .testTag("grimoire-search"),
+    )
 }
 
 @Composable
@@ -398,6 +457,20 @@ private fun EmptyArchive() {
     Box(modifier = Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
         Text(
             text = stringResource(R.string.grimoire_empty),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun EmptySearchResults() {
+    Box(
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = stringResource(R.string.grimoire_search_empty),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

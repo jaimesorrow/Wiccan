@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,6 +81,61 @@ fun grimoireSwitchColors() = SwitchDefaults.colors(
     uncheckedBorderColor = WiccanPaletteColors.Grimoire.Border,
     uncheckedThumbColor = WiccanPaletteColors.Grimoire.Gold,
 )
+
+/**
+ * Permission and consent step shown before a system dialog. Title, body, and
+ * actions use Manrope typography only — no display or script fonts.
+ */
+@Composable
+fun PlainConsentAlertDialog(
+    title: String,
+    body: String,
+    confirmLabel: String,
+    dismissLabel: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val titleStyle = MaterialTheme.typography.titleLarge
+    val bodyStyle = MaterialTheme.typography.bodyLarge
+    val actionStyle = MaterialTheme.typography.labelLarge
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = title,
+                style = titleStyle,
+            )
+        },
+        text = {
+            Text(
+                text = body,
+                style = bodyStyle,
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                modifier = Modifier.defaultMinSize(minHeight = 48.dp),
+            ) {
+                Text(
+                    text = confirmLabel,
+                    style = actionStyle,
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                modifier = Modifier.defaultMinSize(minHeight = 48.dp),
+            ) {
+                Text(
+                    text = dismissLabel,
+                    style = actionStyle,
+                )
+            }
+        },
+    )
+}
 
 /** Gold-outlined action for billing, verification, and other plain Manrope copy. */
 @Composable

@@ -28,6 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,13 +47,18 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.data.location.lastKnownCoordinate
+import com.jaimesorrow.wiccan.data.location.resolveCoarseCoordinate
+import com.jaimesorrow.wiccan.domain.model.CoastalTide
 import com.jaimesorrow.wiccan.domain.model.Content
+import com.jaimesorrow.wiccan.domain.model.TideHeightUnit
 import com.jaimesorrow.wiccan.seasonal.CivilMoonTrack
 import com.jaimesorrow.wiccan.seasonal.grimoireMoonTrack
 import com.jaimesorrow.wiccan.sky.CelestialCalculator
 import com.jaimesorrow.wiccan.sky.ClassicalPlanet
+import com.jaimesorrow.wiccan.sky.GeoCoordinate
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
 import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
@@ -66,6 +72,7 @@ import com.jaimesorrow.wiccan.ui.theme.GrimoireMoonPhases
 import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
 import com.jaimesorrow.wiccan.ui.theme.GrimoireSettingsHeaderAccent
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
+import com.jaimesorrow.wiccan.ui.theme.PlainConsentAlertDialog
 import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanEditorialFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
@@ -74,6 +81,8 @@ import com.wiccan.app.R
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.time.format.TextStyle
 import kotlinx.coroutines.launch
 
@@ -83,7 +92,7 @@ private val Ink = WiccanPaletteColors.Grimoire.Text
 private val Muted = WiccanPaletteColors.Grimoire.Muted
 
 @Composable
-internal fun SpellbookHome(
+internal fun SpellbookHomeWithTideViewModel(
     content: Content?,
     lessonLocked: Boolean,
     onOpenToday: () -> Unit,
@@ -91,12 +100,43 @@ internal fun SpellbookHome(
     onOpenGrimoire: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
+    val tideViewModel: HomeTideViewModel = hiltViewModel()
+    val tideState by tideViewModel.state.collectAsStateWithLifecycle()
+    SpellbookHome(
+        content = content,
+        lessonLocked = lessonLocked,
+        onOpenToday = onOpenToday,
+        onOpenPaywall = onOpenPaywall,
+        onOpenGrimoire = onOpenGrimoire,
+        onOpenSettings = onOpenSettings,
+        tideState = tideState,
+        onTideLoad = tideViewModel::load,
+    )
+}
+
+@Composable
+internal fun SpellbookHome(
+    content: Content?,
+    lessonLocked: Boolean,
+    onOpenToday: () -> Unit,
+    onOpenPaywall: () -> Unit,
+    onOpenGrimoire: () -> Unit,
+    onOpenSettings: () -> Unit,
+    tideState: TideUiState,
+    onTideLoad: (GeoCoordinate?) -> Unit = {},
+) {
     MidnightGrimoireTheme {
         val context = LocalContext.current
+        val scope = rememberCoroutineScope()
         var coordinate by remember { mutableStateOf(lastKnownCoordinate(context)) }
+        var showLocationRationale by remember { mutableStateOf(false) }
         val locationPermission = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission(),
-        ) { granted -> if (granted) coordinate = lastKnownCoordinate(context) }
+        ) { granted ->
+            if (granted) {
+                scope.launch { coordinate = resolveCoarseCoordinate(context) }
+            }
+        }
         val now = remember { java.time.Instant.now() }
         val zone = remember { ZoneId.systemDefault() }
         val today = LocalDate.now()
@@ -105,8 +145,8 @@ internal fun SpellbookHome(
         val sabbat = remember(today) { CelestialCalculator.sabbatFor(today) }
         val hour = remember(coordinate) { CelestialCalculator.planetaryHour(now, zone, coordinate) }
         val voidOfCourse = remember(today) { CelestialCalculator.voidOfCourse(now) }
+        LaunchedEffect(coordinate) { onTideLoad(coordinate) }
         val scrollState = rememberScrollState()
-        val scope = rememberCoroutineScope()
         val lessonAnchor = remember { BringIntoViewRequester() }
         val wheelAnchor = remember { BringIntoViewRequester() }
         Box(modifier = Modifier.fillMaxSize().background(WiccanPaletteColors.Grimoire.Background)) {
@@ -158,9 +198,19 @@ internal fun SpellbookHome(
                     moon = moon,
                     hour = hour,
                     voidOfCourse = voidOfCourse,
+                    tideState = tideState,
                     hasLocation = coordinate != null,
-                    onRequestLocation = { locationPermission.launch(Manifest.permission.ACCESS_COARSE_LOCATION) },
+                    onRequestLocation = { showLocationRationale = true },
                 )
+                if (showLocationRationale) {
+                    HomeLocationPermissionRationale(
+                        onContinue = {
+                            showLocationRationale = false
+                            locationPermission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+                        },
+                        onNotNow = { showLocationRationale = false },
+                    )
+                }
                 PlateAccents()
                 Text(
                     text = stringResource(R.string.today_open_grimoire),
@@ -333,6 +383,7 @@ private fun CosmicCard(
     moon: com.jaimesorrow.wiccan.sky.MoonObservation,
     hour: com.jaimesorrow.wiccan.sky.PlanetaryHour?,
     voidOfCourse: com.jaimesorrow.wiccan.sky.VoidOfCourse,
+    tideState: TideUiState,
     hasLocation: Boolean,
     onRequestLocation: () -> Unit,
 ) {
@@ -398,11 +449,7 @@ private fun CosmicCard(
                 style = MaterialTheme.typography.bodySmall,
             )
             MoonLightChart(moon.illumination)
-            Text(
-                text = stringResource(R.string.home_tides_unavailable),
-                color = Muted,
-                style = MaterialTheme.typography.bodySmall,
-            )
+            TideStatus(tideState)
         }
         DarkTile {
             Text(
@@ -591,4 +638,98 @@ private fun PlanetaryDial(active: ClassicalPlanet?) {
     }
 }
 
+@Composable
+private fun TideStatus(state: TideUiState) {
+    val locale = LocalLocale.current.platformLocale
+    when (state) {
+        TideUiState.NeedsLocation -> Text(
+            text = stringResource(R.string.home_tides_need_location),
+            color = Muted,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        TideUiState.Loading -> Text(
+            text = stringResource(R.string.home_tides_loading),
+            color = Muted,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        TideUiState.NoNearbyStation -> Text(
+            text = stringResource(R.string.home_tides_no_nearby_station),
+            color = Muted,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        TideUiState.Unavailable -> Text(
+            text = stringResource(R.string.home_tides_unavailable),
+            color = Muted,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        is TideUiState.Available -> {
+            Text(
+                text = stringResource(R.string.home_tides_station, state.tide.station.name),
+                color = Ink,
+                style = MaterialTheme.typography.labelMedium,
+            )
+            Text(
+                text = stringResource(R.string.home_tides_disclaimer),
+                color = Muted,
+                style = MaterialTheme.typography.bodySmall,
+            )
+            state.tide.predictions.take(4).forEach { prediction ->
+                val time = prediction.time.format(
+                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(locale),
+                )
+                val heightLabel = tideHeightLabel(state.tide, prediction.heightMeters)
+                Text(
+                    text = stringResource(
+                        if (prediction.high) R.string.home_tide_high else R.string.home_tide_low,
+                        time,
+                        heightLabel,
+                    ),
+                    color = Muted,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            Text(
+                text = stringResource(
+                    if (state.tide.fromCache) {
+                        R.string.home_tides_attribution_cached
+                    } else {
+                        R.string.home_tides_attribution
+                    },
+                ),
+                color = Muted,
+                style = MaterialTheme.typography.labelSmall,
+            )
+        }
+    }
+}
+
+@Composable
+internal fun HomeLocationPermissionRationale(
+    onContinue: () -> Unit,
+    onNotNow: () -> Unit,
+) {
+    PlainConsentAlertDialog(
+        title = stringResource(R.string.home_location_rationale_title),
+        body = stringResource(R.string.home_location_rationale_body),
+        confirmLabel = stringResource(R.string.home_location_rationale_continue),
+        dismissLabel = stringResource(R.string.home_location_rationale_not_now),
+        onConfirm = onContinue,
+        onDismiss = onNotNow,
+    )
+}
+
 private fun percent(illumination: Double): Int = (illumination * 100.0).toInt().coerceIn(0, 100)
+
+@Composable
+private fun tideHeightLabel(tide: CoastalTide, height: Double): String = when (tide.heightUnit) {
+    TideHeightUnit.METERS -> stringResource(
+        R.string.home_tide_height_m,
+        height,
+        tide.datumLabel,
+    )
+    TideHeightUnit.FEET -> stringResource(
+        R.string.home_tide_height_ft,
+        height,
+        tide.datumLabel,
+    )
+}
