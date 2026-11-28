@@ -87,9 +87,10 @@
     <string name="paywall_start_trial">Começar meu período de avaliação gratuito de %1$d dias</string>
     <string name="paywall_continue_subscription">Continuar para a assinatura</string>
     <string name="paywall_restore">Já assina? Restaurar assinatura</string>
-    <string name="paywall_promo_toggle">Tem um código promocional?</string>
-    <string name="paywall_promo_hint">Digite o código</string>
+    <string name="paywall_promo_toggle">Tem um código promocional do Play de uso único?</string>
+    <string name="paywall_promo_hint">Digite o código de uso único</string>
     <string name="paywall_promo_redeem">Resgatar</string>
+    <string name="paywall_promo_unavailable">O resgate do Google Play não está disponível neste dispositivo.</string>
     <string name="support_contact_message">Perguntas ao longo do seu caminho? Entre em contato com customerservice@wiccan.app</string>
     <string name="subscription_check_title">Retornando ao seu Grimório</string>
     <string name="subscription_check_body">Um momento sob a lua enquanto confirmamos o seu acesso.</string>

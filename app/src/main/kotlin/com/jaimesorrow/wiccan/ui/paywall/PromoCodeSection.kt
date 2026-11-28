@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,7 +34,8 @@ import com.wiccan.app.R
 
 /**
  * Small plain entry on the paywall (including post-onboarding subscription).
- * Expansion and input stay local; redemption is handled only by Google Play.
+ * Expansion and input stay local. This link supports generated one-time-use
+ * Play promotion codes; custom codes must be entered in Play's purchase sheet.
  */
 @Composable
 fun PromoCodeSection(

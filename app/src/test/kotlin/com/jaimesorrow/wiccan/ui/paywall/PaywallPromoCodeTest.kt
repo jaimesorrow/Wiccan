@@ -12,12 +12,11 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
-import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.billing.launchPlayPromoRedeem
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
-import io.mockk.mockk
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -90,7 +89,7 @@ class PaywallPromoCodeTest {
         composeRule.waitForIdle()
 
         val intent = shadowOf(composeRule.activity).nextStartedActivity
-        org.junit.Assert.assertNotNull(intent)
+        assertNotNull(intent)
         assertEquals(Intent.ACTION_VIEW, intent.action)
         assertEquals(
             "https://play.google.com/redeem?code=WICCANLAUNCH2026",

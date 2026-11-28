@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -57,6 +58,7 @@ import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.wiccan.app.R
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.launch
 
 /** Payment is exclusively Google Play Billing; access is verified by the root gate. */
 @Composable
@@ -71,6 +73,7 @@ fun PaywallScreen(
     val context = LocalContext.current
     val resources = LocalResources.current
     val snackbars = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner, viewModel) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -100,7 +103,13 @@ fun PaywallScreen(
             onManageSubscription = {
                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_SUBSCRIPTIONS_URL)))
             },
-            onRedeemPromoCode = { launchPlayPromoRedeem(context, it) },
+            onRedeemPromoCode = {
+                if (!launchPlayPromoRedeem(context, it)) {
+                    scope.launch {
+                        snackbars.showSnackbar(resources.getString(R.string.paywall_promo_unavailable))
+                    }
+                }
+            },
         )
     }
 }

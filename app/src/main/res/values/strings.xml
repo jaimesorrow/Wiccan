@@ -95,9 +95,10 @@
     <string name="paywall_start_trial">Start My %1$d-Day Free Trial</string>
     <string name="paywall_continue_subscription">Continue to Subscription</string>
     <string name="paywall_restore">Already subscribed? Restore your subscription</string>
-    <string name="paywall_promo_toggle">Have a promo code?</string>
-    <string name="paywall_promo_hint">Enter code</string>
+    <string name="paywall_promo_toggle">Have a one-time Play promo code?</string>
+    <string name="paywall_promo_hint">Enter one-time code</string>
     <string name="paywall_promo_redeem">Redeem</string>
+    <string name="paywall_promo_unavailable">Google Play redemption is unavailable on this device.</string>
     <string name="support_contact_message">Questions along your path? Contact customerservice@wiccan.app</string>
     <string name="subscription_check_title">Returning to your Grimoire</string>
     <string name="subscription_check_body">A moment beneath the moon while we confirm your access.</string>
