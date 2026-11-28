@@ -3,7 +3,8 @@ import { SupportedLocale } from "../locale";
 
 interface FakeDeviceState {
   timeZone: string | null;
-  notificationsEnabled: boolean;
+  /** Omitted for a legacy device registered before the field existed. */
+  notificationsEnabled?: boolean;
   locale: SupportedLocale;
 }
 
@@ -16,7 +17,14 @@ export class FakeNotificationUserRepository implements NotificationUserRepositor
     const records: NotificationDeviceRecord[] = [];
     for (const [uid, tokens] of this.devices.entries()) {
       for (const [token, state] of tokens.entries()) {
-        records.push({ uid, token, timeZone: state.timeZone, notificationsEnabled: state.notificationsEnabled, locale: state.locale });
+        records.push({
+          uid,
+          token,
+          timeZone: state.timeZone,
+          // Same default as FirestoreNotificationUserRepository.listDevicesWithToken.
+          notificationsEnabled: state.notificationsEnabled !== false,
+          locale: state.locale,
+        });
       }
     }
     return records;

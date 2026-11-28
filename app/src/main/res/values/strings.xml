@@ -273,7 +273,7 @@
     <string name="settings_switch_to_yearly_base">Switch to %1$s/year. Google Play will confirm the charge before you pay. This switch does not include a free trial.</string>
     <string name="settings_switch_to_yearly_intro">%1$s for the first month, then %2$s/year. Google Play will confirm the charge before you pay. This switch does not include a free trial.</string>
     <string name="settings_notifications">Daily practice reminder</string>
-    <string name="settings_notifications_hint">A soft bell when the day\'s working is laid upon the altar.</string>
+    <string name="settings_notifications_hint">A soft bell when the day\'s working is laid upon the altar, and a word when a free trial draws near its end.</string>
     <string name="settings_palette">Palette</string>
     <string name="settings_palette_hint">Midnight Grimoire holds these pages. A choice you save is remembered.</string>
     <string name="settings_language">App language</string>

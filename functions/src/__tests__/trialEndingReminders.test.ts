@@ -65,10 +65,39 @@ describe("sendTrialEndingReminders", () => {
     expect(fcm.sentTo).toHaveLength(0);
   });
 
-  it("does not depend on the daily-practice switch: a device with the daily push off still gets it", async () => {
+  it("skips a device whose daily-practice switch is off", async () => {
+    const { trials, billing, devices, fcm } = setup();
+    await devices.setNotificationsEnabled("user-1", "phone", false);
+    const summary = await sendTrialEndingReminders(trials, billing, devices, fcm, NOW);
+    expect(summary).toEqual({ candidates: 1, reminded: 1, skipped: 0, sent: 1, failed: 0 });
+    expect(fcm.sentTo.map((sent) => sent.token)).toEqual(["tablet"]);
+    expect(trials.claimed.size).toBe(1);
+  });
+
+  it("does not claim the reminder when every signed-in device has the switch off", async () => {
     const { trials, billing, devices, fcm } = setup();
     await devices.setNotificationsEnabled("user-1", "phone", false);
     await devices.setNotificationsEnabled("user-1", "tablet", false);
+    const summary = await sendTrialEndingReminders(trials, billing, devices, fcm, NOW);
+    expect(summary).toEqual({ candidates: 1, reminded: 0, skipped: 1, sent: 0, failed: 0 });
+    expect(fcm.sentTo).toHaveLength(0);
+    expect(trials.claimed.size).toBe(0);
+
+    await devices.setNotificationsEnabled("user-1", "phone", true);
+    const later = await sendTrialEndingReminders(trials, billing, devices, fcm, new Date(NOW.getTime() + HOUR));
+    expect(later).toMatchObject({ reminded: 1, sent: 1, failed: 0 });
+    expect(fcm.sentTo.map((sent) => sent.token)).toEqual(["phone"]);
+  });
+
+  it("treats a missing notificationsEnabled value as on, same as sendDailyNotifications", async () => {
+    const { trials, billing, devices, fcm } = setup();
+    // Legacy device docs from before the field existed have no value stored.
+    const phone = devices.devices.get("user-1")?.get("phone");
+    if (!phone) throw new Error("expected phone device");
+    delete phone.notificationsEnabled;
+    const tablet = devices.devices.get("user-1")?.get("tablet");
+    if (!tablet) throw new Error("expected tablet device");
+    delete tablet.notificationsEnabled;
     const summary = await sendTrialEndingReminders(trials, billing, devices, fcm, NOW);
     expect(summary).toMatchObject({ reminded: 1, sent: 2, failed: 0 });
     expect(fcm.sentTo.map((sent) => sent.token)).toEqual(["phone", "tablet"]);
