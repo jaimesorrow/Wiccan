@@ -87,6 +87,9 @@
     <string name="paywall_start_trial">Empezar mi prueba gratuita de %1$d días</string>
     <string name="paywall_continue_subscription">Continuar a la suscripción</string>
     <string name="paywall_restore">¿Ya tienes una suscripción? Restaurar suscripción</string>
+    <string name="paywall_promo_toggle">¿Tienes un código promocional?</string>
+    <string name="paywall_promo_hint">Introduce el código</string>
+    <string name="paywall_promo_redeem">Canjear</string>
     <string name="support_contact_message">¿Preguntas en tu camino? Contacta con customerservice@wiccan.app</string>
     <string name="subscription_check_title">Regresando a tu Grimorio</string>
     <string name="subscription_check_body">Un momento bajo la luna mientras confirmamos tu acceso.</string>

@@ -50,6 +50,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.jaimesorrow.wiccan.billing.launchPlayPromoRedeem
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.core.util.findActivity
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
@@ -99,6 +100,7 @@ fun PaywallScreen(
             onManageSubscription = {
                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_SUBSCRIPTIONS_URL)))
             },
+            onRedeemPromoCode = { launchPlayPromoRedeem(context, it) },
         )
     }
 }
@@ -119,6 +121,7 @@ internal fun PaywallContent(
     onEvent: (PaywallUiEvent) -> Unit,
     onSubscribe: () -> Unit,
     onManageSubscription: () -> Unit = {},
+    onRedeemPromoCode: (String) -> Unit = {},
 ) {
     val loadingDescription = stringResource(R.string.loading_description)
     Column(modifier = Modifier.fillMaxSize().padding(insets)) {
@@ -200,6 +203,7 @@ internal fun PaywallContent(
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
             )
+            PromoCodeSection(onRedeem = onRedeemPromoCode)
             Text(
                 stringResource(R.string.support_contact_message),
                 style = MaterialTheme.typography.labelSmall,
