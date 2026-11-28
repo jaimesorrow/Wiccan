@@ -67,8 +67,9 @@ Primary code: `ui/auth/SignInScreen.kt`, `ui/auth/OnboardingScreen.kt`,
   migration and category fallback.
 - [x] Today bottom navigation and fail-closed subscription/trial lock.
 - [x] Time-limited closed-test grant CLI and server fields.
-- [x] Finished on branch: publishing/audit safeguards for missing or duplicate
-  lesson-specific image references.
+- [ ] Each publishable item needs its own unique `illustrationUrl` with
+  `illustrationOriginal: true` (see PR #234). Bundled `illustrationKey` is not a
+  publication path.
 - [ ] Supply and rights-review a unique image for every publishable lesson.
   Do not insert invented or unlicensed URLs. Existing seed entries generally
   fall back to category art.

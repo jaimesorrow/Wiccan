@@ -72,9 +72,6 @@ export function contentFromStoredDocument(id: string, data: FirebaseFirestore.Do
     citations: Array.isArray(data.citations) ? data.citations : [],
     adaptationNotes: Array.isArray(data.adaptationNotes) ? data.adaptationNotes : [],
     sourcePassageId: typeof data.sourcePassageId === "string" ? data.sourcePassageId : undefined,
-    illustrationKey: typeof data.illustrationKey === "string" && data.illustrationKey.trim()
-      ? data.illustrationKey.trim() : undefined,
-    illustrationKeyReviewed: data.illustrationKeyReviewed === true,
     illustrationUrl: typeof data.illustrationUrl === "string" && data.illustrationUrl.trim()
       ? data.illustrationUrl.trim() : undefined,
     seasonalWindow: parseSeasonalWindow(data.seasonalWindow),

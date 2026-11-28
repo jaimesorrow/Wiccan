@@ -74,10 +74,6 @@ export interface Content extends PracticalLessonFields {
   similarityGroupId?: string;
   /** Optional HTTPS URL for this lesson's hero. Not part of selection. */
   illustrationUrl?: string;
-  /** Allow-listed artwork bundled in the Android app. */
-  illustrationKey?: string;
-  /** Must be true before a bundled illustration can satisfy the publication gate. */
-  illustrationKeyReviewed?: boolean;
   /** Optional calendar window used only to prefer this item on a matching day. */
   seasonalWindow?: SeasonalWindow;
   /** Editorial first-week order. Values 1-7 are preferred for a subscriber's first seven deliveries. */

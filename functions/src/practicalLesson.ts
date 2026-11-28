@@ -69,7 +69,7 @@ export function stableJson(value: unknown): string {
   return JSON.stringify(value) ?? "null";
 }
 
-export const AUTHORED_FIELDS = ["title", "slug", "type", "tier", "tradition", "sourceTradition", "summary", "intro", "introduction", "body", "lesson", "reflection", "practice", "materials", "tools", "safetyNote", "tags", "category", "primaryCategoryId", "secondaryCategoryIds", "lessonType", "requiresPotionDisclosure", "durationMinutes", "incantation", "incantationOmissionReason", "timing", "application", "correspondences", "citations", "adaptationNotes", "sourcePassageId", "sourceId", "sourceCitation", "sourceUrl", "similarityGroupId", "rightsReviewRequired", "rightsNotes", "illustrationUrl", "illustrationKey", "illustrationKeyReviewed"] as const;
+export const AUTHORED_FIELDS = ["title", "slug", "type", "tier", "tradition", "sourceTradition", "summary", "intro", "introduction", "body", "lesson", "reflection", "practice", "materials", "tools", "safetyNote", "tags", "category", "primaryCategoryId", "secondaryCategoryIds", "lessonType", "requiresPotionDisclosure", "durationMinutes", "incantation", "incantationOmissionReason", "timing", "application", "correspondences", "citations", "adaptationNotes", "sourcePassageId", "sourceId", "sourceCitation", "sourceUrl", "similarityGroupId", "rightsReviewRequired", "rightsNotes"] as const;
 
 /**
  * The reviewed field set the publisher and the daily-delivery verifier both
