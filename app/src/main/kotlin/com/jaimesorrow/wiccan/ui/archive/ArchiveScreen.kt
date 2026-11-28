@@ -4,12 +4,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,11 +28,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,13 +54,26 @@ import com.jaimesorrow.wiccan.ads.GrimoireBannerAd
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.HistoryEntry
+import com.jaimesorrow.wiccan.sky.CelestialCalculator
 import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
+import com.jaimesorrow.wiccan.ui.brand.lineArt
 import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
+import com.jaimesorrow.wiccan.ui.theme.GrimoireBannerSlot
+import com.jaimesorrow.wiccan.ui.theme.GrimoireInkLabel
+import com.jaimesorrow.wiccan.ui.theme.GrimoireMoonPhases
+import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
+import com.jaimesorrow.wiccan.ui.theme.GrimoireSpellMapWash
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
+import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
+import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
+import com.jaimesorrow.wiccan.ui.theme.grimoireCornerFlourishes
 import com.jaimesorrow.wiccan.ui.theme.grimoireFieldColors
 import com.wiccan.app.R
+import java.time.Instant
 
 /**
  * The user's delivered content, either as a chronological Timeline or grouped
@@ -96,126 +114,129 @@ internal fun ArchiveScreenContent(
             containerColor = MaterialTheme.colorScheme.background,
             bottomBar = bottomBar,
         ) { insets ->
-            Column(modifier = Modifier.padding(insets).fillMaxSize().wiccanPageWash()) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    WiccanEmblem(
-                        modifier = Modifier.testTag("grimoire-logo"),
-                        size = 44.dp,
-                        contentDescription = stringResource(R.string.grimoire_logo_description),
-                    )
-                }
-                WiccanBotanicalAccent(modifier = Modifier.align(Alignment.CenterHorizontally), width = 116.dp)
-                Text(
-                    text = stringResource(R.string.grimoire_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
-                )
-                Text(
-                    text = stringResource(R.string.grimoire_subtitle),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                )
-                EtymologyIntro(
-                    expanded = state.isEtymologyExpanded,
-                    onToggle = { onEvent(ArchiveUiEvent.EtymologyToggled) },
-                )
-                val loadingDescription = stringResource(R.string.grimoire_loading)
-                when {
-                    state.isLoading -> Box(
-                        Modifier.fillMaxSize().semantics { contentDescription = loadingDescription },
+            Box(modifier = Modifier.padding(insets).fillMaxSize().wiccanPageWash()) {
+                GrimoireSpellMapWash(Modifier.matchParentSize())
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                         contentAlignment = Alignment.Center,
                     ) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        WiccanEmblem(
+                            modifier = Modifier.testTag("grimoire-logo"),
+                            size = 44.dp,
+                            contentDescription = stringResource(R.string.grimoire_logo_description),
+                        )
                     }
-                    state.entries.isEmpty() && state.error != null -> {
-                        val historyError = checkNotNull(state.error)
-                        Box(
-                            Modifier.fillMaxSize().padding(32.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = historyError.toUserMessage(LocalResources.current),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    WiccanBotanicalAccent(modifier = Modifier.align(Alignment.CenterHorizontally), width = 116.dp)
+                    Text(
+                        text = stringResource(R.string.grimoire_title),
+                        style = MaterialTheme.typography.headlineMedium.copy(fontFamily = WiccanDisplayFont),
+                        color = WiccanPaletteColors.Grimoire.Gold,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
+                    )
+                    GrimoireOrnamentalDivider(modifier = Modifier.padding(horizontal = 24.dp, vertical = 6.dp))
+                    Text(
+                        text = stringResource(R.string.grimoire_subtitle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                    )
+                    val archiveMoon = remember { CelestialCalculator.moon(Instant.now()) }
+                    GrimoireMoonPhases(
+                        active = archiveMoon.trackIndex,
+                        activePhaseName = archiveMoon.name,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                    )
+                    GrimoireInkLabel(
+                        text = stringResource(R.string.motif_kept_pages),
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    )
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        listOf(
+                            WiccanLineArtKind.CrystalCitrine,
+                            WiccanLineArtKind.CrystalClear,
+                            WiccanLineArtKind.CrystalSmoky,
+                            WiccanLineArtKind.CrystalObsidian,
+                        ).forEach { art ->
+                            WiccanLineArt(
+                                kind = art,
+                                contentDescription = null,
+                                modifier = Modifier.size(32.dp),
                             )
                         }
                     }
-                    else -> {
-                        val resources = LocalResources.current
-                        val visibleEntries = state.visibleEntries(
-                            localizedCategory = { category ->
-                                resources.getString(category.labelResId())
-                            },
-                            localizedType = { type -> resources.getString(type.labelResId()) },
-                        )
-                        Box(Modifier.fillMaxSize()) {
-                            Column(Modifier.fillMaxSize()) {
-                                GrimoireSearch(
-                                    query = state.searchQuery,
-                                    onQueryChanged = { onEvent(ArchiveUiEvent.SearchQueryChanged(it)) },
-                                    onClear = { onEvent(ArchiveUiEvent.SearchCleared) },
+                    val loadingDescription = stringResource(R.string.grimoire_loading)
+                    Box(Modifier.weight(1f).fillMaxWidth()) {
+                        when {
+                            state.isLoading -> Box(
+                                Modifier.fillMaxSize().semantics { contentDescription = loadingDescription },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                            }
+                            state.entries.isEmpty() && state.error != null -> {
+                                val historyError = checkNotNull(state.error)
+                                Box(
+                                    Modifier.fillMaxSize().padding(32.dp),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = historyError.toUserMessage(LocalResources.current),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
+                            else -> {
+                                val resources = LocalResources.current
+                                val visibleEntries = state.visibleEntries(
+                                    localizedCategory = { category ->
+                                        resources.getString(category.labelResId())
+                                    },
+                                    localizedType = { type -> resources.getString(type.labelResId()) },
                                 )
-                                ArchiveTabRow(
-                                    selectedTab = state.selectedTab,
-                                    onTabSelected = { onEvent(ArchiveUiEvent.TabSelected(it)) },
-                                )
-                                if (state.entries.isNotEmpty() && visibleEntries.isEmpty()) {
-                                    EmptySearchResults()
-                                } else {
-                                    when (state.selectedTab) {
-                                        ArchiveTab.TIMELINE -> if (state.entries.isEmpty()) {
-                                            EmptyArchive()
-                                        } else {
-                                            TimelineList(
-                                                entries = visibleEntries,
-                                                onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
-                                            )
-                                        }
-                                        ArchiveTab.LIBRARY -> LibraryList(
-                                            entries = visibleEntries,
-                                            collapsedCategories = state.collapsedCategories,
-                                            onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
-                                            onCategoryToggled = { onEvent(ArchiveUiEvent.CategoryToggled(it)) },
+                                Box(Modifier.fillMaxSize()) {
+                                    Column(Modifier.fillMaxSize()) {
+                                        GrimoireSearch(
+                                            query = state.searchQuery,
+                                            onQueryChanged = { onEvent(ArchiveUiEvent.SearchQueryChanged(it)) },
+                                            onClear = { onEvent(ArchiveUiEvent.SearchCleared) },
                                         )
+                                        ArchiveTabRow(
+                                            selectedTab = state.selectedTab,
+                                            onTabSelected = { onEvent(ArchiveUiEvent.TabSelected(it)) },
+                                        )
+                                        if (state.entries.isNotEmpty() && visibleEntries.isEmpty()) {
+                                            EmptySearchResults()
+                                        } else {
+                                            when (state.selectedTab) {
+                                                ArchiveTab.TIMELINE -> if (state.entries.isEmpty()) {
+                                                    EmptyArchive()
+                                                } else {
+                                                    TimelineList(
+                                                        entries = visibleEntries,
+                                                        onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                                    )
+                                                }
+                                                ArchiveTab.LIBRARY -> LibraryList(
+                                                    entries = visibleEntries,
+                                                    collapsedCategories = state.collapsedCategories,
+                                                    onEntryClicked = { onEvent(ArchiveUiEvent.EntryClicked(it)) },
+                                                    onCategoryToggled = { onEvent(ArchiveUiEvent.CategoryToggled(it)) },
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                    GrimoireBannerSlot()
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun EtymologyIntro(expanded: Boolean, onToggle: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 4.dp),
-    ) {
-        TextButton(
-            onClick = onToggle,
-            modifier = Modifier.testTag("grimoire-etymology-toggle"),
-        ) {
-            Text(
-                text = stringResource(
-                    if (expanded) R.string.grimoire_etymology_hide else R.string.grimoire_etymology_show,
-                ),
-            )
-        }
-        if (expanded) {
-            Text(
-                text = stringResource(R.string.grimoire_etymology_body),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.testTag("grimoire-etymology-body"),
-            )
         }
     }
 }
@@ -257,15 +278,38 @@ private fun GrimoireSearch(
 
 @Composable
 private fun ArchiveTabRow(selectedTab: ArchiveTab, onTabSelected: (ArchiveTab) -> Unit) {
-    TabRow(selectedTabIndex = selectedTab.ordinal) {
+    val gold = WiccanPaletteColors.Grimoire.Gold
+    val muted = WiccanPaletteColors.Grimoire.Muted
+    TabRow(
+        selectedTabIndex = selectedTab.ordinal,
+        containerColor = WiccanPaletteColors.Grimoire.Background,
+        contentColor = gold,
+        divider = {
+            HorizontalDivider(
+                color = WiccanPaletteColors.Grimoire.Border.copy(alpha = 0.5f),
+                thickness = 1.dp,
+            )
+        },
+        indicator = { tabPositions ->
+            TabRowDefaults.SecondaryIndicator(
+                modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab.ordinal]),
+                color = gold,
+                height = 2.dp,
+            )
+        },
+    ) {
         Tab(
             selected = selectedTab == ArchiveTab.TIMELINE,
             onClick = { onTabSelected(ArchiveTab.TIMELINE) },
+            selectedContentColor = gold,
+            unselectedContentColor = muted,
             text = { Text(stringResource(R.string.grimoire_timeline)) },
         )
         Tab(
             selected = selectedTab == ArchiveTab.LIBRARY,
             onClick = { onTabSelected(ArchiveTab.LIBRARY) },
+            selectedContentColor = gold,
+            unselectedContentColor = muted,
             text = { Text(stringResource(R.string.grimoire_categories)) },
         )
     }
@@ -329,20 +373,15 @@ private fun CategoryHeader(
     isCollapsed: Boolean,
     onClick: (() -> Unit)?,
 ) {
-    val colors = MaterialTheme.colorScheme
-    val shape = RoundedCornerShape(14.dp)
-    val artwork = when (category) {
-        ContentCategory.LUNAR_PRACTICES, ContentCategory.MOON_MAGIC_TIMING, ContentCategory.MOON_AND_SEASONAL ->
-            R.drawable.wiccan_category_lunar
-        ContentCategory.CORD_KNOT_WORK, ContentCategory.CORD_KNOT_MAGIC -> R.drawable.wiccan_category_cord
-        else -> null
-    }
+    val shape = RoundedCornerShape(6.dp)
+    val artwork = category.lineArt()
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .background(colors.surfaceVariant.copy(alpha = 0.72f), shape)
-            .border(1.dp, wiccanEmblemColor().copy(alpha = 0.28f), shape)
+            .background(WiccanPaletteColors.Grimoire.CardFill, shape)
+            .border(1.dp, WiccanPaletteColors.Grimoire.Border, shape)
+            .grimoireCornerFlourishes(arm = 10.dp)
             .then(
                 if (onClick == null) {
                     Modifier.semantics { disabled() }
@@ -357,27 +396,25 @@ private fun CategoryHeader(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (artwork != null) {
-            Image(
-                painter = painterResource(artwork),
+            WiccanLineArt(
+                kind = artwork,
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .padding(end = 12.dp)
-                    .size(width = 56.dp, height = 42.dp)
-                    .clip(RoundedCornerShape(8.dp)),
+                    .size(width = 56.dp, height = 42.dp),
             )
         }
         Text(
             text = stringResource(R.string.grimoire_category_count, category.displayName(), count),
             style = MaterialTheme.typography.titleSmall,
-            color = colors.onSurfaceVariant,
+            color = WiccanPaletteColors.Grimoire.Text,
             modifier = Modifier.weight(1f),
         )
         if (count > 0) {
             Text(
                 text = if (isCollapsed) "▸" else "▾",
                 style = MaterialTheme.typography.titleSmall,
-                color = wiccanEmblemColor(),
+                color = WiccanPaletteColors.Grimoire.Gold,
                 modifier = Modifier.clearAndSetSemantics {},
             )
         }
@@ -386,7 +423,34 @@ private fun CategoryHeader(
 
 /** Human-readable label for a [ContentCategory], for the Grimoire grouping headers. */
 @Composable
-internal fun ContentCategory.displayName(): String = stringResource(labelResId())
+internal fun ContentCategory.displayName(): String = stringResource(
+    when (this) {
+        ContentCategory.CANDLE_SPELLS -> R.string.category_candle_spells
+        ContentCategory.HERBAL_RITUALS -> R.string.category_herbal_rituals
+        ContentCategory.CORD_KNOT_WORK -> R.string.category_cord_knot
+        ContentCategory.LUNAR_PRACTICES -> R.string.category_lunar
+        ContentCategory.CHARMS_TALISMANS -> R.string.category_charms
+        ContentCategory.CANDLE_MAGIC -> R.string.category_candle_magic
+        ContentCategory.HERBS_BOTANICALS -> R.string.category_herbs
+        ContentCategory.POTIONS_INFUSIONS -> R.string.category_potions
+        ContentCategory.CRYSTALS_STONES -> R.string.category_crystals
+        ContentCategory.CORD_KNOT_MAGIC -> R.string.category_cord_magic
+        ContentCategory.MOON_MAGIC_TIMING -> R.string.category_moon_magic
+        ContentCategory.ELEMENTAL_MAGIC -> R.string.category_elemental_magic
+        ContentCategory.ALTARS_SACRED_SPACE -> R.string.category_altars
+        ContentCategory.DIVINATION -> R.string.category_divination
+        ContentCategory.ELEMENTAL_PRACTICES -> R.string.category_elemental_practices
+        ContentCategory.PROTECTION_CLEANSING_WARDING -> R.string.category_protection_cleansing
+        ContentCategory.PROTECTION -> R.string.category_protection
+        ContentCategory.LOVE_AND_RELATIONSHIPS -> R.string.category_love
+        ContentCategory.PROSPERITY_AND_ABUNDANCE -> R.string.category_prosperity
+        ContentCategory.HEALING_AND_WELLNESS -> R.string.category_healing
+        ContentCategory.DIVINATION_AND_CLARITY -> R.string.category_divination_clarity
+        ContentCategory.BANISHING_AND_RELEASE -> R.string.category_banishing
+        ContentCategory.HOME_AND_HEARTH -> R.string.category_home
+        ContentCategory.MOON_AND_SEASONAL -> R.string.category_moon_seasonal
+    },
+)
 
 @Composable
 private fun EmptyArchive() {

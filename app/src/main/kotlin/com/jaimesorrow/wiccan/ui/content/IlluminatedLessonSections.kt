@@ -1,10 +1,9 @@
 package com.jaimesorrow.wiccan.ui.content
 
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,8 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -36,7 +33,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
+import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
 import com.wiccan.app.R
 
 private val ParchmentInk = Color(0xFF382311)
@@ -59,7 +57,7 @@ internal fun IncantationCard(text: String) {
         FloralLessonHeading(
             title = stringResource(R.string.content_incantation),
             initial = 'I',
-            artwork = R.drawable.wiccan_floral_initial_i,
+            artwork = WiccanLineArtKind.FloralI,
             artworkWidthEm = 0.78f,
             color = ParchmentInk,
             textAlign = TextAlign.Center,
@@ -81,16 +79,14 @@ internal fun IncantationCard(text: String) {
 
 @Composable
 internal fun ReflectionSection(text: String, color: Color? = null) {
-    val accent = wiccanEmblemColor()
     val ink = color ?: MaterialTheme.colorScheme.onBackground
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Image(
-            painter = painterResource(R.drawable.wiccan_triple_moon_divider),
+        WiccanLineArt(
+            kind = WiccanLineArtKind.TripleMoon,
             contentDescription = null,
-            colorFilter = ColorFilter.tint(accent),
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .widthIn(max = 320.dp)
@@ -100,7 +96,7 @@ internal fun ReflectionSection(text: String, color: Color? = null) {
         FloralLessonHeading(
             title = stringResource(R.string.content_reflection),
             initial = 'R',
-            artwork = R.drawable.wiccan_floral_initial_r,
+            artwork = WiccanLineArtKind.FloralR,
             artworkWidthEm = 1.4f,
             color = ink,
         )
@@ -112,7 +108,7 @@ internal fun ReflectionSection(text: String, color: Color? = null) {
 private fun FloralLessonHeading(
     title: String,
     initial: Char,
-    @DrawableRes artwork: Int,
+    artwork: WiccanLineArtKind,
     artworkWidthEm: Float,
     color: Color,
     textAlign: TextAlign = TextAlign.Start,
@@ -140,11 +136,9 @@ private fun FloralLessonHeading(
             "floral-initial" to InlineTextContent(
                 Placeholder(artworkWidthEm.em, 1.4.em, PlaceholderVerticalAlign.AboveBaseline),
             ) {
-                Image(
-                    painter = painterResource(artwork),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize().padding(end = 3.dp),
-                )
+                Box(Modifier.fillMaxSize().padding(end = 3.dp)) {
+                    WiccanLineArt(kind = artwork, contentDescription = null, modifier = Modifier.fillMaxSize())
+                }
             },
         ),
     )
