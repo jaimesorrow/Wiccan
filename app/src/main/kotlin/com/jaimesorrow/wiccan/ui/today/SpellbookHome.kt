@@ -54,6 +54,8 @@ import com.jaimesorrow.wiccan.data.location.resolveCoarseCoordinate
 import com.jaimesorrow.wiccan.domain.model.CoastalTide
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.domain.model.TideHeightUnit
+import com.jaimesorrow.wiccan.seasonal.CivilMoonTrack
+import com.jaimesorrow.wiccan.seasonal.grimoireMoonTrack
 import com.jaimesorrow.wiccan.sky.CelestialCalculator
 import com.jaimesorrow.wiccan.sky.ClassicalPlanet
 import com.jaimesorrow.wiccan.sky.GeoCoordinate
@@ -139,6 +141,7 @@ internal fun SpellbookHome(
         val zone = remember { ZoneId.systemDefault() }
         val today = LocalDate.now()
         val moon = remember(today) { CelestialCalculator.moon(now) }
+        val moonTrack = remember(today) { grimoireMoonTrack(today) }
         val sabbat = remember(today) { CelestialCalculator.sabbatFor(today) }
         val hour = remember(coordinate) { CelestialCalculator.planetaryHour(now, zone, coordinate) }
         val voidOfCourse = remember(today) { CelestialCalculator.voidOfCourse(now) }
@@ -165,7 +168,7 @@ internal fun SpellbookHome(
             ) {
                 WiccanFullLogo(width = 148.dp)
                 GrimoireInkLabel(stringResource(R.string.motif_today_page))
-                WelcomeCard(moon = moon, today = today)
+                WelcomeCard(moon = moon, moonTrack = moonTrack, today = today)
                 HomeSectionTileRow(
                     onLesson = {
                         if (lessonLocked) {
@@ -273,16 +276,20 @@ private fun HomeSectionTileRow(
 }
 
 @Composable
-private fun WelcomeCard(moon: com.jaimesorrow.wiccan.sky.MoonObservation, today: LocalDate) {
+private fun WelcomeCard(
+    moon: com.jaimesorrow.wiccan.sky.MoonObservation,
+    moonTrack: CivilMoonTrack,
+    today: LocalDate,
+) {
     GrimoireCard {
         Text(
             text = stringResource(R.string.home_welcome),
             color = WiccanPaletteColors.Grimoire.Gold,
             style = MaterialTheme.typography.labelMedium.copy(fontFamily = WiccanDisplayFont),
         )
-        GrimoireMoonPhases(active = moon.trackIndex, activePhaseName = moon.name)
+        GrimoireMoonPhases(active = moonTrack.trackIndex, activePhaseName = moonTrack.name)
         Text(
-            text = moon.name,
+            text = moonTrack.name,
             color = Ink,
             style = MaterialTheme.typography.headlineSmall.copy(fontFamily = WiccanEditorialFont),
         )

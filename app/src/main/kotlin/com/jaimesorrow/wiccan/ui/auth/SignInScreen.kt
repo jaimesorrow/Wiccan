@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jaimesorrow.wiccan.core.error.toUserMessage
-import com.jaimesorrow.wiccan.sky.CelestialCalculator
+import com.jaimesorrow.wiccan.seasonal.grimoireMoonTrack
 import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.jaimesorrow.wiccan.ui.brand.wiccanEmblemColor
@@ -132,7 +132,8 @@ internal fun SignInScreenContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     WiccanFullLogo(modifier = Modifier.testTag("auth-logo"), width = 180.dp)
-                    val signInMoon = remember { CelestialCalculator.moon(java.time.Instant.now()) }
+                    val today = java.time.LocalDate.now()
+                    val signInMoon = remember(today) { grimoireMoonTrack(today) }
                     GrimoireMoonPhases(
                         active = signInMoon.trackIndex,
                         activePhaseName = signInMoon.name,

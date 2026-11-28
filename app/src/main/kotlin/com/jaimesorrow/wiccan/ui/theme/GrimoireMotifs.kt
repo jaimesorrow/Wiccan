@@ -43,6 +43,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wiccan.app.R
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.cos
 
 /**
  * Spell-map ornaments for the Midnight Grimoire theme: a dashed ink path,
@@ -273,26 +276,74 @@ fun GrimoireMoonPhases(
 }
 
 private fun DrawScope.drawMoonPhase(index: Int, center: Offset, radius: Float, lit: Color, shadow: Color) {
+    val fillRadius = radius * 0.92f
+    val stroke = 1.dp.toPx()
+    val border = lit.copy(alpha = 0.85f)
+    val moonClip = Path().apply { addOval(Rect(center, radius)) }
+
     drawCircle(shadow, radius, center)
-    drawCircle(lit.copy(alpha = 0.85f), radius, center, style = Stroke(width = 1.dp.toPx()))
+    drawCircle(border, radius, center, style = Stroke(width = stroke))
     if (index == 0) return
     if (index == 4) {
-        drawCircle(lit, radius * 0.92f, center)
+        drawCircle(lit, fillRadius, center)
+        drawCircle(lit.copy(alpha = 0.9f), radius, center, style = Stroke(width = stroke))
         return
     }
-    val shift = when (index) {
-        1 -> -radius * 1.35f
-        2 -> -radius
-        3 -> -radius * 0.42f
-        5 -> radius * 0.42f
-        6 -> radius
-        else -> radius * 1.35f
+
+    val phaseAngle = index * (PI / 4.0)
+    val ellipseRx = (radius * abs(cos(phaseAngle))).toFloat()
+    val waxing = index in 1..3
+    val litHalf = Path().apply {
+        if (waxing) {
+            addRect(Rect(center.x, center.y - radius, center.x + radius * 2f, center.y + radius))
+        } else {
+            addRect(Rect(center.x - radius * 2f, center.y - radius, center.x, center.y + radius))
+        }
     }
-    clipPath(Path().apply { addOval(Rect(center, radius)) }) {
-        drawCircle(lit, radius, center)
-        drawCircle(shadow, radius, Offset(center.x + shift, center.y))
+
+    clipPath(moonClip) {
+        when (index) {
+            2, 6 -> {
+                clipPath(litHalf) {
+                    drawCircle(lit, fillRadius, center)
+                }
+            }
+            3, 5 -> {
+                clipPath(litHalf) {
+                    drawCircle(lit, fillRadius, center)
+                }
+                // Terminator ellipse centered on the disk; must not be clipped to the lit half.
+                drawOval(
+                    color = lit,
+                    topLeft = Offset(center.x - ellipseRx, center.y - fillRadius),
+                    size = Size(ellipseRx * 2f, fillRadius * 2f),
+                )
+            }
+            else -> {
+                clipPath(litHalf) {
+                    drawCircle(lit, fillRadius, center)
+                    drawOval(
+                        color = shadow,
+                        topLeft = Offset(center.x - ellipseRx, center.y - fillRadius),
+                        size = Size(ellipseRx * 2f, fillRadius * 2f),
+                    )
+                }
+            }
+        }
     }
-    drawCircle(lit.copy(alpha = 0.9f), radius, center, style = Stroke(width = 1.dp.toPx()))
+    drawCircle(lit.copy(alpha = 0.9f), radius, center, style = Stroke(width = stroke))
+}
+
+/** One phase icon at any size (screenshots / visual checks). */
+@Composable
+internal fun GrimoireMoonPhaseGlyph(index: Int, modifier: Modifier = Modifier) {
+    val lit = WiccanPaletteColors.Grimoire.Gold
+    val shadow = WiccanPaletteColors.Grimoire.Background
+    Canvas(modifier) {
+        val radius = size.minDimension * 0.46f
+        val center = Offset(size.width / 2f, size.height / 2f)
+        drawMoonPhase(index, center, radius, lit, shadow)
+    }
 }
 
 /**

@@ -98,6 +98,9 @@ internal data class CivilMoonTrack(
     val trackIndex: Int,
 )
 
+/** Moon row + lesson chip: one civil-date track so Home, Archive, Sign-in, and Today never disagree. */
+internal fun grimoireMoonTrack(date: LocalDate): CivilMoonTrack = SeasonalCalendar.moonTrack(date)
+
 internal sealed class SeasonalWindow {
     data class Sabbat(val id: String) : SeasonalWindow()
     data class Moon(val phase: String) : SeasonalWindow()

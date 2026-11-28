@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.seasonal.SeasonalCalendar
 import com.jaimesorrow.wiccan.seasonal.SeasonalWindow
+import com.jaimesorrow.wiccan.seasonal.grimoireMoonTrack
 import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
 import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
 import com.jaimesorrow.wiccan.ui.theme.GrimoireCandleGlow
@@ -70,7 +71,7 @@ internal fun DailyGrimoirePage(
     fillViewport: Boolean = true,
     today: LocalDate = LocalDate.now(),
 ) {
-    val moonTrack = remember(today) { SeasonalCalendar.moonTrack(today) }
+    val moonTrack = remember(today) { grimoireMoonTrack(today) }
     val seasonalWindow = remember(today) { SeasonalCalendar.seasonalWindowFor(today) }
     val scrollState = rememberScrollState()
     val pageModifier =
