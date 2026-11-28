@@ -24,7 +24,13 @@ service cloud.firestore {
     // Daily selection must run server-side (Cloud Function) so users can't
     // reset or game their delivery history. Clients get read-only access
     // to published content already delivered to them and to their own history
-    // rows; all writes go through the Admin SDK inside getTodayContent. A
+    // rows; all writes go through the Admin SDK inside getTodayContent.
+    // Draft approval (approveDraft) additionally rejects duplicates
+    // (normalized title, sourcePassageId, near-duplicate content) and
+    // requires a unique original illustrationUrl with illustrationOriginal=true.
+    // Clients cannot write content, so those gates live in Admin SDK code,
+    // not in these rules. Existing published items may lack an image until
+    // backfill; reads do not require illustration fields. A
     // delivery marker is required for Grimoire reads, so published content cannot be scraped
     // to bypass the subscription requirement or the one-entry-per-day selection.
     match /content/{contentId} {

@@ -43,6 +43,24 @@ const PASSAGE: SourcePassage = {
   review: { passageInspected: true, sourceFidelityApproved: true, safetyApproved: true, reviewedBy: "editor", reviewedAt: "2026-10-19T00:00:00.000Z" },
 };
 
+const PASSAGE_B: SourcePassage = {
+  ...PASSAGE,
+  id: "passage-source-b",
+  locator: "Tablet III, lines 1–6",
+  inspectedPassage: "A second editor-inspected test passage.",
+};
+
+const PASSAGE_C: SourcePassage = {
+  ...PASSAGE,
+  id: "passage-source-c",
+  locator: "Tablet IV, lines 2–9",
+  inspectedPassage: "A third editor-inspected test passage.",
+};
+
+const ALL_PASSAGES = [PASSAGE, PASSAGE_B, PASSAGE_C];
+const requestB = { tier: "free" as const, sourceId: "source-a", passageId: "passage-source-b" };
+const requestC = { tier: "free" as const, sourceId: "source-a", passageId: "passage-source-c" };
+
 /** Genuinely distinct drafts: different title, summary, steps and follow-up. */
 const FRESH: Record<string, Partial<GeneratedDraftFields>> = {
   hearth: {
@@ -78,15 +96,20 @@ class ScriptedGenerator extends FakeDraftGenerationPort {
 }
 
 async function seededRepo(): Promise<{ repo: FakeContentAdminRepository; published: StoredContent; draft: StoredContent }> {
-  // Existing library: one published doc and one draft, written through the same generator path.
+  // Existing library: one published doc and one draft, each bound to its own passage.
   const repo = new FakeContentAdminRepository();
-  const seed = new ScriptedGenerator([
+  const firstSeed = new ScriptedGenerator([
     { title: "Threshold Salt Line", body: "1. Pour a thin line of salt across the doorway.\n2. Sweep it outward and close the door." },
+  ]);
+  const secondSeed = new ScriptedGenerator([
     { title: "Window Water Blessing", body: "1. Set a glass of water on the sill at dawn.\n2. Pour it onto the garden at dusk." },
   ]);
-  const made = await generateDraftBatch({ ...request, count: 2 }, [SOURCE], seed, repo, [PASSAGE]);
-  expect(made.accepted).toHaveLength(2);
-  const [first, second] = made.accepted.map((entry) => repo.docs.get(entry.contentId)!);
+  const firstMade = await generateDraftBatch({ ...request, count: 1 }, [SOURCE], firstSeed, repo, ALL_PASSAGES);
+  const secondMade = await generateDraftBatch({ ...requestB, count: 1 }, [SOURCE], secondSeed, repo, ALL_PASSAGES);
+  expect(firstMade.accepted).toHaveLength(1);
+  expect(secondMade.accepted).toHaveLength(1);
+  const first = repo.docs.get(firstMade.accepted[0].contentId)!;
+  const second = repo.docs.get(secondMade.accepted[0].contentId)!;
   first.status = "published"; // existing content counts whether it is published or draft
   return { repo, published: first, draft: second };
 }
@@ -98,7 +121,7 @@ describe("generator duplicate protection", () => {
       { title: "  THRESHOLD  salt-line! " },
       FRESH.hearth,
     ]);
-    const result = await generateDraftBatch({ ...request, count: 1 }, [SOURCE], generator, repo, [PASSAGE]);
+    const result = await generateDraftBatch({ ...requestC, count: 1 }, [SOURCE], generator, repo, ALL_PASSAGES);
     expect(result.rejected).toHaveLength(1);
     expect(result.rejected[0].status).toBe("rejected-duplicate");
     expect(result.accepted.map((entry) => entry.title)).toEqual(["Hearth Ash Mark"]);
@@ -108,7 +131,7 @@ describe("generator duplicate protection", () => {
   it("rejects a title that matches an existing draft", async () => {
     const { repo } = await seededRepo();
     const generator = new ScriptedGenerator([{ title: "window water blessing" }]);
-    const result = await generateDraftBatch({ ...request, count: 1 }, [SOURCE], generator, repo, [PASSAGE]);
+    const result = await generateDraftBatch({ ...requestC, count: 1 }, [SOURCE], generator, repo, ALL_PASSAGES);
     expect(result.accepted).toHaveLength(0);
     expect(result.rejected.length).toBeGreaterThan(0);
   });
@@ -116,7 +139,7 @@ describe("generator duplicate protection", () => {
   it("rejects the same practice under a new title (normalised body hash / actions)", async () => {
     const { repo, published } = await seededRepo();
     const generator = new ScriptedGenerator([{ title: "Doorway Salt Charm", body: `${published.lesson ?? published.body}` }]);
-    const result = await generateDraftBatch({ ...request, count: 1 }, [SOURCE], generator, repo, [PASSAGE]);
+    const result = await generateDraftBatch({ ...requestC, count: 1 }, [SOURCE], generator, repo, ALL_PASSAGES);
     expect(result.accepted).toHaveLength(0);
     expect(result.rejected[0].reasons.join(" ")).toMatch(/threshold|content|instruction|concept|ritual/i);
   });
@@ -125,7 +148,7 @@ describe("generator duplicate protection", () => {
     const { repo, published } = await seededRepo();
     const body = String(published.lesson ?? published.body).toUpperCase().replace(/\./g, " .  ");
     const generator = new ScriptedGenerator([{ title: "A Wholly New Name", body }]);
-    const result = await generateDraftBatch({ ...request, count: 1 }, [SOURCE], generator, repo, [PASSAGE]);
+    const result = await generateDraftBatch({ ...requestC, count: 1 }, [SOURCE], generator, repo, ALL_PASSAGES);
     expect(result.accepted).toHaveLength(0);
   });
 
@@ -133,7 +156,7 @@ describe("generator duplicate protection", () => {
     const { repo } = await seededRepo();
     const before = repo.docs.size;
     const generator = new ScriptedGenerator([{ title: "Threshold Salt Line" }]);
-    const result = await generateDraftBatch({ ...request, count: 2 }, [SOURCE], generator, repo, [PASSAGE]);
+    const result = await generateDraftBatch({ ...requestC, count: 2 }, [SOURCE], generator, repo, ALL_PASSAGES);
     expect(result.exhausted).toBe(true);
     expect(result.attempts).toBe(2 * MAX_ATTEMPTS_PER_DRAFT);
     expect(generator.calls).toHaveLength(2 * MAX_ATTEMPTS_PER_DRAFT);
@@ -142,20 +165,36 @@ describe("generator duplicate protection", () => {
 
   it("does not let two drafts in one batch collide with each other", async () => {
     const repo = new FakeContentAdminRepository();
+    const source = { ...SOURCE, eligibleTypes: ["spell", "lesson"] as const };
     const generator = new ScriptedGenerator([
       FRESH.quiet,
       { ...FRESH.quiet, title: "spoon of quiet" },
-      FRESH.lamp,
     ]);
-    const result = await generateDraftBatch({ ...request, count: 2 }, [SOURCE], generator, repo, [PASSAGE]);
-    expect(result.accepted.map((entry) => entry.title)).toEqual(["Spoon Of Quiet", "Lamp Of Welcome"]);
-    expect(result.rejected).toHaveLength(1);
+    const result = await generateDraftBatch({ ...request, count: 2 }, [source], generator, repo, ALL_PASSAGES);
+    expect(result.accepted.map((entry) => entry.title)).toEqual(["Spoon Of Quiet"]);
+    expect(result.rejected.length).toBeGreaterThan(0);
+    expect(result.rejected[0].status).toBe("rejected-duplicate");
+  });
+
+  it("rejects a second item from a passage that already has one, even when the practice and type are new", async () => {
+    const { repo } = await seededRepo();
+    const source = { ...SOURCE, eligibleTypes: ["spell", "lesson"] as const };
+    const generator = new ScriptedGenerator([FRESH.hearth]);
+    const result = await generateDraftBatch(
+      { ...request, type: "lesson", count: 1 },
+      [source],
+      generator,
+      repo,
+      ALL_PASSAGES,
+    );
+    expect(result.accepted).toHaveLength(0);
+    expect(result.rejected[0].reasons.join(" ")).toMatch(/source-passage-id/);
   });
 
   it("passes every existing title (published and draft) to the model as an avoid-list", async () => {
     const { repo } = await seededRepo();
     const generator = new ScriptedGenerator([FRESH.hearth]);
-    await generateDraftBatch({ ...request, count: 1 }, [SOURCE], generator, repo, [PASSAGE]);
+    await generateDraftBatch({ ...requestC, count: 1 }, [SOURCE], generator, repo, ALL_PASSAGES);
     expect(generator.calls[0].existingTitles).toEqual(expect.arrayContaining(["Threshold Salt Line", "Window Water Blessing"]));
   });
 
@@ -165,7 +204,7 @@ describe("generator duplicate protection", () => {
       { title: "Window Water Blessing" },
       FRESH.hearth,
     ]);
-    await generateDraftBatch({ ...request, count: 1 }, [SOURCE], generator, repo, [PASSAGE]);
+    await generateDraftBatch({ ...requestC, count: 1 }, [SOURCE], generator, repo, ALL_PASSAGES);
     expect(generator.calls).toHaveLength(2);
     expect(generator.calls[1].existingTitles).toContain("Window Water Blessing");
   });

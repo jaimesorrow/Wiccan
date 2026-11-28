@@ -17,7 +17,16 @@ const BASE_DRAFT: NewDraftContent = {
   tier: "free",
   tradition: "European folk magic",
   sourceId: "source-a",
+  illustrationUrl: "https://cdn.example.org/originals/base-draft.png",
+  illustrationOriginal: true,
 };
+
+function originalArt(suffix: string): Pick<NewDraftContent, "illustrationUrl" | "illustrationOriginal"> {
+  return {
+    illustrationUrl: `https://cdn.example.org/originals/${suffix}.png`,
+    illustrationOriginal: true,
+  };
+}
 
 const ANCIENT_LESSON_SOURCE: ContentSource = {
   id: "ancient-source",
@@ -222,5 +231,62 @@ describe("approveDraft", () => {
     });
     await expect(approveDraft(contentId, repo, [ANCIENT_LESSON_SOURCE])).rejects.toThrow("structured reflection question");
     expect(await repo.getStatus(contentId)).toBe("draft");
+  });
+it("refuses to publish a draft without its own original image", async () => {
+    const repo = new FakeContentAdminRepository();
+    const contentId = await repo.createDraft({
+      ...BASE_DRAFT,
+      illustrationUrl: undefined,
+      illustrationOriginal: undefined,
+    });
+    await expect(approveDraft(contentId, repo)).rejects.toThrow(/illustrationUrl/);
+    expect(await repo.getStatus(contentId)).toBe("draft");
+  });
+
+  it("refuses to publish a draft whose image is not marked original", async () => {
+    const repo = new FakeContentAdminRepository();
+    const contentId = await repo.createDraft({ ...BASE_DRAFT, illustrationOriginal: false });
+    await expect(approveDraft(contentId, repo)).rejects.toThrow(/illustrationOriginal=true/);
+    expect(await repo.getStatus(contentId)).toBe("draft");
+  });
+
+  it("refuses to publish a draft that reuses another item's image", async () => {
+    const repo = new FakeContentAdminRepository();
+    const first = await repo.createDraft({ ...BASE_DRAFT, title: "First Spell", ...originalArt("shared-hero") });
+    await approveDraft(first, repo);
+    const second = await repo.createDraft({ ...BASE_DRAFT, title: "Second Spell", ...originalArt("shared-hero") });
+    await expect(approveDraft(second, repo)).rejects.toThrow(/already used by/);
+    expect(await repo.getStatus(second)).toBe("draft");
+  });
+
+  it("refuses to publish a draft whose normalized title already exists", async () => {
+    const repo = new FakeContentAdminRepository();
+    const first = await repo.createDraft({ ...BASE_DRAFT, title: "Threshold Salt Line", ...originalArt("salt-a") });
+    await approveDraft(first, repo);
+    const second = await repo.createDraft({ ...BASE_DRAFT, title: "  threshold   SALT-line! ", ...originalArt("salt-b") });
+    await expect(approveDraft(second, repo)).rejects.toThrow(/duplicate content is not allowed/);
+    expect(await repo.getStatus(second)).toBe("draft");
+  });
+
+  it("refuses to publish near-duplicate body text even with a new title", async () => {
+    const repo = new FakeContentAdminRepository();
+    const body = "1. Pour a thin line of salt across the doorway.\n2. Sweep it outward and close the door.";
+    const first = await repo.createDraft({
+      ...BASE_DRAFT,
+      title: "Threshold Salt Line",
+      intro: "A doorway closing practice.",
+      body,
+      ...originalArt("line-a"),
+    });
+    await approveDraft(first, repo);
+    const second = await repo.createDraft({
+      ...BASE_DRAFT,
+      title: "Evening Door Charm",
+      intro: "A doorway closing practice.",
+      body,
+      ...originalArt("line-b"),
+    });
+    await expect(approveDraft(second, repo)).rejects.toThrow(/duplicate content is not allowed/);
+    expect(await repo.getStatus(second)).toBe("draft");
   });
 });

@@ -43,9 +43,13 @@ async function main(): Promise<void> {
       .orderBy(FieldPath.documentId()).limit(batchSize);
     if (cursor) query = query.startAfter(cursor);
     const snapshot = await query.get();
+    const inventoryRecords = await repo.listOriginalityInventory();
     for (const document of snapshot.docs) {
       const content = document.data() as StoredContent;
-      const reasons = validateDraftForPublication(content);
+      const reasons = validateDraftForPublication(content, undefined, undefined, {
+        contentId: document.id,
+        records: inventoryRecords,
+      });
       if (reasons.length) {
         results.push({ id: document.id, outcome: "blocked", reasons });
         continue;

@@ -74,6 +74,7 @@ export function contentFromStoredDocument(id: string, data: FirebaseFirestore.Do
     sourcePassageId: typeof data.sourcePassageId === "string" ? data.sourcePassageId : undefined,
     illustrationUrl: typeof data.illustrationUrl === "string" && data.illustrationUrl.trim()
       ? data.illustrationUrl.trim() : undefined,
+    illustrationOriginal: data.illustrationOriginal === true ? true : undefined,
     seasonalWindow: parseSeasonalWindow(data.seasonalWindow),
     starterRank: Number.isInteger(data.starterRank) && data.starterRank >= 1 && data.starterRank <= 7
       ? data.starterRank : undefined,

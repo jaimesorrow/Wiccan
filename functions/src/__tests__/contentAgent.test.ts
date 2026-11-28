@@ -96,8 +96,9 @@ describe("runContentAgentCycle", () => {
   it("writes review-required drafts only and records the run", async () => {
     const { repo, state, run } = harness();
     const report = await run();
-    expect(report).toMatchObject({ status: "completed", passageId: "passage-source-a", tier: "free", requested: 2, published: false });
-    expect(report.accepted).toHaveLength(2);
+    expect(report).toMatchObject({ status: "exhausted", passageId: "passage-source-a", tier: "free", requested: 2, published: false });
+    expect(report.accepted).toHaveLength(1);
+    expect(report.rejected[0].reasons.join(" ")).toMatch(/source-passage-id/);
     for (const { contentId } of report.accepted) {
       expect(repo.docs.get(contentId)?.status).toBe("draft");
     }
@@ -157,20 +158,13 @@ describe("runContentAgentCycle", () => {
     expect(state.cursor).toBe(1);
   });
 
-  it("reports drafts saved before a mid-batch failure", async () => {
-    class FailsOnSecondCall extends FakeDraftGenerationPort {
-      override async generateDraft(request: DraftGenerationRequest): Promise<GeneratedDraftFields> {
-        if (this.calls.length >= 1) {
-          this.calls.push(request);
-          throw new Error("rate limited");
-        }
-        return super.generateDraft(request);
-      }
-    }
-    const { repo, state, run } = harness({ generator: new FailsOnSecondCall() });
+  it("writes only one draft per passage even when the run reserved two slots", async () => {
+    const { generator, repo, state, run } = harness();
     const report = await run();
-    expect(report).toMatchObject({ status: "failed", error: "rate limited", attempts: 2 });
+    expect(report.status).toBe("exhausted");
     expect(report.accepted).toHaveLength(1);
+    expect(report.rejected[0].reasons.join(" ")).toMatch(/source-passage-id/);
+    expect(generator.calls).toHaveLength(1);
     expect(repo.docs.get(report.accepted[0].contentId)?.status).toBe("draft");
     expect(state.runs).toEqual([report]);
     expect(state.lease).toBeNull();

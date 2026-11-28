@@ -27,14 +27,17 @@ export interface GenerationOriginalityThresholds {
   instructionReject: number;
   conceptReject: number;
   ritualActionReject: number;
+  /** Trigram Jaccard on normalized authored text (summary + instructions + follow-up). */
+  contentShingleReject: number;
 }
 
-const DEFAULT_GENERATION_ORIGINALITY_THRESHOLDS: GenerationOriginalityThresholds = {
+export const DEFAULT_GENERATION_ORIGINALITY_THRESHOLDS: GenerationOriginalityThresholds = {
   titleReject: 0.85,
   summaryReject: 0.82,
   instructionReject: 0.78,
   conceptReject: 0.8,
   ritualActionReject: 0.75,
+  contentShingleReject: 0.72,
 };
 
 interface GenerationOriginalityComparison {
@@ -45,6 +48,7 @@ interface GenerationOriginalityComparison {
   instructionSimilarity: number;
   conceptSimilarity: number;
   ritualActionSimilarity: number;
+  contentShingleSimilarity: number;
   reasons: string[];
 }
 
@@ -169,6 +173,21 @@ function similarity(left: string, right: string, width: number): number {
   return ngramJaccard(left, right, width);
 }
 
+/** Normalized authored text used for the near-duplicate shingle/Jaccard gate. */
+export function authoredShingleText(fields: Record<string, unknown>): string {
+  return normalizeGenerationText([
+    firstString(fields, ["summary", "introduction", "intro"]),
+    firstString(fields, ["lesson", "body"]),
+    firstString(fields, ["practice", "reflection", "application"]),
+  ].join(" "));
+}
+
+/** Normalized sourcePassageId used for the hard one-item-per-passage cap. */
+export function passageKey(fields: Record<string, unknown>): string | null {
+  const passageId = normalizeGenerationText(fields.sourcePassageId);
+  return passageId || null;
+}
+
 function compareCandidate(
   candidate: Record<string, unknown>,
   candidateSignature: GenerationConceptSignature,
@@ -187,13 +206,20 @@ function compareCandidate(
   const existingInstructions = firstString(existing.fields, ["lesson", "body"]);
   const candidateActions = candidateSignature.ritualActions.join(" ");
   const existingActions = existingSignature.ritualActions.join(" ");
+  const contentShingleSimilarity = similarity(
+    authoredShingleText(candidate),
+    authoredShingleText(existing.fields),
+    3,
+  );
   const scores = {
     titleSimilarity: similarity(candidateTitle, existingTitle, 1),
     summarySimilarity: similarity(candidateSummary, existingSummary, 2),
     instructionSimilarity: similarity(candidateInstructions, existingInstructions, 3),
     conceptSimilarity: similarity(signatureText(candidateSignature), signatureText(existingSignature), 2),
     ritualActionSimilarity: similarity(candidateActions, existingActions, 2),
+    contentShingleSimilarity,
   };
+  const samePassage = passageKey(candidate) !== null && passageKey(candidate) === passageKey(existing.fields);
   const exactConcept = candidateHash === conceptHash(existingSignature);
   const sameSimilarityGroup = typeof candidate.similarityGroupId === "string" && candidate.similarityGroupId.trim() !== "" &&
     candidate.similarityGroupId === existing.fields.similarityGroupId;
@@ -209,11 +235,13 @@ function compareCandidate(
     ...(authoredContentHash(candidate) === authoredContentHash(existing.fields) ? ["exact-authored-content"] : []),
     ...(exactConcept ? ["exact-concept-signature"] : []),
     ...(sameSimilarityGroup ? ["same-similarity-group"] : []),
+    ...(samePassage ? ["source-passage-id"] : []),
     ...(scores.titleSimilarity >= thresholds.titleReject ? ["title-similarity"] : []),
     ...(scores.summarySimilarity >= thresholds.summaryReject ? ["summary-similarity"] : []),
     ...(scores.instructionSimilarity >= thresholds.instructionReject ? ["instruction-similarity"] : []),
     ...(scores.conceptSimilarity >= thresholds.conceptReject ? ["concept-similarity"] : []),
     ...(scores.ritualActionSimilarity >= thresholds.ritualActionReject ? ["ritual-action-similarity"] : []),
+    ...(scores.contentShingleSimilarity >= thresholds.contentShingleReject ? ["content-shingle-similarity"] : []),
     ...(strongSignals >= 3 ? ["multiple-moderate-duplicate-signals"] : []),
   ];
   return {
@@ -231,6 +259,7 @@ function comparisonScore(comparison: GenerationOriginalityComparison): number {
     comparison.instructionSimilarity,
     comparison.conceptSimilarity,
     comparison.ritualActionSimilarity,
+    comparison.contentShingleSimilarity,
   );
 }
 
@@ -248,11 +277,13 @@ export function screenGeneratedCandidate(
   const closestMatch = comparisons.sort((left, right) => comparisonScore(right) - comparisonScore(left))[0] ?? null;
   const rejectionReasons = comparisons.flatMap((comparison) =>
     comparison.reasons.map((reason) => `${reason}:${comparison.comparedId}`));
+  const reservedPassage = passageKey(candidate);
   const reservationKeys = [
     `title:${sha256(normalizedTitle)}`,
     `slug:${sha256(normalizedSlug)}`,
     `concept:${signatureHash}`,
     `content:${contentHash}`,
+    ...(reservedPassage ? [`passage:${sha256(reservedPassage)}`] : []),
   ];
   return {
     accepted: rejectionReasons.length === 0,

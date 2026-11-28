@@ -177,14 +177,14 @@ describe("generateDrafts", () => {
     const generator = new FakeDraftGenerationPort();
     const repo = new FakeContentAdminRepository();
 
-    const results = await generateDrafts({ tier: "premium", count: 3 }, [SOURCE_A, SOURCE_B], generator, repo);
+    const results = await generateDrafts({ tier: "premium", count: 2 }, [SOURCE_A, SOURCE_B], generator, repo);
 
-    expect(results).toHaveLength(3);
+    // A batch is bound to one passage, and each sourcePassageId may be used
+    // only once, so a second requested draft from the same passage is rejected.
+    expect(results).toHaveLength(1);
     const sourceIdsUsed = new Set(results.map((r) => r.sourceId));
-    // With two sources offering three total (source,type) pairs, three
-    // drafts should not collapse onto a single source.
     expect(sourceIdsUsed).toEqual(new Set([SOURCE_A.id]));
-    expect(repo.docs.size).toBe(3);
+    expect(repo.docs.size).toBe(1);
     for (const doc of repo.docs.values()) {
       expect(doc.status).toBe("draft");
     }
@@ -279,7 +279,7 @@ describe("generateDrafts", () => {
     const generator = new FakeDraftGenerationPort();
     const repo = new FakeContentAdminRepository();
     await repo.createDraft({
-      title: "Generated spell #2",
+      title: "Generated spell #1",
       intro: "i",
       body: "b",
       materials: null,
@@ -290,17 +290,19 @@ describe("generateDrafts", () => {
       tier: "free",
       tradition: "Ancient ritual tradition",
       sourceId: "source-a",
+      sourcePassageId: "passage-already-used",
     });
 
-    // FakeDraftGenerationPort's auto-incrementing titles will produce
-    // "Generated spell #1", "#2" (pre-existing, should be skipped), "#3".
+    // The first model title collides with the pre-existing draft; the
+    // retry is accepted. A second item from this same passage would be
+    // rejected by the one-item-per-sourcePassageId cap.
     const results = await generateDrafts(
-      { tier: "free", sourceId: "source-a", type: "spell", count: 3 },
+      { tier: "free", sourceId: "source-a", type: "spell", count: 1 },
       [SOURCE_A, SOURCE_B],
       generator,
       repo,
     );
 
-    expect(results.map((r) => r.title)).toEqual(["Generated spell #1", "Generated spell #3", "Generated spell #4"]);
+    expect(results.map((r) => r.title)).toEqual(["Generated spell #2"]);
   });
 });

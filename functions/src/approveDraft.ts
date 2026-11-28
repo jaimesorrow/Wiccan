@@ -5,6 +5,9 @@ import { ContentAdminRepositoryPort, StoredContent } from "./contentAdminReposit
 import type { PublicationRequest } from "./contentAdminRepositoryPort";
 import { ContentSource, isLessonGenerationSource, loadContentSources } from "./contentSource";
 import { CONTENT_TYPES, isContentType } from "./types";
+import { originalIllustrationViolations } from "./originalIllustration";
+import { screenGeneratedCandidate } from "./generationOriginality";
+import type { GenerationInventoryRecord } from "./generationOriginality";
 
 export class DraftNotFoundError extends Error {}
 export class UnsafeContentError extends Error {}
@@ -67,17 +70,44 @@ function findSafetyViolations(content: StoredContent, sources: ContentSource[]):
   return violations;
 }
 
+export interface PublicationInventory {
+  /** Exclude this draft when scanning the inventory for duplicates or reused images. */
+  contentId?: string;
+  records: GenerationInventoryRecord[];
+}
+
+function findDuplicatePublicationViolations(
+  content: StoredContent,
+  inventory?: PublicationInventory,
+): string[] {
+  if (!inventory) return [];
+  const others = inventory.records.filter((record) => record.id !== inventory.contentId);
+  const originality = screenGeneratedCandidate(content as unknown as Record<string, unknown>, others);
+  if (originality.accepted) return [];
+  const match = originality.closestMatch
+    ? ` closest match '${originality.closestMatch.comparedId}'`
+    : "";
+  const reasons = originality.rejectionReasons.join(", ") || "duplicate of existing lesson, spell or potion";
+  return [`duplicate content is not allowed${match} (${reasons}).`];
+}
+
 /** Returns every publication blocker without changing Firestore. */
 export function validateDraftForPublication(
   content: StoredContent,
   sources?: ContentSource[],
   passages?: SourcePassage[],
+  inventory?: PublicationInventory,
 ): string[] {
   const practicalViolations = content.type === "lesson" || content.sourcePassageId
     ? findPracticalLessonViolations(content, passages ?? loadSourcePassages())
     : findPracticalSafetyViolations(content);
   const applicableSources = content.type === "lesson" ? sources ?? loadContentSources() : [];
-  return [...findSafetyViolations(content, applicableSources), ...practicalViolations];
+  return [
+    ...findSafetyViolations(content, applicableSources),
+    ...practicalViolations,
+    ...originalIllustrationViolations(content, inventory?.records ?? [], inventory?.contentId),
+    ...findDuplicatePublicationViolations(content, inventory),
+  ];
 }
 
 export interface DraftApprovalPlanEntry {
@@ -96,7 +126,8 @@ export async function planDraftApproval(
   if (versioned === null) throw new DraftNotFoundError(`No content document '${contentId}' found.`);
   const content = versioned.content;
   if (content.status !== "draft") throw new UnsafeContentError(`Content '${contentId}' is not a draft.`);
-  const violations = validateDraftForPublication(content, sources, passages);
+  const inventory: PublicationInventory = { contentId, records: await repo.listOriginalityInventory() };
+  const violations = validateDraftForPublication(content, sources, passages, inventory);
   if (violations.length > 0) {
     throw new UnsafeContentError(`Content '${contentId}' failed the pre-publish safety check: ${violations.join(" ")}`);
   }
@@ -127,7 +158,8 @@ export async function approveDraft(
     return;
   }
 
-  const violations = validateDraftForPublication(content, sources, passages);
+  const inventory: PublicationInventory = { contentId, records: await repo.listOriginalityInventory() };
+  const violations = validateDraftForPublication(content, sources, passages, inventory);
   if (violations.length > 0) {
     throw new UnsafeContentError(
       `Content '${contentId}' failed the pre-publish safety check: ${violations.join(" ")}`,

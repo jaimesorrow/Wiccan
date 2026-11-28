@@ -8,6 +8,7 @@ import { DraftGenerationPort } from "./draftGenerationPort";
 import { ContentAdminRepositoryPort } from "./contentAdminRepositoryPort";
 import {
   generationConceptSignature,
+  passageKey,
   screenGeneratedCandidate,
 } from "./generationOriginality";
 import type { GenerationInventoryRecord, GenerationOriginalityReport } from "./generationOriginality";
@@ -55,6 +56,12 @@ export const MAX_ATTEMPTS_PER_DRAFT = 5;
 /** Drafts may only ever be these types; anything else crashes the Grimoire. */
 const ALLOWED_DRAFT_TYPES: readonly ContentType[] = ["spell", "potion", "lesson"];
 const MAX_TITLES_IN_PROMPT = 1000;
+
+/** True when any draft or published item already uses this sourcePassageId. */
+function passageAlreadyUsed(inventory: GenerationInventoryRecord[], passageId: string): boolean {
+  const key = passageKey({ sourcePassageId: passageId });
+  return key !== null && inventory.some((record) => passageKey(record.fields) === key);
+}
 
 /** Every distinct existing title (published and draft) plus this batch's rejected titles, for the prompt's avoid-list. */
 export function existingTitleList(inventory: GenerationInventoryRecord[], rejectedTitles: string[] = []): string[] {
@@ -168,6 +175,15 @@ export async function generateDraftBatch(
   let attempts = 0;
 
   while (accepted.length < count && attempts < maximumAttempts) {
+    if (passageAlreadyUsed(inventory, passage.id)) {
+      rejected.push({
+        title: "",
+        status: "rejected-duplicate",
+        reasons: [`source-passage-id: passage '${passage.id}' is already used`],
+        closestMatch: null,
+      });
+      break;
+    }
     const pair = pairs[attempts % pairs.length];
     attempts += 1;
     if (!ALLOWED_DRAFT_TYPES.includes(pair.type)) {
