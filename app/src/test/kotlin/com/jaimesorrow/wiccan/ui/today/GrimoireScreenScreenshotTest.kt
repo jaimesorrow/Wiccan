@@ -253,6 +253,33 @@ class GrimoireScreenScreenshotTest {
     }
 
     @Test
+    fun `capture daily lesson near the full moon`() {
+        composeRule.setContent {
+            MidnightGrimoireTheme {
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotFullMoonDate)
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/wiccan-lesson-full-moon-chip.png")
+    }
+
+    @Test
+    fun `capture daily lesson near the full moon at 130 percent text`() {
+        composeRule.setContent {
+            val density = LocalDensity.current.density
+            CompositionLocalProvider(LocalDensity provides Density(density, fontScale = 1.3f)) {
+                MidnightGrimoireTheme {
+                    DailyGrimoirePage(content = sampleLesson(), today = screenshotFullMoonDate)
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(
+            filePath = "build/outputs/roborazzi/wiccan-lesson-full-moon-chip-font-130.png",
+        )
+    }
+
+    @Test
     @Config(sdk = [34], qualifiers = "w360dp-h2800dp-xhdpi", application = android.app.Application::class)
     fun `capture home cosmic at 130 percent text`() {
         composeRule.setContent {
@@ -427,6 +454,9 @@ class GrimoireScreenScreenshotTest {
 
     // Ordinary civil date used by seasonalCalendar tests; no sabbat or new/full window.
     private val screenshotLessonDate = LocalDate.of(2026, 7, 7)
+
+    // Mid-window full moon from SeasonalCalendarTest, so the seasonal chip is visible.
+    private val screenshotFullMoonDate = LocalDate.of(2026, 3, 3)
 
     private fun sampleLongLesson(): Content {
         val body = buildString {

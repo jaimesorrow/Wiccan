@@ -130,7 +130,7 @@
     <string name="today_potion">Poción de hoy</string>
     <string name="today_lesson">Lección de hoy</string>
     <string name="today_subtitle">La luna ha cambiado. Tu próxima práctica te espera.</string>
-    <string name="today_seasonal_moon">Esta noche: %1$s</string>
+    <string name="today_seasonal_moon">Cerca de la %1$s</string>
     <string name="today_seasonal_new_moon">Luna nueva</string>
     <string name="today_seasonal_full_moon">Luna llena</string>
     <string name="today_seasonal_sabbat_imbolc">Imbolc</string>

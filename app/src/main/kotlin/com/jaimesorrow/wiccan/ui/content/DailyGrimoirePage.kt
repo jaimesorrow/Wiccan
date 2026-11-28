@@ -1,5 +1,6 @@
 package com.jaimesorrow.wiccan.ui.content
 
+import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -37,7 +38,6 @@ import androidx.compose.ui.unit.sp
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.seasonal.SeasonalCalendar
 import com.jaimesorrow.wiccan.seasonal.SeasonalWindow
-import com.jaimesorrow.wiccan.sky.CelestialCalculator
 import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
 import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
 import com.jaimesorrow.wiccan.ui.theme.GrimoireCandleGlow
@@ -49,7 +49,6 @@ import com.jaimesorrow.wiccan.ui.theme.WiccanGrimoireStepsFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanHandwritingFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.wiccan.app.R
-import java.time.Instant
 import java.time.LocalDate
 import java.util.Locale
 
@@ -71,7 +70,7 @@ internal fun DailyGrimoirePage(
     fillViewport: Boolean = true,
     today: LocalDate = LocalDate.now(),
 ) {
-    val moon = remember { CelestialCalculator.moon(Instant.now()) }
+    val moonTrack = remember(today) { SeasonalCalendar.moonTrack(today) }
     val seasonalWindow = remember(today) { SeasonalCalendar.seasonalWindowFor(today) }
     val scrollState = rememberScrollState()
     val pageModifier =
@@ -103,7 +102,7 @@ internal fun DailyGrimoirePage(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            GrimoireMoonPhases(active = moon.trackIndex, activePhaseName = moon.name)
+            GrimoireMoonPhases(active = moonTrack.trackIndex, activePhaseName = moonTrack.name)
             seasonalWindow?.let { window ->
                 SeasonalEventChip(
                     window = window,
@@ -132,30 +131,30 @@ private fun SeasonalEventChip(
     window: SeasonalWindow,
     modifier: Modifier = Modifier,
 ) {
-    val label = when (window) {
-        is SeasonalWindow.Sabbat -> stringResource(sabbatLabelRes(window.id))
-        is SeasonalWindow.Moon -> {
-            val phase = stringResource(
-                if (window.phase == "full") {
-                    R.string.today_seasonal_full_moon
-                } else {
-                    R.string.today_seasonal_new_moon
-                },
-            )
-            stringResource(R.string.today_seasonal_moon, phase)
-        }
-    }
+    val resources = LocalContext.current.resources
     Text(
-        text = label,
-        color = WiccanPaletteColors.Grimoire.OnSeasonalChip,
-        modifier = modifier
-            .background(WiccanPaletteColors.Grimoire.SeasonalChip, RoundedCornerShape(50))
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-        style = MaterialTheme.typography.labelLarge,
+        text = seasonalChipLabel(window, resources),
+        color = Gold,
+        modifier = modifier.testTag("seasonal_event_chip"),
+        style = MaterialTheme.typography.labelLarge.copy(fontFamily = WiccanDisplayFont),
     )
 }
 
-private fun sabbatLabelRes(id: String): Int = when (id) {
+internal fun seasonalChipLabel(window: SeasonalWindow, resources: Resources): String = when (window) {
+    is SeasonalWindow.Sabbat -> resources.getString(sabbatLabelRes(window.id))
+    is SeasonalWindow.Moon -> {
+        val phase = resources.getString(
+            if (window.phase == "full") {
+                R.string.today_seasonal_full_moon
+            } else {
+                R.string.today_seasonal_new_moon
+            },
+        )
+        resources.getString(R.string.today_seasonal_moon, phase)
+    }
+}
+
+internal fun sabbatLabelRes(id: String): Int = when (id) {
     "imbolc" -> R.string.today_seasonal_sabbat_imbolc
     "ostara" -> R.string.today_seasonal_sabbat_ostara
     "beltane" -> R.string.today_seasonal_sabbat_beltane

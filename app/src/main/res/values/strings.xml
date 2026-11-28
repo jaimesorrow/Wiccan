@@ -143,7 +143,7 @@
     <string name="today_potion">Today\'s potion</string>
     <string name="today_lesson">Today\'s lesson</string>
     <string name="today_subtitle">The moon has turned. Your next practice awaits.</string>
-    <string name="today_seasonal_moon">Tonight: %1$s</string>
+    <string name="today_seasonal_moon">Near the %1$s</string>
     <string name="today_seasonal_new_moon">New Moon</string>
     <string name="today_seasonal_full_moon">Full Moon</string>
     <string name="today_seasonal_sabbat_imbolc">Imbolc</string>

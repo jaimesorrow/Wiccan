@@ -5,8 +5,9 @@ import java.time.ZoneOffset
 import kotlin.math.abs
 
 /**
- * Civil-date sabbat and new/full-moon windows used by the Today chip and by
- * `functions/src/seasonalCalendar.ts` for daily lesson preference.
+ * Civil-date sabbat and new/full-moon windows used by the Today chip, the
+ * lesson-page moon track, and `functions/src/seasonalCalendar.ts` for daily
+ * lesson preference.
  *
  * Both sides sample the user's local calendar date at **UTC noon**, use the
  * same mean synodic-month age with a ±1.5-day new/full window, and use the
@@ -23,6 +24,9 @@ internal object SeasonalCalendar {
     const val DAY_MS = 86_400_000L
     const val PHASE_WINDOW_DAYS = 1.5
 
+    private val WAXING_TRACK = listOf("Waxing Crescent", "First Quarter", "Waxing Gibbous")
+    private val WANING_TRACK = listOf("Waning Gibbous", "Last Quarter", "Waning Crescent")
+
     val SABBATS: Map<String, String> = mapOf(
         "02-01" to "imbolc",
         "03-20" to "ostara",
@@ -34,14 +38,32 @@ internal object SeasonalCalendar {
         "12-21" to "yule",
     )
 
-    fun moonPhase(date: LocalDate): String {
+    fun moonAgeDays(date: LocalDate): Double {
         val cycles = (utcNoonMillis(date) - KNOWN_NEW_MOON_MS) / DAY_MS.toDouble() / SYNODIC_MONTH_DAYS
-        val age = ((cycles % 1 + 1) % 1) * SYNODIC_MONTH_DAYS
-        return when {
-            age < PHASE_WINDOW_DAYS || age > SYNODIC_MONTH_DAYS - PHASE_WINDOW_DAYS -> "new"
-            abs(age - SYNODIC_MONTH_DAYS / 2) < PHASE_WINDOW_DAYS -> "full"
-            age < SYNODIC_MONTH_DAYS / 2 -> "waxing"
-            else -> "waning"
+        return ((cycles % 1 + 1) % 1) * SYNODIC_MONTH_DAYS
+    }
+
+    fun moonPhase(date: LocalDate): String = phaseFromAge(moonAgeDays(date))
+
+    /**
+     * Eight-phase track derived from the same civil-date age as [moonPhase],
+     * so the lesson-page glyphs cannot show a waxing/waning phase on a day
+     * the chip calls new or full.
+     */
+    fun moonTrack(date: LocalDate): CivilMoonTrack {
+        val age = moonAgeDays(date)
+        val half = SYNODIC_MONTH_DAYS / 2
+        return when (phaseFromAge(age)) {
+            "new" -> CivilMoonTrack(name = "New Moon", trackIndex = 0)
+            "full" -> CivilMoonTrack(name = "Full Moon", trackIndex = 4)
+            "waxing" -> {
+                val band = intermediateBand(age - PHASE_WINDOW_DAYS, half - 2 * PHASE_WINDOW_DAYS)
+                CivilMoonTrack(name = WAXING_TRACK[band], trackIndex = 1 + band)
+            }
+            else -> {
+                val band = intermediateBand(age - (half + PHASE_WINDOW_DAYS), half - 2 * PHASE_WINDOW_DAYS)
+                CivilMoonTrack(name = WANING_TRACK[band], trackIndex = 5 + band)
+            }
         }
     }
 
@@ -55,9 +77,26 @@ internal object SeasonalCalendar {
         return if (phase == "new" || phase == "full") SeasonalWindow.Moon(phase) else null
     }
 
+    private fun phaseFromAge(age: Double): String = when {
+        age < PHASE_WINDOW_DAYS || age > SYNODIC_MONTH_DAYS - PHASE_WINDOW_DAYS -> "new"
+        abs(age - SYNODIC_MONTH_DAYS / 2) < PHASE_WINDOW_DAYS -> "full"
+        age < SYNODIC_MONTH_DAYS / 2 -> "waxing"
+        else -> "waning"
+    }
+
+    private fun intermediateBand(offset: Double, span: Double): Int {
+        val t = (offset / span).coerceIn(0.0, 0.999999)
+        return (t * 3).toInt()
+    }
+
     private fun utcNoonMillis(date: LocalDate): Long =
         date.atTime(12, 0).toInstant(ZoneOffset.UTC).toEpochMilli()
 }
+
+internal data class CivilMoonTrack(
+    val name: String,
+    val trackIndex: Int,
+)
 
 internal sealed class SeasonalWindow {
     data class Sabbat(val id: String) : SeasonalWindow()
