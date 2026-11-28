@@ -1,7 +1,8 @@
-import { Content } from "./types";
+import { Content, SeasonalWindow } from "./types";
 import { ContentAlreadyDeliveredError, ContentNoLongerEligibleError, ContentRepositoryPort, SubscriptionRequiredError } from "./contentRepositoryPort";
 import { isLessonGenerationSource, loadContentSources } from "./contentSource";
 import { contentSimilarityKey, isEligibleForDailyDelivery } from "./contentEligibility";
+import { matchesSeasonalWindow, seasonalWindowFor } from "./seasonalCalendar";
 
 const DEFAULT_ANCIENT_LESSON_SOURCE_IDS = new Set(
   loadContentSources()
@@ -22,13 +23,14 @@ function pickRandom(items: Content[]): Content {
   return items[Math.floor(Math.random() * items.length)];
 }
 
-function pickCandidate(items: Content[], deliveredCount: number): Content {
+function pickCandidate(items: Content[], deliveredCount: number, seasonalWindow: SeasonalWindow | null): Content {
   if (deliveredCount < 7) {
     const ranked = items.filter((item) => item.type === "lesson" && item.starterRank !== undefined)
       .sort((left, right) => left.starterRank! - right.starterRank!);
     if (ranked.length > 0) return ranked[0];
   }
-  return pickRandom(items);
+  const seasonal = items.filter((item) => matchesSeasonalWindow(item.seasonalWindow, seasonalWindow));
+  return pickRandom(seasonal.length > 0 ? seasonal : items);
 }
 
 /** Preserve the committed assignment if its underlying document was removed. */
@@ -60,7 +62,8 @@ async function readAssignedContent(uid: string, contentId: string, repo: Content
  * 4. If nothing remains, log pool exhaustion and fail closed. Never repeat
  *    a lesson already delivered to this user.
  * 5. During a subscriber's first seven deliveries, prefer the lowest unseen
- *    editor-assigned `starterRank`; otherwise pick a candidate at random.
+ *    editor-assigned `starterRank`; otherwise prefer a seasonal match or pick
+ *    a candidate at random.
  *    Atomically reserve both its content
  *    ID and today's assignment. If another date reserved that ID first,
  *    retry with a different candidate. If another call won today, return
@@ -100,8 +103,9 @@ export async function selectTodayContent(
     return !deliveredSet.has(content.id) && (!group || !deliveredGroups.has(group));
   });
 
+  const seasonalWindow = seasonalWindowFor(today);
   while (candidates.length > 0) {
-    const candidate = pickCandidate(candidates, deliveredIds.length);
+    const candidate = pickCandidate(candidates, deliveredIds.length, seasonalWindow);
     let assignedId: string;
     try {
       assignedId = await repo.assignDailyContent(uid, today, candidate, ancientLessonSourceIds);
