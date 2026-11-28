@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -50,12 +51,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.jaimesorrow.wiccan.billing.launchPlayPromoRedeem
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.core.util.findActivity
 import com.jaimesorrow.wiccan.domain.model.SubscriptionPlan
 import com.jaimesorrow.wiccan.ui.brand.WiccanFullLogo
 import com.wiccan.app.R
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.launch
 
 /** Payment is exclusively Google Play Billing; access is verified by the root gate. */
 @Composable
@@ -70,6 +73,7 @@ fun PaywallScreen(
     val context = LocalContext.current
     val resources = LocalResources.current
     val snackbars = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner, viewModel) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -99,6 +103,13 @@ fun PaywallScreen(
             onManageSubscription = {
                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_SUBSCRIPTIONS_URL)))
             },
+            onRedeemPromoCode = {
+                if (!launchPlayPromoRedeem(context, it)) {
+                    scope.launch {
+                        snackbars.showSnackbar(resources.getString(R.string.paywall_promo_unavailable))
+                    }
+                }
+            },
         )
     }
 }
@@ -119,6 +130,7 @@ internal fun PaywallContent(
     onEvent: (PaywallUiEvent) -> Unit,
     onSubscribe: () -> Unit,
     onManageSubscription: () -> Unit = {},
+    onRedeemPromoCode: (String) -> Unit = {},
 ) {
     val loadingDescription = stringResource(R.string.loading_description)
     Column(modifier = Modifier.fillMaxSize().padding(insets)) {
@@ -200,6 +212,7 @@ internal fun PaywallContent(
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
             )
+            PromoCodeSection(onRedeem = onRedeemPromoCode)
             Text(
                 stringResource(R.string.support_contact_message),
                 style = MaterialTheme.typography.labelSmall,
