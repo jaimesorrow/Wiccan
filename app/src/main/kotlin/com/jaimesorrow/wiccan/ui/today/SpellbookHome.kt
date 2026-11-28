@@ -25,10 +25,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -72,6 +70,7 @@ import com.jaimesorrow.wiccan.ui.theme.GrimoireMoonPhases
 import com.jaimesorrow.wiccan.ui.theme.GrimoireOrnamentalDivider
 import com.jaimesorrow.wiccan.ui.theme.GrimoireSettingsHeaderAccent
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
+import com.jaimesorrow.wiccan.ui.theme.PlainConsentAlertDialog
 import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanEditorialFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
@@ -702,26 +701,13 @@ internal fun HomeLocationPermissionRationale(
     onContinue: () -> Unit,
     onNotNow: () -> Unit,
 ) {
-    AlertDialog(
-        onDismissRequest = onNotNow,
-        title = { Text(stringResource(R.string.home_location_rationale_title)) },
-        text = { Text(stringResource(R.string.home_location_rationale_body)) },
-        confirmButton = {
-            TextButton(
-                onClick = onContinue,
-                modifier = Modifier.defaultMinSize(minHeight = 48.dp),
-            ) {
-                Text(stringResource(R.string.home_location_rationale_continue))
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onNotNow,
-                modifier = Modifier.defaultMinSize(minHeight = 48.dp),
-            ) {
-                Text(stringResource(R.string.home_location_rationale_not_now))
-            }
-        },
+    PlainConsentAlertDialog(
+        title = stringResource(R.string.home_location_rationale_title),
+        body = stringResource(R.string.home_location_rationale_body),
+        confirmLabel = stringResource(R.string.home_location_rationale_continue),
+        dismissLabel = stringResource(R.string.home_location_rationale_not_now),
+        onConfirm = onContinue,
+        onDismiss = onNotNow,
     )
 }
 

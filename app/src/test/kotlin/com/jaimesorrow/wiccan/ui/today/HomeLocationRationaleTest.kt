@@ -1,10 +1,10 @@
 package com.jaimesorrow.wiccan.ui.today
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -23,7 +23,7 @@ class HomeLocationRationaleTest {
         var continued = false
         var dismissed = false
         composeRule.setContent {
-            MaterialTheme {
+            MidnightGrimoireTheme {
                 HomeLocationPermissionRationale(
                     onContinue = { continued = true },
                     onNotNow = { dismissed = true },
@@ -40,7 +40,7 @@ class HomeLocationRationaleTest {
     fun `continue invokes callback`() {
         var continued = false
         composeRule.setContent {
-            MaterialTheme {
+            MidnightGrimoireTheme {
                 HomeLocationPermissionRationale(
                     onContinue = { continued = true },
                     onNotNow = {},
