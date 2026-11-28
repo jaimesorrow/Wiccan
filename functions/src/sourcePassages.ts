@@ -61,6 +61,10 @@ export function findPassageViolations(passage: SourcePassage): string[] {
   if (!passage.review?.passageInspected || !passage.review.sourceFidelityApproved || !passage.review.safetyApproved || !nonblank(passage.review.reviewedBy) || !nonblank(passage.review.reviewedAt) || !Number.isFinite(Date.parse(passage.review.reviewedAt))) {
     issues.push("passage inspection, fidelity and suitability require a dated editorial review");
   }
+  const editionYear = Number.parseInt(String(passage.editionDate ?? "").trim().slice(0, 4), 10);
+  if (!Number.isFinite(editionYear) || editionYear >= 1931) {
+    issues.push("editionDate must be a year before 1931");
+  }
   return issues;
 }
 
