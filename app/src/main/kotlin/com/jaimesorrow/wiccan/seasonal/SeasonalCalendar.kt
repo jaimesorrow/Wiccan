@@ -93,13 +93,13 @@ internal object SeasonalCalendar {
         date.atTime(12, 0).toInstant(ZoneOffset.UTC).toEpochMilli()
 }
 
-data class CivilMoonTrack(
+internal data class CivilMoonTrack(
     val name: String,
     val trackIndex: Int,
 )
 
 /** Moon row + lesson chip: one civil-date track so Home, Archive, Sign-in, and Today never disagree. */
-fun grimoireMoonTrack(date: LocalDate): CivilMoonTrack = SeasonalCalendar.moonTrack(date)
+internal fun grimoireMoonTrack(date: LocalDate): CivilMoonTrack = SeasonalCalendar.moonTrack(date)
 
 internal sealed class SeasonalWindow {
     data class Sabbat(val id: String) : SeasonalWindow()

@@ -132,7 +132,8 @@ internal fun SignInScreenContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     WiccanFullLogo(modifier = Modifier.testTag("auth-logo"), width = 180.dp)
-                    val signInMoon = remember { grimoireMoonTrack(java.time.LocalDate.now()) }
+                    val today = java.time.LocalDate.now()
+                    val signInMoon = remember(today) { grimoireMoonTrack(today) }
                     GrimoireMoonPhases(
                         active = signInMoon.trackIndex,
                         activePhaseName = signInMoon.name,

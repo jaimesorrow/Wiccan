@@ -141,7 +141,8 @@ internal fun ArchiveScreenContent(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 24.dp),
                     )
-                    val archiveMoon = remember { grimoireMoonTrack(LocalDate.now()) }
+                    val today = LocalDate.now()
+                    val archiveMoon = remember(today) { grimoireMoonTrack(today) }
                     GrimoireMoonPhases(
                         active = archiveMoon.trackIndex,
                         activePhaseName = archiveMoon.name,
