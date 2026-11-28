@@ -176,10 +176,17 @@ describe("generator duplicate protection", () => {
     expect(result.rejected[0].status).toBe("rejected-duplicate");
   });
 
-  it("rejects a second spell from a passage that already has one, even when the practice is new", async () => {
+  it("rejects a second item from a passage that already has one, even when the practice and type are new", async () => {
     const { repo } = await seededRepo();
+    const source = { ...SOURCE, eligibleTypes: ["spell", "lesson"] as const };
     const generator = new ScriptedGenerator([FRESH.hearth]);
-    const result = await generateDraftBatch({ ...request, count: 1 }, [SOURCE], generator, repo, ALL_PASSAGES);
+    const result = await generateDraftBatch(
+      { ...request, type: "lesson", count: 1 },
+      [source],
+      generator,
+      repo,
+      ALL_PASSAGES,
+    );
     expect(result.accepted).toHaveLength(0);
     expect(result.rejected[0].reasons.join(" ")).toMatch(/source-passage-id/);
   });

@@ -182,11 +182,10 @@ export function authoredShingleText(fields: Record<string, unknown>): string {
   ].join(" "));
 }
 
-export function passageTypeKey(fields: Record<string, unknown>): string | null {
+/** Normalized sourcePassageId used for the hard one-item-per-passage cap. */
+export function passageKey(fields: Record<string, unknown>): string | null {
   const passageId = normalizeGenerationText(fields.sourcePassageId);
-  const type = typeof fields.type === "string" ? fields.type.trim() : "";
-  if (!passageId || !type) return null;
-  return `${passageId}::${type}`;
+  return passageId || null;
 }
 
 function compareCandidate(
@@ -220,7 +219,7 @@ function compareCandidate(
     ritualActionSimilarity: similarity(candidateActions, existingActions, 2),
     contentShingleSimilarity,
   };
-  const samePassageType = passageTypeKey(candidate) !== null && passageTypeKey(candidate) === passageTypeKey(existing.fields);
+  const samePassage = passageKey(candidate) !== null && passageKey(candidate) === passageKey(existing.fields);
   const exactConcept = candidateHash === conceptHash(existingSignature);
   const sameSimilarityGroup = typeof candidate.similarityGroupId === "string" && candidate.similarityGroupId.trim() !== "" &&
     candidate.similarityGroupId === existing.fields.similarityGroupId;
@@ -236,7 +235,7 @@ function compareCandidate(
     ...(authoredContentHash(candidate) === authoredContentHash(existing.fields) ? ["exact-authored-content"] : []),
     ...(exactConcept ? ["exact-concept-signature"] : []),
     ...(sameSimilarityGroup ? ["same-similarity-group"] : []),
-    ...(samePassageType ? ["source-passage-id"] : []),
+    ...(samePassage ? ["source-passage-id"] : []),
     ...(scores.titleSimilarity >= thresholds.titleReject ? ["title-similarity"] : []),
     ...(scores.summarySimilarity >= thresholds.summaryReject ? ["summary-similarity"] : []),
     ...(scores.instructionSimilarity >= thresholds.instructionReject ? ["instruction-similarity"] : []),
@@ -278,13 +277,13 @@ export function screenGeneratedCandidate(
   const closestMatch = comparisons.sort((left, right) => comparisonScore(right) - comparisonScore(left))[0] ?? null;
   const rejectionReasons = comparisons.flatMap((comparison) =>
     comparison.reasons.map((reason) => `${reason}:${comparison.comparedId}`));
-  const passageKey = passageTypeKey(candidate);
+  const reservedPassage = passageKey(candidate);
   const reservationKeys = [
     `title:${sha256(normalizedTitle)}`,
     `slug:${sha256(normalizedSlug)}`,
     `concept:${signatureHash}`,
     `content:${contentHash}`,
-    ...(passageKey ? [`passage-type:${sha256(passageKey)}`] : []),
+    ...(reservedPassage ? [`passage:${sha256(reservedPassage)}`] : []),
   ];
   return {
     accepted: rejectionReasons.length === 0,

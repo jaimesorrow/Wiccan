@@ -48,6 +48,9 @@ const PASSAGES: SourcePassage[] = [
   PASSAGE,
   { ...PASSAGE, id: "passage-source-b", locator: "Tablet III, lines 1–6", inspectedPassage: "A second editor-inspected test passage." },
   { ...PASSAGE, id: "passage-source-c", locator: "Tablet IV, lines 2–9", inspectedPassage: "A third editor-inspected test passage." },
+  { ...PASSAGE, id: "passage-source-d", locator: "Tablet V, lines 1–4", inspectedPassage: "A fourth editor-inspected test passage." },
+  { ...PASSAGE, id: "passage-source-e", locator: "Tablet VI, lines 3–8", inspectedPassage: "A fifth editor-inspected test passage." },
+  { ...PASSAGE, id: "passage-source-f", locator: "Tablet VII, lines 2–5", inspectedPassage: "A sixth editor-inspected test passage." },
 ];
 
 const DAY = new Date("2026-11-08T04:00:00.000Z");
@@ -82,39 +85,43 @@ describe("daily draft cap", () => {
 
   it("writes two drafts even when the batch size setting asks for five", async () => {
     const { repo, state, run } = harness({ enabled: true, batchSize: 5 });
-    const report = await run("run-1", DAY);
-    expect(report.status).toBe("completed");
-    expect(report.requested).toBe(2);
-    expect(report.accepted).toHaveLength(2);
+    const first = await run("run-1", DAY);
+    // A run may reserve two slots, but one sourcePassageId can yield only one item.
+    expect(first.status).toBe("exhausted");
+    expect(first.requested).toBe(2);
+    expect(first.accepted).toHaveLength(1);
+    const second = await run("run-2", at(1));
+    expect(second.accepted).toHaveLength(1);
     expect(repo.docs.size).toBe(2);
-    expect(state.daily.get("2026-11-08")).toEqual({ reserved: 2, runs: 1 });
+    expect(state.daily.get("2026-11-08")).toEqual({ reserved: 2, runs: 2 });
   });
 
-  it("writes nothing more on a retry or second invocation the same UTC day", async () => {
+  it("writes nothing more once two one-item runs have filled the UTC day", async () => {
     const { generator, repo, state, run } = harness();
-    await run("run-1", DAY);
-    const callsAfterFirst = generator.calls.length;
-    const cursorAfterFirst = state.cursor;
+    expect((await run("run-1", DAY)).accepted).toHaveLength(1);
+    expect((await run("run-2", at(1))).accepted).toHaveLength(1);
+    const callsAfterCap = generator.calls.length;
+    const cursorAfterCap = state.cursor;
 
-    for (const [id, hours] of [["run-retry", 1], ["run-second", 5], ["run-late", 19]] as const) {
+    for (const [id, hours] of [["run-retry", 5], ["run-late", 19]] as const) {
       const report = await run(id, at(hours));
       expect(report.status).toBe("daily-limit-reached");
       expect(report.accepted).toHaveLength(0);
     }
     expect(repo.docs.size).toBe(2);
-    expect(generator.calls).toHaveLength(callsAfterFirst);
+    expect(generator.calls).toHaveLength(callsAfterCap);
     // A spent day must not burn a rotation slot or leave a run record.
-    expect(state.cursor).toBe(cursorAfterFirst);
-    expect(state.runs).toHaveLength(1);
+    expect(state.cursor).toBe(cursorAfterCap);
+    expect(state.runs).toHaveLength(2);
   });
 
   it("writes two more once the UTC date rolls over", async () => {
     const { repo, run } = harness();
-    await run("run-1", DAY);
-    expect((await run("run-2", at(19))).status).toBe("daily-limit-reached");
-    const nextDay = await run("run-3", NEXT_DAY);
-    expect(nextDay.status).toBe("completed");
-    expect(nextDay.accepted).toHaveLength(2);
+    expect((await run("run-1", DAY)).accepted).toHaveLength(1);
+    expect((await run("run-2", at(1))).accepted).toHaveLength(1);
+    expect((await run("run-3", at(19))).status).toBe("daily-limit-reached");
+    expect((await run("run-4", NEXT_DAY)).accepted).toHaveLength(1);
+    expect((await run("run-5", at(1, NEXT_DAY))).accepted).toHaveLength(1);
     expect(repo.docs.size).toBe(4);
   });
 
@@ -167,7 +174,8 @@ describe("daily draft cap", () => {
     expect(duplicate.status).toBe("skipped");
     expect(state.daily.has("2026-11-08")).toBe(false);
     const real = await run("run-real", at(2));
-    expect(real.accepted).toHaveLength(2);
+    expect(real.accepted).toHaveLength(1);
+    expect((await run("run-real-2", at(3))).accepted).toHaveLength(1);
     expect(repo.docs.size).toBe(2);
   });
 
@@ -193,23 +201,20 @@ describe("daily draft cap", () => {
     expect((await run("run-real", at(8))).accepted).toHaveLength(1);
   });
 
-  it("stops writing when the UTC date rolls over mid-run, so slots reserved for one day never fill the next", async () => {
+  it("returns an unused slot the same UTC day, so a late reserved-2 run cannot fill the next day", async () => {
     const { repo, state, run } = harness({ enabled: true, batchSize: 2 });
     const justBeforeMidnight = new Date("2026-11-08T23:59:59.000Z");
-    let writes = 0;
-    // The first draft is written before midnight; the clock reads the next day from the second write on.
-    const clock = () => (writes++ === 0 ? justBeforeMidnight : new Date("2026-11-09T00:00:01.000Z"));
-    const report = await run("run-late", justBeforeMidnight, clock);
-    expect(report.status).toBe("failed");
-    expect(report.error).toMatch(/UTC date changed/);
+    const report = await run("run-late", justBeforeMidnight);
+    // The passage cap rejects a second item without writing, so unused slots
+    // return to the reserved day rather than carrying into the next one.
+    expect(report.status).toBe("exhausted");
     expect(report.accepted).toHaveLength(1);
     expect(repo.docs.size).toBe(1);
-    // The failed run keeps its reservation on the date it reserved, and the new day starts fresh.
-    expect(state.daily.get("2026-11-08")).toEqual({ reserved: 2, runs: 1 });
+    expect(state.daily.get("2026-11-08")).toEqual({ reserved: 1, runs: 1 });
     const nextDay = await run("run-next", NEXT_DAY);
-    expect(nextDay.accepted).toHaveLength(2);
-    expect(state.daily.get("2026-11-09")).toEqual({ reserved: 2, runs: 1 });
-    expect(repo.docs.size).toBe(3);
+    expect(nextDay.accepted).toHaveLength(1);
+    expect(state.daily.get("2026-11-09")).toEqual({ reserved: 1, runs: 1 });
+    expect(repo.docs.size).toBe(2);
   });
 
   it("writes nothing if the date has already rolled over before the first draft", async () => {
@@ -238,7 +243,9 @@ describe("daily draft cap", () => {
   it("only ever writes drafts of an allowed type", async () => {
     const { repo, run } = harness();
     await run("run-1", DAY);
-    await run("run-2", NEXT_DAY);
+    await run("run-2", at(1));
+    await run("run-3", NEXT_DAY);
+    await run("run-4", at(1, NEXT_DAY));
     expect(repo.docs.size).toBe(4);
     for (const doc of repo.docs.values()) {
       expect(["spell", "potion", "lesson"]).toContain(doc.type);

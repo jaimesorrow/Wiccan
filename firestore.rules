@@ -26,7 +26,7 @@ service cloud.firestore {
     // to published content already delivered to them and to their own history
     // rows; all writes go through the Admin SDK inside getTodayContent.
     // Draft approval (approveDraft) additionally rejects duplicates
-    // (normalized title, sourcePassageId+type, near-duplicate content) and
+    // (normalized title, sourcePassageId, near-duplicate content) and
     // requires a unique original illustrationUrl with illustrationOriginal=true.
     // Clients cannot write content, so those gates live in Admin SDK code,
     // not in these rules. Existing published items may lack an image until

@@ -179,13 +179,12 @@ describe("generateDrafts", () => {
 
     const results = await generateDrafts({ tier: "premium", count: 2 }, [SOURCE_A, SOURCE_B], generator, repo);
 
-    // A batch is bound to one passage, and each (sourcePassageId, type) may
-    // be used only once, so this source can yield a spell and a lesson.
-    expect(results).toHaveLength(2);
-    expect(new Set(results.map((r) => r.type))).toEqual(new Set(["spell", "lesson"]));
+    // A batch is bound to one passage, and each sourcePassageId may be used
+    // only once, so a second requested draft from the same passage is rejected.
+    expect(results).toHaveLength(1);
     const sourceIdsUsed = new Set(results.map((r) => r.sourceId));
     expect(sourceIdsUsed).toEqual(new Set([SOURCE_A.id]));
-    expect(repo.docs.size).toBe(2);
+    expect(repo.docs.size).toBe(1);
     for (const doc of repo.docs.values()) {
       expect(doc.status).toBe("draft");
     }
@@ -295,8 +294,8 @@ describe("generateDrafts", () => {
     });
 
     // The first model title collides with the pre-existing draft; the
-    // retry is accepted. A third spell from this same passage would be
-    // rejected by the sourcePassageId+type uniqueness gate.
+    // retry is accepted. A second item from this same passage would be
+    // rejected by the one-item-per-sourcePassageId cap.
     const results = await generateDrafts(
       { tier: "free", sourceId: "source-a", type: "spell", count: 1 },
       [SOURCE_A, SOURCE_B],

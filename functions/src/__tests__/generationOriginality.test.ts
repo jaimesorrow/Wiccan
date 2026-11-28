@@ -113,7 +113,7 @@ describe("generation originality screen", () => {
     expect(repo.docs.size).toBe(1);
   });
 
-  it("rejects a second item that reuses the same sourcePassageId and type", () => {
+  it("rejects a second item that reuses the same sourcePassageId", () => {
     const report = screenGeneratedCandidate(
       lesson({
         title: "A Completely Different Doorway Title",
@@ -130,10 +130,10 @@ describe("generation originality screen", () => {
     );
     expect(report.accepted).toBe(false);
     expect(report.rejectionReasons.some((reason) => reason.startsWith("source-passage-id:"))).toBe(true);
-    expect(report.reservationKeys.some((key) => key.startsWith("passage-type:"))).toBe(true);
+    expect(report.reservationKeys.some((key) => key.startsWith("passage:"))).toBe(true);
   });
 
-  it("allows the same passage when the content type differs and the practice is distinct", () => {
+  it("rejects the same passage even when the content type differs and the practice is distinct", () => {
     const candidate = lesson({
       type: "spell",
       title: "Measured Cord Circle",
@@ -146,7 +146,9 @@ describe("generation originality screen", () => {
       correspondences: [],
       tags: ["altar", "measurement"],
     });
-    expect(screenGeneratedCandidate(candidate, [{ id: "existing", fields: lesson() }]).accepted).toBe(true);
+    const report = screenGeneratedCandidate(candidate, [{ id: "existing", fields: lesson() }]);
+    expect(report.accepted).toBe(false);
+    expect(report.rejectionReasons.some((reason) => reason.startsWith("source-passage-id:"))).toBe(true);
   });
 
   it("rejects near-duplicate authored text by trigram Jaccard even with a new title and passage", () => {
