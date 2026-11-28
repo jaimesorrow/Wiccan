@@ -183,6 +183,13 @@
     <string name="content_citation_locator">Exact locator: %1$s</string>
     <string name="content_verified_source">Verified source details</string>
     <string name="content_saved">Kept in your Grimoire</string>
+    <string name="motif_today_page">today\'s page</string>
+    <string name="motif_kept_pages">kept pages</string>
+    <string name="motif_lesson_margin">for this evening</string>
+    <string name="motif_moon_phases">Moon phases</string>
+    <string name="motif_moon_phases_active">Moon phases, %1$s active</string>
+    <string name="lesson_candle_description">A lit candle</string>
+    <string name="lesson_quill_description">A quill in an ink pot</string>
     <string name="home_welcome">WELCOME, SEEKER</string>
     <string name="home_today_lesson">Today\'s lesson</string>
     <string name="home_lesson_waiting">The day\'s page is still being inked.</string>
@@ -338,7 +345,6 @@
     <string name="nav_grimoire">Grimoire</string>
     <string name="nav_settings">Settings</string>
     <string name="content_lesson_image_description">Illustration for %1$s</string>
-    <string name="content_lessons_english_notice">Lesson text is currently available in English.</string>
 
     <!-- Errors -->
     <string name="error_network">The spell faltered. Check your connection and try again.</string>

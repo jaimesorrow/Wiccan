@@ -19,20 +19,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.jaimesorrow.wiccan.domain.model.HistoryEntry
+import com.jaimesorrow.wiccan.ui.theme.WiccanEditorialFont
+import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
+import com.jaimesorrow.wiccan.ui.theme.grimoireCornerFlourishes
 import com.jaimesorrow.wiccan.ui.today.components.ContentTypePill
 
 /** One row in the Archive list: type badge, title, tradition, delivered date. */
 @Composable
 fun ArchiveEntryRow(entry: HistoryEntry, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(6.dp)
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
             .clip(shape)
-            .background(colors.surface)
-            .border(1.dp, colors.outline, shape)
+            .background(WiccanPaletteColors.Grimoire.CardFill)
+            .border(1.dp, WiccanPaletteColors.Grimoire.Border, shape)
+            .grimoireCornerFlourishes()
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
@@ -42,19 +45,19 @@ fun ArchiveEntryRow(entry: HistoryEntry, onClick: () -> Unit, modifier: Modifier
             Text(
                 text = entry.deliveredDate,
                 style = MaterialTheme.typography.labelSmall,
-                color = colors.onSurfaceVariant,
+                color = WiccanPaletteColors.Grimoire.Muted,
             )
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = entry.title,
-            style = MaterialTheme.typography.titleMedium,
-            color = colors.onSurface,
+            style = MaterialTheme.typography.titleMedium.copy(fontFamily = WiccanEditorialFont),
+            color = WiccanPaletteColors.Grimoire.Text,
         )
         Text(
             text = entry.tradition,
             style = MaterialTheme.typography.bodyMedium,
-            color = colors.onSurfaceVariant,
+            color = WiccanPaletteColors.Grimoire.Muted,
         )
     }
 }
