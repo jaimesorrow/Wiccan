@@ -25,6 +25,7 @@ class GrimoireContrastTest {
         }
         assertTrue(contrast(grimoire.OnGold, grimoire.Gold) >= 4.5)
         assertTrue(contrast(grimoire.OnGold, grimoire.Border) >= 4.5)
+        assertTrue(contrast(grimoire.OnSeasonalChip, grimoire.SeasonalChip) >= 4.5)
         assertTrue(contrast(parchment.Ink, parchment.Background) >= 4.5)
         assertTrue(contrast(grimoire.Bronze, parchment.Background) >= 4.5)
     }

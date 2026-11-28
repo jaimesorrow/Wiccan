@@ -32,12 +32,15 @@ import com.jaimesorrow.wiccan.LoadingIndicator
 import com.jaimesorrow.wiccan.analytics.AnalyticsConsentManager
 import com.jaimesorrow.wiccan.analytics.AnalyticsLogger
 import com.jaimesorrow.wiccan.data.local.ThemePreferences
+import com.jaimesorrow.wiccan.domain.model.CoastalTide
 import com.jaimesorrow.wiccan.domain.model.Content
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.ContentStatus
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.ContentType
 import com.jaimesorrow.wiccan.domain.model.HistoryEntry
+import com.jaimesorrow.wiccan.domain.model.TidePrediction
+import com.jaimesorrow.wiccan.domain.model.TideStation
 import com.jaimesorrow.wiccan.domain.model.WiccanThemeMode
 import com.jaimesorrow.wiccan.domain.repository.NotificationRepository
 import com.jaimesorrow.wiccan.domain.usecase.DeleteAccountUseCase
@@ -70,6 +73,8 @@ import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.jaimesorrow.wiccan.widget.WiccanWidgetPreview
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDate
+import java.time.ZonedDateTime
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Rule
@@ -159,7 +164,55 @@ class GrimoireScreenScreenshotTest {
             effects = emptyFlow(),
             onEvent = {},
             onOpenToday = {},
+            onOpenSettings = {},
+            homeTideState = TideUiState.NeedsLocation,
         )
+    }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "w360dp-h2000dp-xhdpi", application = android.app.Application::class)
+    fun `capture home tides at 130 percent text`() {
+        val tide = CoastalTide(
+            station = TideStation(
+                id = "9414290",
+                name = "San Francisco, Golden Gate Bridge, longer name for wrap",
+                latitude = 37.8063,
+                longitude = -122.4659,
+            ),
+            predictions = listOf(
+                TidePrediction(
+                    time = ZonedDateTime.parse("2026-11-27T14:30:00-08:00[America/Los_Angeles]"),
+                    heightMeters = 1.82,
+                    high = false,
+                ),
+                TidePrediction(
+                    time = ZonedDateTime.parse("2026-11-27T20:12:00-08:00[America/Los_Angeles]"),
+                    heightMeters = 2.41,
+                    high = true,
+                ),
+                TidePrediction(
+                    time = ZonedDateTime.parse("2026-11-28T02:55:00-08:00[America/Los_Angeles]"),
+                    heightMeters = 0.56,
+                    high = false,
+                ),
+            ),
+            fromCache = false,
+        )
+        composeRule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(density = 2f, fontScale = 1.3f)) {
+                SpellbookHome(
+                    content = null,
+                    lessonLocked = true,
+                    onOpenToday = {},
+                    onOpenPaywall = {},
+                    onOpenGrimoire = {},
+                    onOpenSettings = {},
+                    tideState = TideUiState.Available(tide),
+                )
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/wiccan-home-tides-130.png")
     }
 
     @Test
@@ -184,7 +237,7 @@ class GrimoireScreenScreenshotTest {
     fun `capture daily lesson`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
-                DailyGrimoirePage(content = sampleLesson())
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
             }
         }
         composeRule.waitForIdle()
@@ -195,7 +248,7 @@ class GrimoireScreenScreenshotTest {
     fun `capture daily lesson middle`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
-                DailyGrimoirePage(content = sampleLesson())
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
             }
         }
         composeRule.waitForIdle()
@@ -208,7 +261,7 @@ class GrimoireScreenScreenshotTest {
     fun `capture daily lesson bottom`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
-                DailyGrimoirePage(content = sampleLesson())
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
             }
         }
         composeRule.waitForIdle()
@@ -222,7 +275,7 @@ class GrimoireScreenScreenshotTest {
     fun `capture daily lesson with reflection below parchment`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
-                DailyGrimoirePage(content = sampleLesson())
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
             }
         }
         composeRule.waitForIdle()
@@ -239,7 +292,7 @@ class GrimoireScreenScreenshotTest {
             val density = LocalDensity.current.density
             CompositionLocalProvider(LocalDensity provides Density(density, fontScale = 1.3f)) {
                 MidnightGrimoireTheme {
-                    DailyGrimoirePage(content = sampleLesson())
+                    DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
                 }
             }
         }
@@ -248,6 +301,33 @@ class GrimoireScreenScreenshotTest {
         composeRule.waitForIdle()
         composeRule.onRoot().captureRoboImage(
             filePath = "build/outputs/roborazzi/wiccan-lesson-font-130-parchment.png",
+        )
+    }
+
+    @Test
+    fun `capture daily lesson near the full moon`() {
+        composeRule.setContent {
+            MidnightGrimoireTheme {
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotFullMoonDate)
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/wiccan-lesson-full-moon-chip.png")
+    }
+
+    @Test
+    fun `capture daily lesson near the full moon at 130 percent text`() {
+        composeRule.setContent {
+            val density = LocalDensity.current.density
+            CompositionLocalProvider(LocalDensity provides Density(density, fontScale = 1.3f)) {
+                MidnightGrimoireTheme {
+                    DailyGrimoirePage(content = sampleLesson(), today = screenshotFullMoonDate)
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(
+            filePath = "build/outputs/roborazzi/wiccan-lesson-full-moon-chip-font-130.png",
         )
     }
 
@@ -265,6 +345,7 @@ class GrimoireScreenScreenshotTest {
                         onOpenPaywall = {},
                         onOpenGrimoire = {},
                         onOpenSettings = {},
+                        tideState = TideUiState.NeedsLocation,
                     )
                 }
             }
@@ -326,6 +407,7 @@ class GrimoireScreenScreenshotTest {
                 DailyGrimoirePage(
                     content = sampleLongLesson(),
                     fillViewport = false,
+                    today = screenshotLessonDate,
                     modifier = Modifier.testTag("grimoire_daily_lesson"),
                 )
             }
@@ -422,6 +504,12 @@ class GrimoireScreenScreenshotTest {
             consent,
         )
     }
+
+    // Ordinary civil date used by seasonalCalendar tests; no sabbat or new/full window.
+    private val screenshotLessonDate = LocalDate.of(2026, 7, 7)
+
+    // Mid-window full moon from SeasonalCalendarTest, so the seasonal chip is visible.
+    private val screenshotFullMoonDate = LocalDate.of(2026, 3, 3)
 
     private fun sampleLongLesson(): Content {
         val body = buildString {
