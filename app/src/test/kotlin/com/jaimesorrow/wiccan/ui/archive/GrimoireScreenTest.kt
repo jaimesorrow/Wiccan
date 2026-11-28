@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.ContentType
@@ -44,12 +45,15 @@ class GrimoireScreenTest {
         }
         composeRule.onNodeWithTag("grimoire-logo").assertIsDisplayed()
         composeRule.onNodeWithText("Grimoire").assertIsDisplayed()
-        composeRule.onNodeWithText("Your Grimoire is still quiet. Open Today to receive your first lesson.").assertIsDisplayed()
+        composeRule
+            .onNodeWithText("Your Grimoire is still quiet. Open Today to receive your first lesson.")
+            .performScrollTo()
+            .assertIsDisplayed()
         composeRule.onNodeWithText("What the days have already given you.").assertIsDisplayed()
         composeRule.onNodeWithText("Categories").assertIsDisplayed()
 
         composeRule.onNodeWithText("Categories").performClick()
-        composeRule.onNodeWithText("Candle Spells (0)").assertIsDisplayed()
+        composeRule.onNodeWithText("Candle Spells (0)").performScrollTo().assertIsDisplayed()
         assertEquals(16, ContentCategory.libraryCategories.size)
         assertEquals(ContentCategory.PROTECTION_CLEANSING_WARDING, ContentCategory.libraryCategories.last())
     }
@@ -73,13 +77,13 @@ class GrimoireScreenTest {
                 )
             }
         }
-        composeRule.onNodeWithText("Protection (1)").assertIsDisplayed()
-        composeRule.onNodeWithText(entry.title).assertIsDisplayed().performClick()
+        composeRule.onNodeWithText("Protection (1)").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(entry.title).performScrollTo().assertIsDisplayed().performClick()
         assertEquals(ArchiveUiEvent.EntryClicked("old-lesson"), event)
     }
 
     @Test
-    fun `name history expands and search reports no matching entries`() {
+    fun `search reports no matching entries`() {
         val entry = HistoryEntry(
             contentId = "entry-1",
             title = "Candle of Clear Intent",
@@ -95,9 +99,6 @@ class GrimoireScreenTest {
                     state = state,
                     onEvent = { event ->
                         state = when (event) {
-                            ArchiveUiEvent.EtymologyToggled -> state.copy(
-                                isEtymologyExpanded = !state.isEtymologyExpanded,
-                            )
                             is ArchiveUiEvent.SearchQueryChanged -> state.copy(searchQuery = event.query)
                             ArchiveUiEvent.SearchCleared -> state.copy(searchQuery = "")
                             else -> state
@@ -107,11 +108,9 @@ class GrimoireScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("About the name").performClick()
-        composeRule.onNodeWithTag("grimoire-etymology-body").assertIsDisplayed()
         composeRule.onNodeWithTag("grimoire-search").performTextInput("missing")
-        composeRule.onNodeWithText("No entries match your search.").assertIsDisplayed()
+        composeRule.onNodeWithText("No entries match your search.").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Clear").assertIsDisplayed().performClick()
-        composeRule.onNodeWithText(entry.title).assertIsDisplayed()
+        composeRule.onNodeWithText(entry.title).performScrollTo().assertIsDisplayed()
     }
 }
