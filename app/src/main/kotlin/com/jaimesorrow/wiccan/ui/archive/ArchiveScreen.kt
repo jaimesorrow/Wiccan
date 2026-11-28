@@ -49,7 +49,7 @@ import com.jaimesorrow.wiccan.ads.GrimoireBannerAd
 import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.domain.model.ContentCategory
 import com.jaimesorrow.wiccan.domain.model.HistoryEntry
-import com.jaimesorrow.wiccan.sky.CelestialCalculator
+import com.jaimesorrow.wiccan.seasonal.grimoireMoonTrack
 import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
@@ -67,7 +67,7 @@ import com.jaimesorrow.wiccan.ui.theme.WiccanDisplayFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.jaimesorrow.wiccan.ui.theme.grimoireCornerFlourishes
 import com.wiccan.app.R
-import java.time.Instant
+import java.time.LocalDate
 
 /**
  * The user's delivered content, either as a chronological Timeline or grouped
@@ -135,7 +135,7 @@ internal fun ArchiveScreenContent(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 24.dp),
                     )
-                    val archiveMoon = remember { CelestialCalculator.moon(Instant.now()) }
+                    val archiveMoon = remember { grimoireMoonTrack(LocalDate.now()) }
                     GrimoireMoonPhases(
                         active = archiveMoon.trackIndex,
                         activePhaseName = archiveMoon.name,
