@@ -2,9 +2,12 @@ package com.jaimesorrow.wiccan.ui.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +34,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
+import com.jaimesorrow.wiccan.ads.AdPrivacyChoicesRow
 import com.jaimesorrow.wiccan.ui.archive.ARCHIVE_DETAIL_CONTENT_ID_ARG
 import com.jaimesorrow.wiccan.ui.archive.ArchiveDetailScreen
 import com.jaimesorrow.wiccan.ui.archive.ArchiveScreen
@@ -41,6 +45,7 @@ import com.jaimesorrow.wiccan.ui.legal.WiccanLegalDocuments
 import com.jaimesorrow.wiccan.ui.paywall.PaywallScreen
 import com.jaimesorrow.wiccan.ui.settings.SettingsScreen
 import com.jaimesorrow.wiccan.ui.settings.SettingsViewModel
+import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.jaimesorrow.wiccan.ui.today.TodayScreen
 import com.wiccan.app.R
 
@@ -79,6 +84,7 @@ internal class WiccanNavScreens(
         onOpenToday: (() -> Unit)?,
         onBack: (() -> Unit)?,
         onOpenGrimoire: () -> Unit,
+        onOpenSettings: () -> Unit,
         onOpenPaywall: () -> Unit,
     ) -> Unit,
     val archive: @Composable (onNavigateToDetail: (String) -> Unit) -> Unit,
@@ -89,12 +95,13 @@ internal class WiccanNavScreens(
 )
 
 private fun productionScreens(settingsViewModel: SettingsViewModel) = WiccanNavScreens(
-    dailyContent = { graphEntry, onOpenToday, onBack, onOpenGrimoire, onOpenPaywall ->
+    dailyContent = { graphEntry, onOpenToday, onBack, onOpenGrimoire, onOpenSettings, onOpenPaywall ->
         TodayScreen(
             viewModel = hiltViewModel(graphEntry),
             onOpenToday = onOpenToday,
             onBack = onBack,
             onOpenGrimoire = onOpenGrimoire,
+            onOpenSettings = onOpenSettings,
             onOpenPaywall = onOpenPaywall,
         )
     },
@@ -108,6 +115,7 @@ private fun productionScreens(settingsViewModel: SettingsViewModel) = WiccanNavS
             onPrivacyClick = links.onPrivacyClick,
             onContentSafetyClick = links.onContentSafetyClick,
             onPotionSafetyClick = links.onPotionSafetyClick,
+            privacyChoices = { AdPrivacyChoicesRow() },
         )
     },
     // ArchiveDetailViewModel reads the contentId from SavedStateHandle itself.
@@ -167,6 +175,10 @@ internal fun WiccanAppShellContent(
         navController.selectTab(WiccanDestinations.ARCHIVE)
     }
 
+    fun openSettings() {
+        navController.selectTab(WiccanDestinations.SETTINGS)
+    }
+
     // A notification tap asks for Today from wherever the user is in the shell.
     LaunchedEffect(openTodayRequested) {
         if (openTodayRequested) {
@@ -201,7 +213,7 @@ internal fun WiccanAppShellContent(
                 val graphEntry = remember(entry) {
                     navController.getBackStackEntry(requireNotNull(entry.destination.parent).id)
                 }
-                screens.dailyContent(graphEntry, ::openToday, null, ::openGrimoire, ::openPaywall)
+                screens.dailyContent(graphEntry, ::openToday, null, ::openGrimoire, ::openSettings, ::openPaywall)
             }
             composable(
                 WiccanDestinations.TODAY,
@@ -210,7 +222,14 @@ internal fun WiccanAppShellContent(
                 val graphEntry = remember(entry) {
                     navController.getBackStackEntry(requireNotNull(entry.destination.parent).id)
                 }
-                screens.dailyContent(graphEntry, null, { navController.popBackStackIfPossible() }, ::openGrimoire, ::openPaywall)
+                screens.dailyContent(
+                    graphEntry,
+                    null,
+                    { navController.popBackStackIfPossible() },
+                    ::openGrimoire,
+                    ::openSettings,
+                    ::openPaywall,
+                )
             }
             composable(WiccanDestinations.ARCHIVE) {
                 screens.archive { contentId -> navController.navigate(WiccanDestinations.archiveDetail(contentId)) }
@@ -282,10 +301,19 @@ private fun NavHostController.selectTab(route: String) {
 
 @Composable
 internal fun WiccanBottomBarContent(currentRoute: String?, onNavigate: (String) -> Unit) {
-    val accent = wiccanEmblemColor()
+    val gold = WiccanPaletteColors.Grimoire.Gold
+    val border = WiccanPaletteColors.Grimoire.Border
+    val muted = WiccanPaletteColors.Grimoire.Muted
+    val navShape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)
     Column {
-        HorizontalDivider(color = accent.copy(alpha = 0.22f))
-        NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
+        HorizontalDivider(color = border.copy(alpha = 0.55f), thickness = 1.dp)
+        NavigationBar(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, border.copy(alpha = 0.38f), navShape),
+            containerColor = WiccanPaletteColors.Grimoire.Background,
+            tonalElevation = 0.dp,
+        ) {
             bottomNavItems.forEach { item ->
                 val selected = currentRoute == item.route
                 NavigationBarItem(
@@ -301,11 +329,11 @@ internal fun WiccanBottomBarContent(currentRoute: String?, onNavigate: (String) 
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = accent,
-                        selectedTextColor = accent,
-                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        indicatorColor = accent.copy(alpha = 0.15f),
+                        selectedIconColor = gold,
+                        selectedTextColor = gold,
+                        unselectedIconColor = muted,
+                        unselectedTextColor = muted,
+                        indicatorColor = gold.copy(alpha = 0.18f),
                     ),
                     label = { Text(stringResource(item.labelRes)) },
                 )

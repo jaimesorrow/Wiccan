@@ -52,26 +52,4 @@ class ContentDetailViewTest {
         composeRule.onNodeWithText(content.reflection!!).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText(content.practice!!).performScrollTo().assertIsDisplayed()
     }
-
-    @Test
-    fun `daily lesson clearly notes that lesson content remains English`() {
-        val content = Content(
-            id = "lesson-language",
-            type = ContentType.LESSON,
-            tier = ContentTier.FREE,
-            tradition = "Folk practice",
-            category = ContentCategory.HOME_AND_HEARTH,
-            title = "The Threshold",
-            intro = "An entrance and a boundary.",
-            body = "Notice what you carry into your home.",
-            materials = null,
-            safetyNote = null,
-            tags = emptyList(),
-            status = ContentStatus.PUBLISHED,
-        )
-        composeRule.setContent { MaterialTheme { ContentDetailView(content, isDailyLesson = true) } }
-        composeRule.onNodeWithText("Lesson text is currently available in English.")
-            .performScrollTo()
-            .assertIsDisplayed()
-    }
 }

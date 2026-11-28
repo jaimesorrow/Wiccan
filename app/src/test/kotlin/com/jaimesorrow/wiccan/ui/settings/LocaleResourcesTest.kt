@@ -52,7 +52,6 @@ class LocaleResourcesTest {
             "settings_language_english",
             "settings_language_spanish",
             "settings_language_portuguese_brazil",
-            "content_lessons_english_notice",
         )
         assertTrue(spanish.keys.containsAll(required))
         assertTrue(portuguese.keys.containsAll(required))

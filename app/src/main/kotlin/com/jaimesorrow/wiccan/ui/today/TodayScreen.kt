@@ -40,7 +40,6 @@ import com.jaimesorrow.wiccan.core.error.toUserMessage
 import com.jaimesorrow.wiccan.ui.brand.WiccanBotanicalAccent
 import com.jaimesorrow.wiccan.ui.brand.WiccanEmblem
 import com.jaimesorrow.wiccan.ui.brand.wiccanPageWash
-import com.jaimesorrow.wiccan.ui.content.ContentDetailView
 import com.jaimesorrow.wiccan.ui.content.DailyGrimoirePage
 import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.jaimesorrow.wiccan.ui.today.components.TodaySkeleton
@@ -55,6 +54,7 @@ fun TodayScreen(
     modifier: Modifier = Modifier,
     viewModel: TodayViewModel = hiltViewModel(),
     onOpenGrimoire: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
     onOpenToday: (() -> Unit)? = null,
     onOpenPaywall: () -> Unit = {},
     onBack: (() -> Unit)? = null,
@@ -76,6 +76,7 @@ fun TodayScreen(
         onEvent = viewModel::onEvent,
         modifier = modifier,
         onOpenGrimoire = onOpenGrimoire,
+        onOpenSettings = onOpenSettings,
         onOpenToday = onOpenToday,
         onOpenPaywall = onOpenPaywall,
         onBack = onBack,
@@ -93,6 +94,7 @@ internal fun TodayScreenContent(
     onEvent: (TodayUiEvent) -> Unit,
     modifier: Modifier = Modifier,
     onOpenGrimoire: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
     onOpenToday: (() -> Unit)? = null,
     onOpenPaywall: () -> Unit = {},
     onBack: (() -> Unit)? = null,
@@ -144,6 +146,7 @@ internal fun TodayScreenContent(
                             onOpenToday = onOpenToday,
                             onOpenPaywall = onOpenPaywall,
                             onOpenGrimoire = onOpenGrimoire,
+                            onOpenSettings = onOpenSettings,
                         )
                         // A retry from the exhausted or error panel keeps that panel on
                         // screen (and its scroll position) instead of swapping in the skeleton.

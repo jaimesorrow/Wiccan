@@ -4,6 +4,13 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!--
+      Advertising ID: required by the Google Mobile Ads SDK for the ads shown to
+      non-subscribers (the SDK also merges this in; declared here so it is an
+      explicit, reviewed choice). It must also be declared in Play Console's
+      advertising ID form and Data safety section - see docs/ADMOB.md.
+    -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
     <application
         android:name="com.jaimesorrow.wiccan.WiccanApplication"
@@ -24,8 +31,11 @@
         -->
         <!--
           Analytics and Crashlytics collect nothing until the user opts in;
-          AnalyticsConsentManager turns them on only after consent. Ad-related
-          consent-mode signals stay denied: Wiccan shows no ads.
+          AnalyticsConsentManager turns them on only after consent. Firebase
+          Analytics' ad-related consent-mode signals stay denied: analytics data
+          is never used for advertising. The ads shown to non-subscribers come
+          from Google AdMob, whose consent is gathered separately through the
+          User Messaging Platform (see com.jaimesorrow.wiccan.ads).
         -->
         <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
         <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
@@ -33,6 +43,17 @@
         <meta-data android:name="google_analytics_default_allow_ad_storage" android:value="false" />
         <meta-data android:name="google_analytics_default_allow_ad_user_data" android:value="false" />
         <meta-data android:name="google_analytics_default_allow_ad_personalization_signals" android:value="false" />
+        <!-- AdMob app ID, per flavor from app/build.gradle.kts (Google TEST ID until real IDs are configured). -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${admobAppId}" />
+        <!-- Mobile Ads initializes only after UMP consent, from the background (UmpAdConsentController / MobileAdsStarter). -->
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
+            android:value="true" />
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
+            android:value="true" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="daily_practice" />

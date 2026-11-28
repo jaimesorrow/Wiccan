@@ -4,10 +4,12 @@ import app.cash.turbine.test
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.MetadataChanges
 import com.jaimesorrow.wiccan.domain.model.ContentTier
 import com.jaimesorrow.wiccan.domain.model.SubscriptionState
+import com.jaimesorrow.wiccan.domain.model.VerifiedTier
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -72,6 +74,32 @@ class UserTierDataSourceTest {
     }
 
     @Test
+    fun `only a server snapshot confirms free and cache error timeout and expiry stay unverified`() = runTest {
+        val listener = slot<EventListener<DocumentSnapshot>>()
+        val firestore = mockk<FirebaseFirestore>()
+        every {
+            firestore.collection("users").document("u").addSnapshotListener(MetadataChanges.INCLUDE, capture(listener))
+        } returns mockk(relaxed = true)
+        val expiry = System.currentTimeMillis() + 60_000
+
+        UserTierDataSource(firestore).observeVerifiedTier("u").test {
+            runCurrent()
+            listener.captured.onEvent(snapshot(expiry, cached = true, tier = "free"), null)
+            assertEquals("cached free is not confirmation", VerifiedTier.UNVERIFIED, awaitItem())
+            listener.captured.onEvent(null, mockk<FirebaseFirestoreException>(relaxed = true))
+            assertEquals(VerifiedTier.UNVERIFIED, awaitItem())
+            listener.captured.onEvent(snapshot(expiry, cached = false, tier = "free"), null)
+            assertEquals(VerifiedTier.FREE, awaitItem())
+            listener.captured.onEvent(snapshot(expiry, cached = false), null)
+            assertEquals(VerifiedTier.PREMIUM, awaitItem())
+            advanceTimeBy(61_000)
+            runCurrent()
+            assertEquals("local expiry waits for the server", VerifiedTier.UNVERIFIED, awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun `mirrored product id is read only from a server snapshot`() = runTest {
         val listener = slot<EventListener<DocumentSnapshot>>()
         val registration = mockk<ListenerRegistration>(relaxed = true)
@@ -97,6 +125,21 @@ class UserTierDataSourceTest {
     }
 
     @Test
+    fun `verification timeout without a server answer is unverified`() = runTest {
+        val firestore = mockk<FirebaseFirestore>()
+        every {
+            firestore.collection("users").document("u").addSnapshotListener(MetadataChanges.INCLUDE, any())
+        } returns mockk(relaxed = true)
+
+        UserTierDataSource(firestore).observeVerifiedTier("u").test {
+            advanceTimeBy(10_001)
+            runCurrent()
+            assertEquals(VerifiedTier.UNVERIFIED, awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun `missing expired and deleting profiles fail closed`() {
         assertFalse(hasSubscriptionAccess("premium", 0, false, nowMillis = 100))
         assertFalse(hasSubscriptionAccess("premium", 100, false, nowMillis = 100))
@@ -104,10 +147,10 @@ class UserTierDataSourceTest {
         assertFalse(hasSubscriptionAccess("premium", 200, true, nowMillis = 100))
     }
 
-    private fun snapshot(expiry: Number, cached: Boolean): DocumentSnapshot {
+    private fun snapshot(expiry: Number, cached: Boolean, tier: String = "premium"): DocumentSnapshot {
         val document = mockk<DocumentSnapshot>()
         every { document.metadata } returns mockk { every { isFromCache } returns cached }
-        every { document.get("tier") } returns "premium"
+        every { document.get("tier") } returns tier
         every { document.get("subscriptionExpiresAtMillis") } returns expiry
         every { document.get("deletionInProgress") } returns false
         return document

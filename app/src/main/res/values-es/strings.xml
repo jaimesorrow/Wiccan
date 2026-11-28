@@ -193,6 +193,13 @@
     <string name="home_alignment">El trabajo que coincide con %2$s y la Luna en %1$s tiene el momento más claro.</string>
     <string name="error_username_taken">Ese nombre ya se ha pronunciado en el círculo. Elige otro.</string>
     <string name="content_logo_description">Wiccan</string>
+    <string name="motif_today_page">la página de hoy</string>
+    <string name="motif_kept_pages">páginas guardadas</string>
+    <string name="motif_lesson_margin">para esta noche</string>
+    <string name="motif_moon_phases">Fases lunares</string>
+    <string name="motif_moon_phases_active">Fases lunares, %1$s activa</string>
+    <string name="lesson_candle_description">Una vela encendida</string>
+    <string name="lesson_quill_description">Una pluma en un tintero</string>
     <string name="grimoire_title">Grimorio</string>
     <string name="grimoire_subtitle">Lo que los días ya te han dado.</string>
     <string name="grimoire_timeline">Cronología</string>
@@ -262,6 +269,9 @@
     <string name="settings_section_circle">EL CÍRCULO INTERIOR</string>
     <string name="settings_analytics">Análisis de uso e informes de fallos</string>
     <string name="settings_analytics_hint">Opcional. Ayuda a mejorar Wiccan; nunca se usa para anuncios.</string>
+    <string name="settings_ad_privacy_choices">Opciones de privacidad</string>
+    <string name="settings_ad_privacy_choices_hint">Revisa o cambia cómo Google AdMob usa tus datos para los anuncios que se muestran a quienes no están suscritos.</string>
+    <string name="ad_label">Anuncio</string>
     <string name="settings_delete">Eliminar cuenta</string>
     <string name="settings_delete_title">¿Eliminar cuenta?</string>
     <string name="settings_delete_body">Wiccan primero cancela la renovación activa de Google Play y luego elimina de forma permanente tu cuenta, el historial de entrega, los dispositivos y el registro de suscripción. Si no se puede confirmar la cancelación, la eliminación se detiene para que puedas intentarlo de nuevo. Pueden permanecer hashes seudónimos limitados contra el fraude. Esto no se puede deshacer.</string>
@@ -309,7 +319,6 @@
     <string name="nav_grimoire">Grimorio</string>
     <string name="nav_settings">Ajustes</string>
     <string name="content_lesson_image_description">Ilustración de %1$s</string>
-    <string name="content_lessons_english_notice">El texto de las lecciones está disponible actualmente en inglés.</string>
     <string name="error_network">El hechizo flaqueó. Comprueba tu conexión e inténtalo de nuevo.</string>
     <string name="error_unauthorized">El círculo se ha cerrado. Inicia sesión de nuevo.</string>
     <string name="error_not_found">No se pudo encontrar esa página del Grimorio.</string>

@@ -193,6 +193,13 @@
     <string name="home_alignment">O trabalho que combina com %2$s e a Lua em %1$s tem o momento mais claro.</string>
     <string name="error_username_taken">Esse nome já foi pronunciado no círculo. Escolha outro.</string>
     <string name="content_logo_description">Wiccan</string>
+    <string name="motif_today_page">página de hoje</string>
+    <string name="motif_kept_pages">páginas guardadas</string>
+    <string name="motif_lesson_margin">para esta noite</string>
+    <string name="motif_moon_phases">Fases da Lua</string>
+    <string name="motif_moon_phases_active">Fases da Lua, %1$s ativa</string>
+    <string name="lesson_candle_description">Uma vela acesa</string>
+    <string name="lesson_quill_description">Uma pena em um tinteiro</string>
     <string name="grimoire_title">Grimório</string>
     <string name="grimoire_subtitle">O que os dias já lhe deram.</string>
     <string name="grimoire_timeline">Linha do tempo</string>
@@ -262,6 +269,9 @@
     <string name="settings_section_circle">O CÍRCULO INTERIOR</string>
     <string name="settings_analytics">Análises de uso e relatórios de falhas</string>
     <string name="settings_analytics_hint">Opcional. Ajuda a melhorar o Wiccan; nunca é usado para anúncios.</string>
+    <string name="settings_ad_privacy_choices">Opções de privacidade</string>
+    <string name="settings_ad_privacy_choices_hint">Revise ou altere como o Google AdMob usa seus dados para os anúncios exibidos a quem não é assinante.</string>
+    <string name="ad_label">Anúncio</string>
     <string name="settings_delete">Excluir conta</string>
     <string name="settings_delete_title">Excluir conta?</string>
     <string name="settings_delete_body">O Wiccan primeiro cancela a renovação ativa do Google Play e depois exclui de forma permanente sua conta, o histórico de entrega, os dispositivos e o registro de assinatura. Se o cancelamento não puder ser confirmado, a exclusão é interrompida para que você possa tentar de novo. Hashes pseudônimos limitados de prevenção a fraudes podem permanecer. Isso não pode ser desfeito.</string>
@@ -309,7 +319,6 @@
     <string name="nav_grimoire">Grimório</string>
     <string name="nav_settings">Configurações</string>
     <string name="content_lesson_image_description">Ilustração de %1$s</string>
-    <string name="content_lessons_english_notice">O texto das lições está disponível atualmente em inglês.</string>
     <string name="error_network">O feitiço vacilou. Verifique sua conexão e tente novamente.</string>
     <string name="error_unauthorized">O círculo se fechou. Entre novamente.</string>
     <string name="error_not_found">Não foi possível encontrar essa página do Grimório.</string>
