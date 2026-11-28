@@ -205,7 +205,7 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.PRIVACY,
         title = "Privacy Policy",
         version = PolicyVersions.PRIVACY,
-        effectiveDate = "November 26, 2026",
+        effectiveDate = "November 27, 2026",
         introduction =
             "This Privacy Policy explains what information Jaime Sorrow (“Wiccan,” “we,” or “us”) handles when " +
                 "you use the Wiccan Android app and its related services, why it is used, which service providers " +

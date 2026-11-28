@@ -114,7 +114,7 @@ Recommended rows for the current build:
 | Crash logs | Yes | No* | **Optional** — Crashlytics runs only after opt-in | Analytics, app functionality |
 | Diagnostics | Yes | No* | **Optional** — Crashlytics diagnostics only after opt-in | Analytics, app functionality |
 | Device or other IDs | Yes | No* | FCM/App Check identifiers are handled by current SDKs | App functionality, security, developer communications |
-| Approximate location | Yes | No* | **Optional** — device coarse location (Home planetary hours, on-device only, never sent off the device or to AdMob; app works without it) plus Analytics-derived location after analytics opt-in | App functionality, Analytics |
+| Approximate location | Yes | Partial (NOAA CO-OPS only) | **Optional** — coarse device location stays on-device for planetary hours and nearest NOAA station selection; coordinates are not sent to Wiccan servers or AdMob. Tide requests send only a derived public NOAA station identifier and date to NOAA over HTTPS. Analytics-derived approximate location is collected only after analytics opt-in. The app works fully if the user declines location. | App functionality, Analytics |
 | Approximate location (AdMob, IP-derived; only once ads ship) | Yes | Yes (Google AdMob) | Required for ad delivery to free users | Advertising or marketing, Fraud prevention |
 | Precise location | No | No | Not collected | — |
 | Contacts, messages, photos/videos, audio, files | No | No | Not collected | — |
