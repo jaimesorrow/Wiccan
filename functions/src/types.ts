@@ -72,7 +72,7 @@ export interface Content extends PracticalLessonFields {
    * lessons from the same broad source must have different group IDs.
    */
   similarityGroupId?: string;
-  /** Optional https URL or storage path for this lesson's hero. Not part of selection. */
+  /** Optional HTTPS URL for this lesson's hero. Not part of selection. */
   illustrationUrl?: string;
   /** Optional calendar window used only to prefer this item on a matching day. */
   seasonalWindow?: SeasonalWindow;

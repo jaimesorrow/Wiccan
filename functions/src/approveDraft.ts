@@ -5,7 +5,6 @@ import { ContentAdminRepositoryPort, StoredContent } from "./contentAdminReposit
 import type { PublicationRequest } from "./contentAdminRepositoryPort";
 import { ContentSource, isLessonGenerationSource, loadContentSources } from "./contentSource";
 import { CONTENT_TYPES, isContentType } from "./types";
-
 export class DraftNotFoundError extends Error {}
 export class UnsafeContentError extends Error {}
 
@@ -32,7 +31,6 @@ function findSafetyViolations(content: StoredContent, sources: ContentSource[]):
   if (content.rightsReviewRequired === true) {
     violations.push("rights review is outstanding; clear rights or rewrite the content before publishing.");
   }
-
   // A potion mixes materials for the user to prepare or use directly, so
   // it always needs an explicit safety disclaimer - never left to the
   // LLM's discretion at the point content actually goes live.

@@ -31,7 +31,7 @@ class LegalDocumentsTest {
     @Test
     fun `terms v7 list both plans with their trial renewal and cancel terms`() {
         assertEquals(7, PolicyVersions.TERMS)
-        assertEquals(7, PolicyVersions.PRIVACY)
+        assertEquals(8, PolicyVersions.PRIVACY)
         val text = WiccanLegalDocuments.terms.auditText()
         // Prices come from the single TermsBasePrices constant, so a price change fails here until the Terms change.
         val monthly = TermsBasePrices.usdText(SubscriptionPlan.MONTHLY)
@@ -86,6 +86,8 @@ class LegalDocumentsTest {
             "does not sell",
             "pseudonymous",
             "Delete Account",
+            "NOAA",
+            "station identifier",
         ).forEach { required -> assertTrue("Missing privacy disclosure: $required", text.contains(required, true)) }
     }
 
