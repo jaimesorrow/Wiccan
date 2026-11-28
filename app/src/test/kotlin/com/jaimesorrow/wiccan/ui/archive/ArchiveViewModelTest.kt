@@ -88,4 +88,54 @@ class ArchiveViewModelTest {
         assertEquals(AppError.Network, viewModel.state.value.error)
         assertEquals(false, viewModel.state.value.isLoading)
     }
+
+    private fun englishCategory(category: ContentCategory): String = when (category) {
+        ContentCategory.HERBAL_RITUALS -> "Herbal Rituals"
+        ContentCategory.MOON_AND_SEASONAL -> "Moon & Seasonal"
+        else -> category.name.replace('_', ' ')
+    }
+
+    private fun englishType(type: ContentType): String = when (type) {
+        ContentType.SPELL -> "Spell"
+        ContentType.POTION -> "Potion"
+        ContentType.LESSON, ContentType.UNKNOWN -> "Lesson"
+    }
+
+    private fun ArchiveUiState.visibleForTest(): List<HistoryEntry> =
+        visibleEntries(::englishCategory, ::englishType)
+
+    @Test
+    fun `search filters title category type and tradition and clear restores entries`() = runTest(dispatcher) {
+        val herbalEntry = entry.copy(
+            contentId = "content-2",
+            title = "Lavender Threshold",
+            type = ContentType.LESSON,
+            tradition = "Contemporary Wicca",
+            category = ContentCategory.HERBAL_RITUALS,
+        )
+        repository.emitHistory(listOf(entry, herbalEntry))
+        dispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.onEvent(ArchiveUiEvent.SearchQueryChanged("lavender"))
+        assertEquals(listOf(herbalEntry), viewModel.state.value.visibleForTest())
+        viewModel.onEvent(ArchiveUiEvent.SearchQueryChanged("herbal rituals"))
+        assertEquals(listOf(herbalEntry), viewModel.state.value.visibleForTest())
+        viewModel.onEvent(ArchiveUiEvent.SearchQueryChanged("spell"))
+        assertEquals(listOf(entry), viewModel.state.value.visibleForTest())
+        viewModel.onEvent(ArchiveUiEvent.SearchQueryChanged("contemporary"))
+        assertEquals(listOf(herbalEntry), viewModel.state.value.visibleForTest())
+
+        viewModel.onEvent(ArchiveUiEvent.SearchCleared)
+        assertEquals(listOf(entry, herbalEntry), viewModel.state.value.visibleForTest())
+        assertEquals("", viewModel.state.value.searchQuery)
+    }
+
+    @Test
+    fun `etymology disclosure toggles without changing archive state`() {
+        assertEquals(false, viewModel.state.value.isEtymologyExpanded)
+        viewModel.onEvent(ArchiveUiEvent.EtymologyToggled)
+        assertEquals(true, viewModel.state.value.isEtymologyExpanded)
+        viewModel.onEvent(ArchiveUiEvent.EtymologyToggled)
+        assertEquals(false, viewModel.state.value.isEtymologyExpanded)
+    }
 }

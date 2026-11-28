@@ -58,11 +58,6 @@ fun WiccanLineArt(
 }
 
 internal fun Content.lessonLineArt(): WiccanLineArtKind {
-    when (illustrationKey?.trim()?.lowercase()) {
-        "lunar", "moon", "moon-phases" -> return WiccanLineArtKind.CategoryLunar
-        "cord-knot", "cord", "knot-work" -> return WiccanLineArtKind.CategoryCord
-        "grimoire", "ritual", "botanical", "herbal", "candle" -> return WiccanLineArtKind.HomeHero
-    }
     val categoryArt = when (category) {
         ContentCategory.CORD_KNOT_WORK, ContentCategory.CORD_KNOT_MAGIC -> WiccanLineArtKind.CategoryCord
         ContentCategory.LUNAR_PRACTICES,

@@ -1,0 +1,16 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Public read for published content illustrations only.
+    // All client writes are denied; uploads are done with admin/server credentials.
+    match /content-images/{file} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Deny all other Storage paths.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

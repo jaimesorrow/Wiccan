@@ -121,6 +121,7 @@ class TodayScreenTest {
                     effects = emptyFlow(),
                     onEvent = { events += it },
                     onOpenToday = { opened = true },
+                    homeTideState = TideUiState.NeedsLocation,
                 )
             }
         }
