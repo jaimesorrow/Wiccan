@@ -44,6 +44,12 @@ const PASSAGE: SourcePassage = {
   review: { passageInspected: true, sourceFidelityApproved: true, safetyApproved: true, reviewedBy: "editor", reviewedAt: "2026-10-19T00:00:00.000Z" },
 };
 
+const PASSAGES: SourcePassage[] = [
+  PASSAGE,
+  { ...PASSAGE, id: "passage-source-b", locator: "Tablet III, lines 1–6", inspectedPassage: "A second editor-inspected test passage." },
+  { ...PASSAGE, id: "passage-source-c", locator: "Tablet IV, lines 2–9", inspectedPassage: "A third editor-inspected test passage." },
+];
+
 const DAY = new Date("2026-11-08T04:00:00.000Z");
 const at = (hours: number, day = DAY) => new Date(day.getTime() + hours * 3_600_000);
 const NEXT_DAY = new Date("2026-11-09T04:00:00.000Z");
@@ -58,7 +64,7 @@ class FailingGenerator extends FakeDraftGenerationPort {
 function harness(settings: ContentAgentSettings = { enabled: true, batchSize: 5 }, generator = new FakeDraftGenerationPort()) {
   const repo = new FakeContentAdminRepository();
   const state = new FakeContentAgentState();
-  const run = (runId: string, now: Date, clock?: () => Date, passages: SourcePassage[] = [PASSAGE]) => runContentAgentCycle({
+  const run = (runId: string, now: Date, clock?: () => Date, passages: SourcePassage[] = PASSAGES) => runContentAgentCycle({
     runId, settings, passages, sources: [SOURCE], generator, repo, state, now, clock,
   });
   return { generator, repo, state, run };

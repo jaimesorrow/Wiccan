@@ -63,8 +63,14 @@ export interface Content extends PracticalLessonFields {
    * lessons from the same broad source must have different group IDs.
    */
   similarityGroupId?: string;
-  /** Optional https URL or storage path for this lesson's hero. Not part of selection. */
+  /** HTTPS URL of this item's own original hero image. Required to approve or publish a draft. */
   illustrationUrl?: string;
+  /**
+   * Provenance flag: true only when illustrationUrl was created originally for this
+   * item and is not copied or reused. Required to approve or publish a draft.
+   * Existing published items may omit this until the image backfill runs.
+   */
+  illustrationOriginal?: boolean;
   /** Editorial first-week order. Values 1-7 are preferred for a subscriber's first seven deliveries. */
   starterRank?: number;
 }

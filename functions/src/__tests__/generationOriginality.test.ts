@@ -22,6 +22,8 @@ function lesson(overrides: Record<string, unknown> = {}): Record<string, unknown
     tools: ["cotton cord"],
     correspondences: ["threshold", "three knots"],
     tags: ["grounding", "home"],
+    type: "lesson",
+    sourcePassageId: "passage-threshold",
     ...overrides,
   };
 }
@@ -69,6 +71,7 @@ describe("generation originality screen", () => {
     const candidate = lesson({
       title: "Measured Cord Circle",
       slug: "measured-cord-circle",
+      sourcePassageId: "passage-measured-cord",
       summary: "Use cord as a temporary measuring line for a small altar cloth.",
       introduction: "A practical setup exercise.",
       lesson: "1. Lay the cloth flat on a table.\n2. Measure its edge with loose cord.\n3. Coil and store the cord after recording the measurement.",
@@ -108,5 +111,60 @@ describe("generation originality screen", () => {
     expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
     expect(results.filter((result) => result.status === "rejected")).toHaveLength(1);
     expect(repo.docs.size).toBe(1);
+  });
+
+  it("rejects a second item that reuses the same sourcePassageId and type", () => {
+    const report = screenGeneratedCandidate(
+      lesson({
+        title: "A Completely Different Doorway Title",
+        slug: "a-completely-different-doorway-title",
+        summary: "Light a lamp and write a short note about the evening light.",
+        introduction: "A lamp-lighting observation.",
+        lesson: "1. Trim a lamp wick.\n2. Light it at dusk and snuff it at night.\n3. Write one sentence about the light.",
+        practice: "Keep the written sentence with the lamp.",
+        reflection: "What did the lamplight change?",
+        correspondences: ["lamp"],
+        tags: ["light"],
+      }),
+      [{ id: "existing", fields: lesson() }],
+    );
+    expect(report.accepted).toBe(false);
+    expect(report.rejectionReasons.some((reason) => reason.startsWith("source-passage-id:"))).toBe(true);
+    expect(report.reservationKeys.some((key) => key.startsWith("passage-type:"))).toBe(true);
+  });
+
+  it("allows the same passage when the content type differs and the practice is distinct", () => {
+    const candidate = lesson({
+      type: "spell",
+      title: "Measured Cord Circle",
+      slug: "measured-cord-circle",
+      summary: "Use cord as a temporary measuring line for a small altar cloth.",
+      introduction: "A practical setup exercise.",
+      lesson: "1. Lay the cloth flat on a table.\n2. Measure its edge with loose cord.\n3. Coil and store the cord after recording the measurement.",
+      practice: "Use the measurement to choose a safely sized altar surface.",
+      reflection: "How did measuring change the way you arranged the space?",
+      correspondences: [],
+      tags: ["altar", "measurement"],
+    });
+    expect(screenGeneratedCandidate(candidate, [{ id: "existing", fields: lesson() }]).accepted).toBe(true);
+  });
+
+  it("rejects near-duplicate authored text by trigram Jaccard even with a new title and passage", () => {
+    const existing = lesson();
+    const candidate = lesson({
+      title: "Calm Return Through The Door",
+      slug: "calm-return-through-the-door",
+      sourcePassageId: "passage-other",
+      summary: existing.summary,
+      introduction: existing.introduction,
+      lesson: existing.lesson,
+      practice: existing.practice,
+      reflection: existing.reflection,
+    });
+    const report = screenGeneratedCandidate(candidate, [{ id: "existing", fields: existing }]);
+    expect(report.accepted).toBe(false);
+    expect(report.rejectionReasons.some((reason) =>
+      reason.includes("content-shingle-similarity") || reason.includes("instruction-similarity") || reason.includes("summary-similarity")
+    )).toBe(true);
   });
 });

@@ -13,6 +13,10 @@ export interface NewDraftContent extends GeneratedDraftFields {
   rightsNotes?: string | null;
   /** Editor assigned; carry the existing group when revising or rewording a lesson. */
   similarityGroupId?: string;
+  /** HTTPS URL of this item's own original hero image. Required at approval. */
+  illustrationUrl?: string;
+  /** True when illustrationUrl was created originally for this item and is not reused. */
+  illustrationOriginal?: boolean;
 }
 
 export interface StoredContent extends NewDraftContent {
