@@ -76,19 +76,25 @@ class ForegroundPushHandlerTest {
     )
 
     @Test
-    fun `a trial reminder posts even with the daily reminder off`() = runTest {
-        reminderOn.value = false
-
+    fun `a trial reminder posts while signed in with the daily reminder on`() = runTest {
         assertTrue(handler.handle(billing))
         verify(exactly = 1) { poster.post(billing) }
     }
 
     @Test
-    fun `a trial reminder does not wait on the daily choice at all`() = runTest {
+    fun `a trial reminder is dropped when the daily reminder is off`() = runTest {
+        reminderOn.value = false
+
+        assertFalse(handler.handle(billing))
+        verify(exactly = 0) { poster.post(any()) }
+    }
+
+    @Test
+    fun `an unreadable daily choice drops a trial reminder too`() = runTest {
         every { repository.notificationsEnabled } returns emptyFlow()
 
-        assertTrue(handler.handle(billing))
-        verify(exactly = 0) { repository.notificationsEnabled }
+        assertFalse(handler.handle(billing))
+        verify(exactly = 0) { poster.post(any()) }
     }
 
     @Test

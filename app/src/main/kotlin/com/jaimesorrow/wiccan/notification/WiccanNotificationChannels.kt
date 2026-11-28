@@ -25,7 +25,11 @@ fun ensureDailyPracticeChannel(context: Context) {
 /** Must match BILLING_REMINDERS_CHANNEL_ID in functions/src/trialEndingReminders.ts. */
 const val BILLING_REMINDERS_CHANNEL_ID = "billing_reminders"
 
-/** A separate channel, so users can keep trial reminders while muting the daily push (or the reverse). */
+/**
+ * A separate channel so the user can mute trial reminders at the system
+ * level without muting daily practice. The in-app Daily practice reminder
+ * switch gates both.
+ */
 fun ensureBillingRemindersChannel(context: Context) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
     val manager = context.getSystemService(NotificationManager::class.java) ?: return

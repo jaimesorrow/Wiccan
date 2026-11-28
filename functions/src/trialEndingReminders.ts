@@ -59,15 +59,17 @@ export function trialEndingCopy(
 
 /**
  * Sends one "your free trial ends soon" push per trial, to each device the
- * user is signed in on (a registered device; signing out unregisters it),
- * during the first hourly run within TRIAL_REMINDER_WINDOW_HOURS of the
- * trial's end.
+ * user is signed in on (a registered device; signing out unregisters it)
+ * whose daily-practice switch is on, during the first hourly run within
+ * TRIAL_REMINDER_WINDOW_HOURS of the trial's end.
  *
- * This is a billing notice, so it does not depend on the daily-practice
- * switch (`notificationsEnabled` only controls the daily push). Users mute
- * it with the separate `billing_reminders` Android channel. It is sent as a
- * data message carrying the account's uid, so the app shows it only while
- * that same account is still signed in on the device.
+ * The trial reminder shares the in-app Daily practice reminder switch
+ * (`notificationsEnabled`). A missing value is treated as on, the same
+ * default `listDevicesWithToken` and `sendDailyNotifications` use. The
+ * separate `billing_reminders` Android channel remains, so the user can
+ * still mute trial reminders at the system level. It is sent as a data
+ * message carrying the account's uid, so the app shows it only while that
+ * same account is still signed in on the device.
  *
  * The `subscriptions/{uid}` record only nominates candidates. Google Play is
  * re-queried for each one before anything is sent, and the reminder is
@@ -110,10 +112,14 @@ export async function sendTrialEndingReminders(
         summary.skipped++;
         continue;
       }
-      // Do not consume the single reminder when the account has no registered
-      // device. A later hourly run can still notify the user after they sign
-      // back in, provided their trial has not ended.
-      const recipients = allDevices.filter((device) => device.uid === candidate.uid);
+      // Do not consume the single reminder when the account has no signed-in
+      // device with the daily-practice switch on. A later hourly run can
+      // still notify after they sign back in or turn the switch back on,
+      // provided their trial has not ended. `notificationsEnabled !== false`
+      // matches listDevicesWithToken: a missing value defaults to on.
+      const recipients = allDevices.filter(
+        (device) => device.uid === candidate.uid && device.notificationsEnabled !== false,
+      );
       if (recipients.length === 0) {
         summary.skipped++;
         continue;
@@ -123,7 +129,7 @@ export async function sendTrialEndingReminders(
         continue;
       }
       summary.reminded++;
-      // Every device this account is signed in on, whatever its daily-practice choice.
+      // Every signed-in device whose daily-practice switch is on (or unset).
       const ttlMillis = Math.max(1, expiry - nowMillis);
       for (const device of recipients) {
         const copy = trialEndingCopy(expiry, device.timeZone, device.locale);

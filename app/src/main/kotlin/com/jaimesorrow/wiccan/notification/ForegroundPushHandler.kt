@@ -17,11 +17,11 @@ private const val PREFERENCE_READ_TIMEOUT_MS = 2_000L
  * nothing is posted unless someone is signed in, and a push addressed to an
  * account (`data.uid`) is shown only to that account.
  *
- * - Daily practice: also needs this account's daily reminder on
- *   ([NotificationRepository.notificationsEnabled] is false when signed out).
- * - Trial/billing reminders: do not depend on the daily switch; the user
- *   mutes them with the separate `billing_reminders` Android channel, which
- *   Android applies when the notification is posted.
+ * Daily practice and trial/billing reminders both need this account's Daily
+ * practice reminder switch on ([NotificationRepository.notificationsEnabled]
+ * is false when signed out). There is no separate in-app billing toggle.
+ * The `billing_reminders` Android channel remains, so the user can still
+ * mute trial reminders at the system level.
  */
 class ForegroundPushHandler @Inject constructor(
     private val notificationRepository: NotificationRepository,
@@ -34,7 +34,6 @@ class ForegroundPushHandler @Inject constructor(
         // FCM also has a server TTL, but reject a late delivery defensively
         // before showing stale cancellation advice after trial conversion.
         if (content.isBillingReminder && content.expiryTimeMillis?.let { it <= System.currentTimeMillis() } == true) return false
-        if (content.isBillingReminder) return poster.post(content)
         val enabled = withTimeoutOrNull(PREFERENCE_READ_TIMEOUT_MS) {
             notificationRepository.notificationsEnabled
                 .catch { t -> if (t is CancellationException) throw t else emit(false) }

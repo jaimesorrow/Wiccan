@@ -290,7 +290,7 @@
     <string name="settings_switch_to_yearly_base">Cambia a %1$s/año. Google Play confirmará el cargo antes de que pagues. Este cambio no incluye una prueba gratis.</string>
     <string name="settings_switch_to_yearly_intro">%1$s el primer mes, luego %2$s/año. Google Play confirmará el cargo antes de que pagues. Este cambio no incluye una prueba gratis.</string>
     <string name="settings_notifications">Recordatorio de práctica diaria</string>
-    <string name="settings_notifications_hint">Una campana suave cuando el trabajo del día se coloca sobre el altar.</string>
+    <string name="settings_notifications_hint">Una campana suave cuando el trabajo del día se coloca sobre el altar, y una palabra cuando una prueba gratuita está por terminar.</string>
     <string name="settings_palette">Paleta</string>
     <string name="settings_palette_hint">Midnight Grimoire sostiene estas páginas. La elección que guardes queda recordada.</string>
     <string name="settings_language">Idioma de la aplicación</string>
