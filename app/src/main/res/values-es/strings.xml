@@ -130,6 +130,17 @@
     <string name="today_potion">Poción de hoy</string>
     <string name="today_lesson">Lección de hoy</string>
     <string name="today_subtitle">La luna ha cambiado. Tu próxima práctica te espera.</string>
+    <string name="today_seasonal_moon">Esta noche: %1$s</string>
+    <string name="today_seasonal_new_moon">Luna nueva</string>
+    <string name="today_seasonal_full_moon">Luna llena</string>
+    <string name="today_seasonal_sabbat_imbolc">Imbolc</string>
+    <string name="today_seasonal_sabbat_ostara">Ostara</string>
+    <string name="today_seasonal_sabbat_beltane">Beltane</string>
+    <string name="today_seasonal_sabbat_litha">Litha</string>
+    <string name="today_seasonal_sabbat_lughnasadh">Lughnasadh</string>
+    <string name="today_seasonal_sabbat_mabon">Mabon</string>
+    <string name="today_seasonal_sabbat_samhain">Samhain</string>
+    <string name="today_seasonal_sabbat_yule">Yule</string>
     <string name="today_empty_title">Las lecciones ya han sido reunidas</string>
     <string name="today_empty_body">Cada lección que guardamos ya es tuya. Te esperan en tu Grimorio.</string>
     <string name="today_open_grimoire">Abrir tu Grimorio</string>

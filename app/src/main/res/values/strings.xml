@@ -144,6 +144,16 @@
     <string name="today_lesson">Today\'s lesson</string>
     <string name="today_subtitle">The moon has turned. Your next practice awaits.</string>
     <string name="today_seasonal_moon">Tonight: %1$s</string>
+    <string name="today_seasonal_new_moon">New Moon</string>
+    <string name="today_seasonal_full_moon">Full Moon</string>
+    <string name="today_seasonal_sabbat_imbolc">Imbolc</string>
+    <string name="today_seasonal_sabbat_ostara">Ostara</string>
+    <string name="today_seasonal_sabbat_beltane">Beltane</string>
+    <string name="today_seasonal_sabbat_litha">Litha</string>
+    <string name="today_seasonal_sabbat_lughnasadh">Lughnasadh</string>
+    <string name="today_seasonal_sabbat_mabon">Mabon</string>
+    <string name="today_seasonal_sabbat_samhain">Samhain</string>
+    <string name="today_seasonal_sabbat_yule">Yule</string>
     <string name="today_empty_title">The lessons have all been gathered</string>
     <string name="today_empty_body">Every lesson we hold is already yours. They wait in your Grimoire.</string>
     <string name="today_open_grimoire">Open your Grimoire</string>

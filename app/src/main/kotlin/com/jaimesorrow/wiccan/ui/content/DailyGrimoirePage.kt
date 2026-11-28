@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,6 +35,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jaimesorrow.wiccan.domain.model.Content
+import com.jaimesorrow.wiccan.seasonal.SeasonalCalendar
+import com.jaimesorrow.wiccan.seasonal.SeasonalWindow
 import com.jaimesorrow.wiccan.sky.CelestialCalculator
 import com.jaimesorrow.wiccan.ui.brand.WiccanLineArt
 import com.jaimesorrow.wiccan.ui.brand.WiccanLineArtKind
@@ -47,6 +50,7 @@ import com.jaimesorrow.wiccan.ui.theme.WiccanHandwritingFont
 import com.jaimesorrow.wiccan.ui.theme.WiccanPaletteColors
 import com.wiccan.app.R
 import java.time.Instant
+import java.time.LocalDate
 import java.util.Locale
 
 private val Ink = WiccanPaletteColors.Parchment.Ink
@@ -65,8 +69,10 @@ internal fun DailyGrimoirePage(
     modifier: Modifier = Modifier,
     onOpenGrimoire: (() -> Unit)? = null,
     fillViewport: Boolean = true,
+    today: LocalDate = LocalDate.now(),
 ) {
     val moon = remember { CelestialCalculator.moon(Instant.now()) }
+    val seasonalWindow = remember(today) { SeasonalCalendar.seasonalWindowFor(today) }
     val scrollState = rememberScrollState()
     val pageModifier =
         if (fillViewport) {
@@ -98,6 +104,12 @@ internal fun DailyGrimoirePage(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             GrimoireMoonPhases(active = moon.trackIndex, activePhaseName = moon.name)
+            seasonalWindow?.let { window ->
+                SeasonalEventChip(
+                    window = window,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
+            }
             Text(
                 text = stringResource(R.string.motif_lesson_margin),
                 color = ShellMuted,
@@ -113,6 +125,46 @@ internal fun DailyGrimoirePage(
             )
         }
     }
+}
+
+@Composable
+private fun SeasonalEventChip(
+    window: SeasonalWindow,
+    modifier: Modifier = Modifier,
+) {
+    val label = when (window) {
+        is SeasonalWindow.Sabbat -> stringResource(sabbatLabelRes(window.id))
+        is SeasonalWindow.Moon -> {
+            val phase = stringResource(
+                if (window.phase == "full") {
+                    R.string.today_seasonal_full_moon
+                } else {
+                    R.string.today_seasonal_new_moon
+                },
+            )
+            stringResource(R.string.today_seasonal_moon, phase)
+        }
+    }
+    Text(
+        text = label,
+        color = WiccanPaletteColors.Grimoire.OnSeasonalChip,
+        modifier = modifier
+            .background(WiccanPaletteColors.Grimoire.SeasonalChip, RoundedCornerShape(50))
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        style = MaterialTheme.typography.labelLarge,
+    )
+}
+
+private fun sabbatLabelRes(id: String): Int = when (id) {
+    "imbolc" -> R.string.today_seasonal_sabbat_imbolc
+    "ostara" -> R.string.today_seasonal_sabbat_ostara
+    "beltane" -> R.string.today_seasonal_sabbat_beltane
+    "litha" -> R.string.today_seasonal_sabbat_litha
+    "lughnasadh" -> R.string.today_seasonal_sabbat_lughnasadh
+    "mabon" -> R.string.today_seasonal_sabbat_mabon
+    "samhain" -> R.string.today_seasonal_sabbat_samhain
+    "yule" -> R.string.today_seasonal_sabbat_yule
+    else -> error("Unknown product sabbat id: $id")
 }
 
 @Composable

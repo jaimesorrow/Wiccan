@@ -70,6 +70,7 @@ import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.jaimesorrow.wiccan.widget.WiccanWidgetPreview
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDate
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Rule
@@ -184,7 +185,7 @@ class GrimoireScreenScreenshotTest {
     fun `capture daily lesson`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
-                DailyGrimoirePage(content = sampleLesson())
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
             }
         }
         composeRule.waitForIdle()
@@ -195,7 +196,7 @@ class GrimoireScreenScreenshotTest {
     fun `capture daily lesson middle`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
-                DailyGrimoirePage(content = sampleLesson())
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
             }
         }
         composeRule.waitForIdle()
@@ -208,7 +209,7 @@ class GrimoireScreenScreenshotTest {
     fun `capture daily lesson bottom`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
-                DailyGrimoirePage(content = sampleLesson())
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
             }
         }
         composeRule.waitForIdle()
@@ -222,7 +223,7 @@ class GrimoireScreenScreenshotTest {
     fun `capture daily lesson with reflection below parchment`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
-                DailyGrimoirePage(content = sampleLesson())
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
             }
         }
         composeRule.waitForIdle()
@@ -239,7 +240,7 @@ class GrimoireScreenScreenshotTest {
             val density = LocalDensity.current.density
             CompositionLocalProvider(LocalDensity provides Density(density, fontScale = 1.3f)) {
                 MidnightGrimoireTheme {
-                    DailyGrimoirePage(content = sampleLesson())
+                    DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
                 }
             }
         }
@@ -326,6 +327,7 @@ class GrimoireScreenScreenshotTest {
                 DailyGrimoirePage(
                     content = sampleLongLesson(),
                     fillViewport = false,
+                    today = screenshotLessonDate,
                     modifier = Modifier.testTag("grimoire_daily_lesson"),
                 )
             }
@@ -422,6 +424,9 @@ class GrimoireScreenScreenshotTest {
             consent,
         )
     }
+
+    // Ordinary civil date used by seasonalCalendar tests; no sabbat or new/full window.
+    private val screenshotLessonDate = LocalDate.of(2026, 7, 7)
 
     private fun sampleLongLesson(): Content {
         val body = buildString {
