@@ -21,10 +21,18 @@ body, reflection, practice, materials (string[]), safetyNote, tags, status
 (draft|published), sourceId, sourceCitation, sourceUrl, rightsReviewRequired,
 similarityGroupId`, plus optional additive fields from `PracticalLessonFields`.
 
+An editor may also add one optional `seasonalWindow`. It is either
+`{ kind: "sabbat", id: "imbolc"|"ostara"|"beltane"|"litha"|"lughnasadh"|"mabon"|"samhain"|"yule" }`
+or `{ kind: "moon", phase: "new"|"waxing"|"full"|"waning" }`. The field
+only gives a matching unseen item priority on that calendar day; it never
+bypasses publication, subscription, provenance, safety, rights, duplicate,
+or no-repeat gates. Missing or malformed windows receive normal selection.
+
 An optional editorial `starterRank` integer from 1 through 7 identifies a
 curated first-week lesson. During a subscriber's first seven deliveries the
-selector prefers the lowest unseen rank; after that it uses normal random
-selection. The field does not publish a draft or bypass safety, source,
+selector prefers the lowest unseen rank before seasonal matches; otherwise it
+prefers a matching seasonal item, falling back to random selection. The field
+does not publish a draft or bypass safety, source,
 rights, duplicate, or eligibility review.
 
 ## Canonical lesson (v2)

@@ -1,5 +1,5 @@
 import { ContentPoolExhaustedError, DailyAssignmentUnavailableError, selectTodayContent } from "../getTodayContent";
-import { SubscriptionRequiredError } from "../contentRepositoryPort";
+import { ContentNoLongerEligibleError, SubscriptionRequiredError } from "../contentRepositoryPort";
 import { FakeContentRepository, makeContent, makeReviewedLesson } from "../testUtils/fakeContentRepository";
 
 const UID = "user-123";
@@ -19,6 +19,62 @@ function previousDeliveries(count: number) {
 
 
 describe("selectTodayContent", () => {
+  it("prefers an unseen matching seasonal item on a sabbat", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "ordinary" }),
+      makeContent({ id: "samhain", seasonalWindow: { kind: "sabbat", id: "samhain" } }),
+    ];
+
+    expect((await selectTodayContent(UID, "2026-10-31", repo)).id).toBe("samhain");
+  });
+
+  it("prefers a matching moon item but falls back when the match was delivered", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "ordinary" }),
+      makeContent({ id: "full-moon", seasonalWindow: { kind: "moon", phase: "full" } }),
+    ];
+    repo.history = [{ userId: UID, contentId: "full-moon", deliveredDate: "2026-03-02", title: "Full", type: "spell", tradition: "European folk magic", category: "MoonAndSeasonal" }];
+
+    expect((await selectTodayContent(UID, "2026-03-03", repo)).id).toBe("ordinary");
+  });
+
+  it("prioritizes first-week starter lessons over matching seasonal items", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeContent({ id: "samhain", seasonalWindow: { kind: "sabbat", id: "samhain" } }),
+      makeReviewedLesson({ id: "starter", sourceId: "ancient-source", starterRank: 1 }),
+    ];
+
+    expect((await selectTodayContent(UID, "2026-10-31", repo, new Set(["ancient-source"]))).id).toBe("starter");
+  });
+
+  it("prefers matching seasonal items after the first seven deliveries", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeReviewedLesson({ id: "starter", sourceId: "ancient-source", starterRank: 1 }),
+      makeContent({ id: "samhain", seasonalWindow: { kind: "sabbat", id: "samhain" } }),
+    ];
+    repo.history = previousDeliveries(7);
+
+    expect((await selectTodayContent(UID, "2026-10-31", repo, new Set(["ancient-source"]))).id).toBe("samhain");
+  });
+
+  it("falls back to a seasonal item when a starter becomes ineligible", async () => {
+    const repo = new FakeContentRepository();
+    repo.content = [
+      makeReviewedLesson({ id: "starter", sourceId: "ancient-source", starterRank: 1 }),
+      makeContent({ id: "samhain", seasonalWindow: { kind: "sabbat", id: "samhain" } }),
+    ];
+    const assign = repo.assignDailyContent.bind(repo);
+    jest.spyOn(repo, "assignDailyContent").mockImplementationOnce(async () => {
+      throw new ContentNoLongerEligibleError("starter");
+    }).mockImplementation(assign);
+
+    expect((await selectTodayContent(UID, "2026-10-31", repo, new Set(["ancient-source"]))).id).toBe("samhain");
+  });
+
   it("prefers the lowest starter rank during a subscriber's first week", async () => {
     const repo = new FakeContentRepository();
     repo.content = [
