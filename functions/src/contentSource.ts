@@ -14,10 +14,12 @@ type ContentSourceKind = "ancient-grimoire" | "historical-grimoire" | "ancient-h
  * contextualize those facts, but must not invent additional ancient claims,
  * quotations, lineages, dates, or ritual details.
  *
- * Product requirement: Lesson of the Day is sourced from ancient material.
- * The schema therefore rejects any lesson-eligible source whose era is not
- * explicitly "ancient". Changing that policy later must be a deliberate
- * code change, not an accidental sources.json edit.
+ * Product requirement: Lesson of the Day is sourced from pre-modern grimoires
+ * (ancient-grimoire, or historical-grimoire of medieval / early-modern date)
+ * whose quoted edition or translation was itself first published before 1931.
+ * Changing that policy later must be a deliberate code change, not an
+ * accidental sources.json edit. Passage-level editionDate < 1931 validation
+ * remains mandatory.
  */
 export interface ContentSource {
   id: string;

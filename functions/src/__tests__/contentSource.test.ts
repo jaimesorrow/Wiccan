@@ -23,17 +23,32 @@ describe("loadContentSources", () => {
     const generationSources = loadContentSources().filter(isLessonGenerationSource);
 
     expect(generationSources.length).toBeGreaterThan(0);
-    expect(generationSources.every((source) => source.sourceKind === "ancient-grimoire")).toBe(true);
+    expect(generationSources.every((source) => source.sourceKind === "ancient-grimoire" || source.sourceKind === "historical-grimoire")).toBe(true);
+    expect(generationSources.every((source) => source.era !== "modern")).toBe(true);
+    for (const source of generationSources) {
+      if (source.sourceKind === "ancient-grimoire") {
+        expect(source.era).toBe("ancient");
+      }
+      if (source.sourceKind === "historical-grimoire") {
+        expect(["medieval", "early-modern"]).toContain(source.era);
+      }
+    }
   });
 
-  it("keeps current checked-in lesson sources explicitly ancient", () => {
+  it("keeps checked-in lesson sources inside the approved pre-modern eras", () => {
     const lessonSources = loadContentSources().filter((source) => source.eligibleTypes.includes("lesson"));
 
     expect(lessonSources.length).toBeGreaterThan(0);
     for (const source of lessonSources) {
-      expect(source.era).toBe("ancient");
+      expect(source.era).not.toBe("modern");
       expect(source.sourceReference).toBeTruthy();
       expect(source.groundedFacts.length).toBeGreaterThanOrEqual(3);
+      if (source.sourceKind === "ancient-grimoire" || source.sourceKind === "ancient-historical-context") {
+        expect(source.era).toBe("ancient");
+      }
+      if (source.sourceKind === "historical-grimoire") {
+        expect(["medieval", "early-modern"]).toContain(source.era);
+      }
     }
   });
 

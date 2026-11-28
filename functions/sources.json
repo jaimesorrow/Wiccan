@@ -114,5 +114,29 @@
     "eligibleTypes": [
       "lesson"
     ]
+  },
+  {
+    "id": "key-of-solomon-mathers-1889",
+    "title": "The Key of Solomon the King (Mathers 1889)",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "era": "early-modern",
+    "sourceKind": "historical-grimoire",
+    "period": "Late sixteenth- to seventeenth-century British Library manuscripts; English edition 1889",
+    "publicDomainBasis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. US: first published 1889 (before 1931), so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 (Wellcome / Royal College of Physicians copy) is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later reprint's new editorial matter.",
+    "sourceReference": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889, translated and edited from seven British Museum manuscripts now in the British Library (Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203). https://archive.org/details/b24884431 ; Wellcome Collection https://wellcomecollection.org/works/xhh2qvud ; British Library Add. MS 10862 https://searcharchives.bl.uk/catalog/032-002108675",
+    "summary": "An English translation and edition of the Key of Solomon (Clavicula Salomonis), prepared by S. Liddell MacGregor Mathers in 1889 from seven British Museum (now British Library) manuscripts. Book I treats devotion, planetary days and hours, confession, prayer, and the construction of pentacles. Book II treats the operator's purity, fasting, baths, garments, places of working, incense, water and hyssop, light and fire, silk, and the consecration of a magical book. Mathers himself cautions the practical worker against the use of blood and says he omitted one or two experiments partaking largely of Black Magic.",
+    "groundedFacts": [
+      "The English edition used is S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), first published in London by George Redway in 1889, and described on its title-page as translated and edited from ancient manuscripts in the British Museum.",
+      "Mathers's 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, which he dates to about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, which he describes as of rather later date.",
+      "Book I, Chapter I teaches that the beginning of the Key is to fear God, to adore and honour Him, and to operate with great devotion, and that the operator must prepare the order of hours and of days and the position of the Moon.",
+      "Book II gives instructions for purity and preparation, including fasting and careful conduct, ritual bathing and the blessing of water and salt, linen or silk garments, the choice of a secret or purified place, incense and perfume, water and hyssop, candles and fire, silk wrappings, and the consecration of a small magical book.",
+      "In the same 1889 preface Mathers warns the practical worker against the use of blood and states that he has omitted one or two experiments partaking largely of Black Magic; later chapters that treat theft, invisibility, coercive love, treasure-hunting, animal or blood preparations, and sacrifices are not used as sources for generated lessons.",
+      "The Key of Solomon is a late-medieval to early-modern European Solomonic ceremonial text and must not be presented as ancient Wiccan scripture, as a medical or coercive handbook, or as an instruction to harm people, animals, or property."
+    ],
+    "eligibleTypes": [
+      "lesson",
+      "spell",
+      "potion"
+    ]
   }
 ]

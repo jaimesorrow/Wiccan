@@ -3167,5 +3167,1198 @@
       "reviewedAt": "2026-11-27T16:45:00-09:00"
     },
     "formula": "Naszot, Nashoteb, Borilammai (bis), Mastinx, Anubis, Megiste, Arian, thou who art great, Arian, Pi-anuzy (?), Arian, he who is without. Hail, Phrix, Ix, Anaxibrox, Ambrox, Eborx, Xon, Nbrokhria, the great child, Anubis; for I am that soldier. O ye of the Atef-crown, ye of Pephnun, Masphoneke; hail! let all that I have said come to pass here to-day; say, hail! thou art Tham, Thamthom, Thamathom, Thamathomtham, Thamathouthi, Amon (bis), thy correct name, whom they call Thom, Anakthom; thou art Itth; Thou-thi is thy name, Sithom, Anithom Op-sao (?), Shatensro black;"
+  },
+  {
+    "id": "kos-i-01-fear-god-and-the-moon",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book I, Chapter I (Mathers 1889, p. 9)",
+    "url": "https://archive.org/details/b24884431/page/9/mode/1up",
+    "inspectedPassage": "SOLOMON, the Son of David, King of Israel, hath said that the beginning of our Key is to fear God, to adore Him, to honour Him with contrition of heart, to invoke Him* in all matters which we wish to undertake, and to operate with very great devotion, for thus God will lead us in the right way. When, therefore, thou shalt wish to acquire the knowledge of Magical Arts and Sciences, it is necessary to have prepared the order of hours and of days, and of the position of the Moon, without the operation of which thou canst effect nothing; but if thou observest them with diligence thou mayest easily and thoroughly arrive at the effect and end which thou desirest to attain.",
+    "attestedInstructions": [
+      "The beginning of the Key is to fear God, to adore and honour Him with contrition of heart, to invoke Him in matters undertaken, and to operate with very great devotion.",
+      "Anyone wishing to acquire the knowledge of magical arts and sciences must first prepare the order of hours and of days, and of the position of the Moon, without which, the chapter says, nothing can be effected."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "This is the complete short chapter as printed on p. 9. The asterisk after 'Him' is Mathers's footnote: '1202, Lansdowne MSS., omits the concluding part of this sentence.' The chapter mentions the position of the Moon but does not name a single phase, so no #224 moon-phase tag is suggested here."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/9/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": null,
+    "formulaOmissionReason": "The chapter is a precept about devotion and timing, not a spoken formula."
+  },
+  {
+    "id": "kos-i-02-planetary-days-and-hours",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book I, Chapter II (Mathers 1889, p. 10)",
+    "url": "https://archive.org/details/b24884431/page/10/mode/1up",
+    "inspectedPassage": "WHEN* thou wishest to make any experiment or operation, thou must first prepare, beforehand, all the requisites which thou wilt find described in the following Chapters: observing the days, the hours, and the other effects of the Constellations which may be found in this Chapter.\n\nIt is, therefore, advisable to know that the hours of the day and of the night together, are twenty-four in number, and that each hour is governed by one of the Seven Planets in regular order, commencing at the highest and descending to the lowest. The order of the Planets is as follows: SHBThAI, Shabbathai, Saturn; beneath Saturn is TzDQ, Tzedeq, Jupiter; beneath Jupiter is MADIM, Madim, Mars; beneath Mars is SHMSH, Shemesh, the Sun; beneath the Sun is NVGH, Nogah, Venus; beneath Venus is KVKB, Kokav, Mercury; and beneath Mercury is LBNH, Levanah, the Moon, which is the lowest of all the Planets.\n\nIt must, therefore, be understood that the Planets have their dominion over the day which approacheth nearest unto the name which is given and attributed unto them—viz., over Saturday, Saturn; Thursday, Jupiter; Tuesday, Mars; Sunday, the Sun; Friday, Venus; Wednesday, Mercury; and Monday, the Moon.\n\nThe rule of the Planets over each hour begins from the dawn at the rising of the Sun on the day which take its name from such Planet, and the Planet which follows it in order, succeeds to the rule over the next hour. Thus (on Saturday) Saturn rules the first hour, Jupiter the Second, Mars the third, the Sun the fourth, Venus the fifth, Mercury the sixth, the Moon the seventh, and Saturn returns in the rule over the eighth, and the others in their turn, the Planets always keeping the same relative order.\n\nNote that each experiment or magical operation should be performed under the Planet, and usually in the hour, which refers to the same.",
+    "attestedInstructions": [
+      "Before any experiment or operation, first prepare beforehand all the requisites described in the following chapters, observing the days, the hours, and the other effects of the constellations treated in this chapter.",
+      "The twenty-four hours of day and night are governed in regular descending order by the seven planets: Saturn (Shabbathai), Jupiter (Tzedeq), Mars (Madim), the Sun (Shemesh), Venus (Nogah), Mercury (Kokav), and the Moon (Levanah), the lowest.",
+      "The planets have dominion over the days nearest their names: Saturday Saturn, Thursday Jupiter, Tuesday Mars, Sunday the Sun, Friday Venus, Wednesday Mercury, and Monday the Moon.",
+      "Planetary rule of the hours begins at dawn, at the rising of the Sun, on the day named from that planet, and each following planet takes the next hour in the same order, returning in the eighth hour.",
+      "Each experiment or magical operation should be performed under the planet, and usually in the hour, which refers to the same."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The quotation is cut at the general rule about performing an operation under its planet, before the list of Saturn-hour experiments that includes summoning souls from Hades, ill fortune, and bringing destruction or death, which are not used.",
+      "Mathers's footnote on the first paragraph: 'This first paragraph is omitted in 1307 Sloane MSS., and in 10862 Add. MSS.' The printed Hebrew-letter transliterations (SHBTHAI, TzDQ, MADIM, SHMSH, NVGH, KVKB, LBNH) use mixed small capitals; the accompanying English names are given as printed (Shabbathai, Tzedeq, Madim, Shemesh, Nogah, Kokav, Levanah). The wording 'the day which take its name' follows the 1889 page."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/10/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": null,
+    "formulaOmissionReason": "The quoted passage contains instructions only; no spoken formula."
+  },
+  {
+    "id": "kos-i-02-jupiter-sun-venus-mercury-moon",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book I, Chapter II (Mathers 1889, p. 11)",
+    "url": "https://archive.org/details/b24884431/page/11/mode/1up",
+    "inspectedPassage": "The Days and Hours of Jupiter are proper for obtaining honours, acquiring riches; contracting friendships, preserving health; and arriving at all that thou canst desire.\n\nThe Days and Hours of the Sun are very good for perfecting experiments regarding temporal wealth, hope, gain, fortune, divination, the favour of princes, to dissolve hostile feeling, and to make friends.\n\nThe Days and Hours of Venus are good for forming friendships; for kindness and love; for joyous and pleasant undertakings, and for travelling.\n\nThe Days and Hours of Mercury are good to operate for eloquence and intelligence; promptitude in business; science and divination; wonders; apparitions; and answers regarding the future.\n\nThe Days and Hours of the Moon are good for embassies; voyages; envoys; messages; navigation; reconciliation; love; and the acquisition of merchandise by water.*\n\nThou shouldest take care punctually to observe all the instructions contained in this chapter, if thou desirest to succeed, seeing that the truth of Magical Science dependeth thereon.",
+    "attestedInstructions": [
+      "Use the days and hours of Jupiter for honours, riches, contracting friendships, preserving health, and arriving at what is desired.",
+      "Use the days and hours of the Sun for temporal wealth, hope, gain, fortune, divination, the favour of princes, dissolving hostile feeling, and making friends.",
+      "Use the days and hours of Venus for forming friendships, kindness and love, joyous and pleasant undertakings, and travelling.",
+      "Use the days and hours of Mercury for eloquence and intelligence, promptitude in business, science and divination, wonders, apparitions, and answers regarding the future.",
+      "Use the days and hours of the Moon for embassies, voyages, envoys, messages, navigation, reconciliation, love, and merchandise by water.",
+      "Observe punctually all the instructions in the chapter if success is desired."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "This slice quotes only the constructive planetary correspondences on p. 11. Omitted from the same page are: the end of the Saturn list (destruction, death, hatred and discord); the Mars list (war, overthrow of enemies, ruin, slaughter, cruelty, wounding, and death); Mercury used for thefts, writings, deceit, and merchandise; hours of Saturn, Mars, and the Moon for communicating with spirits, and of Mercury for recovering thefts by spirits; Mars hours for summoning souls from Hades; operations of invisibility; and Saturn/Mars hours, or Moon conjunct or in opposition or quartile to them, for hatred, enmity, quarrel, and discord.",
+      "Mathers's footnote * on this page: 'Much of these foregoing instructions is omitted in the 10862 Add. MSS., but given in a different way in the ensuing paragraphs.' 'Love' in the Venus and Moon lists is treated as forming friendships and kindness, not as a coercive love experiment (Book I, Chapter XV is not used)."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/11/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": null,
+    "formulaOmissionReason": "The quoted passage contains instructions only; no spoken formula."
+  },
+  {
+    "id": "kos-i-02-new-unto-the-full-moon",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book I, Chapter II (Mathers 1889, p. 12)",
+    "url": "https://archive.org/details/b24884431/page/12/mode/1up",
+    "inspectedPassage": "The Hours of the Sun, of Jupiter, and of Venus, particularly on the days which they rule, are good for all extraordinary, uncommon, and unknown operations.\n\nBut if these things seem unto thee difficult to accomplish, it will suffice thee merely to notice the Moon after her combustion, or conjunction with the Sun, especially just when she* quits his beams and appeareth visible. For then it is good to make all experiments for the construction and operation of any matter. That is why the time from the New unto the Full Moon is proper for performing any of the experiments of which we have spoken above.\n\nBut observe inviolably that thou commence nothing while the Moon is in conjunction with the Sun, seeing that this is extremely unfortunate, and that thou wilt then be able to effect nothing; but the Moon quitting his beams and increasing in Light, thou canst perform all that thou desirest, observing nevertheless the directions in this Chapter.",
+    "attestedInstructions": [
+      "The hours of the Sun, of Jupiter, and of Venus, particularly on the days they rule, are good for extraordinary, uncommon, and unknown operations.",
+      "If the fuller planetary and zodiacal rules seem difficult, it suffices to notice the Moon after her combustion or conjunction with the Sun, especially just when she quits his beams and appears visible (Mathers's footnote: i.e. New Moon).",
+      "The time from the New unto the Full Moon is proper for experiments of construction and operation.",
+      "Commence nothing while the Moon is in conjunction with the Sun; when the Moon quits his beams and is increasing in light, operations may be performed, still observing the directions of the chapter."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "Omitted from the same page are: Moon hours for recovery of stolen property and for summoning spirits in sleep; Venus hours for lots, poisons, or powders provocative of madness; works of necromancy; love, grace, and invisibility with the Moon in a fiery sign; hatred, discord, and destruction with the Moon in a watery sign; and the statement that the wane is good for war, disturbance, and discord, and that the period when the Moon is almost deprived of light is proper for invisibility and death.",
+      "Mathers's footnote * : 'i.e. New Moon.' Suggested #224 seasonal tags for a later draft, recorded only in the staging manifest because sourcePassages has no seasonalWindow field: { kind: \"moon\", phase: \"waxing\" } (New unto Full, increasing in light); also applicable at { kind: \"moon\", phase: \"full\" } at the end of that window. Do not tag the dropped waning-moon war or dark-moon invisibility/death material."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/12/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": null,
+    "formulaOmissionReason": "The quoted passage contains instructions only; no spoken formula."
+  },
+  {
+    "id": "kos-i-02-secret-place-and-circle",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book I, Chapter II (Mathers 1889, p. 13)",
+    "url": "https://archive.org/details/b24884431/page/13/mode/1up",
+    "inspectedPassage": "Retire* thou then unto a secret place, where no one may be able to see thee or to hinder thee, before the completion of the experiment, whether thou shouldest wish to work by day or by night. But if thou shouldest wish to work by night, perfect thy work on the succeeding night; if by day, seeing that the day beginneth with the rising of the Sun (perfect thy work on) the succeeding day. But the Hour of Inception is the Hour of Mercury.\n\nVerily, since no experiments for converse with Spirits can be done without a Circle being prepared, whatsoever experiments therefore thou wishest to undertake for conversing with Spirits, therein thou must learn to construct a certain particular Circle; that being done surround that Circle with a Circle of Art for better caution and efficacy.",
+    "attestedInstructions": [
+      "Before completing an experiment, retire to a secret place where no one may see or hinder the work, whether it is done by day or by night.",
+      "If working by night, perfect the work on the succeeding night; if by day (the day beginning with the rising of the Sun), perfect it on the succeeding day. The hour of inception is the hour of Mercury.",
+      "The chapter says that experiments for converse with spirits are not done without a prepared circle, and that a particular circle should be constructed and then surrounded with a Circle of Art for better caution and efficacy."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "Mathers's footnote: 'The following paragraphs to the end of this Chapter are only found in the Latin version, Add. MSS. 10862.' Generated content may describe a prepared, cautious working space and a symbolic circle of art; it must not become an instruction to constrain or command spirits."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/13/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": null,
+    "formulaOmissionReason": "The quoted passage contains instructions only; no spoken formula."
+  },
+  {
+    "id": "kos-i-04-confession-and-prayer",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book I, Chapter IV (Mathers 1889, pp. 20-21)",
+    "url": "https://archive.org/details/b24884431/page/20/mode/1up",
+    "inspectedPassage": "O LORD of Heaven and of Earth, before Thee do I confess my sins, and lament them, cast down and humbled in thy presence.\n\nFurthermore I hate the sins which I have committed in all my senses, by sight, by hearing, by taste, by smell, and by touch, in every way that human weakness can offend the Creator; by my carnal thoughts, deeds, and meditations.\n\nIn which I humbly confess that I have sinned, and recognise myself as being in the sight of God the most criminal of all men.\n\nI accuse myself before Thee, O God, and I adore Thee with all humility. O ye, Holy Angels, and ye, Children of God, in your presence I publish my sins, so that mine Enemy may have no advantage over me, and may not be able to reproach me at the last day; that he may not be able to say that I have concealed my sins, and that I be not then accused in the presence of the Lord; but, on the contrary, that on my account there may be joy in Heaven, as over the just who have confessed their sins in thy presence.\n\nThe Confession having been finished with great humility, and with the inward feeling of the heart, the Master will recite the following prayer:—\n\nPRAYER.\n\nO Lord All Powerful, Eternal God and Father of all Creatures, shed upon me the Divine Influence of Thy Mercy, for I am Thy Creature. I beseech Thee to defend me from mine Enemies, and to confirm in me true and steadfast faith.\n\nO Lord, I commit my Body and my Soul unto Thee, seeing I put my trust in none beside Thee; it is on Thee alone that I rely; O Lord my God aid me; O Lord hear me in the day and hour wherein I shall invoke Thee. I pray Thee by Thy Mercy not to put me in oblivion, nor to remove me from Thee. O Lord be Thou my succour, Thou Who art the God of my salvation. O Lord make me a new heart according unto Thy loving Kindness. These, O Lord, are the gifts which I await from Thee, O my God and my Master, Thou Who livest and reignest unto the Ages of the Ages. Amen.",
+    "attestedInstructions": [
+      "The exorcist or master makes a confession of sins before the Lord of Heaven and of Earth, humbled in that presence, and publishes the confession also before the holy angels, so that the enemy may have no advantage.",
+      "After the confession has been finished with great humility and inward feeling of the heart, the master recites the prayer beginning 'O Lord All Powerful, Eternal God and Father of all Creatures,' asking for mercy, defence from enemies, steadfast faith, aid in the day and hour of invocation, and a new heart."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The long catalogue of particular sins printed on pp. 20-21 (pride, avarice, idleness, and the rest) is omitted here for length; the wording that is quoted was checked against the page images of pp. 20 and 21. A further prayer beginning 'O Lord God the All Powerful One, Who hast formed unto Thyself great and Ineffable Wisdom' continues to the foot of p. 21 and is not included in this record."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/20/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": "O LORD of Heaven and of Earth, before Thee do I confess my sins, and lament them, cast down and humbled in thy presence. ... O Lord All Powerful, Eternal God and Father of all Creatures, shed upon me the Divine Influence of Thy Mercy, for I am Thy Creature. I beseech Thee to defend me from mine Enemies, and to confirm in me true and steadfast faith. ... O Lord make me a new heart according unto Thy loving Kindness. ... Amen."
+  },
+  {
+    "id": "kos-i-05-prayer-and-tower-of-refuge",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book I, Chapter V (Mathers 1889, p. 22)",
+    "url": "https://archive.org/details/b24884431/page/22/mode/1up",
+    "inspectedPassage": "O LORD God, Holy Father, Almighty and Merciful One, Who hast created all things, Who knowest all things and can do all things, from Whom nothing is hidden, to Whom nothing is impossible; Thou who knowest that we perform not these ceremonies to tempt Thy power, but that we may penetrate into the knowledge of hidden things; we pray Thee by Thy Sacred Mercy to cause and to permit, that we may arrive at this understanding of secret things, of whatever nature they may be by Thine aid, O Most Holy ADONAI, Whose Kingdom and Power shall have no end unto the Ages of the Ages. Amen.\n\nThe Prayer being finished, let the Exorcist lay his hand upon the Pentacles, while one of the Disciples shall hold open before him the Book wherein are written the prayers and conjurations proper for conquering, subduing, and reproving the Spirits. Then the Master, turning towards each Quarter of the Earth, and raising his eyes to Heaven, shall say:\n\nO Lord, be Thou unto me a strong tower of refuge, from the sight and assaults of the Evil Spirits.",
+    "attestedInstructions": [
+      "A prayer is first recited to the Lord God, Holy Father, asking that the ceremonies not be done to tempt divine power, but that understanding of secret things may be granted through sacred mercy, in the name of most holy Adonai.",
+      "When the prayer is finished, the exorcist lays a hand upon the pentacles while a disciple holds open the book of prayers.",
+      "The master turns toward each quarter of the earth, raises the eyes to heaven, and says: 'O Lord, be Thou unto me a strong tower of refuge, from the sight and assaults of the Evil Spirits.'"
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The quotation is cut after the 'tower of refuge' petition, before the chapter's instructions to utter words that give 'Terror and Fear,' to commence a harsher invocation if spirits are unwilling, and before 'The Conjuration' that follows on the same page. Generated content may use the opening prayer and the petition for a tower of refuge; it must not become a binding or coercive conjuration of spirits."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/22/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": "O LORD God, Holy Father, Almighty and Merciful One, Who hast created all things, Who knowest all things and can do all things, from Whom nothing is hidden, to Whom nothing is impossible; Thou who knowest that we perform not these ceremonies to tempt Thy power, but that we may penetrate into the knowledge of hidden things; we pray Thee by Thy Sacred Mercy to cause and to permit, that we may arrive at this understanding of secret things, of whatever nature they may be by Thine aid, O Most Holy ADONAI, Whose Kingdom and Power shall have no end unto the Ages of the Ages. Amen.\n\nO Lord, be Thou unto me a strong tower of refuge, from the sight and assaults of the Evil Spirits."
+  },
+  {
+    "id": "kos-i-08-pentacles-construction",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book I, Chapter VIII (Mathers 1889, p. 39)",
+    "url": "https://archive.org/details/b24884431/page/39/mode/1up",
+    "inspectedPassage": "As we have already made mention of the Pentacles, it is necessary that thou shouldest understand that the whole Science and understanding of our Key dependeth upon the operation, Knowledge, and use of Pentacles.\n\nHe then who shall wish to perform any operation by the means of the Medals, or Pentacles, and therein to render himself expert, must observe well what hath been hereinbefore ordained. Let him then, O my Son Roboam, know and understand that in the aforesaid Pentacles he shall find those Ineffable and Most Holy Names which were written by the finger of God in the Tablets of Moses; and which I, Solomon, have received through the Ministry of an Angel by Divine Revelation. These then have I collected together, arranged, consecrated, and kept, for the benefit of the human race, and the preservation of Body and of Soul.\n\nThe Pentacles should then be made in the days and hours of Mercury, when the Moon is in an aërial* or terrestrial sign; she should also be in her increase, and in equal number of days with the Sun.\n\nIt is necessary to have a Chamber or Cabinet specially set apart and newly cleaned, wherein thou canst remain without interruption, the which having entered with thy Companions, thou shalt incense and perfume it with the odours and perfumes of the Art. The sky should be clear and serene. It is necessary that thou shouldest have one or more pieces of virgin paper prepared and arranged ready, as we shall tell you more fully later on, in its place.\n\nThou shalt commence the writing or construction of the Pentacles in the hour aforesaid. Among other things, thou shalt chiefly use these colours: Gold, Cinnabar or Vermilion Red, and celestial or brilliant Azure Blue. Furthermore, thou shalt make these Medals or Pentacles with exorcised pen and colours, as we shall hereafter show thee. Whensoever thou constructest them, if thou canst complete them in the hour wherein thou didst begin them, it is better. However, if it be absolutely necessary to interrupt the work, thou shouldest await the proper day and hour before re-commencing it.\n\nThe Pentacles being finished and completed, take a cloth of very fine silk, as we shall hereafter ordain thee, in the which thou shalt wrap the Pentacles. After which thou shalt take a large Vessel of Earth filled with Charcoal, upon the which there must be put frankincense, mastic, and aloes, all having been previously conjured and exorcised as shall hereafter be told thee. Thou must also be thyself pure, clean, and washed, as thou shalt find given in the proper place.",
+    "attestedInstructions": [
+      "Pentacles are to be made in the days and hours of Mercury, when the Moon is in an aerial or terrestrial sign, in her increase, and in equal number of days with the Sun. Mathers's footnote names the aerial or terrestrial signs as Gemini, Libra, Aquarius, Taurus, Virgo, or Capricorn.",
+      "Work in a chamber or cabinet specially set apart and newly cleaned, entered with companions; incense and perfume it; the sky should be clear and serene; have one or more pieces of virgin paper ready.",
+      "Begin the writing or construction in the hour aforesaid, chiefly using gold, cinnabar or vermilion red, and celestial or brilliant azure blue, with exorcised pen and colours. It is better to complete them in the hour in which they were begun; if the work must be interrupted, wait for the proper day and hour before recommencing.",
+      "When finished, wrap the pentacles in a cloth of very fine silk. Place frankincense, mastic, and aloes on a large earthen vessel filled with charcoal, all previously conjured and exorcised. The operator must be pure, clean, and washed."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The quotation is cut at the requirement that the operator be pure, clean, and washed, before the chapter continues on p. 40 with the sickle or knife of magical art, the tracing of a circle, and later remarks on a solemn conjuration of spirits. Mathers's footnote *: 'i.e. in Gemini, Libra, Aquarius, Taurus, Virgo, or Capricorn.' Suggested #224 seasonal tag, manifest only: { kind: \"moon\", phase: \"waxing\" } (the Moon in her increase).",
+      "Cinnabar is historically named as a colour; generated modern instructions must not prescribe handling toxic mercury sulphide and may substitute a safe red pigment."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/39/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": null,
+    "formulaOmissionReason": "The quoted passage contains instructions only; no spoken formula."
+  },
+  {
+    "id": "kos-i-08-pentacle-consecration-oration",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book I, Chapter VIII (Mathers 1889, p. 40)",
+    "url": "https://archive.org/details/b24884431/page/40/mode/1up",
+    "inspectedPassage": "After this thou shalt repeat the following Oration:—\n\nTHE ORATION.\n\nO ADONAI most powerful, EL most strong, AGLA most holy, ON most righteous, the ALEPH and the TAU, the Beginning and the End; Thou Who hast established all things in Thy Wisdom; Thou Who has chosen Abraham Thy faithful servant, and hast promised that in his seed shall all nations of the earth be blessed, which seed Thou hast multiplied as the Stars of Heaven; Thou Who hast appeared unto Thy servant Moses in flame in the midst of the Burning Bush, and hast made him walk with dry feet through the Red Sea; Thou Who gavest the Law to him upon Mount Sinai; Thou Who hast granted unto Solomon Thy Servant these Pentacles by Thy great Mercy, for the preservation of Soul and of Body; we most humbly implore and supplicate Thy Holy Majesty, that these Pentacles may be consecrated by Thy power, and prepared in such manner that they may obtain virtue and strength against all Spirits, through Thee, O Most Holy ADONAI, Whose Kingdom, Empire, and principality, remaineth and endureth without end.\n\nThese words being said, thou shalt perfume the Pentacles with the same sweet scents and perfumes, and afterwards having wrapped them in a piece of prepared silk cloth, thou shalt put them in a place fit and clean, which thou mayest open whenever it shall please thee, and close it again, at thy pleasure and according unto thy will.",
+    "attestedInstructions": [
+      "After the earlier preparations, repeat the oration beginning 'O ADONAI most powerful, EL most strong, AGLA most holy, ON most righteous, the ALEPH and the TAU,' asking that the pentacles be consecrated for the preservation of soul and body and that they obtain virtue and strength against all spirits.",
+      "When the words have been said, perfume the pentacles with the same sweet scents and perfumes, wrap them in a piece of prepared silk cloth, and put them in a fit and clean place that may be opened and closed at will."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The quotation begins at 'After this thou shalt repeat the following Oration' and is cut after the pentacles are put away in a clean place, before the chapter's later remarks on a solemn conjuration of spirits and on experiments to make spirits speak. Mathers's footnote on 'the ALEPH and the TAU' (not included in the quoted text but on the same page) says the Qabalistic word AZOTH may be substituted. The wording 'Thou Who has chosen Abraham' follows the 1889 page (has, not hast)."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/40/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": "O ADONAI most powerful, EL most strong, AGLA most holy, ON most righteous, the ALEPH and the TAU, the Beginning and the End; Thou Who hast established all things in Thy Wisdom; Thou Who has chosen Abraham Thy faithful servant, and hast promised that in his seed shall all nations of the earth be blessed, which seed Thou hast multiplied as the Stars of Heaven; Thou Who hast appeared unto Thy servant Moses in flame in the midst of the Burning Bush, and hast made him walk with dry feet through the Red Sea; Thou Who gavest the Law to him upon Mount Sinai; Thou Who hast granted unto Solomon Thy Servant these Pentacles by Thy great Mercy, for the preservation of Soul and of Body; we most humbly implore and supplicate Thy Holy Majesty, that these Pentacles may be consecrated by Thy power, and prepared in such manner that they may obtain virtue and strength against all Spirits, through Thee, O Most Holy ADONAI, Whose Kingdom, Empire, and principality, remaineth and endureth without end."
+  },
+  {
+    "id": "kos-ii-prefatory-heed-and-understanding",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book II, Prefatory Note (Mathers 1889, p. 71)",
+    "url": "https://archive.org/details/b24884431/page/71/mode/1up",
+    "inspectedPassage": "THIS Work of Solomon is divided into two books. In the first thou mayest see and know how to avoid errors in Experiments, Operations, and in the Spirits themselves. In the second thou art taught in what manner Magical Arts may be reduced to the proposed object and end.\n\nIt is for this reason that thou shouldest take great heed and care that this Key of Secrets fall not into the hands of the foolish, the stupid, and the ignorant. For he who is the possessor hereof, and who availeth himself hereof according to the ordinances herein contained, will not only be able to reduce the Magical Arts herein unto their proposed end, but will, even if he findeth certain errors herein, be able to correct them.\n\nAny Art or Operation of this kind will not be able to attain its end, unless the Master of the Art, or Exorcist, shall have this Work completely in his power, that is to say, unless he thoroughly understand it, for without this he will never attain the effect of any operation.",
+    "attestedInstructions": [
+      "The work is divided into two books: the first on avoiding errors in experiments, operations, and in the spirits themselves; the second on reducing magical arts to the proposed object and end.",
+      "The key of secrets is not to fall into the hands of the foolish, the stupid, and the ignorant.",
+      "No art or operation of this kind attains its end unless the master or exorcist thoroughly understands the work and has it completely in his power."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "Mathers's footnote: 'This Prefatory Note is only found in 3981 Harleian MSS., 3091 Sloane MSS., and 288 King's MSS.' A following paragraph on p. 71, in which the writer entreats the possessor by the name of God in four letters and by the name Adonai not to communicate the work to the unfaithful, is omitted here for length; it is not a conjuration of spirits."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/71/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": null,
+    "formulaOmissionReason": "The quoted passage contains instructions only; no spoken formula."
+  },
+  {
+    "id": "kos-ii-01-hours-and-silence-of-night",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book II, Chapter I (Mathers 1889, p. 72)",
+    "url": "https://archive.org/details/b24884431/page/72/mode/1up",
+    "inspectedPassage": "THE Days and Hours have already been treated of, in general, in the First Book. It is now necessary to notice in particular at what hour accomplishment and perfection should be given to the Arts, all things necessary having been previously prepared.\n\nShould it then happen that thou hast undertaken any secret operation for conversing with or conjuring Spirits, in which the day and the hour are not marked, thou shalt put it in execution on the days and hours of Mercury, at the sixteenth or twenty-third hour, but it will be still better at the eighth, which is the third* of the same night, which is called and means before the morning, for then thou shalt be able to put in practice all the Arts and Operations which should be performed, according as it shall please thee by day or by night, provided that they have been prepared at the hours suitable to them, as hath been already said. But when neither hour nor time of operation or invocation is specified, it is then much better to perform these experiments at night, seeing that it is more easy to the Spirits to appear in the peaceful silence of night than during the day. And thou shouldest inviolably observe, that wishing to invoke the Spirits, either by day or by night, it is necessary that it should be done in a place hidden, removed, secret, convenient, and proper for such Art, where no man frequenteth or inhabiteth, as we shall relate more fully in its place.",
+    "attestedInstructions": [
+      "When a secret operation has no day and hour marked, put it in execution on the days and hours of Mercury, at the sixteenth or twenty-third hour, and still better at the eighth, which is the third of the same night (Mathers notes that Add. MS 10862 says 'the second'), meaning before the morning, provided the work has already been prepared at suitable hours.",
+      "When neither hour nor time is specified, it is much better to perform the experiments at night, because, the chapter says, it is easier for spirits to appear in the peaceful silence of night than during the day.",
+      "Whether by day or by night, an invocation is to be done in a place hidden, removed, secret, convenient, and proper, where no one frequents or inhabits."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The quotation is cut at 'as we shall relate more fully in its place,' before the chapter's instructions for operations touching stolen things (to be done on the days and hours of the Moon), for invisibility (hours of Mars), and for seeking love, grace, or favour (hours of the Sun and of Venus). Generated content may use the timing and the secret, unfrequented place, and the peaceful silence of night; it must not become an instruction to conjure or constrain spirits, recover stolen property, or work invisibility or coercive favour. Mathers's footnote *: 'In 10862 Add. MSS. it says \"the second.\"'"
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/72/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": null,
+    "formulaOmissionReason": "The quoted passage contains instructions only; no spoken formula."
+  },
+  {
+    "id": "kos-ii-02-master-study-and-bath",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book II, Chapter II (Mathers 1889, p. 75)",
+    "url": "https://archive.org/details/b24884431/page/75/mode/1up",
+    "inspectedPassage": "HE who wisheth to apply himself unto so great and so difficult a Science should have his mind free from all business, and from all extraneous ideas of whatever nature they may be.\n\nHe should then thoroughly examine the Art or Operation which he should undertake, and write it regularly out on paper, particularly set aside for that purpose, with the appropriate conjurations and exorcisms. If there be anything to mark or write down, it should be performed in the manner specified regarding the paper, ink, and pen. He should also observe at what day and at what hour this Experiment should be undertaken, and what things are necessary to prepare for it, what should be added, and what can be dispensed with.\n\nThe which matters being prepared, it is necessary for thee to search out and arrange some fitting place wherein the Magical Art and its Experiments can be put in practice. All these things being thus arranged and disposed, let the Master of the Art go into a proper and fitting place, or into his Cabinet or Secret Chamber if it be convenient for the purpose, and he can there dispose and set in order the whole operation; or he can use any other convenient secret place for the purpose, provided that no one knoweth where it is, and that no man can see him when there.\n\nAfter this he must strip himself entirely naked, and let him have a bath ready prepared, wherein is water exorcised, after the manner which we shall describe, so that he may bathe and purify himself therein from the crown of his head unto the sole of his foot, saying:—\n\nO Lord ADONAI, Who hast formed me Thine unworthy servant in Thine Image and resemblance of vile and of abject earth; deign to bless and to sanctify this Water, so that it may be for the health and purification of my soul, and of my body, so that no foolishness or deceitfulness may therein in any way have place.\n\nO Most Powerful and Ineffable God, Who madest Thy people pass dryshod through the Red Sea when they came up out of the Land of Egypt, grant unto me grace that I may be purified and regenerated from all my past sins by this Water, that so no uncleanness may appear upon me in Thy Presence.\n\nAfter this thou shalt entirely immerse thyself in the Water, and thou shalt dry thyself with a towel of clean white linen, and then thou shalt put upon thy flesh the garments of pure white linen whereof we shall speak hereafter.",
+    "attestedInstructions": [
+      "The master should keep the mind free from business and extraneous ideas, thoroughly examine the intended operation, and write it regularly out on paper set aside for that purpose, noting the day and hour, what must be prepared, what should be added, and what can be dispensed with.",
+      "Search out and arrange a fitting place, or a cabinet or secret chamber, or any other convenient secret place, provided that no one knows where it is and that no one can see the operator there.",
+      "A bath of exorcised water is prepared. The historical text describes a full ritual bath with two prayers over the water ('O Lord ADONAI, Who hast formed me Thine unworthy servant...' and 'O Most Powerful and Ineffable God, Who madest Thy people pass dryshod through the Red Sea...'). After immersing, dry with a towel of clean white linen and put on garments of pure white linen."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The 1889 text says the master 'must strip himself entirely naked' for this bath. Generated modern instructions must not require or sexualize nudity; a modest private bath or washing is an acceptable adaptation of the attested purification. 'Health and purification of my soul, and of my body' is a ritual petition, not medical advice."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/75/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": "O Lord ADONAI, Who hast formed me Thine unworthy servant in Thine Image and resemblance of vile and of abject earth; deign to bless and to sanctify this Water, so that it may be for the health and purification of my soul, and of my body, so that no foolishness or deceitfulness may therein in any way have place.\n\nO Most Powerful and Ineffable God, Who madest Thy people pass dryshod through the Red Sea when they came up out of the Land of Egypt, grant unto me grace that I may be purified and regenerated from all my past sins by this Water, that so no uncleanness may appear upon me in Thy Presence."
+  },
+  {
+    "id": "kos-ii-04-fasting-care-and-prayer",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book II, Chapter IV (Mathers 1889, p. 79)",
+    "url": "https://archive.org/details/b24884431/page/79/mode/1up",
+    "inspectedPassage": "WHEN the Master of the Art shall wish to perform his operations, having previously arranged all things which it is necessary to observe and practise; from the first day of the Experiment, it is absolutely necessary to ordain and to prescribe care and observation, to abstain from all things unlawful, and from every kind of impiety, impurity, wickedness, or immodesty, as well of body as of soul; as, for example, eating and drinking superabundantly, and all sorts of vain words, buffooneries, slanders, calumnies, and other useless discourse; but instead to do good deeds, speak honestly, keep a strict decency in all things, never lose sight of modesty in walking, in conversation, in eating and drinking, and in all things; the which should be principally done and observed for nine days, before the commencement of the Operation. The Disciples should do the same, and should equally put in practice all things necessary to be observed, if they wish to make use of all these operations and experiments.\n\nBut before the commencement of the work, it is absolutely necessary that the Master with his Disciples repeat the following Conjuration once in the morning, and twice in the evening:—\n\nTHE CONJURATION.\n\nO Lord God Almighty, be propitious unto me a miserable sinner, for I am not worthy to raise mine eyes unto heaven, because of the iniquity of my sins and the multitude of my faults. O pitying and merciful Father, who wouldest not the death of a sinner but rather that he should turn from his wickedness and live, O God have mercy upon me and pardon all my sins; for I unworthy entreat Thee, O Father of all Creatures, Thou Who art full of mercy and of compassion, by Thy great goodness, that Thou deign to grant unto me power to see and know these Spirits which I desire to behold and to invoke to appear before me and to accomplish my will. Through Thee Who art Conqueror, and Who art Blessed unto the Ages of the Ages. Amen.\n\nO Lord God the Father Eternal, Who art seated upon the Kerubim and the Seraphim, Who lookest upon Earth and upon Sea; unto Thee do I raise my hands and implore thine aid alone, Thou Who alone art the accomplishment of good works, Thou Who givest rest unto those who labour, Thou humblest the proud, Thou art the Author of Life and the Destroyer of Death; Thou art our rest, Thou art the Protector of those who invoke Thee; protect, guard, and defend me in this matter, and in this enterprise which I propose to carry out, O Thou Who livest, reignest, and abidest unto the Eternal Ages. Amen.",
+    "attestedInstructions": [
+      "From the first day of the experiment, observe care: abstain from all things unlawful and from impiety, impurity, wickedness, or immodesty of body and of soul, including eating and drinking superabundantly and vain, slanderous, or useless speech. Instead do good deeds, speak honestly, and keep a strict decency and modesty in walking, conversation, eating and drinking, and in all things, principally for nine days before the operation. Disciples should do the same.",
+      "Before the work begins, the master with the disciples repeats the following prayer (printed as 'The Conjuration') once in the morning and twice in the evening: a confession and petition for mercy, followed by a prayer to the eternal Father seated upon the Kerubim and the Seraphim for aid, protection, and defence in the enterprise."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The first prayer includes a petition 'to see and know these Spirits which I desire to behold and to invoke to appear before me and to accomplish my will.' Generated content may use the nine-day care, honesty, and the penitential prayers for mercy and protection; it must not become an instruction to compel spirits to accomplish the operator's will. 'Author of Life and the Destroyer of Death' is devotional language, not an instruction to cause death."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/79/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": "O Lord God Almighty, be propitious unto me a miserable sinner, for I am not worthy to raise mine eyes unto heaven, because of the iniquity of my sins and the multitude of my faults. O pitying and merciful Father, who wouldest not the death of a sinner but rather that he should turn from his wickedness and live, O God have mercy upon me and pardon all my sins; for I unworthy entreat Thee, O Father of all Creatures, Thou Who art full of mercy and of compassion, by Thy great goodness, that Thou deign to grant unto me power to see and know these Spirits which I desire to behold and to invoke to appear before me and to accomplish my will. Through Thee Who art Conqueror, and Who art Blessed unto the Ages of the Ages. Amen.\n\nO Lord God the Father Eternal, Who art seated upon the Kerubim and the Seraphim, Who lookest upon Earth and upon Sea; unto Thee do I raise my hands and implore thine aid alone, Thou Who alone art the accomplishment of good works, Thou Who givest rest unto those who labour, Thou humblest the proud, Thou art the Author of Life and the Destroyer of Death; Thou art our rest, Thou art the Protector of those who invoke Thee; protect, guard, and defend me in this matter, and in this enterprise which I propose to carry out, O Thou Who livest, reignest, and abidest unto the Eternal Ages. Amen."
+  },
+  {
+    "id": "kos-ii-05-bath-water-and-salt",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book II, Chapter V (Mathers 1889, pp. 81-82)",
+    "url": "https://archive.org/details/b24884431/page/81/mode/1up",
+    "inspectedPassage": "If thou wishest to perform any experiment or operation, having arranged all things necessary thereunto according to the proper days and hours, thou shalt go unto a river or running stream, or thou shalt have warm water ready in some large vessel or tub in thy secret cabinet, and while disrobing thyself of thy raiment thou shalt repeat the following Psalms:—Psalms xiv. or lii.; xvii.; liv.; lxxxi.; cv.\n\nAnd when the Master shall be entirely disrobed let him enter into the water or into the Bath, and let him say:—\n\nTHE EXORCISM OF THE WATER.\n\nI exorcise Thee, O Creature of Water, by Him Who hath created thee and gathered thee together into one place so that the dry land appeared, that thou uncover all the deceits of the Enemy, and that thou cast out from thee all the impurities and uncleannesses of the Spirits of the World of Phantasm, so they may harm me not, through the virtue of God Almighty who liveth and reigneth unto the Ages of the Ages. Amen.\n\nThen shalt thou begin to wash thyself thoroughly in the Bath, saying:—\n\nMERTALIA, MUSALIA, DOPHALIA, ONEMALIA, ZITANSEIA, GOLDAPHAIRA, DEDULSAIRA, GHEVIALAIRA, GHEMINAIRA, GEGROPHEIRA, CEDAHI, GILTHAR, GODIEB, EZOIIL, MUSIL, GRASSIL, TAMEN, PUERI, GODU, HUZNOTH, ASTACHOTH, TZABAOTH, ADONAI, AGLA, ON, EL, TETRAGRAMMATON, SHEMA, ARESION, ANAPHAXETON, SEGILATON, PRIMEUMATON.\n\nAll the which Names thou shalt repeat twice or thrice, until thou art completely washed and clean, and when thou art perfectly pure thou shalt quit the Bath, and sprinkle thyself with exorcised water, in the manner described later on, and thou shalt say:—\n\nPurge me, O Lord, with hyssop, and I shall be clean; wash me, and I shall be whiter than snow.\n\nWhilst again clothing thyself, thou shalt recite the following Psalms:—Psalms cii.; li.; iv.; xxx.; cxix., Mem, v. 97.; cxiv.; cxxvi., cxxxix.\n\nAfter which thou shalt recite the following Prayer:—\n\nPRAYER.\n\nEL Strong and Wonderful, I bless Thee, I adore Thee, I glorify Thee, I invoke Thee, I render Thee thanks from this Bath, so that this Water may be able to cast from me all impurity and concupiscence of heart, through Thee, O Holy ADONAI; and may I accomplish all things through Thee Who livest and reignest unto the Ages of the Ages. Amen.\n\nAfter this take the Salt and bless it in this manner:—\n\nTHE BENEDICTION OF THE SALT.\n\nThe Blessing of the Father Almighty be upon this Creature of Salt, and let all malignity and hindrance be cast forth hencefrom, and let all good enter herein, for without Thee man cannot live, wherefore I bless thee and invoke thee, that thou mayest aid me.\n\nThen thou shalt recite over the Salt, Psalm ciii.\n\nThen taking the grains of the exorcised Salt thou shalt cast them into the aforesaid Bath; and thou shalt again disrobe thyself, pronouncing the following words:—\n\nIMANEL, ARNAMON, IMATO, MEMEON, RECTACON, MUOBOII, PALTELLON, DECAION, YAMENTON, YARON, TATONON, VAPHORON, GARDON, EXISTON, ZAGVERON, MOMERTON, ZARMESITON, TILEION, TIXMION.\n\nAfter this thou shalt enter a second time into the Bath and recite Psalms civ. and lxxxi.\n\nThen thou shalt quit the Bath and clothe thyself as before in linen garments clean and white, and over them thou shalt put the garments, of which we shall speak in the proper Chapter, and thus clothed thou shalt go to finish thy work.\n\nThe Disciples should wash themselves in like manner, and with like solemnities.",
+    "attestedInstructions": [
+      "Having arranged all things according to the proper days and hours, go to a river or running stream, or have warm water ready in a large vessel or tub in the secret cabinet. While disrobing, recite Psalms xiv. or lii.; xvii.; liv.; lxxxi.; cv.",
+      "Enter the water and say the exorcism of the water, asking that the creature of water uncover the deceits of the enemy and cast out impurities so they may harm the operator not.",
+      "Wash thoroughly, repeating the listed names twice or thrice until clean; quit the bath, sprinkle with exorcised water, and say: 'Purge me, O Lord, with hyssop, and I shall be clean; wash me, and I shall be whiter than snow.'",
+      "While clothing, recite Psalms cii.; li.; iv.; xxx.; cxix., Mem, v. 97.; cxiv.; cxxvi., cxxxix., then the prayer beginning 'EL Strong and Wonderful.'",
+      "Bless the salt with the benediction of the salt, recite Psalm ciii over it, and cast the grains of exorcised salt into the bath. After a second entry into the bath with Psalms civ. and lxxxi., quit the bath and put on clean white linen, and over them the garments of the art. Disciples wash in like manner."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The chapter opens by saying the bath is necessary for all magical and necromantic arts; that general heading is omitted here, and this record is used only as a rite of washing, psalms, and the blessing of water and salt. The 1889 text again requires the master to be entirely disrobed; generated modern instructions must not require or sexualize nudity. The divine and barbarous names are given in small capitals on the page; spelling follows the printed Latin letters as closely as plain text allows (including forms such as EZOIIL and MUOBOII). A short earlier clause on p. 81 before 'If thou wishest' is omitted."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/81/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": "I exorcise Thee, O Creature of Water, by Him Who hath created thee and gathered thee together into one place so that the dry land appeared, that thou uncover all the deceits of the Enemy, and that thou cast out from thee all the impurities and uncleannesses of the Spirits of the World of Phantasm, so they may harm me not, through the virtue of God Almighty who liveth and reigneth unto the Ages of the Ages. Amen.\n\nPurge me, O Lord, with hyssop, and I shall be clean; wash me, and I shall be whiter than snow.\n\nEL Strong and Wonderful, I bless Thee, I adore Thee, I glorify Thee, I invoke Thee, I render Thee thanks from this Bath, so that this Water may be able to cast from me all impurity and concupiscence of heart, through Thee, O Holy ADONAI; and may I accomplish all things through Thee Who livest and reignest unto the Ages of the Ages. Amen.\n\nThe Blessing of the Father Almighty be upon this Creature of Salt, and let all malignity and hindrance be cast forth hencefrom, and let all good enter herein, for without Thee man cannot live, wherefore I bless thee and invoke thee, that thou mayest aid me."
+  },
+  {
+    "id": "kos-ii-06-garments-shoes-and-crown",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book II, Chapter VI (Mathers 1889, p. 83)",
+    "url": "https://archive.org/details/b24884431/page/83/mode/1up",
+    "inspectedPassage": "THE exterior habiliments which the Master of the Art should wear ought to be of linen, as well as those which he weareth beneath them; and if he hath the means they should be of Silk. If they be of linen the thread of which they are made should have been spun by a young maiden.\n\nThe characters shown in Figure 55 should be embroidered on the breast with the needle of Art in red silk.\n\nThe shoes should also be White, upon the which the characters in Figure 56 should be traced in the same way.\n\nThe shoes or boots should be made of white leather, on the which should be marked the Signs and Characters of Art. These shoes should be made during the days of fast and abstinence, namely, during the nine days set apart before the beginning of the Operation, during which the necessary instruments also should be prepared, polished, brightened, and cleaned.\n\nBesides this, the Master of the Art should have a Crown made of Virgin paper, upon the which should be written these four Names:—YOD, HE, VAU, HE, in front; ADONAI behind; EL on the right; and ELOHIM on the left. (See Figure 57.) These Names should be written with the ink and pen of the Art, whereof we shall speak in the proper Chapter. The Disciples should also each have a Crown of Virgin paper whereon these Divine symbols should be marked in scarlet. (See Figure 58.)\n\nTake heed also that in clothing thyself with these aforesaid habiliments, that thou recite these Psalms:—Psalms xv.; cxxxi.; cxxxvii.; cxvii.; lxvii.; lxviii.; and cxxvii.\n\nAfter this perfume the vestments with the perfumes and suffumigations of the Art, and sprinkle them with the water and hyssop of the Art.\n\nBut when the Master and His Disciples shall commence to robe themselves after the first Psalm, and before continuing with the others, he should pronounce these words:—\n\nAMOR, AMATOR, AMIDES, IDEODANIACH, PAMOR, PLAIOR, ANITOR; through the merits of these holy Angels will I robe and indue myself with the Vestments of Power, through which may I conduct unto the desired end those things which I ardently wish, through Thee, O Most Holy ADONAI, Whose Kingdom and Empire endureth for ever. Amen.\n\nTake notice that if the linen garments were vestments of the Levites or of the Priests, and had been used for holy things, that they would be all the better.",
+    "attestedInstructions": [
+      "The master's outer and inner garments ought to be of linen, or of silk if means allow. Characters (Figure 55) are embroidered on the breast with the needle of art in red silk.",
+      "Shoes should be white, with the characters of Figure 56 traced in scarlet; or shoes or boots of white leather marked with the signs and characters of art, made during the nine days of fast and abstinence before the operation, when the instruments are also prepared, polished, brightened, and cleaned.",
+      "The master has a crown of virgin paper with the four names YOD, HE, VAU, HE in front, ADONAI behind, EL on the right, and ELOHIM on the left, written with the ink and pen of the art. Disciples each have a crown of virgin paper with these divine symbols marked in scarlet.",
+      "While clothing, recite Psalms xv.; cxxxi.; cxxxvii.; cxvii.; lxvii.; lxviii.; and cxxvii. Perfume the vestments and sprinkle them with the water and hyssop of the art.",
+      "After the first psalm, and before the others, pronounce the vesting words beginning 'AMOR, AMATOR, AMIDES...' Linen garments that had been vestments of the Levites or of the priests, used for holy things, would be all the better."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The 1889 text says that if the garments are of linen, 'the thread of which they are made should have been spun by a young maiden.' Generated modern instructions must not involve a child or young maiden in spinning thread; ordinary linen or silk may be used. The figures mentioned (55-58) are plates in the 1889 edition and are not reproduced here.",
+      "The shoes sentence was checked against the page image of p. 83: the characters in Figure 56 are to be traced 'in the same way' (not in scarlet; scarlet is specified later for the disciples' paper crowns)."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/83/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": "AMOR, AMATOR, AMIDES, IDEODANIACH, PAMOR, PLAIOR, ANITOR; through the merits of these holy Angels will I robe and indue myself with the Vestments of Power, through which may I conduct unto the desired end those things which I ardently wish, through Thee, O Most Holy ADONAI, Whose Kingdom and Empire endureth for ever. Amen."
+  },
+  {
+    "id": "kos-ii-07-places-purified-and-path",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book II, Chapter VII (Mathers 1889, p. 84)",
+    "url": "https://archive.org/details/b24884431/page/84/mode/1up",
+    "inspectedPassage": "THE places best fitted for exercising and accomplishing Magical Arts and Operations are those which are concealed, removed, and separated from the habitations of men. Wherefore desolate and uninhabited regions are most appropriate, such as the borders of lakes, forests, dark and obscure places, old and deserted houses, whither rarely and scarce ever men do come, mountains, caves, caverns, grottoes, gardens, orchards; but best of all are cross-roads, and where four roads meet, during the depth and silence of night. But if thou canst not conveniently go unto any of these places, thy house, and even thine own chamber, or, indeed, any place, provided it hath been purified and consecrated with the necessary ceremonies, will be found fit and convenient for the convocation and assembling of the Spirits.\n\nBut when thou shalt have selected a place fitting, thou mayest perform thine experiments by day or by night. It should be spacious, clear, and bounded on all sides by hedges, shrubs, trees, or walls. Thou shalt thyself cleanse it thoroughly and render it neat and pure, and while doing this thou shalt recite Psalms ii.; lxvii.; and liv.\n\nAfter this thou shalt perfume it with the odours and suffumigations of the Art, and shalt sprinkle it with the water and the hyssop; and after this thou mayest in this place make all the necessary preparations for an operation.\n\nBut when, later on, thou shalt go unto this place, to complete and accomplish the operation, thou shalt repeat on the way thither the following Prayer in a low and distinct voice:—\n\nTHE PRAYER.\n\nZAZAII, ZAMAII, PUIDAMON Most Powerful, SEDON Most Strong, EL, YOD HE VAU HE, IAH, AGLA, assist me an unworthy sinner who have had the boldness to pronounce these Holy Names which no man should name and invoke save in very great danger. Therefore have I recourse unto these Most Holy Names, being in great peril both of soul and of body. Pardon me if I have sinned in any manner, for I trust in Thy protection alone, especially on this journey.\n\nLet the Master as he goeth sprinkle the path with the water and hyssop.",
+    "attestedInstructions": [
+      "The places best fitted are those concealed, removed, and separated from the habitations of men: borders of lakes, forests, dark places, old and deserted houses, mountains, caves, grottoes, gardens, orchards, and especially cross-roads and where four roads meet, during the depth and silence of night.",
+      "If those places cannot conveniently be used, the operator's house, even his own chamber, or any place, may be used if it has been purified and consecrated with the necessary ceremonies.",
+      "The chosen place may be used by day or by night. It should be spacious, clear, and bounded by hedges, shrubs, trees, or walls. Cleanse it thoroughly, reciting Psalms ii.; lxvii.; and liv.; then perfume it and sprinkle it with the water and the hyssop, and make the necessary preparations there.",
+      "When later going to the place to complete the operation, repeat on the way, in a low and distinct voice, the prayer beginning 'ZAZAII, ZAMAII, PUIDAMON Most Powerful...' and let the master sprinkle the path with the water and hyssop."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "A sentence on p. 84 saying that night is the most fit time for operations of necromancy, and that it is a symbol that the work should be hidden from the foolish, the ignorant, and the profane, is omitted. Generated content may use a concealed or a purified private chamber, the psalms, perfume, and the path prayer and sprinkling; it must not become an instruction for necromancy or for compelling spirits to assemble. The prayer continues only as far as printed on p. 84; the next page was not added to this record."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/84/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": "ZAZAII, ZAMAII, PUIDAMON Most Powerful, SEDON Most Strong, EL, YOD HE VAU HE, IAH, AGLA, assist me an unworthy sinner who have had the boldness to pronounce these Holy Names which no man should name and invoke save in very great danger. Therefore have I recourse unto these Most Holy Names, being in great peril both of soul and of body. Pardon me if I have sinned in any manner, for I trust in Thy protection alone, especially on this journey."
+  },
+  {
+    "id": "kos-ii-10-incense-perfume-and-fire",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book II, Chapter X (Mathers 1889, pp. 91-92)",
+    "url": "https://archive.org/details/b24884431/page/91/mode/1up",
+    "inspectedPassage": "THERE are many kinds of Incense, Suffumigations, and Perfumes, which are made for and offered unto the Spirits; those which are of sweet odour are for the good, those which are of evil savour are for the evil.\n\nFor perfumes of good odour, take thou, incense, aloes, nutmeg, gum benjamin, musk, and other fragrant spices, over the which thou shalt say:—\n\nTHE EXORCISM OF THE INCENSE.\n\nO God of Abraham, God of Isaac, God of Jacob, deign to bless these odoriferous spices so that they may receive strength, virtue, and power to attract the Good Spirits, and to banish and cause to retire all hostile Phantoms. Through Thee, O Most Holy ADONAI, Who livest and reignest unto the Ages of the Ages. Amen.\n\nI exorcise thee, O Spirit impure and unclean, thou who art a hostile Phantom, in the Name of God, that thou quit this Perfume, thou and all thy deceits, that it may be consecrated and sanctified in the name of God Almighty. May the Holy Spirit of God grant protection and virtue unto those who use these Perfumes; and may the hostile and evil Spirit and Phantom never be able to enter therein, through the Ineffable Name of God Almighty. Amen.\n\nO Lord, deign to bless and to sanctify this Creature of Perfume so that it may be a remedy unto mankind for the health of body and of soul, through the Invocation of Thy Holy Name. May all Creatures who receive the odour of this incense and of these spices receive health of body and of soul, through Him Who hath formed the Ages. Amen.\n\nAfter this thou shalt sprinkle the various Spices with the Water of the Art, and thou shalt place them aside in a piece of silk as in other cases, or in a box destined for the purpose, so that thou mayest have them ready prepared for use when necessary.\n\nWhen thou wishest to use the incense, thou shalt kindle a fire of fresh charcoal, in earthen vessels newly glazed within and without, and thou shalt kindle fire fresh with flint and steel, and the fire being lighted thou shalt say over it as follows, before putting the Spices thereon:—\n\nTHE EXORCISM OF THE FIRE.\n\nI exorcise thee, O Creature of Fire, by Him through Whom all things have been made, so that every kind of Phantasm may retire from thee, and be unable to harm or deceive in any way, through the Invocation of the Most High Creator of all. Amen.\n\nBless, O Lord All-Powerful, and All-Merciful, this Creature of Fire, so that being blessed by Thee, it may be for the honour and glory of Thy Most Holy Name, so that it may work no hindrance or evil unto those who use it. Through Thee, O Eternal and Almighty Lord, and through Thy Most Holy Name. Amen.\n\nThis being done, thou shalt put the Spices upon the Fire, and make what perfumes and suffumigations thou requirest.",
+    "attestedInstructions": [
+      "For perfumes of good odour, take incense, aloes, nutmeg, gum benjamin, musk, and other fragrant spices, and say over them the exorcism of the incense, asking blessing, virtue to attract good spirits and to banish hostile phantoms, and that the perfume be a remedy for the health of body and of soul.",
+      "Sprinkle the spices with the water of the art and put them aside in a piece of silk, or in a box destined for the purpose, ready for use.",
+      "To use the incense, kindle a fire of fresh charcoal in earthen vessels newly glazed within and without, lighting the fire fresh with flint and steel, and before putting the spices thereon say the exorcism and blessing of the fire, asking that every phantasm retire from it and that it work no hindrance or evil unto those who use it. Then put the spices upon the fire."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The opening distinction that sweet odours are for the good and evil savours for the evil is retained as historical framing; the following prayer printed under 'Over Fumigations of evil odour' on p. 92 is omitted, and generated content must use only the good-odour spices and blessings. 'Health of body and of soul' is a ritual petition, not medical advice. A modern worker may kindle charcoal by any ordinary safe means; flint and steel are the method named on the page."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/91/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": "O God of Abraham, God of Isaac, God of Jacob, deign to bless these odoriferous spices so that they may receive strength, virtue, and power to attract the Good Spirits, and to banish and cause to retire all hostile Phantoms. Through Thee, O Most Holy ADONAI, Who livest and reignest unto the Ages of the Ages. Amen.\n\nI exorcise thee, O Spirit impure and unclean, thou who art a hostile Phantom, in the Name of God, that thou quit this Perfume, thou and all thy deceits, that it may be consecrated and sanctified in the name of God Almighty. May the Holy Spirit of God grant protection and virtue unto those who use these Perfumes; and may the hostile and evil Spirit and Phantom never be able to enter therein, through the Ineffable Name of God Almighty. Amen.\n\nO Lord, deign to bless and to sanctify this Creature of Perfume so that it may be a remedy unto mankind for the health of body and of soul, through the Invocation of Thy Holy Name. May all Creatures who receive the odour of this incense and of these spices receive health of body and of soul, through Him Who hath formed the Ages. Amen.\n\nI exorcise thee, O Creature of Fire, by Him through Whom all things have been made, so that every kind of Phantasm may retire from thee, and be unable to harm or deceive in any way, through the Invocation of the Most High Creator of all. Amen.\n\nBless, O Lord All-Powerful, and All-Merciful, this Creature of Fire, so that being blessed by Thee, it may be for the honour and glory of Thy Most Holy Name, so that it may work no hindrance or evil unto those who use it. Through Thee, O Eternal and Almighty Lord, and through Thy Most Holy Name. Amen."
+  },
+  {
+    "id": "kos-ii-11-water-and-hyssop",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book II, Chapter XI (Mathers 1889, p. 93)",
+    "url": "https://archive.org/details/b24884431/page/93/mode/1up",
+    "inspectedPassage": "If it be necessary to sprinkle with water anything required in the Art it should be done with a Sprinkler.\n\nPrepare a Censer in the day and hour of Mercury, with the odoriferous Spices of the Art. After this thou shalt take a vessel of brass, of lead varnished within and without, or of earth, which thou shalt fill with most clear spring water, and thou shalt have salt, and say these words over the salt:—\n\nTZABAOTH, MESSIACH, EMANUEL, ELOHIM GIBOR, YOD HE VAU HE; O God, Who art the Truth and the Life, deign to bless and sanctify this Creature of Salt, to serve unto us for help, protection, and assistance in this Art, experiment, and operation, and may it be a succour unto us.\n\nAfter this cast the salt into the vessel wherein is the Water, and say the following Psalms: cii.; liv.; vi.; lxvii.\n\nThou shalt then make unto thyself a Sprinkler of vervain, fennel, lavender, sage, valerian, mint, garden-basil, rosemary, and hyssop, gathered in the day and hour of Mercury, the moon being in her increase. Bind together these herbs with a thread spun by a young maiden, and engrave upon the handle on the one side the characters shown in Figure 82, and on the other side those given in Figure 83.\n\nAfter this thou mayest use the Water, using the Sprinkler whenever it is necessary; and know that wheresoever thou shalt sprinkle this Water, it will chase away all Phantoms, and they shall be unable to hinder or annoy any. With this same Water thou shalt make all the preparations of the Art.",
+    "attestedInstructions": [
+      "If anything required in the art must be sprinkled with water, use a sprinkler.",
+      "Prepare a censer in the day and hour of Mercury with the odoriferous spices of the art. Take a vessel of brass, of lead varnished within and without, or of earth, fill it with most clear spring water, and have salt. Say over the salt the blessing beginning 'TZABAOTH, MESSIACH, EMANUEL...', then cast the salt into the water and recite Psalms cii.; liv.; vi.; lxvii.",
+      "Make a sprinkler of vervain, fennel, lavender, sage, valerian, mint, garden-basil, rosemary, and hyssop, gathered in the day and hour of Mercury, the moon being in her increase. Bind the herbs, and the 1889 text also directs characters from Figures 82 and 83 to be engraved on the handle.",
+      "Use the water with the sprinkler whenever necessary; the chapter says that wherever this water is sprinkled it will chase away phantoms so that they cannot hinder or annoy, and that all the preparations of the art are made with this same water."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The 1889 text says to bind the herbs 'with a thread spun by a young maiden.' Generated modern instructions must not involve a child or young maiden in spinning or binding the thread; an ordinary thread or cord may be used. Figures 82 and 83 are plates in the 1889 edition and are not reproduced here. A vessel of lead is historically named; generated modern instructions should prefer brass or earthenware and must not require the handling of lead. Suggested #224 seasonal tag, manifest only: { kind: \"moon\", phase: \"waxing\" } (the moon being in her increase)."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/93/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": "TZABAOTH, MESSIACH, EMANUEL, ELOHIM GIBOR, YOD HE VAU HE; O God, Who art the Truth and the Life, deign to bless and sanctify this Creature of Salt, to serve unto us for help, protection, and assistance in this Art, experiment, and operation, and may it be a succour unto us."
+  },
+  {
+    "id": "kos-ii-12-light-and-candles",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book II, Chapter XII (Mathers 1889, p. 94)",
+    "url": "https://archive.org/details/b24884431/page/94/mode/1up",
+    "inspectedPassage": "IT hath been ever the custom among all nations to use fire and light in sacred things. For this reason the Master of the Art should also employ them in sacred rites, and besides those for reading the Conjurations by, and for the incense, in all operations Lights are necessary in the Circle.\n\nFor this reason he should make candles of virgin wax in the day and hour of Mercury; the wicks should have been made by a young girl; and the Candles should be made when the moon is in her increase, of the weight of half a pound each, and on them thou shalt engrave these characters with the Dagger, or the Burin of Art. (See Figure 84.)\n\nAfter this thou shalt repeat over the Candles, Psalms cli.; ciii.; cvii., and shalt say:—\n\nO Lord God, Who governest all things by Thine Almighty Power, give unto me, a poor sinner, understanding and knowledge to do only that which is agreeable unto Thee; grant unto me to fear, adore, love, praise, and give thanks unto Thee with true and sincere faith and perfect charity. Grant, O Lord, before I die, and descend into the realms beneath, that Thy Grace may not leave me, O Lord of my Soul. Amen.\n\nAfter this thou shalt add:—\n\nI exorcise thee, O Creature of wax, by Him Who alone hath created all things by His Word, and by the virtue of Him Who is pure truth, that thou cast out from thee every Phantasm, Perversion, and Deceit of the Enemy, and may the Virtue and Power of God enter into thee, so that thou mayest give us light, and chase far from us all fear or terror.\n\nAfter this thou shalt sprinkle them with the Water of the Art, and incense them with the usual perfumes.\n\nAnd when thou shalt wish to kindle them thou shalt say:—\n\nI exorcise thee, O Creature of Fire, in the Name of the Sovereign and Eternal Lord, by His Ineffable Name, which is YOD, HE, VAU, HE; by the Name IAH; and by the Name of Power EL; that thou mayest enlighten the heart of all the Spirits we shall call unto this Circle, so that they may appear before us without fraud and deceit through Him Who hath created all things.\n\nThen thou shalt take a square Lantern, with panes of Crystal glass, and thou shalt fit therein the Candle lighted, to read by, to form the Circle, or any other purpose for which thou shalt require it.",
+    "attestedInstructions": [
+      "Fire and light are used in sacred rites; lights are necessary in the circle, and also for reading and for the incense.",
+      "Make candles of virgin wax in the day and hour of Mercury, when the moon is in her increase, of the weight of half a pound each, and engrave on them the characters shown in Figure 84 with the dagger or burin of art.",
+      "Repeat over the candles Psalms cli.; ciii.; cvii., then the prayer beginning 'O Lord God, Who governest all things by Thine Almighty Power,' and the exorcism of the creature of wax. Sprinkle them with the water of the art and incense them with the usual perfumes.",
+      "When kindling them, say the exorcism of the creature of fire in the names YOD, HE, VAU, HE; IAH; and EL. A lighted candle may be fitted in a square lantern with panes of crystal glass, to read by, to form the circle, or for any other required purpose."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The 1889 text says 'the wicks should have been made by a young girl.' Generated modern instructions must not involve a child or young girl in making wicks; ordinary wicks may be used. Figure 84 is a plate in the 1889 edition and is not reproduced here. The kindling prayer mentions enlightening spirits called unto the circle; generated content may use the candles, psalms, and prayers for light and the banishment of fear, and must not become an instruction to summon or constrain spirits. Suggested #224 seasonal tag, manifest only: { kind: \"moon\", phase: \"waxing\" } (the moon is in her increase)."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/94/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": "O Lord God, Who governest all things by Thine Almighty Power, give unto me, a poor sinner, understanding and knowledge to do only that which is agreeable unto Thee; grant unto me to fear, adore, love, praise, and give thanks unto Thee with true and sincere faith and perfect charity. Grant, O Lord, before I die, and descend into the realms beneath, that Thy Grace may not leave me, O Lord of my Soul. Amen.\n\nI exorcise thee, O Creature of wax, by Him Who alone hath created all things by His Word, and by the virtue of Him Who is pure truth, that thou cast out from thee every Phantasm, Perversion, and Deceit of the Enemy, and may the Virtue and Power of God enter into thee, so that thou mayest give us light, and chase far from us all fear or terror.\n\nI exorcise thee, O Creature of Fire, in the Name of the Sovereign and Eternal Lord, by His Ineffable Name, which is YOD, HE, VAU, HE; by the Name IAH; and by the Name of Power EL; that thou mayest enlighten the heart of all the Spirits we shall call unto this Circle, so that they may appear before us without fraud and deceit through Him Who hath created all things."
+  },
+  {
+    "id": "kos-ii-13-nine-days-precepts",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book II, Chapter XIII (Mathers 1889, p. 95)",
+    "url": "https://archive.org/details/b24884431/page/95/mode/1up",
+    "inspectedPassage": "HE who hath attained the rank or degree of Exorcist, which we are usually accustomed to call Magus or Master according to grade, whensoever he desireth to undertake any operation, for the nine days immediately preceding the commencement of the work, should put aside from him all uncleanness, and prepare himself in secret during these days, and prepare all the things necessary, and in the space of these days all these should be made, consecrated, and exorcised.",
+    "attestedInstructions": [
+      "For the nine days immediately preceding the commencement of any operation, the exorcist, magus, or master should put aside all uncleanness, prepare himself in secret, and in those days make, consecrate, and exorcise all the things necessary for the work."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "This record quotes only the opening precept of the chapter. The following exhortation of the companions, the uncovering of the holy pentacles, and the speech attributed to the Emperor of the Spirits, which continue on p. 95, are omitted. Mathers's footnote: 'This Chapter is only given in 10,862 Add. MSS.'"
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/95/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": null,
+    "formulaOmissionReason": "The quoted passage contains instructions only; no spoken formula."
+  },
+  {
+    "id": "kos-ii-20-silken-cloth",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book II, Chapter XX (Mathers 1889, p. 105)",
+    "url": "https://archive.org/details/b24884431/page/105/mode/1up",
+    "inspectedPassage": "WHEN any Instrument of the Art is properly consecrated, it should be wrapped in silk and put away, as we have said.\n\nTake, then, silk of any colour except black or grey, whereon write the words and Characters in Figure 90.\n\nPerfume it with incense of good odour, sprinkle it, and recite Psalms lxxxii.; lxxii.; cxxxiv.; lxiv.\n\nAfter this thou shalt put it aside for seven days with sweet spices; and thou shalt use this silk to wrap all the instruments of the Art.",
+    "attestedInstructions": [
+      "When any instrument of the art is properly consecrated, wrap it in silk and put it away.",
+      "Take silk of any colour except black or grey, and write on it the words and characters in Figure 90.",
+      "Perfume it with incense of good odour, sprinkle it, and recite Psalms lxxxii.; lxxii.; cxxxiv.; lxiv. ",
+      "Put it aside for seven days with sweet spices, and use this silk to wrap all the instruments of the art."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "Figure 90 is a plate in the 1889 edition and is not reproduced here. The psalm list was checked against the printed page image of p. 105: lxxxii.; lxxii.; cxxxiv.; lxiv."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/105/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": null,
+    "formulaOmissionReason": "The quoted passage contains instructions only; no spoken formula."
+  },
+  {
+    "id": "kos-ii-21-consecration-of-the-book",
+    "sourceId": "key-of-solomon-mathers-1889",
+    "textTitle": "The Key of Solomon the King (Clavicula Salomonis)",
+    "manuscriptId": "British Library (formerly British Museum) manuscripts used by Mathers 1889: Add. MS 10862; Sloane MSS 1307 and 3091; Harley MS 3981; King's MS 288; Lansdowne MSS 1202 and 1203",
+    "tradition": "European Solomonic ceremonial magic (late medieval / early modern)",
+    "manuscriptDate": "Late sixteenth to seventeenth century; Mathers 1889 (preface, pp. vi-vii) dates Add. MS 10862 to about the end of the sixteenth century, Harley MS 3981 to about the middle of the seventeenth century, and the others to a rather later date",
+    "compositionDate": "Medieval to early-modern European Solomonic tradition; the English edition used is Mathers 1889",
+    "edition": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway",
+    "editionDate": "1889",
+    "translator": "S. Liddell MacGregor Mathers",
+    "locator": "Book II, Chapter XXI (Mathers 1889, pp. 106-107)",
+    "url": "https://archive.org/details/b24884431/page/106/mode/1up",
+    "inspectedPassage": "WHANSOEVER in any Operation it is necessary to write Characters, and thou fearest that thou wilt fail, do this: Write at the beginning the Name EHEIEH ASHER EHEIEH (Figure 91), and at the end the name AIN SOPH (Figure 92); between these Names write what thou wishest, and if thou hast anything especial to do bear the said written Names upon the wrapper in silk, and thou shalt say over them:—\n\nMost Wise and Most High Creator of all things, I pray Thee for Thy grace and mercy that Thou mayest grant such virtue and power unto these Holy Names, that Thou mayest keep these characters from all deceit and error, through Thee, O Most Holy ADONAI. Amen.\n\nAfter having repeated this thou shalt write the requisite Characters, and thou shalt not fail, but shalt attain thy desired end.\n\nTHE CONSECRATION OF THE BOOK.\n\nMake a small Book containing the Prayers for all the Operations, the Names of the Angels in the form of Litanies, their Seals and Characters; the which being done thou shalt consecrate the same unto God and unto the pure Spirits in the manner following:—\n\nThou shalt set in the destined place a small table covered with a white cloth, whereon thou shalt lay the Book opened at the Great Pentacle which should be drawn on the first leaf of the said Book; and having kindled a lamp which should be suspended above the centre of the table, thou shalt surround the said table with a white curtain; clothe thyself in the proper vestments, and holding the Book open, repeat upon thy knees the following prayer with great humility:—\n\n(For the Prayer beginning \"Adonai Elohim,\" &c., see Book I., Chapter XIV., where it is given in full.)\n\nAfter which thou shalt incense it with the incense proper to the Planet and the day, and thou shalt replace the Book on the aforesaid Table, taking heed that the fire of the lamp be kept up continually during the operation, and keeping the curtains closed. Repeat the same ceremony for seven days, beginning with Saturday, and perfuming the Book each day with the Incense proper to the Planet ruling the day and hour, and taking heed that the lamp shall burn both day and night; after the which thou shalt shut up the Book in a small drawer under the table, made expressly for it, until thou shalt have occasion to use it; and every time that thou wishest to use it, clothe thyself with thy vestments, kindle the lamp, and repeat upon thy knees the aforesaid prayer, \"Adonai Elohim,\" &c.\n\nIt is necessary also, in the Consecration of the Book, to summon all the Angels whose Names are written therein in the form of Litanies, the which thou shalt do with devotion; and even if the Angels and Spirits appear not in the Consecration of the Book, be not thou astonished thereat, seeing that they are of a pure nature, and consequently have much difficulty in familiarising themselves with men who are inconstant and impure, but the Ceremonies and Characters being correctly carried out devotedly and with perseverance, they will be constrained to come, and it will at length happen that at thy first invocation thou wilt be able to see and communicate with them. But I advise thee to undertake nothing unclean or impure, for then thy importunity, far from attracting them, will only serve to chase them from thee; and it will be thereafter exceedingly difficult for thee to attract them for use for pure ends.",
+    "attestedInstructions": [
+      "When characters must be written and there is fear of failure, write the name EHEIEH ASHER EHEIEH at the beginning and AIN SOPH at the end, write what is wished between them, and if anything especial is to be done bear the written names upon the wrapper in silk, saying the short prayer for virtue and power to keep the characters from deceit and error, then write the requisite characters.",
+      "Make a small book containing the prayers for all the operations, the names of the angels in the form of litanies, and their seals and characters, and consecrate it unto God and unto the pure spirits.",
+      "Set in the destined place a small table covered with a white cloth; lay the book opened at the great pentacle drawn on its first leaf; kindle a lamp suspended above the centre of the table; surround the table with a white curtain; clothe in the proper vestments; and, holding the book open, repeat upon the knees with great humility the prayer beginning 'Adonai Elohim' (given in full in Book I, Chapter XIV of the same 1889 edition).",
+      "Incense the book with the incense proper to the planet and the day, replace it on the table, keep the lamp burning continually, and keep the curtains closed. Repeat the same ceremony for seven days, beginning with Saturday, perfuming the book each day with the incense proper to the planet ruling the day and hour, the lamp burning both day and night. Then shut the book in a small drawer under the table until it is needed; whenever it is used, vest, kindle the lamp, and repeat the same prayer upon the knees.",
+      "In the consecration, summon with devotion all the angels whose names are written in the book as litanies. The chapter advises that if they do not appear, one should not be astonished, and that nothing unclean or impure should be undertaken, because impurity chases them away and makes it exceedingly difficult to attract them for pure ends."
+    ],
+    "uncertainties": [
+      "Checked by Beta against the printed page image(s) of Mathers, The Key of Solomon the King (London: George Redway, 1889), Internet Archive item b24884431, on 2026-11-27. Footnote markers and small-capital divine or planetary names follow the 1889 typography as closely as plain text allows. Pending Jaime Sorrow's human editorial review.",
+      "The prayer beginning 'Adonai Elohim' is not quoted here; Mathers refers the reader to Book I, Chapter XIV, which is not included in this record (and which sits among chapters otherwise unused for theft, invisibility, and related experiments). Mathers's footnote: 'The rest of this Chapter is from 1203 Lansdowne MSS.' Figures 91 and 92 are plates in the 1889 edition and are not reproduced here.",
+      "The chapter says that if the ceremonies are carried out devotedly and with perseverance, the angels 'will be constrained to come.' Generated content may use the seven-day consecration, the lamp, the white cloth and curtain, the planetary incense, and the advice to undertake nothing unclean; it must not become an instruction to constrain or compel angels or spirits. The opening word is printed in small capitals as 'WHANSOEVER' (Whensoever)."
+    ],
+    "dating": {
+      "era": "early-modern",
+      "status": "verified",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/vi/mode/1up",
+      "notes": "Mathers 1889 preface (pp. vi-vii) lists seven British Museum manuscripts, now in the British Library: Add. MS 10862, which he calls the oldest and dates to about the end of the sixteenth century; Harley MS 3981, about the middle of the seventeenth century; and Sloane MSS 1307 and 3091, King's MS 288, and Lansdowne MSS 1202 and 1203, of rather later date. The tradition is late-medieval to early-modern European Solomonic ceremonial magic. The English edition quoted is Mathers 1889 (first published 1889, before 1931)."
+    },
+    "rights": {
+      "status": "verified",
+      "basis": "S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis), London: George Redway, 1889. First published 1889 (before 1931). US: published before 1931, so public domain. UK and EU: Mathers died in 1918 (commonly given as 20 November 1918), so life+70 expired at the end of 1988; the 25-year typographical-arrangement right has long expired. Internet Archive item b24884431 is marked Public Domain Mark. The English wording quoted is Mathers 1889, not a later editor's text.",
+      "reference": "https://archive.org/details/b24884431",
+      "jurisdictions": [
+        "US",
+        "UK",
+        "EU"
+      ]
+    },
+    "scope": {
+      "status": "approved",
+      "rationale": "Approved use: as cited historical inspiration for a clearly labelled original modern working of devotion, purity, timing, or consecration, not a reconstruction of Solomonic evocation, following Jaime Sorrow's rule that practical lessons may stand when correctly cited from historical magical texts first published before 1931. Anything beyond what this passage attests is modern adaptation. Generated content must not instruct harm, coercion, theft, invisibility, necromancy, blood sacrifice, or the involvement of a child or 'young maiden' or 'young girl' in preparing thread, wicks, or garments. Historical references to ritual bathing may be adapted to a modest private bath; do not require or sexualize nudity. Must not be presented as Wiccan scripture, as a medical handbook, or as a command to summon or constrain spirits.",
+      "evidenceUrl": "https://archive.org/details/b24884431/page/106/mode/1up"
+    },
+    "review": {
+      "passageInspected": true,
+      "sourceFidelityApproved": true,
+      "safetyApproved": true,
+      "reviewedBy": "Beta (AI inspection against the printed page images of the cited pre-1931 edition, staged for Jaime Sorrow's editorial review), 2026-11-27",
+      "reviewedAt": "2026-11-27T17:15:00-09:00"
+    },
+    "formula": "Most Wise and Most High Creator of all things, I pray Thee for Thy grace and mercy that Thou mayest grant such virtue and power unto these Holy Names, that Thou mayest keep these characters from all deceit and error, through Thee, O Most Holy ADONAI. Amen."
   }
 ]

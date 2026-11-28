@@ -5,14 +5,14 @@ Draft staging for issue #195 (grow the content library toward 300+). This batch 
 ## Counts
 
 - Previously checked-in verified passages: **11**
-- New visually verified passages in this batch: **50**
-- Register total after this PR: **61**
+- New visually verified passages in this batch: **72** (50 in the first slice, 22 Mathers 1889 passages in the second slice)
+- Register total after this PR: **83**
 - Repo-documented live published inventory (not a live Firestore count): about **104** published items as of `docs/V1_1_PLAN.md` (2026-11-21); the 296-entry `ancientContentSeed.json` remains draft.
-- Images: **50/50 generated**. Unique original 4:3 black-and-gold art (Midnight Blue `#0B132B` / gold `#E8BC61`), 1152×864, saved as JPEG quality 90 to keep the PR reviewable (PNG would have been ~70–90 MB). Files live in `functions/staging/library-growth-batch-1/illustrations/{passageId}.jpg`. These are **not** production `illustrationUrl` values and are not uploaded to Storage in this PR. `sourcePassages.json` has no image field; the filename is the join key. One first-pass lunar image misread “vessel” as a ship and was regenerated as a ritual water-bowl.
+- Images: **72/72 generated** (50 from the first slice, 22 new unique images for the Mathers slice). Unique original 4:3 black-and-gold art (Midnight Blue `#0B132B` / gold `#E8BC61`), 1152×864, saved as JPEG quality 90 to keep the PR reviewable (PNG would have been ~70–90 MB). Files live in `functions/staging/library-growth-batch-1/illustrations/{passageId}.jpg`. These are **not** production `illustrationUrl` values and are not uploaded to Storage in this PR. `sourcePassages.json` has no image field; the filename is the join key. One first-pass lunar image misread “vessel” as a ship and was regenerated as a ritual water-bowl.
 
 ## Pre-1931 edition rule (Jaime, 4:37 PM AKST, 27 Nov 2026)
 
-Only magical texts first published **before 1931**. A translation or edition counts only if **that edition itself** was published before 1931. Every new record below records `editionDate` and the edition used. All 50 new records, and the 11 already in the register, have `editionDate` in {1904, 1908, 1912}. Nothing published in 1931 or later is quoted.
+Only magical texts first published **before 1931**. A translation or edition counts only if **that edition itself** was published before 1931. Every new record below records `editionDate` and the edition used. All 72 new records, and the 11 already in the register, have `editionDate` in {1889, 1904, 1908, 1912}. Official validation in `findPassageViolations` now requires `editionDate` to be a year before 1931. Nothing published in 1931 or later is quoted.
 
 ## Sources used in this batch
 
@@ -54,7 +54,7 @@ These flags exist so `findPassageViolations` can pass, following the same patter
 | `ll-col09-33-35-osiris-hawks` | 1904 | P. London-Leiden, col. IX, 33-35 (Griffith & Thompson 1904, p. 75) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n86/mode/1up | none suggested | `illustrations/ll-col09-33-35-osiris-hawks.jpg` |
 | `ll-col10-01-08-spirits-anubis-lamp` | 1904 | P. London-Leiden, col. X, 1-8 (Griffith & Thompson 1904, p. 75) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n86/mode/1up | none suggested | `illustrations/ll-col10-01-08-spirits-anubis-lamp.jpg` |
 | `ll-col10-09-19-dark-chamber-vessel` | 1904 | P. London-Leiden, col. X, 9-19 (Griffith & Thompson 1904, p. 77) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n88/mode/1up | none suggested | `illustrations/ll-col10-09-19-dark-chamber-vessel.jpg` |
-| `ll-col10-20-22-vessel-alone-lunar` | 1904 | P. London-Leiden, col. X, 20-22 (Griffith & Thompson 1904, p. 79) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n90/mode/1up | { kind: "moon", phase: "waxing" } or full (text: 4th–15th lunar day, moon fills the uzat) | `illustrations/ll-col10-20-22-vessel-alone-lunar.jpg` |
+| `ll-col10-20-22-vessel-alone-lunar` | 1904 | P. London-Leiden, col. X, 20-22 (Griffith & Thompson 1904, p. 79) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n90/mode/1up | Suggested options (schema allows one `seasonalWindow` object): `{ kind: "moon", phase: "waxing" }` and `{ kind: "moon", phase: "full" }` (text: 4th–15th lunar day, when the moon fills the uzat). Manifest only; `sourcePassages` has no seasonal field. | `illustrations/ll-col10-20-22-vessel-alone-lunar.jpg` |
 | `ll-col10-23-28-bark-of-phre` | 1904 | P. London-Leiden, col. X, 22-28 (Griffith & Thompson 1904, p. 79) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n90/mode/1up | none suggested | `illustrations/ll-col10-23-28-bark-of-phre.jpg` |
 | `ll-col10-29-30-opener-of-earth` | 1904 | P. London-Leiden, col. X, 29-30 (Griffith & Thompson 1904, p. 81) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n92/mode/1up | none suggested | `illustrations/ll-col10-29-30-opener-of-earth.jpg` |
 | `ll-col11-01-04-giving-favour-thoth` | 1904 | P. London-Leiden, col. XI, 1-4 (Griffith & Thompson 1904, p. 81) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n92/mode/1up | none suggested | `illustrations/ll-col11-01-04-giving-favour-thoth.jpg` |
@@ -71,8 +71,8 @@ These flags exist so `findPassageViolations` can pass, following the same patter
 | `ll-col18-10-24-fair-face-anubis` | 1904 | P. London-Leiden, col. XVIII, 10-24 (Griffith & Thompson 1904, p. 121) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n132/mode/1up | none suggested | `illustrations/ll-col18-10-24-fair-face-anubis.jpg` |
 | `ll-col18-25-32-light-table-cakes` | 1904 | P. London-Leiden, col. XVIII, 25-32 (Griffith & Thompson 1904, p. 123) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n134/mode/1up | none suggested | `illustrations/ll-col18-25-32-light-table-cakes.jpg` |
 | `ll-col21-01-09-osiris-vessel` | 1904 | P. London-Leiden, col. XXI, 1-9 (Griffith & Thompson 1904, p. 135) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n146/mode/1up | none suggested | `illustrations/ll-col21-01-09-osiris-vessel.jpg` |
-| `ll-col23-21-26-divine-opposite-moon` | 1904 | P. London-Leiden, col. XXIII, 21-26 (Griffith & Thompson 1904, p. 147) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n158/mode/1up | { kind: "moon", phase: "full" } (15th day, opposite the moon, uzat) | `illustrations/ll-col23-21-26-divine-opposite-moon.jpg` |
-| `ll-col23-27-30-moon-fills-uzat` | 1904 | P. London-Leiden, col. XXIII, 27-30 (Griffith & Thompson 1904, p. 149) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n160/mode/1up | { kind: "moon", phase: "full" } (moon fills the uzat) | `illustrations/ll-col23-27-30-moon-fills-uzat.jpg` |
+| `ll-col23-21-26-divine-opposite-moon` | 1904 | P. London-Leiden, col. XXIII, 21-26 (Griffith & Thompson 1904, p. 147) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n158/mode/1up | `{ kind: "moon", phase: "full" }` (address the moon when it fills the uzat on the 15th day). Manifest only; `sourcePassages` has no seasonal field. | `illustrations/ll-col23-21-26-divine-opposite-moon.jpg` |
+| `ll-col23-27-30-moon-fills-uzat` | 1904 | P. London-Leiden, col. XXIII, 27-30 (Griffith & Thompson 1904, p. 149) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n160/mode/1up | `{ kind: "moon", phase: "full" }` (before the moon when it fills the uzat). Manifest only; `sourcePassages` has no seasonal field. | `illustrations/ll-col23-27-30-moon-fills-uzat.jpg` |
 | `ll-col28-01-10-bronze-vessel-natron` | 1904 | P. London-Leiden, col. XXVIII, 1-10 (Griffith & Thompson 1904, pp. 163 and 165) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n174/mode/1up | none suggested | `illustrations/ll-col28-01-10-bronze-vessel-natron.jpg` |
 | `ll-col28-11-15-vegetable-oil-light` | 1904 | P. London-Leiden, col. XXVIII, 11-15 (Griffith & Thompson 1904, p. 165) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n176/mode/1up | none suggested | `illustrations/ll-col28-11-15-vegetable-oil-light.jpg` |
 | `ll-col29-01-05-sun-inquiry-brick` | 1904 | P. London-Leiden, col. XXIX, 1-5 (Griffith & Thompson 1904, p. 165) | https://archive.org/details/demoticmagicalpa01grifuoft/page/n176/mode/1up | no seasonalWindow in the #224 schema (solar / noon inquiry). Note only. | `illustrations/ll-col29-01-05-sun-inquiry-brick.jpg` |
@@ -188,16 +188,96 @@ A machine-readable copy is in `illustration_prompts.json`. Generated PNGs, when 
 - More visually verified London-Leiden 1904 pages not yet sliced, and further Metternich pages from Budge 1912 (lessons only).
 - Goodwin 1852 (BM XLVI) once page images are visually quoted and a BM catalogue URL is attached.
 - Conybeare Testament of Solomon 1898/99, once a manuscript catalogue URL is verified.
-- Mathers, *The Key of Solomon the King*, 1889 (IA `b24884431`, public-domain mark) — **only if** Jaime accepts adding a `historical-grimoire` / early-modern source to `sources.json` and updating the tests that currently keep the checked-in lesson pool ancient-only.
-- Cockayne, *Leechdoms, Wortcunning, and Starcraft of Early England*, 1864–66; Scot, *The Discoverie of Witchcraft*, Nicholson 1886 reprint of the 1584 text — same policy question, plus work-by-work rights notes.
+- Mathers, *The Key of Solomon the King*, 1889, is now in `sources.json` and this register (22 visually verified passages in this slice). Further safe Book I/II material can still be sliced later.
+- Cockayne, *Leechdoms, Wortcunning, and Starcraft of Early England*, 1864–66; Scot, *The Discoverie of Witchcraft*, Nicholson 1886 reprint of the 1584 text (IA `b21720307` PDF is on hand). Policy now allows them as pre-1931 historical-grimoire sources; they still need visual quotation, rights notes (Nicholson d. 1892; Cockayne d. 1873), and a safety pass before staging.
 - Do **not** use Betz 1986, modern Maqlû English, or any 1931+ edition.
+
+
+
+## Policy change in this PR (authorized 5:08 PM AKST, 27 Nov 2026)
+
+Lesson generation may now use a checked-in `historical-grimoire` source when `era` is `medieval` or `early-modern`, as well as `ancient-grimoire`. The comment in `functions/src/contentSource.ts` and the tests in `functions/src/__tests__/contentSource.test.ts` were updated to match. `findPassageViolations` in `functions/src/sourcePassages.ts` now also requires `editionDate` to be a year before 1931, and `functions/src/__tests__/sourcePassages.test.ts` checks every checked-in passage. `contentGenerationEnabled` stays off. This PR remains a draft. No production writes, no image uploads, no merge, no force-push.
+
+## Source added: Key of Solomon (Mathers 1889)
+
+| sourceId | Work first published | Edition / translation used | editionDate | Rights basis (summarized) |
+| --- | --- | --- | --- | --- |
+| `key-of-solomon-mathers-1889` (`historical-grimoire`, era `early-modern`) | Mathers, *The Key of Solomon the King (Clavicula Salomonis)*, London: George Redway, 1889 | Same 1889 English edition, translated and edited from seven British Museum (now British Library) manuscripts listed in the 1889 preface, pp. vi–vii: Add. MS 10862 (which Mathers dates to about the end of the sixteenth century); Harley MS 3981 (about the middle of the seventeenth century); Sloane MSS 1307 and 3091; King's MS 288; Lansdowne MSS 1202 and 1203. Internet Archive `b24884431` (Public Domain Mark). Printed arabic page P is cited as `https://archive.org/details/b24884431/page/{P}/mode/1up` (HTTP 200 confirmed, including `/page/vi`). | **1889** | US publication 1889 (pre-1931). Mathers died in 1918 (commonly given as 20 November 1918); UK/EU life+70 expired at the end of 1988. |
+
+## Suggested #224 seasonal tags (manifest only)
+
+The `sourcePassages` schema has no `seasonalWindow` field. These exact #224 tags are recorded here as suggested tags for later draft generation, and only where the quoted passage text itself is about the moon.
+
+| passage id | Suggested #224 `seasonalWindow` | Why the passage text supports it |
+| --- | --- | --- |
+| `ll-col10-20-22-vessel-alone-lunar` | Suggested options: `{ kind: "moon", phase: "waxing" }` and `{ kind: "moon", phase: "full" }` (a document can hold only one `seasonalWindow` object) | Work “from the fourth day of the lunar month until the fifteenth day, which is the half-month when the moon fills the uzat.” |
+| `ll-col23-21-26-divine-opposite-moon` | `{ kind: "moon", phase: "full" }` | “address the moon when it fills the uzat on the 15th day.” |
+| `ll-col23-27-30-moon-fills-uzat` | `{ kind: "moon", phase: "full" }` | “before the moon when it fills the uzat” / “stand opposite the moon.” |
+| `kos-i-02-new-unto-the-full-moon` | Suggested options: `{ kind: "moon", phase: "waxing" }` and `{ kind: "moon", phase: "full" }` | “the time from the New unto the Full Moon is proper… the Moon quitting his beams and increasing in Light.” The dropped wane-for-war and dark-moon invisibility/death lines are not tagged. |
+| `kos-i-08-pentacles-construction` | `{ kind: "moon", phase: "waxing" }` | Pentacles “should also be in her increase.” |
+| `kos-ii-11-water-and-hyssop` | `{ kind: "moon", phase: "waxing" }` | Herbs “gathered in the day and hour of Mercury, the moon being in her increase.” |
+| `kos-ii-12-light-and-candles` | `{ kind: "moon", phase: "waxing" }` | Candles “should be made when the moon is in her increase.” |
+
+`kos-i-01-fear-god-and-the-moon` mentions “the position of the Moon” but does not name a phase, so no moon-phase tag is suggested.
+
+## Mathers 1889 passages added in this slice (22)
+
+Authoring script: `factories_batch2.py`. Intermediate JSON: `new_passages_batch2.json`. Review stamp: 2026-11-27T17:15:00-09:00 (Alaska Time). All wording was checked against the printed page images of IA `b24884431` (not against OCR alone).
+
+| passage id | editionDate | locator | url | suggested #224 tag | image |
+| --- | --- | --- | --- | --- | --- |
+| `kos-i-01-fear-god-and-the-moon` | 1889 | Book I, Chapter I (Mathers 1889, p. 9) | https://archive.org/details/b24884431/page/9/mode/1up | none suggested | `illustrations/kos-i-01-fear-god-and-the-moon.jpg` |
+| `kos-i-02-planetary-days-and-hours` | 1889 | Book I, Chapter II (Mathers 1889, p. 10) | https://archive.org/details/b24884431/page/10/mode/1up | none suggested | `illustrations/kos-i-02-planetary-days-and-hours.jpg` |
+| `kos-i-02-jupiter-sun-venus-mercury-moon` | 1889 | Book I, Chapter II (Mathers 1889, p. 11) | https://archive.org/details/b24884431/page/11/mode/1up | none suggested | `illustrations/kos-i-02-jupiter-sun-venus-mercury-moon.jpg` |
+| `kos-i-02-new-unto-the-full-moon` | 1889 | Book I, Chapter II (Mathers 1889, p. 12) | https://archive.org/details/b24884431/page/12/mode/1up | Suggested options: `{ kind: "moon", phase: "waxing" }` and `{ kind: "moon", phase: "full" }` | `illustrations/kos-i-02-new-unto-the-full-moon.jpg` |
+| `kos-i-02-secret-place-and-circle` | 1889 | Book I, Chapter II (Mathers 1889, p. 13) | https://archive.org/details/b24884431/page/13/mode/1up | none suggested | `illustrations/kos-i-02-secret-place-and-circle.jpg` |
+| `kos-i-04-confession-and-prayer` | 1889 | Book I, Chapter IV (Mathers 1889, pp. 20-21) | https://archive.org/details/b24884431/page/20/mode/1up | none suggested | `illustrations/kos-i-04-confession-and-prayer.jpg` |
+| `kos-i-05-prayer-and-tower-of-refuge` | 1889 | Book I, Chapter V (Mathers 1889, p. 22) | https://archive.org/details/b24884431/page/22/mode/1up | none suggested | `illustrations/kos-i-05-prayer-and-tower-of-refuge.jpg` |
+| `kos-i-08-pentacles-construction` | 1889 | Book I, Chapter VIII (Mathers 1889, p. 39) | https://archive.org/details/b24884431/page/39/mode/1up | `{ kind: "moon", phase: "waxing" }` | `illustrations/kos-i-08-pentacles-construction.jpg` |
+| `kos-i-08-pentacle-consecration-oration` | 1889 | Book I, Chapter VIII (Mathers 1889, p. 40) | https://archive.org/details/b24884431/page/40/mode/1up | none suggested | `illustrations/kos-i-08-pentacle-consecration-oration.jpg` |
+| `kos-ii-prefatory-heed-and-understanding` | 1889 | Book II, Prefatory Note (Mathers 1889, p. 71) | https://archive.org/details/b24884431/page/71/mode/1up | none suggested | `illustrations/kos-ii-prefatory-heed-and-understanding.jpg` |
+| `kos-ii-01-hours-and-silence-of-night` | 1889 | Book II, Chapter I (Mathers 1889, p. 72) | https://archive.org/details/b24884431/page/72/mode/1up | none suggested | `illustrations/kos-ii-01-hours-and-silence-of-night.jpg` |
+| `kos-ii-02-master-study-and-bath` | 1889 | Book II, Chapter II (Mathers 1889, p. 75) | https://archive.org/details/b24884431/page/75/mode/1up | none suggested | `illustrations/kos-ii-02-master-study-and-bath.jpg` |
+| `kos-ii-04-fasting-care-and-prayer` | 1889 | Book II, Chapter IV (Mathers 1889, p. 79) | https://archive.org/details/b24884431/page/79/mode/1up | none suggested | `illustrations/kos-ii-04-fasting-care-and-prayer.jpg` |
+| `kos-ii-05-bath-water-and-salt` | 1889 | Book II, Chapter V (Mathers 1889, pp. 81-82) | https://archive.org/details/b24884431/page/81/mode/1up | none suggested | `illustrations/kos-ii-05-bath-water-and-salt.jpg` |
+| `kos-ii-06-garments-shoes-and-crown` | 1889 | Book II, Chapter VI (Mathers 1889, p. 83) | https://archive.org/details/b24884431/page/83/mode/1up | none suggested | `illustrations/kos-ii-06-garments-shoes-and-crown.jpg` |
+| `kos-ii-07-places-purified-and-path` | 1889 | Book II, Chapter VII (Mathers 1889, p. 84) | https://archive.org/details/b24884431/page/84/mode/1up | none suggested | `illustrations/kos-ii-07-places-purified-and-path.jpg` |
+| `kos-ii-10-incense-perfume-and-fire` | 1889 | Book II, Chapter X (Mathers 1889, pp. 91-92) | https://archive.org/details/b24884431/page/91/mode/1up | none suggested | `illustrations/kos-ii-10-incense-perfume-and-fire.jpg` |
+| `kos-ii-11-water-and-hyssop` | 1889 | Book II, Chapter XI (Mathers 1889, p. 93) | https://archive.org/details/b24884431/page/93/mode/1up | `{ kind: "moon", phase: "waxing" }` | `illustrations/kos-ii-11-water-and-hyssop.jpg` |
+| `kos-ii-12-light-and-candles` | 1889 | Book II, Chapter XII (Mathers 1889, p. 94) | https://archive.org/details/b24884431/page/94/mode/1up | `{ kind: "moon", phase: "waxing" }` | `illustrations/kos-ii-12-light-and-candles.jpg` |
+| `kos-ii-13-nine-days-precepts` | 1889 | Book II, Chapter XIII (Mathers 1889, p. 95) | https://archive.org/details/b24884431/page/95/mode/1up | none suggested | `illustrations/kos-ii-13-nine-days-precepts.jpg` |
+| `kos-ii-20-silken-cloth` | 1889 | Book II, Chapter XX (Mathers 1889, p. 105) | https://archive.org/details/b24884431/page/105/mode/1up | none suggested | `illustrations/kos-ii-20-silken-cloth.jpg` |
+| `kos-ii-21-consecration-of-the-book` | 1889 | Book II, Chapter XXI (Mathers 1889, pp. 106-107) | https://archive.org/details/b24884431/page/106/mode/1up | none suggested | `illustrations/kos-ii-21-consecration-of-the-book.jpg` |
+
+## Dropped or excluded from Mathers 1889 (attested in the book, not staged)
+
+- Book I, Chapters VI–VII: harsh conjurations.
+- Book I, Chapters IX–XVI (theft, invisibility, hindering a sportsman, animal-skin garters, treasure, favour and love, mockery/deceit). The consecration-of-the-book record points to a prayer given in full in Book I, Chapter XIV, but that prayer is not quoted here.
+- Book I, Chapter XVII: not included in this slice (not visually locked as a standalone safe passage).
+- Book I, Chapter XVIII (holy pentacles): not sliced in this pass; protective plates can be considered later.
+- Book I, Chapter II slices omitted necromancy (souls from Hades), war, death, hatred, discord, poisons, powders of madness, recovery of stolen property, invisibility, and wane/dark-moon experiments of war or death.
+- Book II, Chapter I: stolen property, invisibility, and seeking love/grace/favour hours omitted.
+- Book II, Chapter III (companions / ritual bathing of disciples / dog companion): omitted.
+- Book II, Chapter VII sentence naming night as the fit time for necromancy: omitted.
+- Book II, Chapter VIII (weapons): not used, except that later chapters may name a burin or dagger only as an engraving tool.
+- Book II, Chapter IX (circle construction): not sliced in this pass.
+- Book II, Chapter X prayer printed under fumigations of evil odour: omitted.
+- Book II, Chapters XIV–XVI (animal/blood preparations) and XXII (sacrifices): omitted.
+- Book II, Chapter XIII: only the opening nine-day precept is used; the exhortation of companions and the speech of the Emperor of the Spirits are omitted.
+- Historical “young maiden” / “young girl” clauses for spinning thread or making wicks are quoted where they occur and forbidden as modern instructions in `scope` and `uncertainties`.
+- Ritual full-bath nakedness is quoted where it occurs and must not be required or sexualized in generated modern instructions.
+
+## Scot 1886 and other pre-1931 books not added in this slice
+
+Reginald Scot, *The Discoverie of Witchcraft*, Nicholson 1886 reprint of the 1584 text (IA `b21720307`, Public Domain Mark; Nicholson d. 1892) was downloaded and its text layer inspected. Charm material in Book XII includes lock-opening, theft, medical, and possession cures, which would be dropped on safety grounds; a possible house-blessing charm (“to drive awaie spirits that haunt anie house”) was **not visually locked from the printed page in this slice** and is therefore not staged. Quality was not traded for a larger count.
+
 
 ## Open questions for Jaime / Grok Bot
 
-1. May historical-grimoire sources (Mathers 1889, and later Scot / Cockayne if cleared) be added to `sources.json`? That requires a deliberate change to tests that currently require every checked-in lesson-generation source to be `ancient-grimoire` with `era === "ancient"`.
-2. `seasonalWindow` lives on generated content documents, not on source passages. Should the suggested moon/full (and the dawn/sun notes, which do not fit the #224 schema) be applied when drafts are generated from the tagged passages?
-3. `Content.illustrationUrl` is stored and mapped on Android only when it starts with `https://`. The Compose UI still largely uses bundled `WiccanLineArt`. Staging paths are not live URLs. After review, should these PNGs be uploaded to Storage and written onto generated drafts as `illustrationUrl`?
-4. New review flags are Beta AI inspection against printed page images, pending Jaime's human review. Generation remains off until he says otherwise.
+1. **Answered (Jaime / Grok Bot, 5:08 PM AKST, 27 Nov 2026).** Pre-1931 editions are public domain. `historical-grimoire` sources of medieval / early-modern date may be added to checked-in `sources.json` when the quoted edition itself is before 1931. The policy comment and tests in this PR were updated accordingly; `editionDate < 1931` remains mandatory. Mathers 1889 is now a checked-in source. Scot 1886 and Cockayne 1864–66 remain eligible in principle but were not visually locked in this slice.
+2. `seasonalWindow` lives on generated content documents, not on source passages. The exact #224 tags suggested below should be applied when drafts are later generated from those passages. Dawn/sun notes still do not fit the #224 schema.
+3. `Content.illustrationUrl` is stored and mapped on Android only when it starts with `https://`. The Compose UI still largely uses bundled `WiccanLineArt`. Staging paths are not live URLs. **Do not upload images or touch production in this PR.** After review, should later approved JPEGs be uploaded to Storage and written onto generated drafts as `illustrationUrl`?
+4. New review flags are Beta AI inspection against printed page images, pending Jaime's human review. Generation remains off until he says otherwise. Drafts do not exist yet.
 5. A pre-1931 English translation of the Harris Magical Papyrus still has not been visually verified. Leave Harris out until one is found.
 
 ## What this PR does not do
