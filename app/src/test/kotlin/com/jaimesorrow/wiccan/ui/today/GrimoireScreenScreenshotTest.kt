@@ -70,6 +70,7 @@ import com.jaimesorrow.wiccan.ui.theme.MidnightGrimoireTheme
 import com.jaimesorrow.wiccan.widget.WiccanWidgetPreview
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDate
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Rule
@@ -184,7 +185,7 @@ class GrimoireScreenScreenshotTest {
     fun `capture daily lesson`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
-                DailyGrimoirePage(content = sampleLesson())
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
             }
         }
         composeRule.waitForIdle()
@@ -195,7 +196,7 @@ class GrimoireScreenScreenshotTest {
     fun `capture daily lesson middle`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
-                DailyGrimoirePage(content = sampleLesson())
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
             }
         }
         composeRule.waitForIdle()
@@ -208,7 +209,7 @@ class GrimoireScreenScreenshotTest {
     fun `capture daily lesson bottom`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
-                DailyGrimoirePage(content = sampleLesson())
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
             }
         }
         composeRule.waitForIdle()
@@ -222,7 +223,7 @@ class GrimoireScreenScreenshotTest {
     fun `capture daily lesson with reflection below parchment`() {
         composeRule.setContent {
             MidnightGrimoireTheme {
-                DailyGrimoirePage(content = sampleLesson())
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
             }
         }
         composeRule.waitForIdle()
@@ -239,7 +240,7 @@ class GrimoireScreenScreenshotTest {
             val density = LocalDensity.current.density
             CompositionLocalProvider(LocalDensity provides Density(density, fontScale = 1.3f)) {
                 MidnightGrimoireTheme {
-                    DailyGrimoirePage(content = sampleLesson())
+                    DailyGrimoirePage(content = sampleLesson(), today = screenshotLessonDate)
                 }
             }
         }
@@ -248,6 +249,33 @@ class GrimoireScreenScreenshotTest {
         composeRule.waitForIdle()
         composeRule.onRoot().captureRoboImage(
             filePath = "build/outputs/roborazzi/wiccan-lesson-font-130-parchment.png",
+        )
+    }
+
+    @Test
+    fun `capture daily lesson near the full moon`() {
+        composeRule.setContent {
+            MidnightGrimoireTheme {
+                DailyGrimoirePage(content = sampleLesson(), today = screenshotFullMoonDate)
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/wiccan-lesson-full-moon-chip.png")
+    }
+
+    @Test
+    fun `capture daily lesson near the full moon at 130 percent text`() {
+        composeRule.setContent {
+            val density = LocalDensity.current.density
+            CompositionLocalProvider(LocalDensity provides Density(density, fontScale = 1.3f)) {
+                MidnightGrimoireTheme {
+                    DailyGrimoirePage(content = sampleLesson(), today = screenshotFullMoonDate)
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage(
+            filePath = "build/outputs/roborazzi/wiccan-lesson-full-moon-chip-font-130.png",
         )
     }
 
@@ -326,6 +354,7 @@ class GrimoireScreenScreenshotTest {
                 DailyGrimoirePage(
                     content = sampleLongLesson(),
                     fillViewport = false,
+                    today = screenshotLessonDate,
                     modifier = Modifier.testTag("grimoire_daily_lesson"),
                 )
             }
@@ -422,6 +451,12 @@ class GrimoireScreenScreenshotTest {
             consent,
         )
     }
+
+    // Ordinary civil date used by seasonalCalendar tests; no sabbat or new/full window.
+    private val screenshotLessonDate = LocalDate.of(2026, 7, 7)
+
+    // Mid-window full moon from SeasonalCalendarTest, so the seasonal chip is visible.
+    private val screenshotFullMoonDate = LocalDate.of(2026, 3, 3)
 
     private fun sampleLongLesson(): Content {
         val body = buildString {
