@@ -72,6 +72,11 @@ class ArchiveViewModel @Inject constructor(
                     },
                 )
             }
+            is ArchiveUiEvent.SearchQueryChanged -> _state.update { it.copy(searchQuery = event.query) }
+            ArchiveUiEvent.SearchCleared -> _state.update { it.copy(searchQuery = "") }
+            ArchiveUiEvent.EtymologyToggled -> _state.update {
+                it.copy(isEtymologyExpanded = !it.isEtymologyExpanded)
+            }
         }
     }
 }

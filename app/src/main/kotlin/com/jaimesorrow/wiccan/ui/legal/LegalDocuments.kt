@@ -205,7 +205,7 @@ object WiccanLegalDocuments {
         id = LegalDocumentId.PRIVACY,
         title = "Privacy Policy",
         version = PolicyVersions.PRIVACY,
-        effectiveDate = "November 26, 2026",
+        effectiveDate = "November 27, 2026",
         introduction =
             "This Privacy Policy explains what information Jaime Sorrow (“Wiccan,” “we,” or “us”) handles when " +
                 "you use the Wiccan Android app and its related services, why it is used, which service providers " +
@@ -277,14 +277,18 @@ object WiccanLegalDocuments {
                         "contains.",
                     "The app requests two optional permissions. The notification permission is for the optional daily " +
                         "reminder and, during a free trial, a reminder before the trial ends. Android's approximate (coarse) " +
-                        "location permission is requested only if you tap the location option on the Home screen, and is used " +
-                        "only on your device to time the planetary hours shown there. Your approximate location is not sent " +
-                        "to Wiccan's servers, not stored in your account, and not passed to Google AdMob or any other " +
-                        "service. The app works without either permission, and you can turn them off at any time in Android's " +
-                        "settings for Wiccan. It does not request precise location, contacts, photos, camera, microphone, or " +
-                        "health permissions. A device time-zone identifier is not used to infer precise location. The app " +
-                        "also declares Android's advertising ID permission, which shows no prompt, so the Google Mobile Ads " +
-                        "SDK can read the advertising ID described above.",
+                        "location permission is requested only if you tap the location option on the Home screen and choose " +
+                        "Continue on the explanation shown before the system permission prompt. If you allow it, the app uses " +
+                        "your approximate location on your device to time the planetary hours shown there and to choose the " +
+                        "nearest U.S. NOAA tide station for optional tide predictions on Home. Wiccan does not send your " +
+                        "coordinates to its servers or store them in your account. To load tide predictions, the app sends only " +
+                        "the public NOAA station identifier and the requested date to NOAA's CO-OPS tide service (a U.S. " +
+                        "government data service) over HTTPS; NOAA does not receive your Wiccan account details. The app works " +
+                        "fully if you decline or later revoke location permission in Android's settings for Wiccan. It does not " +
+                        "request precise location, contacts, photos, camera, microphone, or health permissions. A device " +
+                        "time-zone identifier is not used to infer precise location. The app also declares Android's advertising " +
+                        "ID permission, which shows no prompt, so the Google Mobile Ads SDK can read the advertising ID described " +
+                        "above.",
                 ),
             ),
             LegalSection(
@@ -333,6 +337,9 @@ object WiccanLegalDocuments {
                     "Google AdMob: ads shown to users without a subscription, together with Google's consent message, " +
                         "under Google's own terms and privacy policy. Google acts independently for some of this processing, " +
                         "as explained at https://policies.google.com/technologies/partner-sites.",
+                    "NOAA CO-OPS (U.S. National Oceanic and Atmospheric Administration): public tide-station and prediction " +
+                        "data for the optional Home tide display. When you use tides, the app sends only a public station " +
+                        "identifier and date over HTTPS; it does not send your account information to NOAA.",
                     "Cloudflare Email Routing: handles mail to hello@wiccan.app.",
                     "Firebase Authentication: sends the verification, password-reset, and change-email messages.",
                     "Information may also be disclosed when required by law, to protect users or the service, or during a " +
