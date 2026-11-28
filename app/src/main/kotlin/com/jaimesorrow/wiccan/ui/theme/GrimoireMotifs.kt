@@ -312,35 +312,38 @@ private fun DrawScope.drawMoonPhase(index: Int, center: Offset, radius: Float, l
                 clipPath(litHalf) {
                     drawCircle(lit, fillRadius, center)
                 }
-                val ellCenterX = if (waxing) center.x - ellipseRx else center.x + ellipseRx
-                val litExtension = Path().apply {
-                    addOval(
-                        Rect(
-                            left = ellCenterX - ellipseRx,
-                            top = center.y - radius,
-                            right = ellCenterX + ellipseRx,
-                            bottom = center.y + radius,
-                        ),
-                    )
-                }
-                clipPath(litHalf) {
-                    drawPath(litExtension, lit)
-                }
+                // Terminator ellipse centered on the disk; must not be clipped to the lit half.
+                drawOval(
+                    color = lit,
+                    topLeft = Offset(center.x - ellipseRx, center.y - fillRadius),
+                    size = Size(ellipseRx * 2f, fillRadius * 2f),
+                )
             }
             else -> {
                 clipPath(litHalf) {
                     drawCircle(lit, fillRadius, center)
-                    val ellCenterX = if (waxing) center.x + ellipseRx else center.x - ellipseRx
                     drawOval(
                         color = shadow,
-                        topLeft = Offset(ellCenterX - ellipseRx, center.y - radius),
-                        size = Size(ellipseRx * 2f, radius * 2f),
+                        topLeft = Offset(center.x - ellipseRx, center.y - fillRadius),
+                        size = Size(ellipseRx * 2f, fillRadius * 2f),
                     )
                 }
             }
         }
     }
     drawCircle(lit.copy(alpha = 0.9f), radius, center, style = Stroke(width = stroke))
+}
+
+/** One phase icon at any size (screenshots / visual checks). */
+@Composable
+internal fun GrimoireMoonPhaseGlyph(index: Int, modifier: Modifier = Modifier) {
+    val lit = WiccanPaletteColors.Grimoire.Gold
+    val shadow = WiccanPaletteColors.Grimoire.Background
+    Canvas(modifier) {
+        val radius = size.minDimension * 0.46f
+        val center = Offset(size.width / 2f, size.height / 2f)
+        drawMoonPhase(index, center, radius, lit, shadow)
+    }
 }
 
 /**
